@@ -1,0 +1,169 @@
+/******************************************************************************
+ *  Copyright (c) 2008 - 2010 IBM Corporation and others.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ * 
+ *  Contributors:
+ *    David Ungar, IBM Research - Initial Implementation
+ *    Sam Adams, IBM Research - Initial Implementation
+ *    Stefan Marr, Vrije Universiteit Brussel - Port to x86 Multi-Core Systems
+ ******************************************************************************/
+
+
+# if !On_Tilera
+
+# define PAGE_SIZE 64 * 1024
+# define LARGE_PAGE_SIZE 16 * Mega
+
+# define MAP_CACHE_INCOHERENT 0
+
+# if On_Intel_Linux
+  # include <sys/gmon.h>
+  # define pthread_yield_np pthread_yield
+# endif
+
+#include <err.h>
+
+class POSIX_OS_Interface : public Abstract_OS_Interface {
+public:
+  
+  static inline void abort() { ::abort(); }
+  static inline void die(const char* err_msg) {
+    warnx(err_msg);
+    abort();
+  }
+  static inline void exit()  { ::exit(0); }
+  
+  static void ensure_Time_Machine_backs_up_run_directory() {}
+
+  static inline void profiler_enable()  {}
+  static inline void profiler_disable() {}
+  static inline void profiler_clear()   {}
+  static inline void sim_end_tracing()  {}
+  
+  
+  typedef int get_cycle_count_quickly_t;
+  # define GET_CYCLE_COUNT_QUICKLY  OS_Interface::dummy_get_cycle_count
+  # define GET_CYCLE_COUNT_QUICKLY_FMT "%ld"
+  static inline int dummy_get_cycle_count() { return 0; }
+  static inline int64 get_cycle_count() {
+    uint64_t result;
+    
+    if (Dont_Count_Cycles)
+      return 0;
+    else {
+      asm volatile("rdtsc" : "=A" (result));
+    }
+    return result;
+  }
+  
+  
+  
+# if Omit_PThread_Locks
+  
+  typedef int Mutex;
+  static inline void mutex_init(Mutex*, void*) {}
+  static inline void mutex_destruct(Mutex*)    {}
+  static inline int  mutex_lock(Mutex*)        { return 0; }
+  static inline int  mutex_trylock(Mutex*)     { return 0; }
+  static inline int  mutex_unlock(Mutex*)      { return 0; }
+  
+# elif Use_PThread_Spin_Lock
+  
+  typedef pthread_spinlock_t Mutex;
+  
+  static inline void mutex_init(Mutex* mutex, const void*) {
+    pthread_spin_init(mutex, 0);
+  }
+  
+  static inline void mutex_destruct(Mutex* mutex) {
+    pthread_spin_destroy(mutex);
+  }
+  
+  static inline int mutex_lock(Mutex* mutex) {
+    return pthread_spin_lock(mutex);
+  }
+  
+  static inline int mutex_trylock(Mutex* mutex) {
+    return pthread_spin_trylock(mutex);
+  }
+  
+  static inline int mutex_unlock(Mutex* mutex) {
+    return pthread_spin_unlock(mutex);
+  }
+  
+# else
+
+  typedef pthread_mutex_t Mutex;
+  
+  static inline void mutex_init(Mutex* mutex, const pthread_mutexattr_t* attr = NULL) {
+    pthread_mutex_init(mutex, attr);
+  }
+  
+  static inline void mutex_destruct(Mutex* mutex) {
+    pthread_mutex_destroy(mutex);
+  }
+  
+  static inline int mutex_lock(Mutex* mutex) {
+    return pthread_mutex_lock(mutex);
+  }
+  
+  static inline int mutex_trylock(Mutex* mutex) {
+    return pthread_mutex_trylock(mutex);
+  }
+  
+  static inline int mutex_unlock(Mutex* mutex) {
+    return pthread_mutex_unlock(mutex);
+  }
+  
+# endif // Omit_PThread_Locks
+  
+  
+# ifdef __GNUC__
+  static inline uint32_t leading_zeros(uint32_t x)    { return __builtin_clz(x);      }
+  static inline uint32_t population_count(uint32_t x) { return __builtin_popcount(x); }
+# else
+  # warning check whether your compiler provides the following functions as intrinsics 
+  uint32_t leading_zeros(uint32_t x) {
+    for (int i = 0;  i < 32;  ++i)
+      if ( x  &   (1 << (31-i)))  return i;
+    return 32;
+  }
+  
+  uint32_t population_count(uint32_t x)  {
+    int sum = 0;
+    for (int i = 0;  i < 32;  ++i)
+      if (x  &  (1 << i))  ++sum;
+    return sum;
+  }
+# endif
+  
+private:
+  static inline void* memalign(int align, int sz) { return (void*) ( (int(malloc(sz + align)) + align - 1) & ~(align-1) ); }
+public:
+  static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }
+  static inline void* rvm_memalign(OS_Heap, int al, int sz) { return rvm_memalign(al, sz); }
+  static inline void* malloc_in_mem(int /* alignment */, int size) { return malloc(size); }
+  static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool replicate) { heap = NULL; /* unused on POSIX */ return 0; }
+  
+  static void start_threads  (void (*)(/* helper_core_main */), char* /* argv */[]);
+  static void start_processes(void (*)(/* helper_core_main */), char* /* argv */[]) { fatal(); }
+  
+  static inline int get_thread_rank() { return (int)pthread_getspecific(rank_key); }
+  
+  static int abort_if_error(const char*, int); 
+
+
+private:
+  static void* pthread_thread_main(void* param);
+  static int32_t       last_rank;  // needs to be accessed atomically (__sync_fetch_and_add)
+  static pthread_key_t rank_key;
+  static pthread_t     threads[Max_Number_Of_Cores];
+  static void pin_thread_to_core(int32_t rank);
+  static void create_threads(const size_t num_of_threads, void (*helper_core_main)());
+  
+};
+
+# endif // !On_Tilera

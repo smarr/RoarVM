@@ -1,0 +1,530 @@
+
+# This is a -*- Makefile -*-
+
+# Standalone makefile for 'getting started' app
+
+SRC_DIR ?= $(shell pwd)/../src
+OS      ?= $(shell uname)
+
+LOW_OPTIMIZE_LEVEL  ?= -O3
+HIGH_OPTIMIZE_LEVEL ?= -O3
+
+ifndef PLATFORM
+  # fall back to Tilera as standard platform
+  PLATFORM = Tilera
+endif
+
+ifdef TILERA_ROOT
+BIN = $(TILERA_ROOT)/bin/
+endif
+
+INCLUDES = \
+    -I$(SRC_DIR)/testers \
+    -I$(SRC_DIR)/externals \
+    -I$(SRC_DIR)/runtime \
+    -I$(SRC_DIR)/platform \
+    -I$(SRC_DIR)/heap \
+    -I$(SRC_DIR)/interpreter \
+    -I$(SRC_DIR)/from_squeak \
+    -I$(SRC_DIR)/from_squeak/Cross \
+    -I$(SRC_DIR)/from_squeak/Cross/plugins \
+    -I$(SRC_DIR)/from_squeak/Cross/plugins/SocketPlugin \
+    -I$(SRC_DIR)/from_squeak/Cross/plugins/FilePlugin \
+    -I$(SRC_DIR)/from_squeak/Cross/plugins/RePlugin \
+    -I$(SRC_DIR)/from_squeak/Cross/plugins/B3DAcceleratorPlugin \
+    -I$(SRC_DIR)/from_squeak/Cross/vm \
+    -I$(SRC_DIR)/from_squeak/intplugins \
+    -I$(SRC_DIR)/from_squeak/intplugins/Matrix2x3Plugin \
+    -I$(SRC_DIR)/from_squeak/intplugins/BitBltPlugin \
+    -I$(SRC_DIR)/from_squeak/intplugins/SoundPlugin \
+    -I$(SRC_DIR)/from_squeak/intplugins/LargeIntegers \
+    -I$(SRC_DIR)/from_squeak/intplugins/B2DPlugin \
+    -I$(SRC_DIR)/from_squeak/intplugins/FloatArrayPlugin \
+    -I$(SRC_DIR)/from_squeak/intplugins/UnixOSProcessPlugin \
+    -I$(SRC_DIR)/from_squeak/intplugins/MiscPrimitivePlugin \
+    -I$(SRC_DIR)/from_squeak/intplugins/SocketPlugin \
+    -I$(SRC_DIR)/from_squeak/unix \
+    -I$(SRC_DIR)/from_squeak/unix/vm-display-X11 \
+    -I$(SRC_DIR)/from_squeak/unix/vm-sound-null \
+    -I$(SRC_DIR)/from_squeak/unix/vm-sound-custom \
+    -I$(SRC_DIR)/from_squeak/unix/vm \
+    -I$(SRC_DIR)/from_squeak/unix/vm-sound-MacOSX \
+    -I$(SRC_DIR)/image_readers \
+    -I$(SRC_DIR)/oops \
+    -I$(SRC_DIR)/nonoops \
+    -I$(SRC_DIR)/types \
+    -I$(SRC_DIR)/objects \
+    -I$(SRC_DIR)/primitives \
+    -I$(SRC_DIR)/messages \
+    -I$(SRC_DIR)/multichip
+
+	
+ifeq "$(PLATFORM)" "Intel"
+INCLUDES += \
+	-I$(SRC_DIR)/ilib-intel \
+	-I$(SRC_DIR)/ibm
+endif
+
+CONFIG_FLAGS += -Winline -DExtra_Preheader_Word_Experiment=1
+CXX_CONFIG_FLAGS += -Winline
+CFLAGS = $(INCLUDES) $(CONFIG_FLAGS) -include rvm_config.h
+CXXFLAGS = -fno-rtti $(CXX_CONFIG_FLAGS)
+CONLYFLAGS = -w $(CONLY_CONFIG_FLAGS)
+# -I/home/ungar/renaissance/xfree86_include
+LDFLAGS += $(CONFIG_FLAGS)
+# -L$(X11_PATH) -L$(Xext_PATH) 
+#-rpath $(X11_PATH) -rpath $(Xext_PATH)
+
+ifeq "$(PLATFORM)" "Tilera"
+  CC  = tile-cc
+  CXX = tile-c++
+  LD  = tile-ld
+  CONLYFLAGS += -I/home/ungar/renaissance/xfree86_include -I/users/smarr/Projects/x11/include/
+endif
+
+TILE_MONITOR = $(BIN)tile-monitor
+
+EXECUTABLE = rvm
+
+MONITOR_COMMON_ARGS = \
+  --batch-mode \
+  --mkdir /opt/test \
+  --cd /opt/test \
+  --upload $(EXECUTABLE) $(EXECUTABLE) \
+  -- $(EXECUTABLE)
+
+FILTER = sort
+
+CONSOLE_FILTER = egrep -v \
+  'Client requested halt|init is exiting, so halting kernel|System halted'
+
+
+SQ_HEADERS = \
+	squeak_adapters.h \
+	SocketPlugin.h \
+	FilePlugin.h \
+	config.h \
+	sqUnixOpenGL.h \
+	B3DAcceleratorPlugin.h \
+	sqOpenGLRenderer.h \
+	sqVirtualMachine.h \
+	SoundPlugin.h \
+	sqaio.h \
+	SqModule.h \
+	sqNamedPrims.h \
+	SqSound.h \
+	SqDisplay.h \
+	interp.h \
+	sqConfig.h \
+	sqUnixGlobals.h \
+	sqPlatformSpecific.h \
+	sq.h \
+	sqUnixMain.h \
+	sqUnixCharConv.h \
+	sqMemoryAccess.h \
+	sqUnixSoundDebug.h \
+
+
+RVM_HEADERS = \
+  multicore_object_table.inline.h \
+  memory_system.inline.h \
+  abstract_object_heap.inline.h \
+  multicore_object_heap.inline.h \
+  oop.inline.h \
+  chunk.inline.h \
+  object.inline.h \
+  externals.h \
+  rvm_bitmap.h \
+  printer.h \
+  measurements.h \
+  bytemap.h \
+  error_handling.h \
+  squeak_adapters.h \
+  runtime_tester.h \
+  rvm_config.h \
+  utils.h \
+  abstract_cpu_coordinate.h \
+  dummy_cpu_coordinate.h \
+  tile_cpu_coordinate.h \
+  logical_core.h \
+  headers.h \
+  abstract_mark_sweep_collector.h \
+  oop_closure.h \
+  indirect_oop_mark_sweep_collector.h \
+  abstract_object_heap.h \
+  mark_sweep_collector.h \
+  abstract_object_table.h \
+  obsolete_indexed_primitive_table.h \
+  obsolete_named_primitive_table.h \
+  at_cache.h \
+  interpreter_bytecodes.h \
+  interpreter_primitives.h \
+  method_cache.h \
+  external_primitive_table.h \
+  primitive_table.h \
+  squeak_interpreter.h \
+  abstract_primitive_table.h \
+  config.h \
+  tags.h \
+  oop.h \
+  abstract_oop.h \
+  types.h \
+  object.h \
+  header_type.h \
+  special_indices.h \
+  object_indices.h \
+  chunk.h \
+  word_containing_object_type.h \
+  roots.h \
+  RVMPlugin.h \
+  multicore_object_heap.h \
+  multicore_object_table.h \
+  memory_system.h \
+  core_tracer.h \
+  abstract_tracer.h \
+  oop_tracer.h \
+  execution_tracer.h \
+  profiling_tracer.h \
+  debugging_tracer.h \
+  safepoint.h \
+  abstract_mutex.h \
+  scheduler_mutex.h \
+  semaphore_mutex.h \
+  \
+  message_stats.h \
+  message_classes.h \
+  interpreter_subset_for_control_transfer.h \
+  interactions.h \
+  deferred_request.h \
+  message_or_ack_request.h \
+  message_statics.h \
+  receive_marker.h \
+  \
+  timeout_timer.h \
+  timeout_deferral.h \
+  \
+  rank_set.h \
+  safepoint_request_queue.h \
+  gc_oop_stack.h \
+  preheader.h \
+  \
+  abstract_os_interface.h \
+  ilib_os_interface.h \
+  posix_os_interface.h \
+  osx_os_interface.h \
+  os_interface.h \
+  \
+  safepoint_ability.h \
+  my_rank.h \
+  process_field_locator.h\
+  abstract_message.h \
+  message_templates.h \
+  \
+  abstract_message_queue.h \
+  shared_memory_message_queue.h \
+  ilib_message_queue.h \
+  tilera_chip_to_chip_message_queue.h \
+  host_pci_info.h \
+  abstract_zero_copy_command_queue_endpoint.h \
+  chip_to_chip_direct_to_hypervisor_zero_copy_endpoint.h \
+  chip_to_chip_direct_to_hypervisor_zero_copy_sender.h \
+  chip_to_chip_direct_to_hypervisor_zero_copy_receiver.h \
+  chip_to_chip_zero_copy_command_queue_endpoint.h \
+  chip_to_chip_zero_copy_command_sender.h \
+  chip_to_chip_zero_copy_command_receiver.h \
+  abstract_memory_semantics.h \
+  process_memory_semantics.h \
+  thread_memory_semantics.h \
+  \
+  debug_store_checks.h \
+  
+
+ifeq "$(PLATFORM)" "Intel"
+RVM_HEADERS += \
+  buffered_channel.h \
+  buffered_channel_debug.h \
+
+endif
+
+# default target
+all: compiler_check $(EXECUTABLE)
+
+info:
+	@echo Platform: $(PLATFORM)
+	@echo SRC_DIR: $(SRC_DIR)
+	@$(CC) --version
+	@$(CXX) --version
+
+
+#Hack to satisfy make, to force override buildin rules, even if its not able to find all prerequisites.
+$(RVM_HEADERS):
+	@echo The following RVM_HEADER files have not been found and cause unnecessary rebuilds: $@
+
+#Hack to satisfy make, to force override buildin rules, even if its not able to find all prerequisites.
+$(SQ_HEADERS):
+
+#the space after %.i is necessary, otherwise the buildin will not be canceled properly
+%.i : %.c $(SQ_HEADERS)
+	$(CC) $(CFLAGS) $(CONLYFLAGS) -E  $< -o $@
+
+%.o : %.c $(SQ_HEADERS) Makefile
+	$(CC) $(CFLAGS) $(CONLYFLAGS) $(LOW_OPTIMIZE_LEVEL)  -c $< -o $@
+
+%.opt : %.c $(SQ_HEADERS) Makefile
+	$(CC) $(CFLAGS) $(CONLYFLAGS) $(HIGH_OPTIMIZE_LEVEL) -c $< -o $@
+
+%.i : %.cpp  $(RVM_HEADERS)
+	$(CXX) $(CFLAGS) $(CXXFLAGS) -E $< -o $@
+
+%.o : %.cpp $(RVM_HEADERS) Makefile compiler_check
+	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LOW_OPTIMIZE_LEVEL)  -c $< -o $@
+
+%.opt : %.cpp $(RVM_HEADERS) Makefile compiler_check
+	$(CXX) $(CFLAGS) $(CXXFLAGS) $(HIGH_OPTIMIZE_LEVEL) -c $< -o $@
+
+
+compiler_check:
+	$(CXX) $(CONFIG_FLAGS) -c $(SRC_DIR)/compiler_check.cpp -o compiler_check
+
+vpath %.c $(SRC_DIR)/from_squeak
+vpath %.c $(SRC_DIR)/from_squeak/Cross
+vpath %.c $(SRC_DIR)/from_squeak/Cross/plugins
+vpath %.c $(SRC_DIR)/from_squeak/Cross/plugins/B3DAcceleratorPlugin
+vpath %.c $(SRC_DIR)/from_squeak/Cross/plugins/FilePlugin
+vpath %.c $(SRC_DIR)/from_squeak/Cross/plugins/RePlugin
+vpath %.c $(SRC_DIR)/from_squeak/Cross/plugins/SocketPlugin
+vpath %.c $(SRC_DIR)/from_squeak/Cross/vm
+vpath %.c $(SRC_DIR)/from_squeak/intplugins
+vpath %.c $(SRC_DIR)/from_squeak/intplugins/B2DPlugin
+vpath %.c $(SRC_DIR)/from_squeak/intplugins/BitBltPlugin
+vpath %.c $(SRC_DIR)/from_squeak/intplugins/FloatArrayPlugin
+vpath %.c $(SRC_DIR)/from_squeak/intplugins/LargeIntegers
+vpath %.c $(SRC_DIR)/from_squeak/intplugins/Matrix2x3Plugin
+vpath %.c $(SRC_DIR)/from_squeak/intplugins/MiscPrimitivePlugin
+vpath %.c $(SRC_DIR)/from_squeak/intplugins/SoundPlugin
+vpath %.c $(SRC_DIR)/from_squeak/intplugins/UnixOSProcessPlugin
+vpath %.c $(SRC_DIR)/from_squeak/intplugins/SocketPlugin
+vpath %.c $(SRC_DIR)/from_squeak/unix
+vpath %.c $(SRC_DIR)/from_squeak/unix/SocketPlugin
+vpath %.c $(SRC_DIR)/from_squeak/unix/vm
+vpath %.c $(SRC_DIR)/from_squeak/unix/vm-display-X11
+vpath %.c $(SRC_DIR)/from_squeak/unix/vm-sound-custom
+vpath %.c $(SRC_DIR)/from_squeak/unix/vm-sound-MacOSX
+vpath %.c $(SRC_DIR)/from_squeak/unix/vm-sound-null
+
+
+vpath %.h $(SRC_DIR)/from_squeak
+vpath %.h $(SRC_DIR)/from_squeak/Cross
+vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins
+vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/B3DAcceleratorPlugin
+vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/FilePlugin
+vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/RePlugin
+vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/SocketPlugin
+vpath %.h $(SRC_DIR)/from_squeak/Cross/vm
+vpath %.h $(SRC_DIR)/from_squeak/intplugins
+vpath %.h $(SRC_DIR)/from_squeak/intplugins/B2DPlugin
+vpath %.h $(SRC_DIR)/from_squeak/intplugins/BitBltPlugin
+vpath %.h $(SRC_DIR)/from_squeak/intplugins/FloatArrayPlugin
+vpath %.h $(SRC_DIR)/from_squeak/intplugins/LargeIntegers
+vpath %.h $(SRC_DIR)/from_squeak/intplugins/Matrix2x3Plugin
+vpath %.h $(SRC_DIR)/from_squeak/intplugins/MiscPrimitivePlugin
+vpath %.h $(SRC_DIR)/from_squeak/intplugins/SoundPlugin
+vpath %.h $(SRC_DIR)/from_squeak/intplugins/UnixOSProcessPlugin
+vpath %.h $(SRC_DIR)/from_squeak/intplugins/SocketPlugin
+vpath %.h $(SRC_DIR)/from_squeak/unix
+vpath %.h $(SRC_DIR)/from_squeak/unix/vm
+vpath %.h $(SRC_DIR)/from_squeak/unix/vm-display-X11
+vpath %.h $(SRC_DIR)/from_squeak/unix/vm-sound-custom
+vpath %.h $(SRC_DIR)/from_squeak/unix/vm-sound-MacOSX
+vpath %.h $(SRC_DIR)/from_squeak/unix/vm-sound-null
+
+vpath %.cpp $(SRC_DIR)/externals
+vpath %.cpp $(SRC_DIR)/heap
+vpath %.cpp $(SRC_DIR)/image_readers
+vpath %.cpp $(SRC_DIR)/interpreter
+vpath %.cpp $(SRC_DIR)/nonoops
+vpath %.cpp $(SRC_DIR)/objects
+vpath %.cpp $(SRC_DIR)/oops
+vpath %.cpp $(SRC_DIR)/runtime
+vpath %.cpp $(SRC_DIR)/platform
+vpath %.cpp $(SRC_DIR)/testers
+vpath %.cpp $(SRC_DIR)/types
+vpath %.cpp $(SRC_DIR)/primitives
+vpath %.cpp $(SRC_DIR)/messages
+vpath %.cpp $(SRC_DIR)/multichip
+
+
+vpath %.h $(SRC_DIR)/externals
+vpath %.h $(SRC_DIR)/heap
+vpath %.h $(SRC_DIR)/image_readers
+vpath %.h $(SRC_DIR)/interpreter
+vpath %.h $(SRC_DIR)/nonoops
+vpath %.h $(SRC_DIR)/objects
+vpath %.h $(SRC_DIR)/oops
+vpath %.h $(SRC_DIR)/runtime
+vpath %.h $(SRC_DIR)/platform
+vpath %.h $(SRC_DIR)/testers
+vpath %.h $(SRC_DIR)/types
+vpath %.h $(SRC_DIR)/primitives
+vpath %.h $(SRC_DIR)/messages
+vpath %.h $(SRC_DIR)/multichip
+
+ifeq "$(PLATFORM)" "Intel"
+vpath %.cpp $(SRC_DIR)/ilib-intel
+vpath %.cpp $(SRC_DIR)/ibm
+
+vpath %.h $(SRC_DIR)/ilib-intel
+vpath %.h $(SRC_DIR)/ibm
+endif
+
+#        UnixOSProcessPlugin.o 
+
+OBJS = \
+  abstract_mark_sweep_collector.opt \
+  abstract_object_heap.opt \
+  aio.opt \
+  at_cache.opt \
+  B2DPlugin.opt \
+  BitBltPlugin.opt \
+  bytemap.opt \
+  core_tracer.opt \
+  abstract_tracer.opt \
+  oop_tracer.opt \
+  error_handling.opt \
+  externals.opt \
+  FilePlugin.opt \
+  FloatArrayPlugin.opt \
+  interpreter_bytecodes.opt \
+  interpreter_primitives.o \
+  LargeIntegers.opt \
+  main.opt \
+  Matrix2x3Plugin.opt \
+  measurements.opt \
+  memory_system.o \
+  method_cache.opt \
+  MiscPrimitivePlugin.opt \
+  multicore_object_heap.opt \
+  multicore_object_table.opt \
+  object.opt \
+  header_type.opt \
+  obsolete_indexed_primitive_table.opt \
+  obsolete_named_primitive_table.opt \
+  oop.opt \
+  primitive_table.opt \
+  printer.opt \
+  roots.opt \
+  rvm_bitmap.opt \
+  rvm_config.opt \
+  RVMPlugin.opt \
+  SoundPlugin.opt \
+  SocketPlugin.opt \
+  sqFilePluginBasicPrims.opt \
+  sqrNamedPrims.opt \
+  sqrUnixCharConv.opt \
+  sqrUnixExternalPrims.opt \
+  sqrUnixMain.opt \
+  sqrUnixX11.opt \
+  sqrVirtualMachine.opt \
+  squeak_adapters.opt \
+  squeak_image_reader.opt \
+  squeak_interpreter.opt \
+  sqUnixFile.opt \
+  sqUnixSound.opt \
+  sqUnixSoundNull.opt \
+  sqUnixSocket.opt \
+  utils.opt \
+  execution_tracer.opt \
+  profiling_tracer.opt \
+  debugging_tracer.opt \
+  safepoint.opt \
+  abstract_mutex.opt \
+  scheduler_mutex.opt \
+  semaphore_mutex.opt \
+  \
+  message_stats.opt \
+  message_classes.opt \
+  interpreter_subset_for_control_transfer.opt \
+  interactions.opt \
+  timeout_timer.opt \
+  timeout_deferral.opt \
+  \
+  rank_set.opt \
+  safepoint_request_queue.opt \
+  \
+  my_rank.opt \
+  safepoint_ability.opt \
+  process_field_locator.opt \
+  abstract_message.opt \
+  deferred_request.opt \
+  message_or_ack_request.opt \
+  \
+  message_statics.opt \
+  receive_marker.opt \
+  \
+  abstract_os_interface.opt \
+  logical_core.opt \
+
+
+ifeq "$(PLATFORM)" "Intel"
+OBJS += \
+  synced_queue.opt \
+  buffered_channel.opt \
+  posix_os_interface.opt \
+  shared_memory_message_queue.opt \
+  thread_memory_semantics.opt \
+  dummy_cpu_coordinate.opt \
+
+else
+OBJS += \
+  ilib_os_interface.opt \
+  ilib_message_queue.opt \
+  tilera_chip_to_chip_message_queue.opt \
+  host_pci_info.opt \
+  abstract_zero_copy_command_queue_endpoint.opt \
+  chip_to_chip_direct_to_hypervisor_zero_copy_endpoint.opt \
+  chip_to_chip_direct_to_hypervisor_zero_copy_sender.opt \
+  chip_to_chip_direct_to_hypervisor_zero_copy_receiver.opt \
+  chip_to_chip_zero_copy_command_queue_endpoint.opt \
+  chip_to_chip_zero_copy_command_sender.opt \
+  chip_to_chip_zero_copy_command_receiver.opt \
+  process_memory_semantics.opt \
+  tile_cpu_coordinate.opt \
+
+endif
+
+ifeq "$(OS)" "Darwin"
+OBJS += osx_os_interface.opt \
+
+endif
+
+
+TEST_SRC  := $(wildcard $(SRC_DIR)/tests/*.cpp)
+TEST_OBJS := $(TEST_SRC:.cpp=.o) $(patsubst main.o,,$(OBJS))
+
+
+X11_PATH ?= /home/ungar/renaissance/xfree86/xc/lib/X11
+Xext_PATH ?= /home/ungar/renaissance/xfree86/xc/lib/Xext
+
+ifeq "$(PLATFORM)" "Tilera"
+  LIBS_LINKING = -rpath $(X11_PATH) $(X11_PATH)/libX11.a  $(Xext_PATH)/libXext.a
+  TILERA_LIBS = -lilib -ltmc -ldl -ltilepci
+  LDFLAGS += -static
+else
+  # that should be dynamically on OS X and also standard linux, as far as I know
+  LIBS_LINKING = -L$(X11_PATH) -L$(Xext_PATH)
+endif
+
+
+rvm: $(OBJS)
+	$(CXX) $(LDFLAGS) $(OBJS) -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
+
+rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
+rvm-test: $(TEST_OBJS)
+	$(CXX) -L/usr/local/lib -lgtest $(LDFLAGS) $(TEST_OBJS) -lm $(TILERA_LIBS) -o $@ -L$(X11_PATH)
+
+clean:
+	rm -f *.o *.opt $(EXECUTABLE) compiler_check
+
+
+
+.PHONY: all clean run test run_pci test_pci info
