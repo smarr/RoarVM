@@ -30,6 +30,9 @@ by VMMaker 3.8b6
 
 #include "sqMemoryAccess.h"
 
+void dp(int);
+void pst();
+
 
 /*** Constants ***/
 #define AllOnes 4294967295U
@@ -222,6 +225,7 @@ static unsigned int * cmMaskTable;
 static int * cmShiftTable;
 static sqInt combinationRule;
 static sqInt destBits;
+static sqInt destBitsOop_xxx_dmu;
 static sqInt destDelta;
 static sqInt destDepth;
 static sqInt destForm;
@@ -284,6 +288,7 @@ static void * querySurfaceFn;
 static sqInt skew;
 static sqInt sourceAlpha;
 static sqInt sourceBits;
+static sqInt sourceBitsOop_xxx_dmu;
 static sqInt sourceDelta;
 static sqInt sourceDepth;
 static sqInt sourceForm;
@@ -345,8 +350,8 @@ static sqInt OLDrgbDiffwith(sqInt sourceWord, sqInt destinationWord) {
 }
 
 
-/*	Tally pixels into the color map.  Note that the source should be 
-	specified = destination, in order for the proper color map checks 
+/*	Tally pixels into the color map.  Note that the source should be
+	specified = destination, in order for the proper color map checks
 	to be performed at setup.
 	Note that the region is not clipped to bit boundaries, but only to the
 	nearest (enclosing) word.  This is because copyLoop does not do
@@ -736,7 +741,7 @@ static sqInt alphaPaintConstwith(sqInt sourceWord, sqInt destinationWord) {
 }
 
 
-/*	This version assumes 
+/*	This version assumes
 		combinationRule = 34
 		sourcePixSize = 32
 		destPixSize = 16
@@ -797,7 +802,7 @@ static sqInt alphaSourceBlendBits16(void) {
 		}
 		while ((deltaX -= 1) != 0) {
 			ditherThreshold = ditherMatrix4x4[ditherBase + (ditherIndex = (ditherIndex + 1) & 3)];
-			sourceWord = long32At(srcIndex);
+			sourceWord = long32AtPointer(srcIndex);
 			srcAlpha = ((usqInt) sourceWord) >> 24;
 			if (srcAlpha == 255) {
 				/* begin dither32To16:threshold: */
@@ -809,13 +814,13 @@ static sqInt alphaSourceBlendBits16(void) {
 					sourceWord = sourceWord << srcShift;
 				}
 				/* begin dstLongAt:put:mask: */
-				dstValue = long32At(dstIndex);
+				dstValue = long32AtPointer(dstIndex);
 				dstValue = dstValue & dstMask;
 				dstValue = dstValue | sourceWord;
-				long32Atput(dstIndex, dstValue);
+				long32AtPointerput(dstIndex, dstValue);
 			} else {
 				if (!(srcAlpha == 0)) {
-					destWord = long32At(dstIndex);
+					destWord = long32AtPointer(dstIndex);
 					destWord = destWord & (~dstMask);
 
 					/* Expand from 16 to 32 bit by adding zero bits */
@@ -838,10 +843,10 @@ static sqInt alphaSourceBlendBits16(void) {
 						sourceWord = sourceWord << srcShift;
 					}
 					/* begin dstLongAt:put:mask: */
-					dstValue1 = long32At(dstIndex);
+					dstValue1 = long32AtPointer(dstIndex);
 					dstValue1 = dstValue1 & dstMask;
 					dstValue1 = dstValue1 | sourceWord;
-					long32Atput(dstIndex, dstValue1);
+					long32AtPointerput(dstIndex, dstValue1);
 				}
 			}
 			srcIndex += 4;
@@ -866,12 +871,12 @@ static sqInt alphaSourceBlendBits16(void) {
 }
 
 
-/*	This version assumes 
+/*	This version assumes
 		combinationRule = 34
 		sourcePixSize = destPixSize = 32
 		sourceForm ~= destForm.
 	Note: The inner loop has been optimized for dealing
-		with the special cases of srcAlpha = 0.0 and srcAlpha = 1.0 
+		with the special cases of srcAlpha = 0.0 and srcAlpha = 1.0
 	 */
 
 static sqInt alphaSourceBlendBits32(void) {
@@ -903,17 +908,17 @@ static sqInt alphaSourceBlendBits32(void) {
 
 		deltaX = bbW + 1;
 		while ((deltaX -= 1) != 0) {
-			sourceWord = long32At(srcIndex);
+			sourceWord = long32AtPointer(srcIndex);
 			srcAlpha = ((usqInt) sourceWord) >> 24;
 			if (srcAlpha == 255) {
-				long32Atput(dstIndex, sourceWord);
+				long32AtPointerput(dstIndex, sourceWord);
 				srcIndex += 4;
 
 				/* Now copy as many words as possible with alpha = 255 */
 
 				dstIndex += 4;
-				while (((deltaX -= 1) != 0) && ((((usqInt) (sourceWord = long32At(srcIndex))) >> 24) == 255)) {
-					long32Atput(dstIndex, sourceWord);
+				while (((deltaX -= 1) != 0) && ((((usqInt) (sourceWord = long32AtPointer(srcIndex))) >> 24) == 255)) {
+					long32AtPointerput(dstIndex, sourceWord);
 					srcIndex += 4;
 					dstIndex += 4;
 				}
@@ -925,15 +930,15 @@ static sqInt alphaSourceBlendBits32(void) {
 					/* Now skip as many words as possible, */
 
 					dstIndex += 4;
-					while (((deltaX -= 1) != 0) && ((((usqInt) (sourceWord = long32At(srcIndex))) >> 24) == 0)) {
+					while (((deltaX -= 1) != 0) && ((((usqInt) (sourceWord = long32AtPointer(srcIndex))) >> 24) == 0)) {
 						srcIndex += 4;
 						dstIndex += 4;
 					}
 					deltaX += 1;
 				} else {
-					destWord = long32At(dstIndex);
+					destWord = long32AtPointer(dstIndex);
 					destWord = alphaBlendScaledwith(sourceWord, destWord);
-					long32Atput(dstIndex, destWord);
+					long32AtPointerput(dstIndex, destWord);
 					srcIndex += 4;
 					dstIndex += 4;
 				}
@@ -945,7 +950,7 @@ static sqInt alphaSourceBlendBits32(void) {
 }
 
 
-/*	This version assumes 
+/*	This version assumes
 		combinationRule = 34
 		sourcePixSize = 32
 		destPixSize = 8
@@ -1007,11 +1012,11 @@ static sqInt alphaSourceBlendBits8(void) {
 
 		dstMask = mask2;
 		while ((deltaX -= 1) != 0) {
-			sourceWord = ((long32At(srcIndex)) & (~adjust)) + adjust;
+			sourceWord = ((long32AtPointer(srcIndex)) & (~adjust)) + adjust;
 			srcAlpha = ((usqInt) sourceWord) >> 24;
 			if (srcAlpha > 31) {
 				if (srcAlpha < 224) {
-					destWord = long32At(dstIndex);
+					destWord = long32AtPointer(dstIndex);
 					destWord = destWord & (~dstMask);
 					destWord = ((usqInt) destWord) >> srcShift;
 					destWord = mappingTable[destWord];
@@ -1040,10 +1045,10 @@ static sqInt alphaSourceBlendBits8(void) {
 
 				sourceWord = sourceWord << srcShift;
 				/* begin dstLongAt:put:mask: */
-				dstValue = long32At(dstIndex);
+				dstValue = long32AtPointer(dstIndex);
 				dstValue = dstValue & dstMask;
 				dstValue = dstValue | sourceWord;
-				long32Atput(dstIndex, dstValue);
+				long32AtPointerput(dstIndex, dstValue);
 			}
 			srcIndex += 4;
 			if (destMSB) {
@@ -1641,18 +1646,18 @@ static sqInt copyLoop(void) {
 		halftoneWord = AllOnes;
 		halftoneHeight = 0;
 	} else {
-		halftoneWord = long32At(halftoneBase + ((0 % halftoneHeight) * 4));
+		halftoneWord = long32AtPointer(halftoneBase + ((0 % halftoneHeight) * 4));
 	}
 	y = dy;
 	for (i = 1; i <= bbH; i += 1) {
 		if (halftoneHeight > 1) {
-			halftoneWord = long32At(halftoneBase + ((y % halftoneHeight) * 4));
+			halftoneWord = long32AtPointer(halftoneBase + ((y % halftoneHeight) * 4));
 			y += vDir;
 		}
 		if (preload) {
 			/* begin srcLongAt: */
 			idx = sourceIndex;
-			prevWord = long32At(idx);
+			prevWord = long32AtPointer(idx);
 			sourceIndex += hInc;
 		} else {
 			prevWord = 0;
@@ -1660,7 +1665,7 @@ static sqInt copyLoop(void) {
 		destMask = mask1;
 		/* begin srcLongAt: */
 		idx12 = sourceIndex;
-		thisWord = long32At(idx12);
+		thisWord = long32AtPointer(idx12);
 		sourceIndex += hInc;
 
 		/* 32-bit rotate */
@@ -1669,12 +1674,12 @@ static sqInt copyLoop(void) {
 		prevWord = thisWord;
 		/* begin dstLongAt: */
 		idx13 = destIndex;
-		destWord = long32At(idx13);
+		destWord = long32AtPointer(idx13);
 		mergeWord = mergeFnwith(skewWord & halftoneWord, destWord);
 		destWord = (destMask & mergeWord) | (destWord & (~destMask));
 		/* begin dstLongAt:put: */
 		idx14 = destIndex;
-		long32Atput(idx14, destWord);
+		long32AtPointerput(idx14, destWord);
 
 		/* This central horizontal loop requires no store masking */
 
@@ -1686,22 +1691,22 @@ static sqInt copyLoop(void) {
 					for (word = 2; word <= (nWords - 1); word += 1) {
 						/* begin srcLongAt: */
 						idx1 = sourceIndex;
-						thisWord = long32At(idx1);
+						thisWord = long32AtPointer(idx1);
 						sourceIndex += hInc;
 						/* begin dstLongAt:put: */
 						idx2 = destIndex;
-						long32Atput(idx2, thisWord);
+						long32AtPointerput(idx2, thisWord);
 						destIndex += hInc;
 					}
 				} else {
 					for (word = 2; word <= (nWords - 1); word += 1) {
 						/* begin dstLongAt:put: */
 						idx3 = destIndex;
-						long32Atput(idx3, prevWord);
+						long32AtPointerput(idx3, prevWord);
 						destIndex += hInc;
 						/* begin srcLongAt: */
 						idx4 = sourceIndex;
-						prevWord = long32At(idx4);
+						prevWord = long32AtPointer(idx4);
 						sourceIndex += hInc;
 					}
 				}
@@ -1709,7 +1714,7 @@ static sqInt copyLoop(void) {
 				for (word = 2; word <= (nWords - 1); word += 1) {
 					/* begin srcLongAt: */
 					idx5 = sourceIndex;
-					thisWord = long32At(idx5);
+					thisWord = long32AtPointer(idx5);
 					sourceIndex += hInc;
 
 					/* 32-bit rotate */
@@ -1718,7 +1723,7 @@ static sqInt copyLoop(void) {
 					prevWord = thisWord;
 					/* begin dstLongAt:put: */
 					idx6 = destIndex;
-					long32Atput(idx6, skewWord & halftoneWord);
+					long32AtPointerput(idx6, skewWord & halftoneWord);
 					destIndex += hInc;
 				}
 			}
@@ -1726,7 +1731,7 @@ static sqInt copyLoop(void) {
 			for (word = 2; word <= (nWords - 1); word += 1) {
 				/* begin srcLongAt: */
 				idx7 = sourceIndex;
-				thisWord = long32At(idx7);
+				thisWord = long32AtPointer(idx7);
 				sourceIndex += hInc;
 
 				/* 32-bit rotate */
@@ -1736,7 +1741,7 @@ static sqInt copyLoop(void) {
 				mergeWord = mergeFnwith(skewWord & halftoneWord, dstLongAt(destIndex));
 				/* begin dstLongAt:put: */
 				idx8 = destIndex;
-				long32Atput(idx8, mergeWord);
+				long32AtPointerput(idx8, mergeWord);
 				destIndex += hInc;
 			}
 		}
@@ -1744,7 +1749,7 @@ static sqInt copyLoop(void) {
 			destMask = mask2;
 			/* begin srcLongAt: */
 			idx9 = sourceIndex;
-			thisWord = long32At(idx9);
+			thisWord = long32AtPointer(idx9);
 			sourceIndex += hInc;
 
 			/* 32-bit rotate */
@@ -1752,12 +1757,12 @@ static sqInt copyLoop(void) {
 			skewWord = (((unskew < 0) ? ((usqInt) (prevWord & notSkewMask) >> -unskew) : ((usqInt) (prevWord & notSkewMask) << unskew))) | (((skew < 0) ? ((usqInt) (thisWord & skewMask) >> -skew) : ((usqInt) (thisWord & skewMask) << skew)));
 			/* begin dstLongAt: */
 			idx10 = destIndex;
-			destWord = long32At(idx10);
+			destWord = long32AtPointer(idx10);
 			mergeWord = mergeFnwith(skewWord & halftoneWord, destWord);
 			destWord = (destMask & mergeWord) | (destWord & (~destMask));
 			/* begin dstLongAt:put: */
 			idx11 = destIndex;
-			long32Atput(idx11, destWord);
+			long32AtPointerput(idx11, destWord);
 			destIndex += hInc;
 		}
 		sourceIndex += sourceDelta;
@@ -1793,17 +1798,17 @@ static sqInt copyLoopNoSource(void) {
 		} else {
 			/* begin halftoneAt: */
 			idx = (dy + i) - 1;
-			halftoneWord = long32At(halftoneBase + ((idx % halftoneHeight) * 4));
+			halftoneWord = long32AtPointer(halftoneBase + ((idx % halftoneHeight) * 4));
 		}
 		destMask = mask1;
 		/* begin dstLongAt: */
 		idx6 = destIndex;
-		destWord = long32At(idx6);
+		destWord = long32AtPointer(idx6);
 		mergeWord = mergeFnwith(halftoneWord, destWord);
 		destWord = (destMask & mergeWord) | (destWord & (~destMask));
 		/* begin dstLongAt:put: */
 		idx7 = destIndex;
-		long32Atput(idx7, destWord);
+		long32AtPointerput(idx7, destWord);
 
 		/* This central horizontal loop requires no store masking */
 
@@ -1814,18 +1819,18 @@ static sqInt copyLoopNoSource(void) {
 			for (word = 2; word <= (nWords - 1); word += 1) {
 				/* begin dstLongAt:put: */
 				idx1 = destIndex;
-				long32Atput(idx1, destWord);
+				long32AtPointerput(idx1, destWord);
 				destIndex += 4;
 			}
 		} else {
 			for (word = 2; word <= (nWords - 1); word += 1) {
 				/* begin dstLongAt: */
 				idx2 = destIndex;
-				destWord = long32At(idx2);
+				destWord = long32AtPointer(idx2);
 				mergeWord = mergeFnwith(halftoneWord, destWord);
 				/* begin dstLongAt:put: */
 				idx3 = destIndex;
-				long32Atput(idx3, mergeWord);
+				long32AtPointerput(idx3, mergeWord);
 				destIndex += 4;
 			}
 		}
@@ -1833,12 +1838,12 @@ static sqInt copyLoopNoSource(void) {
 			destMask = mask2;
 			/* begin dstLongAt: */
 			idx4 = destIndex;
-			destWord = long32At(idx4);
+			destWord = long32AtPointer(idx4);
 			mergeWord = mergeFnwith(halftoneWord, destWord);
 			destWord = (destMask & mergeWord) | (destWord & (~destMask));
 			/* begin dstLongAt:put: */
 			idx5 = destIndex;
-			long32Atput(idx5, destWord);
+			long32AtPointerput(idx5, destWord);
 			destIndex += 4;
 		}
 		destIndex += destDelta;
@@ -1939,7 +1944,7 @@ static sqInt copyLoopPixMap(void) {
 		} else {
 			/* begin halftoneAt: */
 			idx2 = (dy + i) - 1;
-			halftoneWord = long32At(halftoneBase + ((idx2 % halftoneHeight) * 4));
+			halftoneWord = long32AtPointer(halftoneBase + ((idx2 % halftoneHeight) * 4));
 		}
 		srcBitShift = srcShift;
 		dstBitShift = dstShift;
@@ -1953,7 +1958,7 @@ static sqInt copyLoopPixMap(void) {
 			/* begin pickSourcePixels:flags:srcMask:destMask:srcShiftInc:dstShiftInc: */
 			/* begin srcLongAt: */
 			idx21 = sourceIndex;
-			sourceWord = long32At(idx21);
+			sourceWord = long32AtPointer(idx21);
 			destWord1 = 0;
 			srcShift1 = srcBitShift;
 			dstShift1 = dstBitShift;
@@ -1972,7 +1977,7 @@ static sqInt copyLoopPixMap(void) {
 						}
 						/* begin srcLongAt: */
 						idx4 = sourceIndex += 4;
-						sourceWord = long32At(idx4);
+						sourceWord = long32AtPointer(idx4);
 					}
 				} while(!((nPix1 -= 1) == 0));
 			} else {
@@ -2006,7 +2011,7 @@ static sqInt copyLoopPixMap(void) {
 						}
 						/* begin srcLongAt: */
 						idx11 = sourceIndex += 4;
-						sourceWord = long32At(idx11);
+						sourceWord = long32AtPointer(idx11);
 					}
 				} while(!((nPix1 -= 1) == 0));
 			}
@@ -2018,16 +2023,16 @@ static sqInt copyLoopPixMap(void) {
 				/* begin dstLongAt:put: */
 				idx = destIndex;
 				value = destMask & mergeWord;
-				long32Atput(idx, value);
+				long32AtPointerput(idx, value);
 			} else {
 				/* begin dstLongAt: */
 				idx3 = destIndex;
-				destWord = long32At(idx3);
+				destWord = long32AtPointer(idx3);
 				mergeWord = mergeFnwith(skewWord & halftoneWord, destWord & destMask);
 				destWord = (destMask & mergeWord) | (destWord & (~destMask));
 				/* begin dstLongAt:put: */
 				idx1 = destIndex;
-				long32Atput(idx1, destWord);
+				long32AtPointerput(idx1, destWord);
 			}
 			destIndex += 4;
 			if (words == 2) {
@@ -2061,38 +2066,38 @@ static sqInt copyLoopPixMap(void) {
 	]. */
 
 static unsigned int * default8To32Table(void) {
-    static unsigned int theTable[256] = { 
-0x0, 0xFF000001, 0xFFFFFFFF, 0xFF808080, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFF00FFFF, 
-0xFFFFFF00, 0xFFFF00FF, 0xFF202020, 0xFF404040, 0xFF606060, 0xFF9F9F9F, 0xFFBFBFBF, 0xFFDFDFDF, 
-0xFF080808, 0xFF101010, 0xFF181818, 0xFF282828, 0xFF303030, 0xFF383838, 0xFF484848, 0xFF505050, 
-0xFF585858, 0xFF686868, 0xFF707070, 0xFF787878, 0xFF878787, 0xFF8F8F8F, 0xFF979797, 0xFFA7A7A7, 
-0xFFAFAFAF, 0xFFB7B7B7, 0xFFC7C7C7, 0xFFCFCFCF, 0xFFD7D7D7, 0xFFE7E7E7, 0xFFEFEFEF, 0xFFF7F7F7, 
-0xFF000001, 0xFF003300, 0xFF006600, 0xFF009900, 0xFF00CC00, 0xFF00FF00, 0xFF000033, 0xFF003333, 
-0xFF006633, 0xFF009933, 0xFF00CC33, 0xFF00FF33, 0xFF000066, 0xFF003366, 0xFF006666, 0xFF009966, 
-0xFF00CC66, 0xFF00FF66, 0xFF000099, 0xFF003399, 0xFF006699, 0xFF009999, 0xFF00CC99, 0xFF00FF99, 
-0xFF0000CC, 0xFF0033CC, 0xFF0066CC, 0xFF0099CC, 0xFF00CCCC, 0xFF00FFCC, 0xFF0000FF, 0xFF0033FF, 
-0xFF0066FF, 0xFF0099FF, 0xFF00CCFF, 0xFF00FFFF, 0xFF330000, 0xFF333300, 0xFF336600, 0xFF339900, 
-0xFF33CC00, 0xFF33FF00, 0xFF330033, 0xFF333333, 0xFF336633, 0xFF339933, 0xFF33CC33, 0xFF33FF33, 
-0xFF330066, 0xFF333366, 0xFF336666, 0xFF339966, 0xFF33CC66, 0xFF33FF66, 0xFF330099, 0xFF333399, 
-0xFF336699, 0xFF339999, 0xFF33CC99, 0xFF33FF99, 0xFF3300CC, 0xFF3333CC, 0xFF3366CC, 0xFF3399CC, 
-0xFF33CCCC, 0xFF33FFCC, 0xFF3300FF, 0xFF3333FF, 0xFF3366FF, 0xFF3399FF, 0xFF33CCFF, 0xFF33FFFF, 
-0xFF660000, 0xFF663300, 0xFF666600, 0xFF669900, 0xFF66CC00, 0xFF66FF00, 0xFF660033, 0xFF663333, 
-0xFF666633, 0xFF669933, 0xFF66CC33, 0xFF66FF33, 0xFF660066, 0xFF663366, 0xFF666666, 0xFF669966, 
-0xFF66CC66, 0xFF66FF66, 0xFF660099, 0xFF663399, 0xFF666699, 0xFF669999, 0xFF66CC99, 0xFF66FF99, 
-0xFF6600CC, 0xFF6633CC, 0xFF6666CC, 0xFF6699CC, 0xFF66CCCC, 0xFF66FFCC, 0xFF6600FF, 0xFF6633FF, 
-0xFF6666FF, 0xFF6699FF, 0xFF66CCFF, 0xFF66FFFF, 0xFF990000, 0xFF993300, 0xFF996600, 0xFF999900, 
-0xFF99CC00, 0xFF99FF00, 0xFF990033, 0xFF993333, 0xFF996633, 0xFF999933, 0xFF99CC33, 0xFF99FF33, 
-0xFF990066, 0xFF993366, 0xFF996666, 0xFF999966, 0xFF99CC66, 0xFF99FF66, 0xFF990099, 0xFF993399, 
-0xFF996699, 0xFF999999, 0xFF99CC99, 0xFF99FF99, 0xFF9900CC, 0xFF9933CC, 0xFF9966CC, 0xFF9999CC, 
-0xFF99CCCC, 0xFF99FFCC, 0xFF9900FF, 0xFF9933FF, 0xFF9966FF, 0xFF9999FF, 0xFF99CCFF, 0xFF99FFFF, 
-0xFFCC0000, 0xFFCC3300, 0xFFCC6600, 0xFFCC9900, 0xFFCCCC00, 0xFFCCFF00, 0xFFCC0033, 0xFFCC3333, 
-0xFFCC6633, 0xFFCC9933, 0xFFCCCC33, 0xFFCCFF33, 0xFFCC0066, 0xFFCC3366, 0xFFCC6666, 0xFFCC9966, 
-0xFFCCCC66, 0xFFCCFF66, 0xFFCC0099, 0xFFCC3399, 0xFFCC6699, 0xFFCC9999, 0xFFCCCC99, 0xFFCCFF99, 
-0xFFCC00CC, 0xFFCC33CC, 0xFFCC66CC, 0xFFCC99CC, 0xFFCCCCCC, 0xFFCCFFCC, 0xFFCC00FF, 0xFFCC33FF, 
-0xFFCC66FF, 0xFFCC99FF, 0xFFCCCCFF, 0xFFCCFFFF, 0xFFFF0000, 0xFFFF3300, 0xFFFF6600, 0xFFFF9900, 
-0xFFFFCC00, 0xFFFFFF00, 0xFFFF0033, 0xFFFF3333, 0xFFFF6633, 0xFFFF9933, 0xFFFFCC33, 0xFFFFFF33, 
-0xFFFF0066, 0xFFFF3366, 0xFFFF6666, 0xFFFF9966, 0xFFFFCC66, 0xFFFFFF66, 0xFFFF0099, 0xFFFF3399, 
-0xFFFF6699, 0xFFFF9999, 0xFFFFCC99, 0xFFFFFF99, 0xFFFF00CC, 0xFFFF33CC, 0xFFFF66CC, 0xFFFF99CC, 
+    static unsigned int theTable[256] = {
+0x0, 0xFF000001, 0xFFFFFFFF, 0xFF808080, 0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFF00FFFF,
+0xFFFFFF00, 0xFFFF00FF, 0xFF202020, 0xFF404040, 0xFF606060, 0xFF9F9F9F, 0xFFBFBFBF, 0xFFDFDFDF,
+0xFF080808, 0xFF101010, 0xFF181818, 0xFF282828, 0xFF303030, 0xFF383838, 0xFF484848, 0xFF505050,
+0xFF585858, 0xFF686868, 0xFF707070, 0xFF787878, 0xFF878787, 0xFF8F8F8F, 0xFF979797, 0xFFA7A7A7,
+0xFFAFAFAF, 0xFFB7B7B7, 0xFFC7C7C7, 0xFFCFCFCF, 0xFFD7D7D7, 0xFFE7E7E7, 0xFFEFEFEF, 0xFFF7F7F7,
+0xFF000001, 0xFF003300, 0xFF006600, 0xFF009900, 0xFF00CC00, 0xFF00FF00, 0xFF000033, 0xFF003333,
+0xFF006633, 0xFF009933, 0xFF00CC33, 0xFF00FF33, 0xFF000066, 0xFF003366, 0xFF006666, 0xFF009966,
+0xFF00CC66, 0xFF00FF66, 0xFF000099, 0xFF003399, 0xFF006699, 0xFF009999, 0xFF00CC99, 0xFF00FF99,
+0xFF0000CC, 0xFF0033CC, 0xFF0066CC, 0xFF0099CC, 0xFF00CCCC, 0xFF00FFCC, 0xFF0000FF, 0xFF0033FF,
+0xFF0066FF, 0xFF0099FF, 0xFF00CCFF, 0xFF00FFFF, 0xFF330000, 0xFF333300, 0xFF336600, 0xFF339900,
+0xFF33CC00, 0xFF33FF00, 0xFF330033, 0xFF333333, 0xFF336633, 0xFF339933, 0xFF33CC33, 0xFF33FF33,
+0xFF330066, 0xFF333366, 0xFF336666, 0xFF339966, 0xFF33CC66, 0xFF33FF66, 0xFF330099, 0xFF333399,
+0xFF336699, 0xFF339999, 0xFF33CC99, 0xFF33FF99, 0xFF3300CC, 0xFF3333CC, 0xFF3366CC, 0xFF3399CC,
+0xFF33CCCC, 0xFF33FFCC, 0xFF3300FF, 0xFF3333FF, 0xFF3366FF, 0xFF3399FF, 0xFF33CCFF, 0xFF33FFFF,
+0xFF660000, 0xFF663300, 0xFF666600, 0xFF669900, 0xFF66CC00, 0xFF66FF00, 0xFF660033, 0xFF663333,
+0xFF666633, 0xFF669933, 0xFF66CC33, 0xFF66FF33, 0xFF660066, 0xFF663366, 0xFF666666, 0xFF669966,
+0xFF66CC66, 0xFF66FF66, 0xFF660099, 0xFF663399, 0xFF666699, 0xFF669999, 0xFF66CC99, 0xFF66FF99,
+0xFF6600CC, 0xFF6633CC, 0xFF6666CC, 0xFF6699CC, 0xFF66CCCC, 0xFF66FFCC, 0xFF6600FF, 0xFF6633FF,
+0xFF6666FF, 0xFF6699FF, 0xFF66CCFF, 0xFF66FFFF, 0xFF990000, 0xFF993300, 0xFF996600, 0xFF999900,
+0xFF99CC00, 0xFF99FF00, 0xFF990033, 0xFF993333, 0xFF996633, 0xFF999933, 0xFF99CC33, 0xFF99FF33,
+0xFF990066, 0xFF993366, 0xFF996666, 0xFF999966, 0xFF99CC66, 0xFF99FF66, 0xFF990099, 0xFF993399,
+0xFF996699, 0xFF999999, 0xFF99CC99, 0xFF99FF99, 0xFF9900CC, 0xFF9933CC, 0xFF9966CC, 0xFF9999CC,
+0xFF99CCCC, 0xFF99FFCC, 0xFF9900FF, 0xFF9933FF, 0xFF9966FF, 0xFF9999FF, 0xFF99CCFF, 0xFF99FFFF,
+0xFFCC0000, 0xFFCC3300, 0xFFCC6600, 0xFFCC9900, 0xFFCCCC00, 0xFFCCFF00, 0xFFCC0033, 0xFFCC3333,
+0xFFCC6633, 0xFFCC9933, 0xFFCCCC33, 0xFFCCFF33, 0xFFCC0066, 0xFFCC3366, 0xFFCC6666, 0xFFCC9966,
+0xFFCCCC66, 0xFFCCFF66, 0xFFCC0099, 0xFFCC3399, 0xFFCC6699, 0xFFCC9999, 0xFFCCCC99, 0xFFCCFF99,
+0xFFCC00CC, 0xFFCC33CC, 0xFFCC66CC, 0xFFCC99CC, 0xFFCCCCCC, 0xFFCCFFCC, 0xFFCC00FF, 0xFFCC33FF,
+0xFFCC66FF, 0xFFCC99FF, 0xFFCCCCFF, 0xFFCCFFFF, 0xFFFF0000, 0xFFFF3300, 0xFFFF6600, 0xFFFF9900,
+0xFFFFCC00, 0xFFFFFF00, 0xFFFF0033, 0xFFFF3333, 0xFFFF6633, 0xFFFF9933, 0xFFFFCC33, 0xFFFFFF33,
+0xFFFF0066, 0xFFFF3366, 0xFFFF6666, 0xFFFF9966, 0xFFFFCC66, 0xFFFFFF66, 0xFFFF0099, 0xFFFF3399,
+0xFFFF6699, 0xFFFF9999, 0xFFFFCC99, 0xFFFFFF99, 0xFFFF00CC, 0xFFFF33CC, 0xFFFF66CC, 0xFFFF99CC,
 0xFFFFCCCC, 0xFFFFFFCC, 0xFFFF00FF, 0xFFFF33FF, 0xFFFF66FF, 0xFFFF99FF, 0xFFFFCCFF, 0xFFFFFFFF};;
 
 	return theTable;
@@ -2290,11 +2295,11 @@ static sqInt drawLoopXY(sqInt xDelta, sqInt yDelta) {
 }
 
 static sqInt dstLongAt(sqInt idx) {
-	return long32At(idx);
+	return long32AtPointer(idx);
 }
 
 static sqInt dstLongAtput(sqInt idx, sqInt value) {
-	return long32Atput(idx, value);
+	return long32AtPointerput(idx, value);
 }
 
 
@@ -2305,10 +2310,10 @@ static sqInt dstLongAtput(sqInt idx, sqInt value) {
 static sqInt dstLongAtputmask(sqInt idx, sqInt srcValue, sqInt dstMask) {
     sqInt dstValue;
 
-	dstValue = long32At(idx);
+	dstValue = long32AtPointer(idx);
 	dstValue = dstValue & dstMask;
 	dstValue = dstValue | srcValue;
-	long32Atput(idx, dstValue);
+	long32AtPointerput(idx, dstValue);
 }
 
 
@@ -2354,7 +2359,7 @@ static sqInt fetchIntOrFloatofObject(sqInt fieldIndex, sqInt objectPointer) {
     double  floatValue;
     sqInt fieldOop;
 
-	fieldOop = interpreterProxy->fetchPointerofObject(fieldIndex, objectPointer);
+	fieldOop = interpreterProxy->fetchPointerofObject(fieldIndex, objectPointer); // OK xxx_dmu
 	if ((fieldOop & 1)) {
 		return (fieldOop >> 1);
 	}
@@ -2373,7 +2378,7 @@ static sqInt fetchIntOrFloatofObjectifNil(sqInt fieldIndex, sqInt objectPointer,
     double  floatValue;
     sqInt fieldOop;
 
-	fieldOop = interpreterProxy->fetchPointerofObject(fieldIndex, objectPointer);
+	fieldOop = interpreterProxy->fetchPointerofObject(fieldIndex, objectPointer); // OK xxx_dmu
 	if ((fieldOop & 1)) {
 		return (fieldOop >> 1);
 	}
@@ -2425,7 +2430,7 @@ EXPORT(const char*) getModuleName(void) {
 /*	Return a value from the halftone pattern. */
 
 static sqInt halftoneAt(sqInt idx) {
-	return long32At(halftoneBase + ((idx % halftoneHeight) * 4));
+	return long32AtPointer(halftoneBase + ((idx % halftoneHeight) * 4));
 }
 
 static sqInt halt(void) {
@@ -2562,7 +2567,7 @@ static sqInt isIdentityMapwith(int * shifts, unsigned int * masks) {
 static sqInt loadBitBltDestForm(void) {
     sqInt destBitsSize;
 
-	destBits = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm);
+	destBitsOop_xxx_dmu = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm); // maybe xxx_dmu
 	destWidth = interpreterProxy->fetchIntegerofObject(FormWidthIndex, destForm);
 	destHeight = interpreterProxy->fetchIntegerofObject(FormHeightIndex, destForm);
 	if (!((destWidth >= 0) && (destHeight >= 0))) {
@@ -2573,8 +2578,8 @@ static sqInt loadBitBltDestForm(void) {
 	if (destDepth < 0) {
 		destDepth = 0 - destDepth;
 	}
-	if ((destBits & 1)) {
-		if (!(queryDestSurface((destBits >> 1)))) {
+	if ((destBitsOop_xxx_dmu & 1)) {
+		if (!(queryDestSurface((destBitsOop_xxx_dmu >> 1)))) {
 			return 0;
 		}
 		destPPW = 32 / destDepth;
@@ -2582,11 +2587,12 @@ static sqInt loadBitBltDestForm(void) {
 	} else {
 		destPPW = 32 / destDepth;
 		destPitch = ((destWidth + (destPPW - 1)) / destPPW) * 4;
-		destBitsSize = interpreterProxy->byteSizeOf(destBits);
-		if (!((interpreterProxy->isWordsOrBytes(destBits)) && (destBitsSize == (destPitch * destHeight)))) {
+		destBitsSize = interpreterProxy->byteSizeOf(destBitsOop_xxx_dmu);
+		if (!((interpreterProxy->isWordsOrBytes(destBitsOop_xxx_dmu)) && (destBitsSize == (destPitch * destHeight)))) {
 			return 0;
 		}
-		destBits = oopForPointer(interpreterProxy->firstIndexableField(destBits));
+		// xxx_dmu destBits = oopForPointer(interpreterProxy->firstIndexableField(destBits));
+		destBits = (sqInt) interpreterProxy->firstIndexableField(destBitsOop_xxx_dmu);
 	}
 	return 1;
 }
@@ -2618,16 +2624,19 @@ static sqInt loadBitBltFromwarping(sqInt bbObj, sqInt aBool) {
     sqInt mapOop;
     sqInt mapOop1;
 
+
 	bitBltOop = bbObj;
 	isWarping = aBool;
 	combinationRule = interpreterProxy->fetchIntegerofObject(BBRuleIndex, bitBltOop);
 	if ((interpreterProxy->failed()) || ((combinationRule < 0) || (combinationRule > (OpTableSize - 2)))) {
+    //fprintf(stderr, "failed 2629\n");
 		return 0;
 	}
 	if ((combinationRule >= 16) && (combinationRule <= 17)) {
+    //fprintf(stderr, "failed 2633\n");
 		return 0;
 	}
-	sourceForm = interpreterProxy->fetchPointerofObject(BBSourceFormIndex, bitBltOop);
+	sourceForm = interpreterProxy->fetchPointerofObject(BBSourceFormIndex, bitBltOop); // maybe xxx_dmu
 	/* begin ignoreSourceOrHalftone: */
 	formPointer = sourceForm;
 	if (formPointer == (interpreterProxy->nilObject())) {
@@ -2652,7 +2661,7 @@ static sqInt loadBitBltFromwarping(sqInt bbObj, sqInt aBool) {
 	}
 	noSource = 0;
 l2:	/* end ignoreSourceOrHalftone: */;
-	halftoneForm = interpreterProxy->fetchPointerofObject(BBHalftoneFormIndex, bitBltOop);
+	halftoneForm = interpreterProxy->fetchPointerofObject(BBHalftoneFormIndex, bitBltOop); // maybe xxx_dmu
 	/* begin ignoreSourceOrHalftone: */
 	formPointer1 = halftoneForm;
 	if (formPointer1 == (interpreterProxy->nilObject())) {
@@ -2677,16 +2686,18 @@ l2:	/* end ignoreSourceOrHalftone: */;
 	}
 	noHalftone = 0;
 l3:	/* end ignoreSourceOrHalftone: */;
-	destForm = interpreterProxy->fetchPointerofObject(BBDestFormIndex, bbObj);
+	destForm = interpreterProxy->fetchPointerofObject(BBDestFormIndex, bbObj); // maybe xxx_dmu
 	if (!((interpreterProxy->isPointers(destForm)) && ((interpreterProxy->slotSizeOf(destForm)) >= 4))) {
+    //fprintf(stderr, "failed 2688\n");
 		return 0;
 	}
 	/* begin loadBitBltDestForm */
-	destBits = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm);
+	destBitsOop_xxx_dmu = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm); // maybe xxx_dmu
 	destWidth = interpreterProxy->fetchIntegerofObject(FormWidthIndex, destForm);
 	destHeight = interpreterProxy->fetchIntegerofObject(FormHeightIndex, destForm);
 	if (!((destWidth >= 0) && (destHeight >= 0))) {
 		ok = 0;
+    //fprintf(stderr, "failed 2697\n");
 		goto l4;
 	}
 	destDepth = interpreterProxy->fetchIntegerofObject(FormDepthIndex, destForm);
@@ -2694,9 +2705,10 @@ l3:	/* end ignoreSourceOrHalftone: */;
 	if (destDepth < 0) {
 		destDepth = 0 - destDepth;
 	}
-	if ((destBits & 1)) {
-		if (!(queryDestSurface((destBits >> 1)))) {
+	if ((destBitsOop_xxx_dmu & 1)) {
+		if (!(queryDestSurface((destBitsOop_xxx_dmu >> 1)))) {
 			ok = 0;
+      //fprintf(stderr, "failed 2708\n");
 			goto l4;
 		}
 		destPPW = 32 / destDepth;
@@ -2704,16 +2716,19 @@ l3:	/* end ignoreSourceOrHalftone: */;
 	} else {
 		destPPW = 32 / destDepth;
 		destPitch = ((destWidth + (destPPW - 1)) / destPPW) * 4;
-		destBitsSize = interpreterProxy->byteSizeOf(destBits);
-		if (!((interpreterProxy->isWordsOrBytes(destBits)) && (destBitsSize == (destPitch * destHeight)))) {
+		destBitsSize = interpreterProxy->byteSizeOf(destBitsOop_xxx_dmu);
+		if (!((interpreterProxy->isWordsOrBytes(destBitsOop_xxx_dmu)) && (destBitsSize == (destPitch * destHeight)))) {
 			ok = 0;
+      //fprintf(stderr, "failed 2719\n");
 			goto l4;
 		}
-		destBits = oopForPointer(interpreterProxy->firstIndexableField(destBits));
+		// xxx_dmu destBits = oopForPointer(interpreterProxy->firstIndexableField(destBits));
+		destBits = (sqInt) interpreterProxy->firstIndexableField(destBitsOop_xxx_dmu);
 	}
 	ok = 1;
 l4:	/* end loadBitBltDestForm */;
 	if (!(ok)) {
+    //fprintf(stderr, "failed 2725\n");
 		return 0;
 	}
 	destX = fetchIntOrFloatofObjectifNil(BBDestXIndex, bitBltOop, 0);
@@ -2721,29 +2736,33 @@ l4:	/* end loadBitBltDestForm */;
 	width = fetchIntOrFloatofObjectifNil(BBWidthIndex, bitBltOop, destWidth);
 	height = fetchIntOrFloatofObjectifNil(BBHeightIndex, bitBltOop, destHeight);
 	if (interpreterProxy->failed()) {
+    //fprintf(stderr, "failed 2733\n");
 		return 0;
 	}
 	if (noSource) {
 		sourceX = sourceY = 0;
 	} else {
 		if (!((interpreterProxy->isPointers(sourceForm)) && ((interpreterProxy->slotSizeOf(sourceForm)) >= 4))) {
+      //fprintf(stderr, "failed 2740\n");
 			return 0;
 		}
 		/* begin loadBitBltSourceForm */
-		sourceBits = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm);
+		sourceBitsOop_xxx_dmu = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm); // maybe xxx_dmu
 		sourceWidth = fetchIntOrFloatofObject(FormWidthIndex, sourceForm);
 		sourceHeight = fetchIntOrFloatofObject(FormHeightIndex, sourceForm);
 		if (!((sourceWidth >= 0) && (sourceHeight >= 0))) {
 			ok = 0;
-			goto l1;
+      //fprintf(stderr, "failed 2753\n");
+      goto l1;
 		}
 		sourceDepth = interpreterProxy->fetchIntegerofObject(FormDepthIndex, sourceForm);
 		sourceMSB = sourceDepth > 0;
 		if (sourceDepth < 0) {
 			sourceDepth = 0 - sourceDepth;
 		}
-		if ((sourceBits & 1)) {
-			if (!(querySourceSurface((sourceBits >> 1)))) {
+		if ((sourceBitsOop_xxx_dmu & 1)) {
+			if (!(querySourceSurface((sourceBitsOop_xxx_dmu >> 1)))) {
+        //fprintf(stderr, "failed 2762\n");
 				ok = 0;
 				goto l1;
 			}
@@ -2752,16 +2771,25 @@ l4:	/* end loadBitBltDestForm */;
 		} else {
 			sourcePPW = 32 / sourceDepth;
 			sourcePitch = ((sourceWidth + (sourcePPW - 1)) / sourcePPW) * 4;
-			sourceBitsSize = interpreterProxy->byteSizeOf(sourceBits);
-			if (!((interpreterProxy->isWordsOrBytes(sourceBits)) && (sourceBitsSize == (sourcePitch * sourceHeight)))) {
+			sourceBitsSize = interpreterProxy->byteSizeOf(sourceBitsOop_xxx_dmu);
+			if (!((interpreterProxy->isWordsOrBytes(sourceBitsOop_xxx_dmu)) && (sourceBitsSize == (sourcePitch * sourceHeight)))) {
+        //fprintf(stderr, "failed 2773\n");
+        //fprintf(stderr, "sourceBitsSize %d, sourcePitch %d, source Height %d\n", sourceBitsSize, sourcePitch, sourceHeight);
+        //fprintf(stderr, "sourceBitsOop_xxx_dmu 0x%x\n", sourceBitsOop_xxx_dmu);
 				ok = 0;
 				goto l1;
 			}
-			sourceBits = oopForPointer(interpreterProxy->firstIndexableField(sourceBits));
+      //fprintf(stderr, "success 2784\n");
+      //fprintf(stderr, "sourceBitsSize %d, sourcePitch %d, source Height %d\n", sourceBitsSize, sourcePitch, sourceHeight);
+      //fprintf(stderr, "sourceBitsOop_xxx_dmu 0x%x\n", sourceBitsOop_xxx_dmu);
+
+			// xxx_dmu sourceBits = oopForPointer(interpreterProxy->firstIndexableField(sourceBits));
+			sourceBits = (sqInt)(interpreterProxy->firstIndexableField(sourceBitsOop_xxx_dmu));
 		}
 		ok = 1;
 	l1:	/* end loadBitBltSourceForm */;
 		if (!(ok)) {
+      //fprintf(stderr, "failed 2777\n");
 			return 0;
 		}
 		/* begin loadColorMap */
@@ -2769,7 +2797,7 @@ l4:	/* end loadBitBltDestForm */;
 		cmShiftTable = null;
 		cmMaskTable = null;
 		cmLookupTable = null;
-		cmOop = interpreterProxy->fetchPointerofObject(BBColorMapIndex, bitBltOop);
+		cmOop = interpreterProxy->fetchPointerofObject(BBColorMapIndex, bitBltOop); // OK xxx_dmu
 		if (cmOop == (interpreterProxy->nilObject())) {
 			ok = 1;
 			goto l8;
@@ -2783,10 +2811,11 @@ l4:	/* end loadBitBltDestForm */;
 		} else {
 			if (!((interpreterProxy->isPointers(cmOop)) && ((interpreterProxy->slotSizeOf(cmOop)) >= 3))) {
 				ok = 0;
+        //fprintf(stderr, "failed 2806\n");
 				goto l8;
 			}
 			/* begin loadColorMapShiftOrMaskFrom: */
-			mapOop = interpreterProxy->fetchPointerofObject(0, cmOop);
+			mapOop = interpreterProxy->fetchPointerofObject(0, cmOop); // OK xxx_dmu
 			if (mapOop == (interpreterProxy->nilObject())) {
 				cmShiftTable = null;
 				goto l6;
@@ -2804,7 +2833,7 @@ l4:	/* end loadBitBltDestForm */;
 			cmShiftTable = interpreterProxy->firstIndexableField(mapOop);
 		l6:	/* end loadColorMapShiftOrMaskFrom: */;
 			/* begin loadColorMapShiftOrMaskFrom: */
-			mapOop1 = interpreterProxy->fetchPointerofObject(1, cmOop);
+			mapOop1 = interpreterProxy->fetchPointerofObject(1, cmOop); // OK xxx_dmu
 			if (mapOop1 == (interpreterProxy->nilObject())) {
 				cmMaskTable = null;
 				goto l7;
@@ -2821,11 +2850,12 @@ l4:	/* end loadBitBltDestForm */;
 			}
 			cmMaskTable = interpreterProxy->firstIndexableField(mapOop1);
 		l7:	/* end loadColorMapShiftOrMaskFrom: */;
-			oop = interpreterProxy->fetchPointerofObject(2, cmOop);
+			oop = interpreterProxy->fetchPointerofObject(2, cmOop); // maybe xxx_dmu
 			if (oop == (interpreterProxy->nilObject())) {
 				cmSize = 0;
 			} else {
 				if (!(interpreterProxy->isWords(oop))) {
+          //fprintf(stderr, "failed 2849\n");
 					ok = 0;
 					goto l8;
 				}
@@ -2835,6 +2865,7 @@ l4:	/* end loadBitBltDestForm */;
 			cmFlags = cmFlags | ColorMapNewStyle;
 		}
 		if (!((cmSize & (cmSize - 1)) == 0)) {
+      //fprintf(stderr, "failed 2859\n");
 			ok = 0;
 			goto l8;
 		}
@@ -2867,6 +2898,7 @@ l4:	/* end loadBitBltDestForm */;
 		ok = 1;
 	l8:	/* end loadColorMap */;
 		if (!(ok)) {
+      //fprintf(stderr, "failed 2883\n");
 			return 0;
 		}
 		if ((cmFlags & ColorMapNewStyle) == 0) {
@@ -2889,16 +2921,19 @@ l4:	/* end loadBitBltDestForm */;
 		}
 	} else {
 		if (!((!(interpreterProxy->isPointers(halftoneForm))) && (interpreterProxy->isWords(halftoneForm)))) {
+      //fprintf(stderr, "failed 2906\n");
 			ok = 0;
 			goto l5;
 		}
 		halftoneBits = halftoneForm;
 		halftoneHeight = interpreterProxy->slotSizeOf(halftoneBits);
 	}
-	halftoneBase = oopForPointer(interpreterProxy->firstIndexableField(halftoneBits));
+	// xxx_dmu halftoneBase = oopForPointer(interpreterProxy->firstIndexableField(halftoneBits));
+  halftoneBase = (sqInt)(interpreterProxy->firstIndexableField(halftoneBits));
 	ok = 1;
 l5:	/* end loadHalftoneForm */;
 	if (!(ok)) {
+    //fprintf(stderr, "failed 2918\n");
 		return 0;
 	}
 	clipX = fetchIntOrFloatofObjectifNil(BBClipXIndex, bitBltOop, 0);
@@ -2906,6 +2941,7 @@ l5:	/* end loadHalftoneForm */;
 	clipWidth = fetchIntOrFloatofObjectifNil(BBClipWidthIndex, bitBltOop, destWidth);
 	clipHeight = fetchIntOrFloatofObjectifNil(BBClipHeightIndex, bitBltOop, destHeight);
 	if (interpreterProxy->failed()) {
+    //fprintf(stderr, "failed 2926\n");
 		return 0;
 	}
 	if (clipX < 0) {
@@ -2931,7 +2967,7 @@ l5:	/* end loadHalftoneForm */;
 static sqInt loadBitBltSourceForm(void) {
     sqInt sourceBitsSize;
 
-	sourceBits = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm);
+	sourceBitsOop_xxx_dmu = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm); // maybe xxx_dmu
 	sourceWidth = fetchIntOrFloatofObject(FormWidthIndex, sourceForm);
 	sourceHeight = fetchIntOrFloatofObject(FormHeightIndex, sourceForm);
 	if (!((sourceWidth >= 0) && (sourceHeight >= 0))) {
@@ -2942,8 +2978,8 @@ static sqInt loadBitBltSourceForm(void) {
 	if (sourceDepth < 0) {
 		sourceDepth = 0 - sourceDepth;
 	}
-	if ((sourceBits & 1)) {
-		if (!(querySourceSurface((sourceBits >> 1)))) {
+	if ((sourceBitsOop_xxx_dmu & 1)) {
+		if (!(querySourceSurface((sourceBitsOop_xxx_dmu >> 1)))) {
 			return 0;
 		}
 		sourcePPW = 32 / sourceDepth;
@@ -2951,18 +2987,19 @@ static sqInt loadBitBltSourceForm(void) {
 	} else {
 		sourcePPW = 32 / sourceDepth;
 		sourcePitch = ((sourceWidth + (sourcePPW - 1)) / sourcePPW) * 4;
-		sourceBitsSize = interpreterProxy->byteSizeOf(sourceBits);
-		if (!((interpreterProxy->isWordsOrBytes(sourceBits)) && (sourceBitsSize == (sourcePitch * sourceHeight)))) {
+		sourceBitsSize = interpreterProxy->byteSizeOf(sourceBitsOop_xxx_dmu);
+		if (!((interpreterProxy->isWordsOrBytes(sourceBitsOop_xxx_dmu)) && (sourceBitsSize == (sourcePitch * sourceHeight)))) {
 			return 0;
 		}
-		sourceBits = oopForPointer(interpreterProxy->firstIndexableField(sourceBits));
+		// xxx_dmu sourceBits = oopForPointer(interpreterProxy->firstIndexableField(sourceBits));
+		sourceBits = (sqInt)(interpreterProxy->firstIndexableField(sourceBitsOop_xxx_dmu));
 	}
 	return 1;
 }
 
 
-/*	ColorMap, if not nil, must be longWords, and 
-	2^N long, where N = sourceDepth for 1, 2, 4, 8 bits, 
+/*	ColorMap, if not nil, must be longWords, and
+	2^N long, where N = sourceDepth for 1, 2, 4, 8 bits,
 	or N = 9, 12, or 15 (3, 4, 5 bits per color) for 16 or 32 bits. */
 
 static sqInt loadColorMap(void) {
@@ -2977,7 +3014,7 @@ static sqInt loadColorMap(void) {
 	cmShiftTable = null;
 	cmMaskTable = null;
 	cmLookupTable = null;
-	cmOop = interpreterProxy->fetchPointerofObject(BBColorMapIndex, bitBltOop);
+	cmOop = interpreterProxy->fetchPointerofObject(BBColorMapIndex, bitBltOop); // OK xxx_dmu
 	if (cmOop == (interpreterProxy->nilObject())) {
 		return 1;
 	}
@@ -2995,7 +3032,7 @@ static sqInt loadColorMap(void) {
 			return 0;
 		}
 		/* begin loadColorMapShiftOrMaskFrom: */
-		mapOop = interpreterProxy->fetchPointerofObject(0, cmOop);
+		mapOop = interpreterProxy->fetchPointerofObject(0, cmOop);  // OK xxx_dmu
 		if (mapOop == (interpreterProxy->nilObject())) {
 			cmShiftTable = null;
 			goto l1;
@@ -3013,7 +3050,7 @@ static sqInt loadColorMap(void) {
 		cmShiftTable = interpreterProxy->firstIndexableField(mapOop);
 	l1:	/* end loadColorMapShiftOrMaskFrom: */;
 		/* begin loadColorMapShiftOrMaskFrom: */
-		mapOop1 = interpreterProxy->fetchPointerofObject(1, cmOop);
+		mapOop1 = interpreterProxy->fetchPointerofObject(1, cmOop); // maybe xxx_dmu
 		if (mapOop1 == (interpreterProxy->nilObject())) {
 			cmMaskTable = null;
 			goto l2;
@@ -3030,7 +3067,7 @@ static sqInt loadColorMap(void) {
 		}
 		cmMaskTable = interpreterProxy->firstIndexableField(mapOop1);
 	l2:	/* end loadColorMapShiftOrMaskFrom: */;
-		oop = interpreterProxy->fetchPointerofObject(2, cmOop);
+		oop = interpreterProxy->fetchPointerofObject(2, cmOop);  // OK xxx_dmu
 		if (oop == (interpreterProxy->nilObject())) {
 			cmSize = 0;
 		} else {
@@ -3112,7 +3149,8 @@ static sqInt loadHalftoneForm(void) {
 		halftoneBits = halftoneForm;
 		halftoneHeight = interpreterProxy->slotSizeOf(halftoneBits);
 	}
-	halftoneBase = oopForPointer(interpreterProxy->firstIndexableField(halftoneBits));
+	// xxx_dmu halftoneBase = oopForPointer(interpreterProxy->firstIndexableField(halftoneBits));
+	halftoneBase = (sqInt)(interpreterProxy->firstIndexableField(halftoneBits));
 	return 1;
 }
 
@@ -3132,13 +3170,13 @@ static sqInt loadWarpBltFrom(sqInt bbObj) {
 
 
 /*	Get a pointer to the bits of any OS surfaces. */
-/*	Notes: 
+/*	Notes:
 	* For equal source/dest handles only one locking operation is performed.
 	This is to prevent locking of overlapping areas which does not work with
-	certain APIs (as an example, DirectDraw prevents locking of overlapping areas). 
-	A special case for non-overlapping but equal source/dest handle would 
-	be possible but we would have to transfer this information over to 
-	unlockSurfaces somehow (currently, only one unlock operation is 
+	certain APIs (as an example, DirectDraw prevents locking of overlapping areas).
+	A special case for non-overlapping but equal source/dest handle would
+	be possible but we would have to transfer this information over to
+	unlockSurfaces somehow (currently, only one unlock operation is
 	performed for equal source and dest handles). Also, this would require
 	a change in the notion of ioLockSurface() which is right now interpreted
 	as a hint and not as a requirement to lock only the specific portion of
@@ -3197,6 +3235,7 @@ static sqInt lockSurfaces(void) {
 					sourceBits = fn(sourceHandle, &sourcePitch, 0,0, sourceWidth, sourceHeight);
 				}
 				destBits = sourceBits;
+        destBitsOop_xxx_dmu = sourceBitsOop_xxx_dmu;
 				destPitch = sourcePitch;
 				hasSurfaceLock = 1;
 				return destBits != 0;
@@ -3557,7 +3596,7 @@ static sqInt pickSourcePixelsflagssrcMaskdestMasksrcShiftIncdstShiftInc(sqInt nP
 
 	/* begin srcLongAt: */
 	idx2 = sourceIndex;
-	sourceWord = long32At(idx2);
+	sourceWord = long32AtPointer(idx2);
 	destWord = 0;
 
 	/* Hint: Keep in register */
@@ -3591,7 +3630,7 @@ static sqInt pickSourcePixelsflagssrcMaskdestMasksrcShiftIncdstShiftInc(sqInt nP
 				}
 				/* begin srcLongAt: */
 				idx = sourceIndex += 4;
-				sourceWord = long32At(idx);
+				sourceWord = long32AtPointer(idx);
 			}
 		} while(!((nPix -= 1) == 0));
 	} else {
@@ -3631,7 +3670,7 @@ static sqInt pickSourcePixelsflagssrcMaskdestMasksrcShiftIncdstShiftInc(sqInt nP
 				}
 				/* begin srcLongAt: */
 				idx1 = sourceIndex += 4;
-				sourceWord = long32At(idx1);
+				sourceWord = long32AtPointer(idx1);
 			}
 		} while(!((nPix -= 1) == 0));
 	}
@@ -3661,7 +3700,7 @@ static sqInt pickWarpPixelAtXy(sqInt xx, sqInt yy) {
 
 	/* Extract pixel from word */
 
-	sourceWord = long32At(srcIndex);
+	sourceWord = long32AtPointer(srcIndex);
 	srcBitShift = warpBitShiftTable[x & warpAlignMask];
 	sourcePix = (((usqInt) sourceWord) >> srcBitShift) & warpSrcMask;
 	return sourcePix;
@@ -3810,18 +3849,22 @@ EXPORT(sqInt) primitiveDisplayString(void) {
     sqInt startBits;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 6)) {
+    //fprintf(stderr, "failed arg count\n");
 		return interpreterProxy->primitiveFail();
 	}
 	kernDelta = interpreterProxy->stackIntegerValue(0);
 	xTable = interpreterProxy->stackObjectValue(1);
 	glyphMap = interpreterProxy->stackObjectValue(2);
 	if (!(((interpreterProxy->fetchClassOf(xTable)) == (interpreterProxy->classArray())) && ((interpreterProxy->fetchClassOf(glyphMap)) == (interpreterProxy->classArray())))) {
+    //fprintf(stderr, "failed 3831\n");
 		return interpreterProxy->primitiveFail();
 	}
 	if (!((interpreterProxy->slotSizeOf(glyphMap)) == 256)) {
+    //fprintf(stderr, "failed 3834\n");
 		return interpreterProxy->primitiveFail();
 	}
 	if (interpreterProxy->failed()) {
+    //fprintf(stderr, "failed 3838\n");
 		return null;
 	}
 	maxGlyph = (interpreterProxy->slotSizeOf(xTable)) - 2;
@@ -3829,16 +3872,20 @@ EXPORT(sqInt) primitiveDisplayString(void) {
 	startIndex = interpreterProxy->stackIntegerValue(4);
 	sourceString = interpreterProxy->stackObjectValue(5);
 	if (!(interpreterProxy->isBytes(sourceString))) {
+    //fprintf(stderr, "failed 3846\n");
 		return interpreterProxy->primitiveFail();
 	}
 	if (!((startIndex > 0) && ((stopIndex > 0) && (stopIndex <= (interpreterProxy->byteSizeOf(sourceString)))))) {
+    //fprintf(stderr, "failed 3850\n");
 		return interpreterProxy->primitiveFail();
 	}
 	bbObj = interpreterProxy->stackObjectValue(6);
 	if (!(loadBitBltFromwarping(bbObj, 0))) {
+    //fprintf(stderr, "failed 3855\n");
 		return interpreterProxy->primitiveFail();
 	}
 	if ((combinationRule == 30) || (combinationRule == 31)) {
+    //fprintf(stderr, "failed 3859\n");
 		return interpreterProxy->primitiveFail();
 	}
 	quickBlt = (destBits != 0) && ((sourceBits != 0) && ((noSource == 0) && ((sourceForm != destForm) && ((cmFlags != 0) || ((sourceMSB != destMSB) || (sourceDepth != destDepth))))));
@@ -3848,11 +3895,13 @@ EXPORT(sqInt) primitiveDisplayString(void) {
 		ascii = byteAtPointer((sourcePtr + charIndex) - 1);
 		glyphIndex = interpreterProxy->fetchIntegerofObject(ascii, glyphMap);
 		if ((glyphIndex < 0) || (glyphIndex > maxGlyph)) {
+      //fprintf(stderr, "failed 3869\n");
 			return interpreterProxy->primitiveFail();
 		}
 		sourceX = interpreterProxy->fetchIntegerofObject(glyphIndex, xTable);
 		width = (interpreterProxy->fetchIntegerofObject(glyphIndex + 1, xTable)) - sourceX;
 		if (interpreterProxy->failed()) {
+      //fprintf(stderr, "failed 3875\n");
 			return null;
 		}
 		clipRange();
@@ -3892,6 +3941,7 @@ EXPORT(sqInt) primitiveDisplayString(void) {
 			}
 		}
 		if (interpreterProxy->failed()) {
+      //fprintf(stderr, "failed 3915\n");
 			return null;
 		}
 		destX = (destX + width) + kernDelta;
@@ -4547,7 +4597,7 @@ static sqInt sourceWordwith(sqInt sourceWord, sqInt destinationWord) {
 }
 
 static sqInt srcLongAt(sqInt idx) {
-	return long32At(idx);
+	return long32AtPointer(idx);
 }
 
 static sqInt subWordwith(sqInt sourceWord, sqInt destinationWord) {
@@ -4563,8 +4613,8 @@ static sqInt tableLookupat(unsigned int * table, sqInt index) {
 
 
 /*	Tally pixels into the color map.  Those tallied are exactly those
-	in the destination rectangle.  Note that the source should be 
-	specified == destination, in order for the proper color map checks 
+	in the destination rectangle.  Note that the source should be
+	specified == destination, in order for the proper color map checks
 	to be performed at setup. */
 
 static sqInt tallyIntoMapwith(sqInt sourceWord, sqInt destinationWord) {
@@ -4707,7 +4757,7 @@ static sqInt tallyMapAtput(sqInt idx, sqInt value) {
 
 
 /*	Shortcut for stuff that's being run from the balloon engine.
-	Since we do this at each scan line we should avoid the expensive 
+	Since we do this at each scan line we should avoid the expensive
 	setup for source and destination. */
 
 static sqInt tryCopyingBitsQuickly(void) {
@@ -4763,7 +4813,7 @@ static sqInt unlockSurfaces(void) {
 		}
 		fn = ((sqInt (*)(sqInt, sqInt, sqInt, sqInt, sqInt)) unlockSurfaceFn);
 		destLocked = 0;
-		destHandle = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm);
+		destHandle = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm); // maybe xxx_dmu
 		if ((destHandle & 1)) {
 
 			/* The destBits are always assumed to be dirty */
@@ -4774,7 +4824,7 @@ static sqInt unlockSurfaces(void) {
 			destLocked = 1;
 		}
 		if (!(noSource)) {
-			sourceHandle = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm);
+			sourceHandle = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm); // maybe xxx_dmu
 			if ((sourceHandle & 1)) {
 
 				/* Only unlock sourceHandle if different from destHandle */
@@ -4870,6 +4920,7 @@ static sqInt warpLoop(void) {
     sqInt mergeWord;
     sqInt pBx;
     sqInt sourceMapOop;
+    sqInt sourceMapIndex_xxx_dmu;
     sqInt nSteps;
     sqInt halftoneWord;
     sqInt pAy;
@@ -5002,11 +5053,13 @@ l6:	/* end deltaFrom:to:nSteps: */;
 			if ((interpreterProxy->slotSizeOf(sourceMapOop)) < (1 << sourceDepth)) {
 				return interpreterProxy->primitiveFail();
 			}
-			sourceMapOop = oopForPointer(interpreterProxy->firstIndexableField(sourceMapOop));
+			// xxx_dmu sourceMapOop = oopForPointer(interpreterProxy->firstIndexableField(sourceMapOop));
+			sourceMapIndex_xxx_dmu = (sqInt)(interpreterProxy->firstIndexableField(sourceMapOop));
 		}
 	} else {
 		smoothingCount = 1;
 		sourceMapOop = interpreterProxy->nilObject();
+    sourceMapIndex_xxx_dmu = 0;
 	}
 	nSteps = width - 1;
 	if (nSteps <= 0) {
@@ -5108,7 +5161,7 @@ l6:	/* end deltaFrom:to:nSteps: */;
 		} else {
 			/* begin halftoneAt: */
 			idx = (dy + i) - 1;
-			halftoneWord = long32At(halftoneBase + ((idx % halftoneHeight) * 4));
+			halftoneWord = long32AtPointer(halftoneBase + ((idx % halftoneHeight) * 4));
 		}
 		destMask = mask1;
 
@@ -5132,7 +5185,7 @@ l6:	/* end deltaFrom:to:nSteps: */;
 							goto l7;
 						}
 						srcIndex = (sourceBits + (y * sourcePitch)) + ((((usqInt) x) >> warpAlignShift) * 4);
-						sourceWord = long32At(srcIndex);
+						sourceWord = long32AtPointer(srcIndex);
 						srcBitShift = warpBitShiftTable[x & warpAlignMask];
 						sourcePix1 = (((usqInt) sourceWord) >> srcBitShift) & warpSrcMask;
 						sourcePix = sourcePix1;
@@ -5153,7 +5206,7 @@ l6:	/* end deltaFrom:to:nSteps: */;
 							goto l8;
 						}
 						srcIndex1 = (sourceBits + (y1 * sourcePitch)) + ((((usqInt) x1) >> warpAlignShift) * 4);
-						sourceWord1 = long32At(srcIndex1);
+						sourceWord1 = long32AtPointer(srcIndex1);
 						srcBitShift = warpBitShiftTable[x1 & warpAlignMask];
 						sourcePix2 = (((usqInt) sourceWord1) >> srcBitShift) & warpSrcMask;
 						sourcePix = sourcePix2;
@@ -5184,7 +5237,7 @@ l6:	/* end deltaFrom:to:nSteps: */;
 				}
 				skewWord = destWord1;
 			} else {
-				skewWord = warpPickSmoothPixelsxDeltahyDeltahxDeltavyDeltavsourceMapsmoothingdstShiftInc(nPix, xDelta, yDelta, deltaP12x, deltaP12y, sourceMapOop, smoothingCount, dstShiftInc);
+				skewWord = warpPickSmoothPixelsxDeltahyDeltahxDeltavyDeltavsourceMapsmoothingdstShiftInc(nPix, xDelta, yDelta, deltaP12x, deltaP12y, sourceMapIndex_xxx_dmu, smoothingCount, dstShiftInc);
 			}
 			dstBitShift = dstShiftLeft;
 			if (destMask == AllOnes) {
@@ -5192,16 +5245,16 @@ l6:	/* end deltaFrom:to:nSteps: */;
 				/* begin dstLongAt:put: */
 				idx1 = destIndex;
 				value = destMask & mergeWord;
-				long32Atput(idx1, value);
+				long32AtPointerput(idx1, value);
 			} else {
 				/* begin dstLongAt: */
 				idx2 = destIndex;
-				destWord = long32At(idx2);
+				destWord = long32AtPointer(idx2);
 				mergeWord = mergeFnwith(skewWord & halftoneWord, destWord & destMask);
 				destWord = (destMask & mergeWord) | (destWord & (~destMask));
 				/* begin dstLongAt:put: */
 				idx3 = destIndex;
-				long32Atput(idx3, destWord);
+				long32AtPointerput(idx3, destWord);
 			}
 			destIndex += 4;
 			if (words == 2) {
@@ -5328,7 +5381,7 @@ static sqInt warpPickSmoothPixelsxDeltahyDeltahxDeltavyDeltavsourceMapsmoothingd
 					goto l1;
 				}
 				srcIndex = (sourceBits + (y1 * sourcePitch)) + ((((usqInt) x1) >> warpAlignShift) * 4);
-				sourceWord = long32At(srcIndex);
+				sourceWord = long32AtPointer(srcIndex);
 				srcBitShift = warpBitShiftTable[x1 & warpAlignMask];
 				sourcePix = (((usqInt) sourceWord) >> srcBitShift) & warpSrcMask;
 				rgb = sourcePix;
@@ -5336,7 +5389,7 @@ static sqInt warpPickSmoothPixelsxDeltahyDeltahxDeltavyDeltavsourceMapsmoothingd
 				if (!((combinationRule == 25) && (rgb == 0))) {
 					nPix += 1;
 					if (sourceDepth < 16) {
-						rgb = long32At(sourceMap + (rgb << 2));
+						rgb = long32AtPointer(sourceMap + (rgb << 2));
 					} else {
 						if (sourceDepth == 16) {
 							rgb = (((rgb & 31) << 3) | ((rgb & 992) << 6)) | ((rgb & 31744) << 9);
@@ -5449,7 +5502,7 @@ static sqInt warpPickSourcePixelsxDeltahyDeltahxDeltavyDeltavdstShiftIncflags(sq
 				goto l1;
 			}
 			srcIndex = (sourceBits + (y * sourcePitch)) + ((((usqInt) x) >> warpAlignShift) * 4);
-			sourceWord = long32At(srcIndex);
+			sourceWord = long32AtPointer(srcIndex);
 			srcBitShift = warpBitShiftTable[x & warpAlignMask];
 			sourcePix1 = (((usqInt) sourceWord) >> srcBitShift) & warpSrcMask;
 			sourcePix = sourcePix1;
@@ -5470,7 +5523,7 @@ static sqInt warpPickSourcePixelsxDeltahyDeltahxDeltavyDeltavdstShiftIncflags(sq
 				goto l2;
 			}
 			srcIndex1 = (sourceBits + (y1 * sourcePitch)) + ((((usqInt) x1) >> warpAlignShift) * 4);
-			sourceWord1 = long32At(srcIndex1);
+			sourceWord1 = long32AtPointer(srcIndex1);
 			srcBitShift = warpBitShiftTable[x1 & warpAlignMask];
 			sourcePix2 = (((usqInt) sourceWord1) >> srcBitShift) & warpSrcMask;
 			sourcePix = sourcePix2;

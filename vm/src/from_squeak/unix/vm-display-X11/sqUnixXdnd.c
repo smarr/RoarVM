@@ -1,58 +1,58 @@
 /* sqUnixXdnd.c -- drag-and-drop for the X Window System.	-*- C -*-
- * 
+ *
  *   Copyright (C) 1996-2004 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
- *   
+ *
  *   This file is part of Unix Squeak.
- * 
+ *
  *      You are NOT ALLOWED to distribute modified versions of this file
  *      under its original name.  If you modify this file then you MUST
  *      rename it before making your modifications available publicly.
- * 
+ *
  *   This file is distributed in the hope that it will be useful, but WITHOUT
  *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *   FITNESS FOR A PARTICULAR PURPOSE.
- *   
+ *
  *   You may use and/or distribute this file ONLY as part of Squeak, under
  *   the terms of the Squeak License as described in `LICENSE' in the base of
  *   this distribution, subject to the following additional restrictions:
- * 
+ *
  *   1. The origin of this software must not be misrepresented; you must not
  *      claim that you wrote the original software.  If you use this software
  *      in a product, an acknowledgment to the original author(s) (and any
  *      other contributors mentioned herein) in the product documentation
  *      would be appreciated but is not required.
- * 
+ *
  *   2. You must not distribute (or make publicly available by any
  *      means) a modified copy of this file unless you first rename it.
- * 
+ *
  *   3. This notice must not be removed or altered in any source distribution.
- * 
+ *
  *   Using (or modifying this file for use) in any context other than Squeak
  *   changes these copyright conditions.  Read the file `COPYING' in the
  *   directory `platforms/unix/doc' before proceeding with any such use.
  */
 
 /* Author: Ian Piumarta <ian.piumarta@inria.fr>
- * 
+ *
  * Last edited: 2004-04-04 23:06:38 by piumarta on cartman.inria.fr
- * 
+ *
  * BUGS
- * 
+ *
  * - This only works with version 3 and higher of the XDND protocol.
  *   No attempt whatsoever is made to check for and deal with earlier
  *   versions.  Since version 3 is at least six years old now, I doubt
  *   this matters much.
- * 
+ *
  * - Some memory could be released between drop operations, but it's
  *   only a few tens of bytes so who cares?
- * 
+ *
  * - Only filenames (MIME type text/uri-list) are handled, although
  *   it would be trivial to extend the code to cope with dropping text
  *   selections into the Squeak clipboard.  I'm simply too lazy to be
  *   bothered.
- * 
+ *
  * - No attempt is made to verify that XDND protocol messages arrive
  *   in the correct order.  (If your WM or file manager is broken, you
  *   get to keep all the shrapnel that will be left behind after

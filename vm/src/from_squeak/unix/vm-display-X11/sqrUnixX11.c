@@ -1,34 +1,34 @@
 /* sqUnixX11.c -- support for display via the X Window System.
- * 
+ *
  *   Copyright (C) 1996-2005 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
- *   
+ *
  *   This file is part of Unix Squeak.
- * 
+ *
  *      You are NOT ALLOWED to distribute modified versions of this file
  *      under its original name.  If you modify this file then you MUST
  *      rename it before making your modifications available publicly.
- * 
+ *
  *   This file is distributed in the hope that it will be useful, but WITHOUT
  *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *   FITNESS FOR A PARTICULAR PURPOSE.
- *   
+ *
  *   You may use and/or distribute this file ONLY as part of Squeak, under
  *   the terms of the Squeak License as described in `LICENSE' in the base of
  *   this distribution, subject to the following additional restrictions:
- * 
+ *
  *   1. The origin of this software must not be misrepresented; you must not
  *      claim that you wrote the original software.  If you use this software
  *      in a product, an acknowledgment to the original author(s) (and any
  *      other contributors mentioned herein) in the product documentation
  *      would be appreciated but is not required.
- * 
+ *
  *   2. You must not distribute (or make publicly available by any
  *      means) a modified copy of this file unless you first rename it.
- * 
+ *
  *   3. This notice must not be removed or altered in any source distribution.
- * 
+ *
  *   Using (or modifying this file for use) in any context other than Squeak
  *   changes these copyright conditions.  Read the file `COPYING' in the
  *   directory `platforms/unix/doc' before proceeding with any such use.
@@ -40,7 +40,7 @@
  *
  * Support for more intelligent CLIPBOARD selection handling contributed by:
  *	Ned Konz <ned@bike-nomad.com>
- * 
+ *
  * Support for displays deeper than 8 bits contributed by: Kazuki YASUMATSU
  *	<kyasu@crl.fujixerox.co.jp> <Kazuki.Yasumatsu@fujixerox.co.jp>
  *
@@ -62,6 +62,8 @@
  * Support for OSProcess plugin contributed by:
  *	Dave Lewis <lewis@mail.msen.com> Mon Oct 18 20:36:54 EDT 1999
  */
+
+# include "squeak_adapters.h"
 
 #include "sq.h"
 #include "sqMemoryAccess.h"
@@ -574,7 +576,7 @@ static int sendSelection(XSelectionRequestEvent *requestEv, int isMultiple)
   int xError= 0;
   XSelectionEvent notifyEv;
   Atom targetProperty= ((None == requestEv->property)
-			? requestEv->target 
+			? requestEv->target
 			: requestEv->property);
 
   notifyEv.property= targetProperty;
@@ -723,7 +725,7 @@ static int sendSelection(XSelectionRequestEvent *requestEv, int isMultiple)
     }
 
 #if defined(DEBUG_SELECTIONS)
-  if (xError == BadAlloc || xError == BadAtom || xError == BadMatch 
+  if (xError == BadAlloc || xError == BadAtom || xError == BadMatch
       || xError == BadValue || xError == BadWindow)
     fprintf(stderr, "sendSelection: XChangeProperty err %d\n", xError);
 #endif
@@ -963,7 +965,7 @@ static sqInt display_clipboardWriteFromAt(sqInt count, sqInt byteArrayIndex, sqI
 {
   if (allocateSelectionBuffer(count))
     {
-      memcpy((void *)stPrimarySelection, pointerForOop(byteArrayIndex + startIndex), count);
+      memcpy((void *)stPrimarySelection, (char*)pointerForIndex_xxx_dmu(byteArrayIndex + startIndex), count);
       stPrimarySelection[count]= '\0';
       claimSelection();
     }
@@ -984,7 +986,7 @@ static sqInt display_clipboardReadIntoAt(sqInt count, sqInt byteArrayIndex, sqIn
 #if defined(DEBUG_SELECTIONS)
   fprintf(stderr, "clipboard read: %d selectionSize %d\n", count, selectionSize);
 #endif
-  memcpy(pointerForOop(byteArrayIndex + startIndex), (void *)stPrimarySelection, clipSize);
+  memcpy((char*)pointerForIndex_xxx_dmu(byteArrayIndex + startIndex), (void *)stPrimarySelection, clipSize);
   return clipSize;
 }
 
@@ -1005,14 +1007,15 @@ static void redrawDisplay(int l, int r, int t, int b)
 
   sqInt displayObj= displayObject();
 
-  if ((((((unsigned)(oopAt(displayObj))) >> 8) & 15) <= 4)
+  if ((((((unsigned)( oopAt(displayObj) )) >> 8) & 15) <= 4)
       && ((lengthOf(displayObj)) >= 4))
     {
-      sqInt dispBits= fetchPointerofObject(0, displayObj);
+      sqInt dispBits= fetchPointerofObject(0, displayObj); // OK xxx_dmu
       sqInt w= fetchIntegerofObject(1, displayObj);
       sqInt h= fetchIntegerofObject(2, displayObj);
       sqInt d= fetchIntegerofObject(3, displayObj);
-      sqInt dispBitsIndex= dispBits + BaseHeaderSize;
+      // sqInt dispBitsIndex= dispBits + BaseHeaderSize; xxx_dmu
+      sqInt dispBitsIndex = (sqInt)firstFixedField(dispBits); // xxx_dmu
       ioShowDisplay(dispBitsIndex, w, h, d, (sqInt)l, (sqInt)r, (sqInt)t, (sqInt)b);
     }
 }
@@ -1225,7 +1228,7 @@ static int x2sqModifier(int state)
 	/* M - A - */ _|M|_|_,  _|M|_|S,  _|M|_|S,  _|M|_|_,
 	/* M - A C */ O|_|_|_,  O|M|_|S,  O|M|_|S,  O|M|_|_,
       };
-#    if defined(__POWERPC__) || defined(__ppc__)
+#    if defined(__POWERPC__) || defined(__ppc__) || Configure_Squeak_Code_for_Tilera // xxx_dmu
       mods= midofiers[state & 0x1f];
 #    else
       mods= midofiers[state & 0x0f];
@@ -1251,7 +1254,7 @@ static void waitForCompletions(void)
 
 static void handleEvent(XEvent *evt)
 {
-#if defined(DEBUG_EVENTS)
+ #if defined(DEBUG_EVENTS)
   switch (evt->type)
     {
     case ButtonPress:
@@ -1337,7 +1340,17 @@ static void handleEvent(XEvent *evt)
     case KeyPress:
       noteEventState(evt->xkey);
       {
-	int keyCode= x2sqKey(&evt->xkey);
+     	int keyCode= x2sqKey(&evt->xkey);
+      if (keyCode == 1  &&  modifierState == 3)  signal_emergency_semaphore();
+      if (keyCode == 1  &&  modifierState == 2)    /* ^a */ print_vm_info();
+# if Multiple_Tileras
+        extern void connect_to_other_chips();
+        extern void send_test_message();
+        
+      if (keyCode == 2  &&  modifierState == 3)  connect_to_other_chips();
+      if (keyCode == 5  &&  modifierState == 3)  send_test_message();//ctrl shift e
+# endif
+
 	if (keyCode >= 0)
 	  {
 	    recordKeyboardEvent(keyCode, EventKeyDown, modifierState);
@@ -1759,12 +1772,20 @@ void initWindow(char *displayName)
 
   XSetErrorHandler(xError);
 
-  stDisplay= XOpenDisplay(displayName);
+  // xxx_dmu Tilera sometimes takes time to initialize
+  int xxx_dmu;
+  for (xxx_dmu = 0;  xxx_dmu < 100;  ++xxx_dmu) {
+    stDisplay= XOpenDisplay(displayName);
+    if (stDisplay) break;
+    if (xxx_dmu == 0) fprintf(stderr, "Retrying display\n");
+    sleep(1);
+  }
   if (!stDisplay)
     {
       fprintf(stderr, "Could not open display `%s'.\n", displayName);
       exit(1);
     }
+  if (xxx_dmu != 0) fprintf(stderr, "had to try %d times\n", xxx_dmu + 1);
 
   /* get screen size */
   scrH= (DisplayHeight(stDisplay, DefaultScreen(stDisplay)));
@@ -2136,7 +2157,7 @@ static sqInt display_ioFormPrint(sqInt bitsIndex, sqInt width, sqInt height, sqI
 {
 # if defined(PRINT_PS_FORMS)
 
-  char *bitsAddr= pointerForOop(bitsIndex);
+  char *bitsAddr= pointerForIndex_xxx_dmu(bitsIndex);
   FILE *ppm;
   float scale;			/* scale to use with pnmtops */
   char printCommand[1000];
@@ -2372,8 +2393,8 @@ static unsigned char swapBits(unsigned char in)
 
 static sqInt display_ioSetCursorWithMask(sqInt cursorBitsIndex, sqInt cursorMaskIndex, sqInt offsetX, sqInt offsetY)
 {
-  unsigned int *cursorBits= (unsigned int *)pointerForOop(cursorBitsIndex);
-  unsigned int *cursorMask= (unsigned int *)pointerForOop(cursorMaskIndex);
+  unsigned int *cursorBits= (unsigned int *)pointerForIndex_xxx_dmu(cursorBitsIndex);
+  unsigned int *cursorMask= (unsigned int *)pointerForIndex_xxx_dmu(cursorMaskIndex);
   unsigned char data[32], mask[32];	/* cursors are always 16x16 */
   int i;
   Cursor cursor;
@@ -2677,7 +2698,7 @@ static sqInt display_ioShowDisplay(sqInt dispBitsIndex, sqInt width, sqInt heigh
   static sqInt  stDisplayHeight= 0;	/* ditto height */
   static sqInt  stDisplayDepth= 0;	/* ditto depth */
 
-  char *dispBits= pointerForOop(dispBitsIndex);
+  char *dispBits= pointerForIndex_xxx_dmu(dispBitsIndex);
 
   int geometryChanged= ((stDisplayBits != dispBits)
 			|| (stDisplayWidth  != width)
@@ -3981,7 +4002,7 @@ static int visualAttributes[]= {
   GLX_RGBA,                 /* no indexed colors */
   GLX_DOUBLEBUFFER,         /* will swap */
   GLX_LEVEL,            0,  /* frame buffer, not overlay */
-  GLX_DEPTH_SIZE,       16, /* decent depth */   
+  GLX_DEPTH_SIZE,       16, /* decent depth */
   GLX_AUX_BUFFERS,      0,  /* no aux buffers */
   GLX_ACCUM_RED_SIZE,   0,  /* no accumulation */
   GLX_ACCUM_GREEN_SIZE, 0,
@@ -4005,7 +4026,7 @@ static sqInt display_ioGLcreateRenderer(glRenderer *r, sqInt x, sqInt y, sqInt w
 
   if (flags & B3D_STENCIL_BUFFER)
     visualAttributes[1]= 1;
-  else 
+  else
     visualAttributes[1]= 0;
   _renderWindow(r)= 0;
   _renderContext(r)= 0;
@@ -4059,7 +4080,7 @@ static sqInt display_ioGLcreateRenderer(glRenderer *r, sqInt x, sqInt y, sqInt w
       valuemask|= CWBackPixel;
 
       if (!(_renderWindow(r)= (void *)XCreateWindow(stDisplay, stWindow, x, y, w, h, 0,
-						    visinfo->depth, InputOutput, visinfo->visual, 
+						    visinfo->depth, InputOutput, visinfo->visual,
 						    valuemask, &attributes)))
 	{
 	  DPRINTF(1, (fp, "Failed to create client window\r"));
@@ -4137,9 +4158,9 @@ static void display_ioGLsetBufferRect(glRenderer *r, sqInt x, sqInt y, sqInt w, 
 
 static void printVisual(XVisualInfo* visinfo)
 {
-  int isOpenGL; 
+  int isOpenGL;
   glXGetConfig(stDisplay, visinfo, GLX_USE_GL, &isOpenGL);
-  if (isOpenGL) 
+  if (isOpenGL)
     {
       int slow= 0;
       int red, green, blue, alpha, stencil, depth;
@@ -4167,7 +4188,7 @@ static void listVisuals(void)
 {
   XVisualInfo* visinfo;
   int nvisuals, i;
-   
+
   visinfo= XGetVisualInfo(stDisplay, VisualNoMask, NULL, &nvisuals);
 
   for (i= 0; i < nvisuals; i++)

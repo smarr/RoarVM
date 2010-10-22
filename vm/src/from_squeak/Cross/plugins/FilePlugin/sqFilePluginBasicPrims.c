@@ -1,10 +1,10 @@
 /****************************************************************************
 *   PROJECT: File Interface
 *   FILE:    sqFilePluginBasicPrims.c
-*   CONTENT: 
+*   CONTENT:
 *
-*   AUTHOR:  
-*   ADDRESS: 
+*   AUTHOR:
+*   ADDRESS:
 *   EMAIL:   ]
 *   RCSID:   $Id: sqFilePluginBasicPrims.c 1283 2005-12-31 00:51:12Z rowledge $
 *
@@ -26,7 +26,7 @@
 * handling code. Note that the win32 platform #defines NO_STD_FILE_SUPPORT
 * and thus bypasses this file
 */
-                                                      
+
 #include "sq.h"
 #ifndef NO_STD_FILE_SUPPORT
 #include "FilePlugin.h"
@@ -203,8 +203,8 @@ sqInt sqFileOpen(SQFile *f, char* sqFileName, sqInt sqFileNameSize, sqInt writeF
 			if (getFile(f) != NULL) {
 			    char type[4],creator[4];
 				dir_GetMacFileTypeAndCreator(sqFileName, sqFileNameSize, type, creator);
-				if (strncmp(type,"BINA",4) == 0 || strncmp(type,"????",4) == 0 || *(int *)type == 0 ) 
-				    dir_SetMacFileTypeAndCreator(sqFileName, sqFileNameSize,"TEXT","R*ch");	
+				if (strncmp(type,"BINA",4) == 0 || strncmp(type,"????",4) == 0 || *(int *)type == 0 )
+				    dir_SetMacFileTypeAndCreator(sqFileName, sqFileNameSize,"TEXT","R*ch");
 			}
 		}
 		f->writable = true;
@@ -297,7 +297,7 @@ sqInt sqFileTruncate(SQFile *f,squeakFileOffsetType offset) {
 	if (!sqFileValid(f)) return interpreterProxy->success(false);
  	if (sqFTruncate(getFile(f), offset)) {
             return interpreterProxy->success(false);
-        } 
+        }
 	setSize(f, ftell(getFile(f)));
 	return 1;
 }

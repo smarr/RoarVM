@@ -3,7 +3,7 @@
  * Last edited: 2005-04-06 05:44:40 by piumarta on pauillac.hpl.hp.com
  *
  * This is a template for creating your own sound drivers for Squeak:
- * 
+ *
  *   - copy the entire contents of this directory to some other name
  *   - rename this file to be something more appropriate
  *   - modify acinclude.m4, Makefile.in, and ../vm/sqUnixMain accordingly

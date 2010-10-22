@@ -1,42 +1,44 @@
 /* sqUnixCharConv.c -- conversion between character encodings
- * 
+ *
  * Author: Ian.Piumarta@squeakland.org
- * 
+ *
  *   Copyright (C) 1996-2005 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
- *   
+ *
  *   This file is part of Unix Squeak.
- * 
+ *
  *      You are NOT ALLOWED to distribute modified versions of this file
  *      under its original name.  If you modify this file then you MUST
  *      rename it before making your modifications available publicly.
- * 
+ *
  *   This file is distributed in the hope that it will be useful, but WITHOUT
  *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *   FITNESS FOR A PARTICULAR PURPOSE.
- *   
+ *
  *   You may use and/or distribute this file ONLY as part of Squeak, under
  *   the terms of the Squeak License as described in `LICENSE' in the base of
  *   this distribution, subject to the following additional restrictions:
- * 
+ *
  *   1. The origin of this software must not be misrepresented; you must not
  *      claim that you wrote the original software.  If you use this software
  *      in a product, an acknowledgment to the original author(s) (and any
  *      other contributors mentioned herein) in the product documentation
  *      would be appreciated but is not required.
- * 
+ *
  *   2. You must not distribute (or make publicly available by any
  *      means) a modified copy of this file unless you first rename it.
- * 
+ *
  *   3. This notice must not be removed or altered in any source distribution.
- * 
+ *
  *   Using (or modifying this file for use) in any context other than Squeak
  *   changes these copyright conditions.  Read the file `COPYING' in the
  *   directory `platforms/unix/doc' before proceeding with any such use.
- * 
+ *
  * Last edited: 2005-03-17 21:09:51 by piumarta on squeak.hpl.hp.com
  */
+
+# include "squeak_adapters.h"
 
 #if !defined(__MACH__)
 # include "sqMemoryAccess.h"
@@ -153,13 +155,13 @@ int convertChars(char *from, int fromLen, void *fromCode, char *to, int toLen, v
 typedef char ichar_t;
 
 #ifdef __sparc
-void *sqTextEncoding=	(void *)"mac";		/* xxxFIXME -> "ISO-8859-15" */ 
+void *sqTextEncoding=	(void *)"mac";		/* xxxFIXME -> "ISO-8859-15" */
 void *uxPathEncoding=	(void *)"iso";
 void *uxTextEncoding=	(void *)"iso";
 void *uxXWinEncoding=	(void *)"iso";
 void *uxUTF8Encoding=	(void *)"UTF-8";
 #else
-void *sqTextEncoding=	(void *)"MACINTOSH";	/* xxxFIXME -> "ISO-8859-15" */ 
+void *sqTextEncoding=	(void *)"MACINTOSH";	/* xxxFIXME -> "ISO-8859-15" */
 void *uxPathEncoding=	(void *)"UTF-8";
 void *uxTextEncoding=	(void *)"ISO-8859-15";
 void *uxXWinEncoding=	(void *)"ISO-8859-1";
@@ -240,7 +242,7 @@ int convertChars(char *from, int fromLen, void *fromCode, char *to, int toLen, v
 
 		    if (0xfe == c || 0xff == c)		/* invalid */
 		      skip= 1;
-		    else 
+		    else
 		      while ((skip < inbytes) && (mask & c))
 			{
 			  skip++;
@@ -340,7 +342,7 @@ Convert(ux,sq, UTF8, uxUTF8Encoding, sqTextEncoding, 0, 1);
 void sqFilenameFromString(char *uxName, sqInt sqNameIndex, int sqNameLength)
 {
   /*xxx BUG: lots of code generate from the image assumes 1000 chars max path len */
-  sq2uxPath(pointerForOop(sqNameIndex), sqNameLength, uxName, 1000, 1);
+  sq2uxPath(pointerForIndex_xxx_dmu(sqNameIndex), sqNameLength, uxName, 1000, 1);
 }
 
 
@@ -371,17 +373,17 @@ int main()
   {
     char *in, out[256];
     int   n;
-    in= "tésté";		// UTF-8 composed Unicode
+    in= "t√©st√©";		// UTF-8 composed Unicode
     n= convertChars(in, strlen(in), uxPathEncoding, out, sizeof(out), uxTextEncoding, 0, 1);
     printf("%d: %s -> %s\n", n, in, out);
-    in= "tésté";	// UTF-8 decomposed Unicode (libiconv fails on this one, MacOSX passes)
+    in= "teÃÅsteÃÅ";	// UTF-8 decomposed Unicode (libiconv fails on this one, MacOSX passes)
     n= convertChars(in, strlen(in), uxPathEncoding, out, sizeof(out), uxTextEncoding, 0, 1);
     printf("%d: %s -> %s\n", n, in, out);
-    in= "t�st�";		// ISO-8859-15
+    in= "tÈstÈ";		// ISO-8859-15
     n= convertChars(in, strlen(in), uxTextEncoding, out, sizeof(out), uxPathEncoding, 0, 1);
-    printf("%d: %s -> %s\n", n, in, out); // default composition -- should yield "tésté"
+    printf("%d: %s -> %s\n", n, in, out); // default composition -- should yield "t√©st√©"
     n= convertChars(in, strlen(in), uxTextEncoding, out, sizeof(out), uxPathEncoding, 1, 1);
-    printf("%d: %s -> %s\n", n, in, out); // canonical decomposition -- should yield "tésté"
+    printf("%d: %s -> %s\n", n, in, out); // canonical decomposition -- should yield "teÃÅsteÃÅ"
   }
   return 0;
 }

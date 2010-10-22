@@ -264,7 +264,7 @@ static sqInt bytesLshift(sqInt aBytesOop, sqInt shiftCount) {
 
 
 /*	Attention: this method invalidates all oop's! Only newBytes is valid at return. */
-/*	Shift right 8*b+anInteger bits, 0<=n<8.         
+/*	Shift right 8*b+anInteger bits, 0<=n<8.
 	Discard all digits beyond a, and all zeroes at or below a. */
 /*	Does not normalize. */
 
@@ -420,9 +420,9 @@ static int cBytesCopyFromtolen(unsigned char *  pFrom, unsigned char *  pTo, sqI
 }
 
 
-/*	Answer the index (in bits) of the high order bit of the receiver, or zero if the    
-	 receiver is zero. This method is allowed (and needed) for     
-	LargeNegativeIntegers as well, since Squeak's LargeIntegers are     
+/*	Answer the index (in bits) of the high order bit of the receiver, or zero if the
+	 receiver is zero. This method is allowed (and needed) for
+	LargeNegativeIntegers as well, since Squeak's LargeIntegers are
 	sign/magnitude. */
 
 static sqInt cBytesHighBitlen(unsigned char *   pByte, sqInt len) {
@@ -575,7 +575,7 @@ static sqInt cCoreDigitDivDivlenremlenquolen(unsigned char *  pDiv, sqInt divLen
 			mul = q * dnh;
 			hi = ((usqInt) mul >> 8);
 
-			/* Correct overestimate of q.                
+			/* Correct overestimate of q.
 				Max of 2 iterations through loop -- see Knuth vol. 2 */
 
 			lo = mul & 255;
@@ -672,7 +672,7 @@ static sqInt cDigitComparewithlen(unsigned char *  pFirst, unsigned char *  pSec
 }
 
 
-/*	Answer the number of indexable fields of a CSmallInteger. This value is 
+/*	Answer the number of indexable fields of a CSmallInteger. This value is
 	   the same as the largest legal subscript. */
 
 static sqInt cDigitLengthOfCSI(sqInt csi) {
@@ -727,8 +727,8 @@ static unsigned char cDigitMultiplylenwithleninto(unsigned char *  pByteShort, s
 }
 
 
-/*	Answer the value of an indexable field in the receiver.              
-	LargePositiveInteger uses bytes of base two number, and each is a       
+/*	Answer the value of an indexable field in the receiver.
+	LargePositiveInteger uses bytes of base two number, and each is a
 	      'digit' base 256. */
 /*	ST indexed! */
 
@@ -771,7 +771,7 @@ static sqInt cDigitSublenwithleninto(unsigned char *  pByteSmall, sqInt smallLen
 }
 
 
-/*	Answer the index of the high order bit of the argument, or zero if the  
+/*	Answer the index of the high order bit of the argument, or zero if the
 	argument is zero. */
 /*	For 64 bit uints there could be added a 32-shift. */
 
@@ -960,7 +960,7 @@ static sqInt digitBitLogicwithopIndex(sqInt firstInteger, sqInt secondInteger, s
 }
 
 
-/*	Compare the magnitude of firstInteger with that of secondInteger.      
+/*	Compare the magnitude of firstInteger with that of secondInteger.
 	Return a code of 1, 0, -1 for firstInteger >, = , < secondInteger */
 
 static sqInt digitCompareLargewith(sqInt firstInteger, sqInt secondInteger) {
@@ -1431,9 +1431,9 @@ EXPORT(sqInt) primAnyBitFromTo(void) {
 }
 
 
-/*	Converts a SmallInteger into a - non normalized! - LargeInteger;          
+/*	Converts a SmallInteger into a - non normalized! - LargeInteger;
 	 aLargeInteger will be returned unchanged. */
-/*	Do not check for forced fail, because we need this conversion to test the 
+/*	Do not check for forced fail, because we need this conversion to test the
 	plugin in ST during forced fail, too. */
 
 EXPORT(sqInt) primAsLargeInteger(void) {
@@ -1551,7 +1551,7 @@ EXPORT(sqInt) primDigitAddWith(void) {
 }
 
 
-/*	Bit logic here is only implemented for positive integers or Zero; if rec 
+/*	Bit logic here is only implemented for positive integers or Zero; if rec
 	or arg is negative, it fails. */
 
 EXPORT(sqInt) primDigitBitAnd(void) {
@@ -1602,7 +1602,7 @@ EXPORT(sqInt) primDigitBitLogicWithOp(void) {
 }
 
 
-/*	Bit logic here is only implemented for positive integers or Zero; if rec 
+/*	Bit logic here is only implemented for positive integers or Zero; if rec
 	or arg is negative, it fails. */
 
 EXPORT(sqInt) primDigitBitOr(void) {
@@ -1723,7 +1723,7 @@ EXPORT(sqInt) primDigitBitShiftMagnitude(void) {
 }
 
 
-/*	Bit logic here is only implemented for positive integers or Zero; if rec 
+/*	Bit logic here is only implemented for positive integers or Zero; if rec
 	or arg is negative, it fails. */
 
 EXPORT(sqInt) primDigitBitXor(void) {
@@ -1884,8 +1884,8 @@ EXPORT(sqInt) primDigitCompareWith(void) {
 }
 
 
-/*	Answer the result of dividing firstInteger by secondInteger. 
-	Fail if parameters are not integers, not normalized or secondInteger is 
+/*	Answer the result of dividing firstInteger by secondInteger.
+	Fail if parameters are not integers, not normalized or secondInteger is
 	zero.  */
 
 EXPORT(sqInt) primDigitDivNegative(void) {

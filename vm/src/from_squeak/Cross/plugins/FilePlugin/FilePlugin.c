@@ -112,11 +112,13 @@ static sqInt asciiDirectoryDelimiter(void) {
 
 /*	Open the named file, possibly checking security. Answer the file oop. */
 
-EXPORT(sqInt) fileOpenNamesizewritesecure(char * nameIndex, sqInt nameSize, sqInt writeFlag, sqInt secureFlag) {
+EXPORT(sqInt) fileOpenNamesizewritesecure(char * nameIndex_xxx_dmu, sqInt nameSize, sqInt writeFlag, sqInt secureFlag) {
     sqInt fileOop;
     sqInt okToOpen;
     SQFile * file;
 
+  char* nameIndex_xxx_dmu1 = malloc(nameSize);
+  memmove(nameIndex_xxx_dmu1, nameIndex_xxx_dmu, nameSize);
 	fileOop = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), fileRecordSize());
 	/* begin fileValueOf: */
 	if (!((interpreterProxy->isBytes(fileOop)) && ((interpreterProxy->byteSizeOf(fileOop)) == (fileRecordSize())))) {
@@ -129,7 +131,7 @@ l1:	/* end fileValueOf: */;
 	if (!(interpreterProxy->failed())) {
 		if (secureFlag) {
 			if (sCOFfn != 0) {
-				okToOpen = ((sqInt (*) (char *, sqInt, sqInt)) sCOFfn)(nameIndex, nameSize, writeFlag);
+				okToOpen = ((sqInt (*) (char *, sqInt, sqInt)) sCOFfn)(nameIndex_xxx_dmu1, nameSize, writeFlag);
 				if (!(okToOpen)) {
 					interpreterProxy->primitiveFail();
 				}
@@ -137,8 +139,9 @@ l1:	/* end fileValueOf: */;
 		}
 	}
 	if (!(interpreterProxy->failed())) {
-		sqFileOpen(file, nameIndex, nameSize, writeFlag);
+		sqFileOpen(file, nameIndex_xxx_dmu1, nameSize, writeFlag);
 	}
+  free(nameIndex_xxx_dmu1);
 	return fileOop;
 }
 
@@ -318,7 +321,7 @@ EXPORT(sqInt) primitiveDirectoryDelimitor(void) {
 		return interpreterProxy->primitiveFail();
 	}
 	interpreterProxy->pop(1);
-	interpreterProxy->push(interpreterProxy->fetchPointerofObject(ascii, interpreterProxy->characterTable()));
+	interpreterProxy->push(interpreterProxy->fetchPointerofObject(ascii, interpreterProxy->characterTable())); // OK xxx_dmu
 }
 
 EXPORT(sqInt) primitiveDirectoryGetMacTypeAndCreator(void) {
@@ -384,7 +387,7 @@ EXPORT(sqInt) primitiveDirectoryLookup(void) {
 	}
 	pathNameIndex = interpreterProxy->firstIndexableField(pathName);
 
-	/* If the security plugin can be loaded, use it to check for permission. 
+	/* If the security plugin can be loaded, use it to check for permission.
 	If not, assume it's ok */
 
 	pathNameSize = interpreterProxy->byteSizeOf(pathName);

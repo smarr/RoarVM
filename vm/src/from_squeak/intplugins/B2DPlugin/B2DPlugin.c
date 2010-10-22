@@ -860,7 +860,7 @@ static sqInt addEdgeToGET(sqInt edge) {
 }
 
 
-/*	NOTE: 	This method is (hopefully) obsolete due to unrolling 
+/*	NOTE: 	This method is (hopefully) obsolete due to unrolling
 				the fill loops to deal with full pixels. */
 /*	Adjust the span buffers values by the appropriate color offset for anti-aliasing.
 	We do this by replicating the top bits of each color in the lower bits. The idea is that we can scale each color value uniquely from 0 to 255 and thus fill the entire range of colors. */
@@ -1521,7 +1521,7 @@ static sqInt checkCompressedPointssegments(sqInt points, sqInt nSegments) {
 }
 
 
-/*	Check if the given shape can be handled by the engine. 
+/*	Check if the given shape can be handled by the engine.
 	Since there are a number of requirements this is an extra method. */
 
 static sqInt checkCompressedShapesegmentsleftFillsrightFillslineWidthslineFillsfillIndexList(sqInt points, sqInt nSegments, sqInt leftFills, sqInt rightFills, sqInt lineWidths, sqInt lineFills, sqInt fillIndexList) {
@@ -1920,7 +1920,7 @@ l1:	/* end wbStackPush: */;
 }
 
 
-/*	Get both values from the two boundaries of the given bezier 
+/*	Get both values from the two boundaries of the given bezier
 	and compute the actual position/width of the line */
 
 static sqInt computeFinalWideBezierValueswidth(sqInt bezier, sqInt lineWidth) {
@@ -3968,7 +3968,7 @@ static sqInt findNextExternalFillFromAET(void) {
 	leftX = rightX = workBuffer[GWFillMaxX];
 	while ((workBuffer[GWAETStart]) < (workBuffer[GWAETUsed])) {
 
-		/* TODO: We should check if leftX from last operation 
+		/* TODO: We should check if leftX from last operation
 			is  greater than leftX from next edge.
 			Currently, we rely here on spanEndAA
 			from the span buffer fill. */
@@ -5956,7 +5956,7 @@ EXPORT(sqInt) moduleUnloaded(char * aModuleName) {
 }
 
 
-/*	The entry at index is not in the right position of the AET. 
+/*	The entry at index is not in the right position of the AET.
 	Move it to the left until the position is okay. */
 
 static sqInt moveAETEntryFromedgex(sqInt index, sqInt edge, sqInt xValue) {
@@ -6629,7 +6629,7 @@ EXPORT(sqInt) primitiveAddPolygon(void) {
 		return interpreterProxy->primitiveFail();
 	}
 	if (((lineFill == 0) || (lineWidth == 0)) && (fillIndex == 0)) {
-		return interpreterProxy->pop(6);
+		return interpreterProxy->pop(5); // was 6 DMU Squeak bug?
 	}
 	if (!(lineWidth == 0)) {
 		lineWidth = transformWidth(lineWidth);
@@ -6873,7 +6873,7 @@ EXPORT(sqInt) primitiveDisplaySpanBuffer(void) {
 	if (!(loadSpanBufferFrom(interpreterProxy->fetchPointerofObject(BESpanIndex, engine)))) {
 		return interpreterProxy->primitiveFail();
 	}
-	if (!(loadBitBltFrom(interpreterProxy->fetchPointerofObject(BEBitBltIndex, engine)))) {
+	if (!(loadBitBltFrom(interpreterProxy->fetchPointerofObject(BEBitBltIndex, engine)))) { // maybe xxx_dmu
 		return interpreterProxy->primitiveFail();
 	}
 	if (((workBuffer[GWCurrentY]) & (workBuffer[GWAAScanMask])) == (workBuffer[GWAAScanMask])) {
@@ -7088,7 +7088,7 @@ EXPORT(sqInt) primitiveGetFailureReason(void) {
 	if ((interpreterProxy->slotSizeOf(engine)) < BEBalloonEngineSize) {
 		return 0;
 	}
-	if (!(loadWorkBufferFrom(interpreterProxy->fetchPointerofObject(BEWorkBufferIndex, engine)))) {
+	if (!(loadWorkBufferFrom(interpreterProxy->fetchPointerofObject(BEWorkBufferIndex, engine)))) { // maybe xxx_dmu
 		return interpreterProxy->primitiveFail();
 	}
 	interpreterProxy->pop(1);
@@ -7213,7 +7213,7 @@ EXPORT(sqInt) primitiveInitializeProcessing(void) {
 	if (!(quickLoadEngineFromrequiredState(engine, GEStateUnlocked))) {
 		return interpreterProxy->primitiveFail();
 	}
-	if (!(loadSpanBufferFrom(interpreterProxy->fetchPointerofObject(BESpanIndex, engine)))) {
+	if (!(loadSpanBufferFrom(interpreterProxy->fetchPointerofObject(BESpanIndex, engine)))) { // maybe xxx_dmu
 		return interpreterProxy->primitiveFail();
 	}
 	initializeGETProcessing();
@@ -7257,7 +7257,7 @@ EXPORT(sqInt) primitiveMergeFillFrom(void) {
 	if (!(quickLoadEngineFromrequiredState(engine, GEStateWaitingForFill))) {
 		return interpreterProxy->primitiveFail();
 	}
-	if (!(loadSpanBufferFrom(interpreterProxy->fetchPointerofObject(BESpanIndex, engine)))) {
+	if (!(loadSpanBufferFrom(interpreterProxy->fetchPointerofObject(BESpanIndex, engine)))) { // maybe xxx_dmu
 		return interpreterProxy->primitiveFail();
 	}
 	if (!((interpreterProxy->fetchClassOf(bitsOop)) == (interpreterProxy->classBitmap()))) {
@@ -7416,10 +7416,10 @@ EXPORT(sqInt) primitiveNextFillEntry(void) {
 	if (!(quickLoadEngineFromrequiredState(engine, GEStateScanningAET))) {
 		return interpreterProxy->primitiveFail();
 	}
-	if (!(loadSpanBufferFrom(interpreterProxy->fetchPointerofObject(BESpanIndex, engine)))) {
+	if (!(loadSpanBufferFrom(interpreterProxy->fetchPointerofObject(BESpanIndex, engine)))) { // maybe xxx_dmu
 		return interpreterProxy->primitiveFail();
 	}
-	if (!(loadFormsFrom(interpreterProxy->fetchPointerofObject(BEFormsIndex, engine)))) {
+	if (!(loadFormsFrom(interpreterProxy->fetchPointerofObject(BEFormsIndex, engine)))) { // maybe xxx_dmu
 		return interpreterProxy->primitiveFail();
 	}
 	if (!((workBuffer[GWClearSpanBuffer]) == 0)) {
@@ -7717,8 +7717,8 @@ EXPORT(sqInt) primitiveSetClipRect(void) {
 	if ((interpreterProxy->slotSizeOf(rectOop)) < 2) {
 		return interpreterProxy->primitiveFail();
 	}
-	loadPointfrom(((int *) (workBuffer + GWPoint1)), interpreterProxy->fetchPointerofObject(0, rectOop));
-	loadPointfrom(((int *) (workBuffer + GWPoint2)), interpreterProxy->fetchPointerofObject(1, rectOop));
+	loadPointfrom(((int *) (workBuffer + GWPoint1)), interpreterProxy->fetchPointerofObject(0, rectOop)); // maybe xxx_dmu
+	loadPointfrom(((int *) (workBuffer + GWPoint2)), interpreterProxy->fetchPointerofObject(1, rectOop)); // maybe xxx_dmu
 	if (!(interpreterProxy->failed())) {
 		workBuffer[GWClipMinX] = ((((int *) (workBuffer + GWPoint1)))[0]);
 		workBuffer[GWClipMinY] = ((((int *) (workBuffer + GWPoint1)))[1]);
@@ -8073,7 +8073,7 @@ static sqInt quickLoadEngineFrom(sqInt engineOop) {
 		return 0;
 	}
 	engine = engineOop;
-	if (!(loadWorkBufferFrom(interpreterProxy->fetchPointerofObject(BEWorkBufferIndex, engineOop)))) {
+	if (!(loadWorkBufferFrom(interpreterProxy->fetchPointerofObject(BEWorkBufferIndex, engineOop)))) { // maybe xxx_dmu
 		return 0;
 	}
 	workBuffer[GWStopReason] = 0;
@@ -8411,7 +8411,7 @@ static sqInt showFilldepthrightX(sqInt fillIndex, sqInt depth, sqInt rightX) {
 }
 
 static int * smallSqrtTable(void) {
-    static int theTable[32] = 
+    static int theTable[32] =
 	{0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6};
 
 	return theTable;
@@ -8509,7 +8509,7 @@ static sqInt stepToFirstBezier(void) {
 
 
 /*	Initialize the bezier at yValue.
-	TODO: Check if reducing maxSteps from 2*deltaY to deltaY 
+	TODO: Check if reducing maxSteps from 2*deltaY to deltaY
 		brings a *significant* performance improvement.
 		In theory this should make for double step performance
 		but will cost in quality. Might be that the AA stuff will
@@ -9341,7 +9341,7 @@ static sqInt subdivideBezierFrom(sqInt index) {
 }
 
 
-/*	Check if the given bezier curve is monoton in Y, and, if desired in X. 
+/*	Check if the given bezier curve is monoton in Y, and, if desired in X.
 	If not, subdivide it */
 
 static sqInt subdivideToBeMonotoninX(sqInt base, sqInt doTestX) {

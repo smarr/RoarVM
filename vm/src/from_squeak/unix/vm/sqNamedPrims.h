@@ -23,9 +23,15 @@ extern sqExport StarSqueakPlugin_exports[];
 extern sqExport UnixOSProcessPlugin_exports[];
 extern sqExport XDisplayControlPlugin_exports[];
 
+extern sqExport FilePlugin_exports[]; // xxx_dmu
+extern sqExport RVMPlugin_exports[]; // xxx_dmu
+extern sqExport SocketPlugin_exports[]; // xxx_dmu
+
 sqExport *pluginExports[] = {
 	vm_exports,
 	os_exports,
+
+FilePlugin_exports, // xxx_dmu
 	ADPCMCodecPlugin_exports,
 	BMPReadWriterPlugin_exports,
 	B2DPlugin_exports,
@@ -43,5 +49,7 @@ sqExport *pluginExports[] = {
 	StarSqueakPlugin_exports,
 	UnixOSProcessPlugin_exports,
 	XDisplayControlPlugin_exports,
+  RVMPlugin_exports,
+  SocketPlugin_exports, // xxx_dmu
 	NULL
 };

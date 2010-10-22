@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "squeak_adapters.h"
 #include "sqVirtualMachine.h"
 
 /*** Function prototypes ***/
@@ -41,7 +42,7 @@ sqInt  fetchPointerofObject(sqInt index, sqInt oop);
  * equivalent but 64 bit valid function is added as           *
  * 'fetchLong32OfObject'                                      */
 sqInt  obsoleteDontUseThisFetchWordofObject(sqInt index, sqInt oop);
-sqInt  fetchLong32ofObject(sqInt index, sqInt oop); 
+sqInt  fetchLong32ofObject(sqInt index, sqInt oop);
 void  *firstFixedField(sqInt oop);
 void  *firstIndexableField(sqInt oop);
 sqInt  literalofMethod(sqInt offset, sqInt methodPointer);
@@ -136,7 +137,7 @@ sqInt ioMicroMSecs(void);
 sqInt forceInterruptCheck(void);
 sqInt getThisSessionID(void);
 sqInt ioFilenamefromStringofLengthresolveAliases(char* aCharBuffer, char* filenameIndex, sqInt filenameLength, sqInt resolveFlag);
-sqInt  vmEndianness(void);	
+sqInt  vmEndianness(void);
 
 /* InterpreterProxy methodsFor: 'BitBlt support' */
 sqInt loadBitBltFrom(sqInt bbOop);
@@ -153,7 +154,7 @@ sqInt ioLoadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength);
 sqInt ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNameLength, sqInt moduleHandle);
 sqInt isInMemory(sqInt address);
 
-void *ioLoadFunctionFrom(char *fnName, char *modName);
+void *ioLoadFunctionFrom(const char *fnName, const char *modName);
 
 struct VirtualMachine *VM = NULL;
 
@@ -189,7 +190,7 @@ struct VirtualMachine* sqGetInterpreterProxy(void)
 	VM->stackIntegerValue = stackIntegerValue;
 	VM->stackObjectValue = stackObjectValue;
 	VM->stackValue = stackValue;
-	
+
 	/* InterpreterProxy methodsFor: 'object access' */
 	VM->argumentCountOf = argumentCountOf;
 	VM->arrayValueOf = arrayValueOf;
@@ -215,7 +216,7 @@ struct VirtualMachine* sqGetInterpreterProxy(void)
 	VM->stSizeOf = stSizeOf;
 	VM->storeIntegerofObjectwithValue = storeIntegerofObjectwithValue;
 	VM->storePointerofObjectwithValue = storePointerofObjectwithValue;
-	
+
 	/* InterpreterProxy methodsFor: 'testing' */
 	VM->isKindOf = isKindOf;
 	VM->isMemberOf = isMemberOf;
@@ -245,7 +246,7 @@ struct VirtualMachine* sqGetInterpreterProxy(void)
 	VM->falseObject = falseObject;
 	VM->nilObject = nilObject;
 	VM->trueObject = trueObject;
-	
+
 	/* InterpreterProxy methodsFor: 'special classes' */
 	VM->classArray = classArray;
 	VM->classBitmap = classBitmap;
@@ -257,7 +258,7 @@ struct VirtualMachine* sqGetInterpreterProxy(void)
 	VM->classSemaphore = classSemaphore;
 	VM->classSmallInteger = classSmallInteger;
 	VM->classString = classString;
-	
+
 	/* InterpreterProxy methodsFor: 'instance creation' */
 	VM->clone = clone;
 	VM->instantiateClassindexableSize = instantiateClassindexableSize;

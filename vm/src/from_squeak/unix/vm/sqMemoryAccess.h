@@ -1,7 +1,7 @@
 /* sqMemoryAccess.h -- memory accessors (and associated type definitions)
- * 
+ *
  * Author: Ian.Piumarta@squeakland.org
- * 
+ *
  * Last edited: 2006-04-06 09:47:39 by piumarta on emilia.local
  */
 
@@ -22,7 +22,7 @@
 # include "interp.h"
 #else
 # define SQ_VI_BYTES_PER_WORD 4		/* build a 32-bit VM */
-# warning 
+# warning
 # warning ***************************************************
 # warning *
 # warning * interp.h not found -- defaulting to a 32-bit VM
@@ -31,7 +31,7 @@
 # warning * version to avoid this message
 # warning *
 # warning ***************************************************
-# warning 
+# warning
 #endif
 
 #if (SQ_VI_BYTES_PER_WORD == 4)
@@ -57,7 +57,7 @@
 #else
 # if (SIZEOF_LONG_LONG != 8)
 #   error long long integers are not 64-bits wide?
-# endif 
+# endif
   typedef long long		sqInt;
   typedef unsigned long long	usqInt;
 #endif
@@ -82,8 +82,9 @@
   static inline sqInt longAtPointerput(char *ptr, sqInt val)	{ return (sqInt)(*((sqInt *)ptr)= (sqInt)val); }
   static inline sqInt oopAtPointer(char *ptr)			{ return (sqInt)(*((sqInt *)ptr)); }
   static inline sqInt oopAtPointerput(char *ptr, sqInt val)	{ return (sqInt)(*((sqInt *)ptr)= (sqInt)val); }
-  static inline char *pointerForOop(sqInt oop)			{ return sqMemoryBase + oop; }
-  static inline sqInt oopForPointer(char *ptr)			{ return (sqInt)(ptr - sqMemoryBase); }
+
+  extern char *pointerForOop(sqInt oop);			 // xxx_dmu Renaissance
+  extern sqInt oopForPointer(void *ptr);			 // xxx_dmu Renaissance
   static inline sqInt byteAt(sqInt oop)				{ return byteAtPointer(pointerForOop(oop)); }
   static inline sqInt byteAtput(sqInt oop, int val)		{ return byteAtPointerput(pointerForOop(oop), val); }
   static inline sqInt shortAt(sqInt oop)			{ return shortAtPointer(pointerForOop(oop)); }
@@ -95,6 +96,7 @@
   static inline sqInt oopAt(sqInt oop)				{ return oopAtPointer(pointerForOop(oop)); }
   static inline sqInt oopAtput(sqInt oop, sqInt val)		{ return oopAtPointerput(pointerForOop(oop), val); }
 #else
+# error Use the other ones for Renaissance
   /* Use macros when static inline functions aren't efficient. */
 # define byteAtPointer(ptr)		((sqInt)(*((unsigned char *)(ptr))))
 # define byteAtPointerput(ptr, val)	((sqInt)(*((unsigned char *)(ptr))= (unsigned char)(val)))
@@ -122,6 +124,10 @@
 
 #define long32At	intAt
 #define long32Atput	intAtput
+
+#define long32AtPointer	intAtPointer // xxx_dmu
+#define long32AtPointerput	intAtPointerput // xxx_dmu
+
 
 /* platform-dependent float conversion macros */
 /* Note: Second argument must be a variable name, not an expression! */

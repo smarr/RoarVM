@@ -1,41 +1,41 @@
 /* aio.c -- asynchronous file i/o
- * 
+ *
  *   Copyright (C) 1996-2006 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
- *   
+ *
  *   This file is part of Unix Squeak.
- * 
+ *
  *      You are NOT ALLOWED to distribute modified versions of this file
  *      under its original name.  If you modify this file then you MUST
  *      rename it before making your modifications available publicly.
- * 
+ *
  *   This file is distributed in the hope that it will be useful, but WITHOUT
  *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *   FITNESS FOR A PARTICULAR PURPOSE.
- *   
+ *
  *   You may use and/or distribute this file ONLY as part of Squeak, under
  *   the terms of the Squeak License as described in `LICENSE' in the base of
  *   this distribution, subject to the following additional restrictions:
- * 
+ *
  *   1. The origin of this software must not be misrepresented; you must not
  *      claim that you wrote the original software.  If you use this software
  *      in a product, an acknowledgment to the original author(s) (and any
  *      other contributors mentioned herein) in the product documentation
  *      would be appreciated but is not required.
- * 
+ *
  *   2. You must not distribute (or make publicly available by any
  *      means) a modified copy of this file unless you first rename it.
- * 
+ *
  *   3. This notice must not be removed or altered in any source distribution.
- * 
+ *
  *   Using (or modifying this file for use) in any context other than Squeak
  *   changes these copyright conditions.  Read the file `COPYING' in the
  *   directory `platforms/unix/doc' before proceeding with any such use.
  */
 
 /* Author: Ian.Piumarta@squeakland.org
- * 
+ *
  * Last edited: 2006-04-17 21:44:32 by piumarta on margaux.local
  */
 
@@ -49,27 +49,27 @@
 #   include <sys/types.h>
 #   include <unistd.h>
 # endif /* HAVE_UNISTD_H */
-  
+
 # ifdef NEED_GETHOSTNAME_P
     extern int gethostname();
 # endif
-  
+
 # include <stdio.h>
 # include <signal.h>
 # include <errno.h>
 # include <fcntl.h>
 # include <sys/ioctl.h>
-  
+
 # ifdef HAVE_SYS_TIME_H
 #   include <sys/time.h>
 # else
 #   include <time.h>
 # endif
-  
+
 # ifdef HAS_SYS_SELECT_H
 #   include <sys/select.h>
 # endif
-  
+
 # ifndef FIONBIO
 #   ifdef HAVE_SYS_FILIO_H
 #     include <sys/filio.h>

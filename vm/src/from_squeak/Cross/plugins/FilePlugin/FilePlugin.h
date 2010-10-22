@@ -1,11 +1,11 @@
 /****************************************************************************
 *   PROJECT: Common include
 *   FILE:    FilePlugin.h
-*   CONTENT: 
+*   CONTENT:
 *
-*   AUTHOR:  
-*   ADDRESS: 
-*   EMAIL:   
+*   AUTHOR:
+*   ADDRESS:
+*   EMAIL:
 *   RCSID:   $Id: FilePlugin.h 1283 2005-12-31 00:51:12Z rowledge $
 *
 *	2005-03-26 IKP fix unaligned accesses to file member

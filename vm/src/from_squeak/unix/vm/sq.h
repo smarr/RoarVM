@@ -1,11 +1,11 @@
 /****************************************************************************
 *   PROJECT: Common include
 *   FILE:    sq.h
-*   CONTENT: 
+*   CONTENT:
 *
-*   AUTHOR:  
-*   ADDRESS: 
-*   EMAIL:   
+*   AUTHOR:
+*   ADDRESS:
+*   EMAIL:
 *   RCSID:   $Id: sq.h 1283 2005-12-31 00:51:12Z rowledge $
 *
 */
@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+# include "squeak_adapters.h"
 
 #include "sqConfig.h"
 #include "sqMemoryAccess.h"
@@ -116,11 +118,11 @@ sqInt ioMicroMSecs(void);
 #define ioMSecs()	((1000 * clock()) / CLOCKS_PER_SEC)
 
 /* this macro cannot be used now that ioMicroMSecs is involved in the
-   sqVirtualMachine structures - we must have a function 
+   sqVirtualMachine structures - we must have a function
 #define ioMicroMSecs()	((1000 * clock()) / CLOCKS_PER_SEC)
 */
 
-/* New filename converting function; used by the interpreterProxy function 
+/* New filename converting function; used by the interpreterProxy function
   ioFilenamefromStringofLengthresolveAliases. Most platforms can ignore the
   resolveAlias boolean - it seems to only be of use by OSX but is crucial there.
 */
@@ -131,7 +133,7 @@ sqInt sqGetFilenameFromString(char * aCharBuffer, char * aFilenameString, sqInt 
    Override in sqPlatformSpecific.h for each platform that implements a
    file truncate, or consider replacing the
    ../Cross/plugins/FilePlugin/sqFilePluginBasicPrims.c
-   file with a platform specific version as Win32 and RISC OS do. 
+   file with a platform specific version as Win32 and RISC OS do.
 */
 #define sqFTruncate(filenum, fileoffset) true
 
@@ -188,7 +190,7 @@ sqInt ioDisablePowerManager(sqInt disableIfNonZero);
    In general, either set of input function can be supported,
    depending on the platform. This (first) set is state based
    and should be supported even on platforms that make use
-   of the newer event driven API to support older images 
+   of the newer event driven API to support older images
    without event support.
 */
 
@@ -383,7 +385,7 @@ sqInt getAttributeIntoLength(sqInt id, sqInt byteArrayIndex, sqInt length);
 void *ioLoadExternalFunctionOfLengthFromModuleOfLength(sqInt functionNameIndex, sqInt functionNameLength,
 						       sqInt moduleNameIndex, sqInt moduleNameLength);
 sqInt  ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength);
-void  *ioLoadFunctionFrom(char *functionName, char *pluginName);
+void  *ioLoadFunctionFrom(const char *functionName, const char *pluginName);
 sqInt  ioShutdownAllModules(void);
 sqInt  ioUnloadModule(char *moduleName);
 sqInt  ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength);

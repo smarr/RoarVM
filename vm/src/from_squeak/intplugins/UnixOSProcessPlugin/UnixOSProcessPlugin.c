@@ -2,6 +2,22 @@
 by VMMaker 3.8b6
  */
 
+// added bu dmu
+#define AIO_X	(1<<0)	/* handle for exceptions */
+#define AIO_R	(1<<1)	/* handle for read */
+#define AIO_W	(1<<2)	/* handle for write */
+#define AIO_SEQ	(1<<3)	/* call handlers sequentially  */
+#define AIO_EXT	(1<<4)	/* external fd -- don't close on aio shutdown  */
+
+#define AIO_RW	(AIO_R | AIO_W)
+#define AIO_RX	(AIO_R | AIO_X)
+#define AIO_WX	(AIO_W | AIO_X)
+
+#define AIO_RWX	(AIO_R | AIO_W | AIO_X)
+
+
+
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,6 +61,10 @@ by VMMaker 3.8b6
 #ifndef SQAIO_H
 # define SQAIO_H "aio.h"          /* aio.h has been renamed to sqaio.h */
 #endif
+# if Configure_Squeak_Code_for_Tilera  // xxx_dmu
+# undef SQAIO_H // xxx_dmu
+# define SQAIO_H "sqaio.h" // xxx_dmu
+# endif
 #include SQAIO_H
 #include "FilePlugin.h"
 #include "SocketPlugin.h"
@@ -1415,7 +1435,7 @@ EXPORT(sqInt) primitiveFileProtectionMask(void) {
 
 
 /*	Call stat(2) to obtain the file protection mask for a file. Answer errno on failure,
-	or on success answer an array with: UID with: GID with: protectionMask. The	
+	or on success answer an array with: UID with: GID with: protectionMask. The
 	protectionMask is an Array of four integers representing the protection mask, or
 	answer errno on failure. The protection mask is four Integers, each of which may
 	be considered an octal digit (0-7), with bit values 4, 2, and 1. The first digit selects
@@ -2470,7 +2490,7 @@ EXPORT(sqInt) primitiveSemaIndexFor(void) {
 
 	sigNum = interpreterProxy->stackIntegerValue(0);
 	index = semaIndices[sigNum];
-	interpreterProxy->pop(1);
+	interpreterProxy->pop(2); // Squeak bug, was 1
 	interpreterProxy->pushInteger(index);
 }
 

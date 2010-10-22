@@ -1,34 +1,34 @@
 /* sqUnixMain.c -- support for Unix.
- * 
+ *
  *   Copyright (C) 1996-2006 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
- *   
+ *
  *   This file is part of Unix Squeak.
- * 
+ *
  *      You are NOT ALLOWED to distribute modified versions of this file
  *      under its original name.  If you modify this file then you MUST
  *      rename it before making your modifications available publicly.
- * 
+ *
  *   This file is distributed in the hope that it will be useful, but WITHOUT
  *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *   FITNESS FOR A PARTICULAR PURPOSE.
- *   
+ *
  *   You may use and/or distribute this file ONLY as part of Squeak, under
  *   the terms of the Squeak License as described in `LICENSE' in the base of
  *   this distribution, subject to the following additional restrictions:
- * 
+ *
  *   1. The origin of this software must not be misrepresented; you must not
  *      claim that you wrote the original software.  If you use this software
  *      in a product, an acknowledgment to the original author(s) (and any
  *      other contributors mentioned herein) in the product documentation
  *      would be appreciated but is not required.
- * 
+ *
  *   2. You must not distribute (or make publicly available by any
  *      means) a modified copy of this file unless you first rename it.
- * 
+ *
  *   3. This notice must not be removed or altered in any source distribution.
- * 
+ *
  *   Using (or modifying this file for use) in any context other than Squeak
  *   changes these copyright conditions.  Read the file `COPYING' in the
  *   directory `platforms/unix/doc' before proceeding with any such use.
@@ -40,10 +40,12 @@
  */
 
 #include "sq.h"
+/*
 #include "sqMemoryAccess.h"
 #include "sqaio.h"
 #include "sqUnixCharConv.h"
 #include "debug.h"
+ */
 
 #ifdef ioMSecs
 # undef ioMSecs
@@ -103,7 +105,7 @@ static int    useItimer=	1;	/* 0 to disable itimer-based clock */
        int    useJit=		0;	/* use default */
        int    jitProcs=		0;	/* use default */
        int    jitMaxPIC=	0;	/* use default */
-       int    withSpy=		0;
+ /* Renaissance */       int    xxx_dmuwithSpy=		0;
 
        int    uxDropFileCount=	0;	/* number of dropped items	*/
        char **uxDropFileNames=	0;	/* dropped filenames		*/
@@ -115,7 +117,7 @@ static int    dumpImageFile=	0;	/* 1 after SIGHUP received */
 #endif
 
 #if defined(DARWIN)
-int inModalLoop= 0;
+/* Renaissance */ int xxx_dmuinModalLoop= 0;
 #endif
 
 int sqIgnorePluginErrors	= 0;
@@ -144,7 +146,9 @@ static void sigalrm(int signum)
 static void initTimers(void)
 {
   /* set up the micro/millisecond clock */
-  gettimeofday(&startUpTime, 0);
+  //  gettimeofday(&startUpTime, 0); cannot do this because time is different on each core -- dmu 3/09
+  fprintf(stderr, "itimer is %sbeing used\n",  useItimer ? "" : "not "); // xxx_dmu
+
   if (useItimer)
     {
       /* set up the low-res (50th second) millisecond clock */
@@ -292,7 +296,7 @@ sqInt imageNameSize(void)
 
 sqInt imageNameGetLength(sqInt sqImageNameIndex, sqInt length)
 {
-  char *sqImageName= pointerForOop(sqImageNameIndex);
+  char *sqImageName= (char*)pointerForIndex_xxx_dmu(sqImageNameIndex);
   int count, i;
 
   count= strlen(imageName);
@@ -308,7 +312,7 @@ sqInt imageNameGetLength(sqInt sqImageNameIndex, sqInt length)
 
 sqInt imageNamePutLength(sqInt sqImageNameIndex, sqInt length)
 {
-  char *sqImageName= pointerForOop(sqImageNameIndex);
+  char *sqImageName= (char*)pointerForIndex_xxx_dmu(sqImageNameIndex);
   int count, i;
 
   count= (IMAGE_NAME_SIZE < length) ? IMAGE_NAME_SIZE : length;
@@ -340,7 +344,7 @@ sqInt vmPathSize(void)
 
 sqInt vmPathGetLength(sqInt sqVMPathIndex, sqInt length)
 {
-  char *stVMPath= pointerForOop(sqVMPathIndex);
+  char *stVMPath= (char*)pointerForIndex_xxx_dmu(sqVMPathIndex);
   int count, i;
 
   count= strlen(vmPath);
@@ -433,7 +437,7 @@ sqInt attributeSize(sqInt id)
 sqInt getAttributeIntoLength(sqInt id, sqInt byteArrayIndex, sqInt length)
 {
   if (length > 0)
-    strncpy(pointerForOop(byteArrayIndex), getAttribute(id), length);
+    strncpy((char*)pointerForIndex_xxx_dmu(byteArrayIndex), getAttribute(id), length);
   return 0;
 }
 
@@ -523,7 +527,7 @@ static void emergencyDump(int quit)
 
 sqInt ioProcessEvents(void)
 {
-#if defined(IMAGE_DUMP)
+ #if defined(IMAGE_DUMP)
   if (dumpImageFile)
     {
       emergencyDump(0);
@@ -849,8 +853,14 @@ static void loadImplicit(struct SqModule **addr, char *evar, char *type, char *n
 
 static void loadModules(void)
 {
+# if Configure_Squeak_Code_for_Tilera
+    extern struct SqModule display_X11,sound_null;
+    displayModule = &display_X11;
+    soundModule = &sound_null;
+# else
   loadImplicit(&displayModule, "DISPLAY",     "display", "X11");
   loadImplicit(&soundModule,   "AUDIOSERVER", "sound",   "NAS");
+# endif
   {
     struct moduleDescription *md;
 
@@ -900,11 +910,13 @@ static int strtobkm(const char *str)
   return value;
 }
 
-static int jitArgs(char *str)
+# if UNUSED // xxx_dmu
+
+UNUSED static int jitArgs(char *str)
 {
   char *endptr= str;
   int  args= 3;				/* default JIT mode = fast compiler */
-  
+
   if (*str == '\0') return args;
   if (*str != ',')
     args= strtol(str, &endptr, 10);	/* mode */
@@ -913,6 +925,7 @@ static int jitArgs(char *str)
   return args;
 }
 
+# endif // UNUSED
 
 static void vm_parseEnvironment(void)
 {
@@ -929,21 +942,30 @@ static void vm_parseEnvironment(void)
   if ((ev= getenv("SQUEAK_MMAP")))	useMmap= strtobkm(ev);
   if ((ev= getenv("SQUEAK_PLUGINS")))	squeakPlugins= strdup(ev);
   if ((ev= getenv("SQUEAK_NOEVENTS")))	noEvents= 1;
-  if ((ev= getenv("SQUEAK_NOTIMER")))	useItimer= 0;
+  if ((ev= getenv("SQUEAK_NOTIMER")))
+    useItimer= 0;
+  # if UNUSED
   if ((ev= getenv("SQUEAK_JIT")))	useJit= jitArgs(ev);
+  # endif // UNUSED
   if ((ev= getenv("SQUEAK_PROCS")))	jitProcs= atoi(ev);
   if ((ev= getenv("SQUEAK_MAXPIC")))	jitMaxPIC= atoi(ev);
+  # if UNUSED
   if ((ev= getenv("SQUEAK_ENCODING")))	setEncoding(&sqTextEncoding, ev);
   if ((ev= getenv("SQUEAK_PATHENC")))	setEncoding(&uxPathEncoding, ev);
   if ((ev= getenv("SQUEAK_TEXTENC")))	setEncoding(&uxTextEncoding, ev);
+  # endif
 
   if ((ev= getenv("SQUEAK_VM")))	requireModulesNamed(ev);
 }
 
 
 static void usage(void);
-static void versionInfo(void);
 
+# if UNUSED
+
+UNUSED static void versionInfo(void);
+
+# endif // UNUSED
 
 static int parseModuleArgument(int argc, char **argv, struct SqModule **addr, char *type, char *name)
 {
@@ -999,10 +1021,12 @@ static int vm_parseArgument(int argc, char **argv)
   else if (!strcmp(argv[0], "-noevents"))	{ noEvents	= 1;			return 1; }
   else if (!strcmp(argv[0], "-nomixer"))	{ noSoundMixer	= 1;			return 1; }
   else if (!strcmp(argv[0], "-notimer"))	{ useItimer	= 0;			return 1; }
+  # if UNUSED
   else if (!strncmp(argv[0],"-jit", 4))		{ useJit	= jitArgs(argv[0]+4);	return 1; }
   else if (!strcmp(argv[0], "-nojit"))		{ useJit	= 0;			return 1; }
   else if (!strcmp(argv[0], "-spy"))		{ withSpy	= 1;			return 1; }
   else if (!strcmp(argv[0], "-version"))	{ versionInfo();			return 1; }
+  # endif
   /* option requires an argument */
   else if (argc > 1)
     {
@@ -1011,23 +1035,27 @@ static int vm_parseArgument(int argc, char **argv)
       else if (!strcmp(argv[0], "-memory"))	{ extraMemory=	 strtobkm(argv[1]);	 return 2; }
       else if (!strcmp(argv[0], "-mmap"))	{ useMmap=	 strtobkm(argv[1]);	 return 2; }
       else if (!strcmp(argv[0], "-plugins"))	{ squeakPlugins= strdup(argv[1]);	 return 2; }
+      # if UNUSED
       else if (!strcmp(argv[0], "-encoding"))	{ setEncoding(&sqTextEncoding, argv[1]); return 2; }
       else if (!strcmp(argv[0], "-pathenc"))	{ setEncoding(&uxPathEncoding, argv[1]); return 2; }
+      # endif // UNUSED
       else if (!strcmp(argv[0], "-textenc"))
-	{
-	  char *buf= (char *)malloc(strlen(argv[1]) + 1);
-	  int len, i;
-	  strcpy(buf, argv[1]);
-	  len= strlen(buf);
-	  for (i= 0;  i < len;  ++i)
-	    buf[i]= toupper(buf[i]);
-	  if ((!strcmp(buf, "UTF8")) || (!strcmp(buf, "UTF-8")))
-	    textEncodingUTF8= 1;
-	  else
-	    setEncoding(&uxTextEncoding, buf);
-	  free(buf);
-	  return 2;
-	}
+  {
+    char *buf= (char *)malloc(strlen(argv[1]) + 1);
+    int len, i;
+    strcpy(buf, argv[1]);
+    len= strlen(buf);
+    for (i= 0;  i < len;  ++i)
+      buf[i]= toupper(buf[i]);
+    # if UNUSED
+    if ((!strcmp(buf, "UTF8")) || (!strcmp(buf, "UTF-8")))
+      textEncodingUTF8= 1;
+    else
+      setEncoding(&uxTextEncoding, buf);
+     # endif // UNUSED
+    free(buf);
+    return 2;
+  }
     }
   return 0;	/* option not recognised */
 }
@@ -1114,8 +1142,9 @@ static void usage(void)
   exit(1);
 }
 
+# if UNUSED
 
-char *getVersionInfo(int verbose)
+UNUSED char *getVersionInfo(int verbose)
 {
   extern int   vm_serial;
   extern char *vm_date, *cc_version, *ux_version;
@@ -1140,14 +1169,16 @@ char *getVersionInfo(int verbose)
 }
 
 
-static void versionInfo(void)
+UNUSED static void versionInfo(void)
 {
   printf("%s", getVersionInfo(0));
   exit(0);
 }
 
 
-static void parseArguments(int argc, char **argv)
+# endif // UNUSED
+
+ static void parseArguments(int argc, char **argv)
 {
 # define skipArg()	(--argc, argv++)
 # define saveArg()	(vmArgVec[vmArgCnt++]= *skipArg())
@@ -1159,20 +1190,20 @@ static void parseArguments(int argc, char **argv)
       struct SqModule *m= 0;
       int n= 0;
       if (!strcmp(*argv, "--"))		/* escape from option processing */
-	break;
+  break;
       modulesDo (m)
-	if ((n= m->parseArgument(argc, argv)))
-	  break;
+  if ((n= m->parseArgument(argc, argv)))
+    break;
 #    ifdef DEBUG_IMAGE
       printf("parseArgument n = %d\n", n);
 #    endif
       if (n == 0)			/* option not recognised */
-	{
-	  fprintf(stderr, "unknown option: %s\n", argv[0]);
-	  usage();
-	}
+  {
+    fprintf(stderr, "unknown option: %s\n", argv[0]);
+    usage();
+  }
       while (n--)
-	saveArg();
+  saveArg();
     }
   if (!argc)
     return;
@@ -1181,9 +1212,9 @@ static void parseArguments(int argc, char **argv)
   else					/* image name */
     {
       if (!documentName)
-	strcpy(shortImageName, saveArg());
+  strcpy(shortImageName, saveArg());
       if (!strstr(shortImageName, ".image"))
-	strcat(shortImageName, ".image");
+  strcat(shortImageName, ".image");
     }
   /* save remaining arguments as Squeak arguments */
   while (argc > 0)
@@ -1193,6 +1224,8 @@ static void parseArguments(int argc, char **argv)
 # undef skipArg
 }
 
+# if UNUSED
+
 
 /*** main ***/
 
@@ -1201,17 +1234,17 @@ static void imageNotFound(char *imageName)
 {
   /* image file is not found */
   fprintf(stderr,
-	  "Could not open the Squeak image file `%s'.\n"
-	  "\n"
-	  "There are three ways to open a Squeak image file.  You can:\n"
-	  "  1. Put copies of the default image and changes files in this directory.\n"
-	  "  2. Put the name of the image file on the command line when you\n"
-	  "     run squeak (use the `-help' option for more information).\n"
-	  "  3. Set the environment variable SQUEAK_IMAGE to the name of the image\n"
-	  "     that you want to use by default.\n"
-	  "\n"
-	  "For more information, type: `man squeak' (without the quote characters).\n",
-	  imageName);
+    "Could not open the Squeak image file `%s'.\n"
+    "\n"
+    "There are three ways to open a Squeak image file.  You can:\n"
+    "  1. Put copies of the default image and changes files in this directory.\n"
+    "  2. Put the name of the image file on the command line when you\n"
+    "     run squeak (use the `-help' option for more information).\n"
+    "  3. Set the environment variable SQUEAK_IMAGE to the name of the image\n"
+    "     that you want to use by default.\n"
+    "\n"
+    "For more information, type: `man squeak' (without the quote characters).\n",
+    imageName);
   exit(1);
 }
 
@@ -1226,25 +1259,25 @@ void imgInit(void)
       char imageName[MAXPATHLEN];
       sq2uxPath(shortImageName, strlen(shortImageName), imageName, 1000, 1);
       if ((  (-1 == stat(imageName, &sb)))
-	  || ( 0 == (f= fopen(imageName, "r"))))
-	{
-	  if (dpy->winImageFind(shortImageName, sizeof(shortImageName)))
-	    continue;
-	  dpy->winImageNotFound();
-	  imageNotFound(shortImageName);
-	}
+    || ( 0 == (f= fopen(imageName, "r"))))
+  {
+    if (dpy->winImageFind(shortImageName, sizeof(shortImageName)))
+      continue;
+    dpy->winImageNotFound();
+    imageNotFound(shortImageName);
+  }
       {
-	int fd= open(imageName, O_RDONLY);
-	if (fd < 0) abort();
+  int fd= open(imageName, O_RDONLY);
+  if (fd < 0) abort();
 #      ifdef DEBUG_IMAGE
-	printf("fstat(%d) => %d\n", fd, fstat(fd, &sb));
+  printf("fstat(%d) => %d\n", fd, fstat(fd, &sb));
 #      endif
       }
       recordFullPathForImageName(shortImageName); /* full image path */
       if (extraMemory)
-	useMmap= 0;
+  useMmap= 0;
       else
-	extraMemory= DefaultHeapSize * 1024 *1024;
+  extraMemory= DefaultHeapSize * 1024 *1024;
 #    ifdef DEBUG_IMAGE
       printf("image size %d + heap size %d (useMmap = %d)\n", (int)sb.st_size, extraMemory, useMmap);
 #    endif
@@ -1254,10 +1287,12 @@ void imgInit(void)
       break;
     }
 }
+# endif // UNUSED
+
 
 #if defined(__GNUC__) && ( defined(i386) || defined(__i386) || defined(__i386__)  \
-			|| defined(i486) || defined(__i486) || defined (__i486__) \
-			|| defined(intel) || defined(x86) || defined(i86pc) )
+      || defined(i486) || defined(__i486) || defined (__i486__) \
+      || defined(intel) || defined(x86) || defined(i86pc) )
   static void fldcw(unsigned int cw)
   {
     __asm__("fldcw %0" :: "m"(cw));
@@ -1267,7 +1302,7 @@ void imgInit(void)
 #endif
 
 #if defined(__GNUC__) && ( defined(ppc) || defined(__ppc) || defined(__ppc__)  \
-			|| defined(POWERPC) || defined(__POWERPC) || defined (__POWERPC__) )
+      || defined(POWERPC) || defined(__POWERPC) || defined (__POWERPC__) )
   void mtfsfi(unsigned long long fpscr)
   {
     __asm__("lfd   f0, %0" :: "m"(fpscr));
@@ -1306,7 +1341,7 @@ int main(int argc, char **argv, char **envp)
   if ((squeakArgVec= calloc(argc + 1, sizeof(char *))) == 0)
     outOfMemory();
 
-  signal(SIGSEGV, sigsegv);
+  // xxxxxx better without this for now: signal(SIGSEGV, sigsegv);
 
 #if defined(__alpha__)
   /* disable printing of unaligned access exceptions */
@@ -1314,7 +1349,7 @@ int main(int argc, char **argv, char **envp)
     int buf[2]= { SSIN_UACPROC, UAC_NOPRINT };
     if (setsysinfo(SSI_NVPAIRS, buf, 1, 0, 0, 0) < 0)
       {
-	perror("setsysinfo(UAC_NOPRINT)");
+  perror("setsysinfo(UAC_NOPRINT)");
       }
   }
 #endif
@@ -1340,6 +1375,7 @@ int main(int argc, char **argv, char **envp)
     printf("soundModule   %p %s\n", soundModule,   soundModule->name);
 #endif
 
+# if UNSED
   if (!realpath(argv[0], vmName))
     vmName[0]= 0; /* full VM name */
 
@@ -1348,13 +1384,17 @@ int main(int argc, char **argv, char **envp)
   printf("viName: %s\n", shortImageName);
   printf("documentName: %s\n", documentName);
 #endif
+# endif // UNUXED
 
   initTimers();
   aioInit();
   dpy->winInit();
+# ifdef UNUSED
   imgInit();
+# endif // UNUSED
   dpy->winOpen();
 
+# if UNUSED
 #if defined(HAVE_LIBDL)
   if (useJit)
     {
@@ -1363,19 +1403,19 @@ int main(int argc, char **argv, char **envp)
       void *comp= ioFindExternalFunctionIn("j_interpret", handle);
       /* ...and if that fails... */
       if (comp == 0)
-	{
-	  /* ...try to find an external one */
-	  handle= ioLoadModule("SqueakCompiler");
-	  if (handle != 0)
-	    comp= ioFindExternalFunctionIn("j_interpret", handle);
-	}
+  {
+    /* ...try to find an external one */
+    handle= ioLoadModule("SqueakCompiler");
+    if (handle != 0)
+      comp= ioFindExternalFunctionIn("j_interpret", handle);
+  }
       if (comp)
-	{
-	  ((void (*)(void))comp)();
-	  fprintf(stderr, "handing control back to interpret() -- have a nice day\n");
-	}
+  {
+    ((void (*)(void))comp)();
+    fprintf(stderr, "handing control back to interpret() -- have a nice day\n");
+  }
       else
-	printf("could not find j_interpret\n");
+  printf("could not find j_interpret\n");
       exit(1);
     }
 #endif
@@ -1393,13 +1433,18 @@ int main(int argc, char **argv, char **envp)
   (void)sq2uxPath;
   (void)ux2sqPath;
   sqDebugAnchor();
-  
+
+# endif // UNUSED
+  extern void sigint(int);
+  signal(SIGINT, sigint);
+
   return 0;
 }
 
 sqInt ioExit(void)
 {
-  dpy->winExit();
+  if (dpy != NULL)  dpy->winExit();
+  rvm_exit(); // xxx_dmu
   exit(0);
 }
 

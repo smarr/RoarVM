@@ -1,5 +1,5 @@
 /****************************************************************************
-*   PROJECT: Squeak 
+*   PROJECT: Squeak
 *   FILE:    sqNamedPrims.c
 *   CONTENT: Generic (cross platform) named primitive support
 *
@@ -195,7 +195,7 @@ static int callInitializersIn(ModuleEntry *module)
 		/* Note: older plugins may not export the compiled module name */
 		dprintf(("WARNING: getModuleName() not found in %s\n", module->name));
 	}
-	if(!init1) { 
+	if(!init1) {
 		dprintf(("ERROR: setInterpreter() not found\n"));
 		return 0;
 	}
@@ -262,7 +262,7 @@ static ModuleEntry *findAndLoadModule(char *pluginName, int ffiLoad)
 }
 
 /* findOrLoadModule:
-	Look if the given module is already loaded. 
+	Look if the given module is already loaded.
 	If so, return it's handle, otherwise try to load it.
 */
 static ModuleEntry *findOrLoadModule(char *pluginName, int ffiLoad)
@@ -289,7 +289,7 @@ static ModuleEntry *findOrLoadModule(char *pluginName, int ffiLoad)
 	Return the function address if successful, otherwise 0.
 	This entry point is called from the interpreter proxy.
 */
-void *ioLoadFunctionFrom(char *functionName, char *pluginName)
+void *ioLoadFunctionFrom(const char *functionName, const char *pluginName)
 {
 	ModuleEntry *module;
 
@@ -313,8 +313,8 @@ void *ioLoadFunctionFrom(char *functionName, char *pluginName)
 void *ioLoadExternalFunctionOfLengthFromModuleOfLength(sqInt functionNameIndex, sqInt functionNameLength,
 						       sqInt moduleNameIndex,   sqInt moduleNameLength)
 {
-	char *functionNamePointer= pointerForOop(functionNameIndex);
-	char *moduleNamePointer= pointerForOop(moduleNameIndex);
+	char *functionNamePointer= pointerForIndex_xxx_dmu(functionNameIndex);
+	char *moduleNamePointer= pointerForIndex_xxx_dmu(moduleNameIndex);
 	char functionName[256];
 	char moduleName[256];
 	int i;
@@ -335,7 +335,7 @@ void *ioLoadExternalFunctionOfLengthFromModuleOfLength(sqInt functionNameIndex, 
 */
 void *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNameLength, void *moduleHandle)
 {
-	char *functionNamePointer= pointerForOop(functionNameIndex);
+	char *functionNamePointer= pointerForIndex_xxx_dmu(functionNameIndex);
 	char functionName[256];
 	int i;
 
@@ -358,7 +358,7 @@ void *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionName
 void *ioLoadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 {
 	ModuleEntry *module;
-	char *moduleNamePointer= pointerForOop(moduleNameIndex);
+	char *moduleNamePointer= pointerForIndex_xxx_dmu(moduleNameIndex);
 	char moduleName[256];
 	int i;
 
@@ -446,7 +446,7 @@ sqInt ioUnloadModule(char *moduleName)
 */
 sqInt ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 {
-	char *moduleNamePointer= pointerForOop(moduleNameIndex);
+	char *moduleNamePointer= pointerForIndex_xxx_dmu(moduleNameIndex);
 	char moduleName[256];
 	int i;
 
@@ -519,3 +519,11 @@ char *ioListLoadedModule(sqInt moduleIndex) {
 	}
 	else return (char*)NULL;
 }
+
+
+
+void rvm_callInitializersInAllModules() {
+  findOrLoadModule("BitBltPlugin", 0);
+  // xxxxxx Which other modules?
+}
+

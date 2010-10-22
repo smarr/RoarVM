@@ -174,7 +174,7 @@ typedef struct VirtualMachine {
 
 #if VM_PROXY_MINOR > 3
 
-	void *(*ioLoadFunctionFrom)(char *fnName, char *modName);
+	void *(*ioLoadFunctionFrom)(const char *fnName, const char *modName);
 	sqInt (*ioMicroMSecs)(void);
 
 #endif
@@ -205,7 +205,7 @@ typedef struct VirtualMachine {
 	sqInt  (*fetchLong32ofObject)(sqInt fieldFieldIndex, sqInt oop);
 	sqInt  (*getThisSessionID)(void);
 	sqInt	  (*ioFilenamefromStringofLengthresolveAliases)(char* aCharBuffer, char* filenameIndex, sqInt filenameLength, sqInt resolveFlag);
-	sqInt  (*vmEndianness)(void);	
+	sqInt  (*vmEndianness)(void);
 #endif
 
 
