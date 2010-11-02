@@ -24,7 +24,7 @@ threads and classical Pthreads for C/C++.
 Install and Use
 ---------------
 
-Please see the INSTALL.rst.txt file.
+Please see the INSTALL.rst file.
 
 Features
 --------
