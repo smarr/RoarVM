@@ -1,0 +1,6 @@
+.DS_Store
+vm/build/*.o
+vm/build/*.opt
+vm/build/Makefile
+vm/build/config.last
+vm/build/compiler_check
