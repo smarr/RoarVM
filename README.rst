@@ -1,7 +1,7 @@
 RoarVM - The Manycore SqueakVM
 ==============================
 
-.. image:: misc/RoarVM-logo-full.jpg
+.. image:: raw/master/misc/RoarVM-logo-full.jpg
    :align: left
 
 RoarVM, formerly known as the Renaissance Virtual Machine (RVM) is developed
