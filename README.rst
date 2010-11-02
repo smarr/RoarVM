@@ -1,6 +1,9 @@
 RoarVM - The Manycore SqueakVM
 ==============================
 
+.. image:: misc/RoarVM-logo-full.jpg
+   :align: left
+
 RoarVM, formerly known as the Renaissance Virtual Machine (RVM) is developed
 as part of a IBM Research project to investigate programming paradigms and
 languages for manycore systems of the future. Specifically, this VM is meant
@@ -70,13 +73,13 @@ as value extension to speed up the interpreter.
  - single core performance is slower than the Squeak VM
  
    * Squeak 4.2.4beta1U, MVC image, OS X
-   554844390 bytecodes/sec; 12213718 sends/sec
+     554844390 bytecodes/sec; 12213718 sends/sec
 
    * RoarVM, MVC image, OS X, 1 core
-    66286897 bytecodes/sec;  2910474 sends/sec
+     66286897 bytecodes/sec;  2910474 sends/sec
    
    * RoarVM, MVC image, OS X, 8 cores
-   470588235 bytecodes/sec; 19825677 sends/sec
+     470588235 bytecodes/sec; 19825677 sends/sec
    
  - idle process does not yield when the RoarVM is run on more than one core
 
@@ -153,7 +156,8 @@ License
 Copyright (c) 2008 - 2010 IBM Corporation and others.
 All rights reserved. This RoarVM and the accompanying materials are made
 available under the terms of the Eclipse Public License v1.0 which accompanies
-this distribution, and is available at
+this distribution, and is available at:
+
   http://www.eclipse.org/legal/epl-v10.html
 
 All parts directly taken over from the original Squeak source code are
@@ -170,3 +174,6 @@ The RoarVM was designed and implemented as 'Renaissance VM' by
 
 It was ported to x86 compatible multicore systems by
   Stefan Marr at the Software Languages Lab, Vrije Universiteit Brussel.
+
+Special thanks go to Max OrHai for designing our Logo.
+
