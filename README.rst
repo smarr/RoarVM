@@ -10,7 +10,7 @@ languages for manycore systems of the future. Specifically, this VM is meant
 to support manycore systems with more than 1000 cores in the future.
 
 The RVM was open sourced by IBM Research under the `Eclipse Public License`_.
-Please see the `open source announcement`_ for further information
+Please see the `open source announcement`_ for further information.
 
 Today, the RoarVM supports the parallel execution of Smalltalk programs on x86
 compatible multicore systems and Tilera TILE64-based manycore systems. It is
@@ -73,13 +73,13 @@ as value extension to speed up the interpreter.
  - single core performance is slower than the Squeak VM
  
    * Squeak 4.2.4beta1U, MVC image, OS X
-     554844390 bytecodes/sec; 12213718 sends/sec
+     554,844,390 bytecodes/sec; 12,213,718 sends/sec
 
    * RoarVM, MVC image, OS X, 1 core
-     66286897 bytecodes/sec;  2910474 sends/sec
+     66,286,897 bytecodes/sec; 2,910,474 sends/sec
    
    * RoarVM, MVC image, OS X, 8 cores
-     470588235 bytecodes/sec; 19825677 sends/sec
+     470,588,235 bytecodes/sec; 19,825,677 sends/sec
    
  - idle process does not yield when the RoarVM is run on more than one core
 
@@ -175,5 +175,5 @@ The RoarVM was designed and implemented as 'Renaissance VM' by
 It was ported to x86 compatible multicore systems by
   Stefan Marr at the Software Languages Lab, Vrije Universiteit Brussel.
 
-Special thanks go to Max OrHai for designing our Logo.
+Special thanks go to Max OrHai for designing our logo.
 
