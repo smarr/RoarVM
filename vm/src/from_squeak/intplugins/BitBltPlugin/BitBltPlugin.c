@@ -30,9 +30,6 @@ by VMMaker 3.8b6
 
 #include "sqMemoryAccess.h"
 
-void dp(int);
-void pst();
-
 
 /*** Constants ***/
 #define AllOnes 4294967295U
@@ -152,11 +149,11 @@ EXPORT(sqInt) moduleUnloaded(char * aModuleName);
 #pragma export off
 static sqInt msg(char * s);
 static sqInt partitionedANDtonBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts);
-static sqInt partitionedAddtonBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts);
-static sqInt partitionedMaxwithnBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts);
-static sqInt partitionedMinwithnBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts);
+static sqInt partitionedAddtonBitsnPartitions(usqInt word1, usqInt word2, sqInt nBits, sqInt nParts);
+static sqInt partitionedMaxwithnBitsnPartitions(usqInt word1, usqInt word2, sqInt nBits, sqInt nParts);
+static sqInt partitionedMinwithnBitsnPartitions(usqInt word1, usqInt word2, sqInt nBits, sqInt nParts);
 static sqInt partitionedMulwithnBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts);
-static sqInt partitionedSubfromnBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts);
+static sqInt partitionedSubfromnBitsnPartitions(usqInt word1, usqInt word2, sqInt nBits, sqInt nParts);
 static sqInt performCopyLoop(void);
 static sqInt pickSourcePixelsflagssrcMaskdestMasksrcShiftIncdstShiftInc(sqInt nPixels, sqInt mapperFlags, sqInt srcMask, sqInt dstMask, sqInt srcShiftInc, sqInt dstShiftInc);
 static sqInt pickWarpPixelAtXy(sqInt xx, sqInt yy);
@@ -274,9 +271,9 @@ static int maskTable[33] = {
 };
 static const char *moduleName =
 #ifdef SQUEAK_BUILTIN_PLUGIN
-	"BitBltPlugin 14 April 2008 (i)"
+	"BitBltPlugin 10 April 2010 (i)"
 #else
-	"BitBltPlugin 14 April 2008 (e)"
+	"BitBltPlugin 10 April 2010 (e)"
 #endif
 ;
 static sqInt nWords;
@@ -2624,16 +2621,13 @@ static sqInt loadBitBltFromwarping(sqInt bbObj, sqInt aBool) {
     sqInt mapOop;
     sqInt mapOop1;
 
-
 	bitBltOop = bbObj;
 	isWarping = aBool;
 	combinationRule = interpreterProxy->fetchIntegerofObject(BBRuleIndex, bitBltOop);
 	if ((interpreterProxy->failed()) || ((combinationRule < 0) || (combinationRule > (OpTableSize - 2)))) {
-    //fprintf(stderr, "failed 2629\n");
 		return 0;
 	}
 	if ((combinationRule >= 16) && (combinationRule <= 17)) {
-    //fprintf(stderr, "failed 2633\n");
 		return 0;
 	}
 	sourceForm = interpreterProxy->fetchPointerofObject(BBSourceFormIndex, bitBltOop); // maybe xxx_dmu
@@ -2688,7 +2682,6 @@ l2:	/* end ignoreSourceOrHalftone: */;
 l3:	/* end ignoreSourceOrHalftone: */;
 	destForm = interpreterProxy->fetchPointerofObject(BBDestFormIndex, bbObj); // maybe xxx_dmu
 	if (!((interpreterProxy->isPointers(destForm)) && ((interpreterProxy->slotSizeOf(destForm)) >= 4))) {
-    //fprintf(stderr, "failed 2688\n");
 		return 0;
 	}
 	/* begin loadBitBltDestForm */
@@ -2697,7 +2690,6 @@ l3:	/* end ignoreSourceOrHalftone: */;
 	destHeight = interpreterProxy->fetchIntegerofObject(FormHeightIndex, destForm);
 	if (!((destWidth >= 0) && (destHeight >= 0))) {
 		ok = 0;
-    //fprintf(stderr, "failed 2697\n");
 		goto l4;
 	}
 	destDepth = interpreterProxy->fetchIntegerofObject(FormDepthIndex, destForm);
@@ -2708,7 +2700,6 @@ l3:	/* end ignoreSourceOrHalftone: */;
 	if ((destBitsOop_xxx_dmu & 1)) {
 		if (!(queryDestSurface((destBitsOop_xxx_dmu >> 1)))) {
 			ok = 0;
-      //fprintf(stderr, "failed 2708\n");
 			goto l4;
 		}
 		destPPW = 32 / destDepth;
@@ -2719,7 +2710,6 @@ l3:	/* end ignoreSourceOrHalftone: */;
 		destBitsSize = interpreterProxy->byteSizeOf(destBitsOop_xxx_dmu);
 		if (!((interpreterProxy->isWordsOrBytes(destBitsOop_xxx_dmu)) && (destBitsSize == (destPitch * destHeight)))) {
 			ok = 0;
-      //fprintf(stderr, "failed 2719\n");
 			goto l4;
 		}
 		// xxx_dmu destBits = oopForPointer(interpreterProxy->firstIndexableField(destBits));
@@ -2728,7 +2718,6 @@ l3:	/* end ignoreSourceOrHalftone: */;
 	ok = 1;
 l4:	/* end loadBitBltDestForm */;
 	if (!(ok)) {
-    //fprintf(stderr, "failed 2725\n");
 		return 0;
 	}
 	destX = fetchIntOrFloatofObjectifNil(BBDestXIndex, bitBltOop, 0);
@@ -2736,14 +2725,12 @@ l4:	/* end loadBitBltDestForm */;
 	width = fetchIntOrFloatofObjectifNil(BBWidthIndex, bitBltOop, destWidth);
 	height = fetchIntOrFloatofObjectifNil(BBHeightIndex, bitBltOop, destHeight);
 	if (interpreterProxy->failed()) {
-    //fprintf(stderr, "failed 2733\n");
 		return 0;
 	}
 	if (noSource) {
 		sourceX = sourceY = 0;
 	} else {
 		if (!((interpreterProxy->isPointers(sourceForm)) && ((interpreterProxy->slotSizeOf(sourceForm)) >= 4))) {
-      //fprintf(stderr, "failed 2740\n");
 			return 0;
 		}
 		/* begin loadBitBltSourceForm */
@@ -2752,7 +2739,6 @@ l4:	/* end loadBitBltDestForm */;
 		sourceHeight = fetchIntOrFloatofObject(FormHeightIndex, sourceForm);
 		if (!((sourceWidth >= 0) && (sourceHeight >= 0))) {
 			ok = 0;
-      //fprintf(stderr, "failed 2753\n");
       goto l1;
 		}
 		sourceDepth = interpreterProxy->fetchIntegerofObject(FormDepthIndex, sourceForm);
@@ -2762,7 +2748,6 @@ l4:	/* end loadBitBltDestForm */;
 		}
 		if ((sourceBitsOop_xxx_dmu & 1)) {
 			if (!(querySourceSurface((sourceBitsOop_xxx_dmu >> 1)))) {
-        //fprintf(stderr, "failed 2762\n");
 				ok = 0;
 				goto l1;
 			}
@@ -2773,23 +2758,15 @@ l4:	/* end loadBitBltDestForm */;
 			sourcePitch = ((sourceWidth + (sourcePPW - 1)) / sourcePPW) * 4;
 			sourceBitsSize = interpreterProxy->byteSizeOf(sourceBitsOop_xxx_dmu);
 			if (!((interpreterProxy->isWordsOrBytes(sourceBitsOop_xxx_dmu)) && (sourceBitsSize == (sourcePitch * sourceHeight)))) {
-        //fprintf(stderr, "failed 2773\n");
-        //fprintf(stderr, "sourceBitsSize %d, sourcePitch %d, source Height %d\n", sourceBitsSize, sourcePitch, sourceHeight);
-        //fprintf(stderr, "sourceBitsOop_xxx_dmu 0x%x\n", sourceBitsOop_xxx_dmu);
 				ok = 0;
 				goto l1;
 			}
-      //fprintf(stderr, "success 2784\n");
-      //fprintf(stderr, "sourceBitsSize %d, sourcePitch %d, source Height %d\n", sourceBitsSize, sourcePitch, sourceHeight);
-      //fprintf(stderr, "sourceBitsOop_xxx_dmu 0x%x\n", sourceBitsOop_xxx_dmu);
-
 			// xxx_dmu sourceBits = oopForPointer(interpreterProxy->firstIndexableField(sourceBits));
 			sourceBits = (sqInt)(interpreterProxy->firstIndexableField(sourceBitsOop_xxx_dmu));
 		}
 		ok = 1;
 	l1:	/* end loadBitBltSourceForm */;
 		if (!(ok)) {
-      //fprintf(stderr, "failed 2777\n");
 			return 0;
 		}
 		/* begin loadColorMap */
@@ -2811,7 +2788,6 @@ l4:	/* end loadBitBltDestForm */;
 		} else {
 			if (!((interpreterProxy->isPointers(cmOop)) && ((interpreterProxy->slotSizeOf(cmOop)) >= 3))) {
 				ok = 0;
-        //fprintf(stderr, "failed 2806\n");
 				goto l8;
 			}
 			/* begin loadColorMapShiftOrMaskFrom: */
@@ -2855,7 +2831,6 @@ l4:	/* end loadBitBltDestForm */;
 				cmSize = 0;
 			} else {
 				if (!(interpreterProxy->isWords(oop))) {
-          //fprintf(stderr, "failed 2849\n");
 					ok = 0;
 					goto l8;
 				}
@@ -2865,7 +2840,6 @@ l4:	/* end loadBitBltDestForm */;
 			cmFlags = cmFlags | ColorMapNewStyle;
 		}
 		if (!((cmSize & (cmSize - 1)) == 0)) {
-      //fprintf(stderr, "failed 2859\n");
 			ok = 0;
 			goto l8;
 		}
@@ -2898,7 +2872,6 @@ l4:	/* end loadBitBltDestForm */;
 		ok = 1;
 	l8:	/* end loadColorMap */;
 		if (!(ok)) {
-      //fprintf(stderr, "failed 2883\n");
 			return 0;
 		}
 		if ((cmFlags & ColorMapNewStyle) == 0) {
@@ -2921,7 +2894,6 @@ l4:	/* end loadBitBltDestForm */;
 		}
 	} else {
 		if (!((!(interpreterProxy->isPointers(halftoneForm))) && (interpreterProxy->isWords(halftoneForm)))) {
-      //fprintf(stderr, "failed 2906\n");
 			ok = 0;
 			goto l5;
 		}
@@ -2929,11 +2901,10 @@ l4:	/* end loadBitBltDestForm */;
 		halftoneHeight = interpreterProxy->slotSizeOf(halftoneBits);
 	}
 	// xxx_dmu halftoneBase = oopForPointer(interpreterProxy->firstIndexableField(halftoneBits));
-  halftoneBase = (sqInt)(interpreterProxy->firstIndexableField(halftoneBits));
+	halftoneBase = (sqInt)(interpreterProxy->firstIndexableField(halftoneBits));
 	ok = 1;
 l5:	/* end loadHalftoneForm */;
 	if (!(ok)) {
-    //fprintf(stderr, "failed 2918\n");
 		return 0;
 	}
 	clipX = fetchIntOrFloatofObjectifNil(BBClipXIndex, bitBltOop, 0);
@@ -2941,7 +2912,6 @@ l5:	/* end loadHalftoneForm */;
 	clipWidth = fetchIntOrFloatofObjectifNil(BBClipWidthIndex, bitBltOop, destWidth);
 	clipHeight = fetchIntOrFloatofObjectifNil(BBClipHeightIndex, bitBltOop, destHeight);
 	if (interpreterProxy->failed()) {
-    //fprintf(stderr, "failed 2926\n");
 		return 0;
 	}
 	if (clipX < 0) {
@@ -3235,7 +3205,7 @@ static sqInt lockSurfaces(void) {
 					sourceBits = fn(sourceHandle, &sourcePitch, 0,0, sourceWidth, sourceHeight);
 				}
 				destBits = sourceBits;
-        destBitsOop_xxx_dmu = sourceBitsOop_xxx_dmu;
+				destBitsOop_xxx_dmu = sourceBitsOop_xxx_dmu;
 				destPitch = sourcePitch;
 				hasSurfaceLock = 1;
 				return destBits != 0;
@@ -3346,12 +3316,16 @@ static sqInt partitionedANDtonBitsnPartitions(sqInt word1, sqInt word2, sqInt nB
 
 /*	Add word1 to word2 as nParts partitions of nBits each.
 	This is useful for packed pixels, or packed colors */
+/*	In C, most arithmetic operations answer the same bit pattern regardless of the operands being signed or unsigned ints
+	(this is due to the way 2's complement numbers work). However, comparisions might fail. Add the proper declaration of
+	words as unsigned int in those cases where comparisions are done (jmv) */
 
-static sqInt partitionedAddtonBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts) {
-    sqInt sum;
-    sqInt result;
+static sqInt partitionedAddtonBitsnPartitions(usqInt word1, usqInt word2, sqInt nBits, sqInt nParts) {
+    usqInt sum;
+    usqInt result;
     sqInt i;
-    sqInt mask;
+    usqInt mask;
+	usqInt maskedWord1;
 
 
 	/* partition mask starts at the right */
@@ -3359,8 +3333,9 @@ static sqInt partitionedAddtonBitsnPartitions(sqInt word1, sqInt word2, sqInt nB
 	mask = maskTable[nBits];
 	result = 0;
 	for (i = 1; i <= nParts; i += 1) {
-		sum = (word1 & mask) + (word2 & mask);
-		if (sum <= mask) {
+		maskedWord1 = word1 & mask;
+		sum = maskedWord1 + (word2 & mask);
+		if ((sum <= mask) && (sum >= maskedWord1)) {
 			result = result | sum;
 		} else {
 			result = result | mask;
@@ -3375,11 +3350,14 @@ static sqInt partitionedAddtonBitsnPartitions(sqInt word1, sqInt word2, sqInt nB
 
 
 /*	Max word1 to word2 as nParts partitions of nBits each */
+/*	In C, most arithmetic operations answer the same bit pattern regardless of the operands being signed or unsigned ints
+	(this is due to the way 2's complement numbers work). However, comparisions might fail. Add the proper declaration of
+	words as unsigned int in those cases where comparisions are done (jmv) */
 
-static sqInt partitionedMaxwithnBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts) {
-    sqInt result;
+static sqInt partitionedMaxwithnBitsnPartitions(usqInt word1, usqInt word2, sqInt nBits, sqInt nParts) {
+    usqInt result;
     sqInt i;
-    sqInt mask;
+    usqInt mask;
 
 
 	/* partition mask starts at the right */
@@ -3398,11 +3376,14 @@ static sqInt partitionedMaxwithnBitsnPartitions(sqInt word1, sqInt word2, sqInt 
 
 
 /*	Min word1 to word2 as nParts partitions of nBits each */
+/*	In C, most arithmetic operations answer the same bit pattern regardless of the operands being signed or unsigned ints
+	(this is due to the way 2's complement numbers work). However, comparisions might fail. Add the proper declaration of
+	words as unsigned int in those cases where comparisions are done (jmv) */
 
-static sqInt partitionedMinwithnBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts) {
-    sqInt result;
+static sqInt partitionedMinwithnBitsnPartitions(usqInt word1, usqInt word2, sqInt nBits, sqInt nParts) {
+    usqInt result;
     sqInt i;
-    sqInt mask;
+    usqInt mask;
 
 
 	/* partition mask starts at the right */
@@ -3423,6 +3404,9 @@ static sqInt partitionedMinwithnBitsnPartitions(sqInt word1, sqInt word2, sqInt 
 /*	Multiply word1 with word2 as nParts partitions of nBits each.
 	This is useful for packed pixels, or packed colors.
 	Bug in loop version when non-white background */
+/*	In C, integer multiplication might answer a wrong value if the unsigned values are declared as signed.
+	This problem does not affect this method, because the most significant bit (i.e. the sign bit) will
+	always be zero (jmv) */
 
 static sqInt partitionedMulwithnBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts) {
     sqInt result;
@@ -3439,23 +3423,37 @@ static sqInt partitionedMulwithnBitsnPartitions(sqInt word1, sqInt word2, sqInt 
 	/* optimized first step */
 
 	result = ((usqInt) (((((word1 & sMask) + 1) * ((word2 & sMask) + 1)) - 1) & dMask)) >> nBits;
+	if (nParts == 1) {
+		return result;
+	}
 	product = (((((((usqInt) word1) >> nBits) & sMask) + 1) * (((((usqInt) word2) >> nBits) & sMask) + 1)) - 1) & dMask;
-	result = result | (product & dMask);
+	result = result | product;
+	if (nParts == 2) {
+		return result;
+	}
 	product = (((((((usqInt) word1) >> (2 * nBits)) & sMask) + 1) * (((((usqInt) word2) >> (2 * nBits)) & sMask) + 1)) - 1) & dMask;
-	result = result | ((product & dMask) << nBits);
+	result = result | (product << nBits);
+	if (nParts == 3) {
+		return result;
+	}
+	product = (((((((usqInt) word1) >> (3 * nBits)) & sMask) + 1) * (((((usqInt) word2) >> (3 * nBits)) & sMask) + 1)) - 1) & dMask;
+	result = result | (product << (2 * nBits));
 	return result;
 }
 
 
 /*	Subtract word1 from word2 as nParts partitions of nBits each.
 	This is useful for packed pixels, or packed colors */
+/*	In C, most arithmetic operations answer the same bit pattern regardless of the operands being signed or unsigned ints
+	(this is due to the way 2's complement numbers work). However, comparisions might fail. Add the proper declaration of
+	words as unsigned int in those cases where comparisions are done (jmv) */
 
-static sqInt partitionedSubfromnBitsnPartitions(sqInt word1, sqInt word2, sqInt nBits, sqInt nParts) {
-    sqInt result;
-    sqInt p1;
+static sqInt partitionedSubfromnBitsnPartitions(usqInt word1, usqInt word2, sqInt nBits, sqInt nParts) {
+    usqInt result;
+    usqInt p1;
     sqInt i;
-    sqInt mask;
-    sqInt p2;
+    usqInt mask;
+    usqInt p2;
 
 
 	/* partition mask starts at the right */
@@ -3849,22 +3847,18 @@ EXPORT(sqInt) primitiveDisplayString(void) {
     sqInt startBits;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 6)) {
-    //fprintf(stderr, "failed arg count\n");
 		return interpreterProxy->primitiveFail();
 	}
 	kernDelta = interpreterProxy->stackIntegerValue(0);
 	xTable = interpreterProxy->stackObjectValue(1);
 	glyphMap = interpreterProxy->stackObjectValue(2);
 	if (!(((interpreterProxy->fetchClassOf(xTable)) == (interpreterProxy->classArray())) && ((interpreterProxy->fetchClassOf(glyphMap)) == (interpreterProxy->classArray())))) {
-    //fprintf(stderr, "failed 3831\n");
 		return interpreterProxy->primitiveFail();
 	}
 	if (!((interpreterProxy->slotSizeOf(glyphMap)) == 256)) {
-    //fprintf(stderr, "failed 3834\n");
 		return interpreterProxy->primitiveFail();
 	}
 	if (interpreterProxy->failed()) {
-    //fprintf(stderr, "failed 3838\n");
 		return null;
 	}
 	maxGlyph = (interpreterProxy->slotSizeOf(xTable)) - 2;
@@ -3872,20 +3866,16 @@ EXPORT(sqInt) primitiveDisplayString(void) {
 	startIndex = interpreterProxy->stackIntegerValue(4);
 	sourceString = interpreterProxy->stackObjectValue(5);
 	if (!(interpreterProxy->isBytes(sourceString))) {
-    //fprintf(stderr, "failed 3846\n");
 		return interpreterProxy->primitiveFail();
 	}
 	if (!((startIndex > 0) && ((stopIndex > 0) && (stopIndex <= (interpreterProxy->byteSizeOf(sourceString)))))) {
-    //fprintf(stderr, "failed 3850\n");
 		return interpreterProxy->primitiveFail();
 	}
 	bbObj = interpreterProxy->stackObjectValue(6);
 	if (!(loadBitBltFromwarping(bbObj, 0))) {
-    //fprintf(stderr, "failed 3855\n");
 		return interpreterProxy->primitiveFail();
 	}
 	if ((combinationRule == 30) || (combinationRule == 31)) {
-    //fprintf(stderr, "failed 3859\n");
 		return interpreterProxy->primitiveFail();
 	}
 	quickBlt = (destBits != 0) && ((sourceBits != 0) && ((noSource == 0) && ((sourceForm != destForm) && ((cmFlags != 0) || ((sourceMSB != destMSB) || (sourceDepth != destDepth))))));
@@ -3895,13 +3885,11 @@ EXPORT(sqInt) primitiveDisplayString(void) {
 		ascii = byteAtPointer((sourcePtr + charIndex) - 1);
 		glyphIndex = interpreterProxy->fetchIntegerofObject(ascii, glyphMap);
 		if ((glyphIndex < 0) || (glyphIndex > maxGlyph)) {
-      //fprintf(stderr, "failed 3869\n");
 			return interpreterProxy->primitiveFail();
 		}
 		sourceX = interpreterProxy->fetchIntegerofObject(glyphIndex, xTable);
 		width = (interpreterProxy->fetchIntegerofObject(glyphIndex + 1, xTable)) - sourceX;
 		if (interpreterProxy->failed()) {
-      //fprintf(stderr, "failed 3875\n");
 			return null;
 		}
 		clipRange();
@@ -3941,7 +3929,6 @@ EXPORT(sqInt) primitiveDisplayString(void) {
 			}
 		}
 		if (interpreterProxy->failed()) {
-      //fprintf(stderr, "failed 3915\n");
 			return null;
 		}
 		destX = (destX + width) + kernDelta;
@@ -4101,7 +4088,10 @@ EXPORT(sqInt) primitiveWarpBits(void) {
 		affectedL = affectedR = affectedT = affectedB = 0;
 		goto l1;
 	}
-	lockSurfaces();
+	if (!(lockSurfaces())) {
+		interpreterProxy->primitiveFail();
+		goto l1;
+	}
 	/* begin destMaskAndPointerInit */
 	pixPerM1 = destPPW - 1;
 	startBits = destPPW - (dx & pixPerM1);
@@ -4197,7 +4187,7 @@ static sqInt rgbAddwith(sqInt sourceWord, sqInt destinationWord) {
 	if (destDepth == 16) {
 		return (partitionedAddtonBitsnPartitions(sourceWord, destinationWord, 5, 3)) + ((partitionedAddtonBitsnPartitions(((usqInt) sourceWord) >> 16, ((usqInt) destinationWord) >> 16, 5, 3)) << 16);
 	} else {
-		return partitionedAddtonBitsnPartitions(sourceWord, destinationWord, 8, 3);
+		return partitionedAddtonBitsnPartitions(sourceWord, destinationWord, 8, 4);
 	}
 }
 
@@ -4331,100 +4321,38 @@ static sqInt rgbMapPixelflags(sqInt sourcePixel, sqInt mapperFlags) {
 }
 
 static sqInt rgbMaxwith(sqInt sourceWord, sqInt destinationWord) {
-    sqInt result;
-    sqInt i;
-    sqInt mask;
-    sqInt result1;
-    sqInt i1;
-    sqInt mask3;
-
 	if (destDepth < 16) {
-		/* begin partitionedMax:with:nBits:nPartitions: */
-		mask = maskTable[destDepth];
-		result = 0;
-		for (i = 1; i <= destPPW; i += 1) {
-			result = result | ((((destinationWord & mask) < (sourceWord & mask)) ? (sourceWord & mask) : (destinationWord & mask)));
-			mask = mask << destDepth;
-		}
-		return result;
+		return partitionedMaxwithnBitsnPartitions(sourceWord, destinationWord, destDepth, destPPW);
 	}
 	if (destDepth == 16) {
 		return (partitionedMaxwithnBitsnPartitions(sourceWord, destinationWord, 5, 3)) + ((partitionedMaxwithnBitsnPartitions(((usqInt) sourceWord) >> 16, ((usqInt) destinationWord) >> 16, 5, 3)) << 16);
 	} else {
-		/* begin partitionedMax:with:nBits:nPartitions: */
-		mask3 = maskTable[8];
-		result1 = 0;
-		for (i1 = 1; i1 <= 3; i1 += 1) {
-			result1 = result1 | ((((destinationWord & mask3) < (sourceWord & mask3)) ? (sourceWord & mask3) : (destinationWord & mask3)));
-			mask3 = mask3 << 8;
-		}
-		return result1;
+		return partitionedMaxwithnBitsnPartitions(sourceWord, destinationWord, 8, 4);
 	}
 }
 
 static sqInt rgbMinwith(sqInt sourceWord, sqInt destinationWord) {
-    sqInt result;
-    sqInt i;
-    sqInt mask;
-    sqInt result1;
-    sqInt i1;
-    sqInt mask3;
-
 	if (destDepth < 16) {
-		/* begin partitionedMin:with:nBits:nPartitions: */
-		mask = maskTable[destDepth];
-		result = 0;
-		for (i = 1; i <= destPPW; i += 1) {
-			result = result | ((((destinationWord & mask) < (sourceWord & mask)) ? (destinationWord & mask) : (sourceWord & mask)));
-			mask = mask << destDepth;
-		}
-		return result;
+		return partitionedMinwithnBitsnPartitions(sourceWord, destinationWord, destDepth, destPPW);
 	}
 	if (destDepth == 16) {
 		return (partitionedMinwithnBitsnPartitions(sourceWord, destinationWord, 5, 3)) + ((partitionedMinwithnBitsnPartitions(((usqInt) sourceWord) >> 16, ((usqInt) destinationWord) >> 16, 5, 3)) << 16);
 	} else {
-		/* begin partitionedMin:with:nBits:nPartitions: */
-		mask3 = maskTable[8];
-		result1 = 0;
-		for (i1 = 1; i1 <= 3; i1 += 1) {
-			result1 = result1 | ((((destinationWord & mask3) < (sourceWord & mask3)) ? (destinationWord & mask3) : (sourceWord & mask3)));
-			mask3 = mask3 << 8;
-		}
-		return result1;
+		return partitionedMinwithnBitsnPartitions(sourceWord, destinationWord, 8, 4);
 	}
 }
 
 static sqInt rgbMinInvertwith(sqInt wordToInvert, sqInt destinationWord) {
     sqInt sourceWord;
-    sqInt result;
-    sqInt i;
-    sqInt mask;
-    sqInt result1;
-    sqInt i1;
-    sqInt mask3;
 
 	sourceWord = ~wordToInvert;
 	if (destDepth < 16) {
-		/* begin partitionedMin:with:nBits:nPartitions: */
-		mask = maskTable[destDepth];
-		result = 0;
-		for (i = 1; i <= destPPW; i += 1) {
-			result = result | ((((destinationWord & mask) < (sourceWord & mask)) ? (destinationWord & mask) : (sourceWord & mask)));
-			mask = mask << destDepth;
-		}
-		return result;
+		return partitionedMinwithnBitsnPartitions(sourceWord, destinationWord, destDepth, destPPW);
 	}
 	if (destDepth == 16) {
 		return (partitionedMinwithnBitsnPartitions(sourceWord, destinationWord, 5, 3)) + ((partitionedMinwithnBitsnPartitions(((usqInt) sourceWord) >> 16, ((usqInt) destinationWord) >> 16, 5, 3)) << 16);
 	} else {
-		/* begin partitionedMin:with:nBits:nPartitions: */
-		mask3 = maskTable[8];
-		result1 = 0;
-		for (i1 = 1; i1 <= 3; i1 += 1) {
-			result1 = result1 | ((((destinationWord & mask3) < (sourceWord & mask3)) ? (destinationWord & mask3) : (sourceWord & mask3)));
-			mask3 = mask3 << 8;
-		}
-		return result1;
+		return partitionedMinwithnBitsnPartitions(sourceWord, destinationWord, 8, 4);
 	}
 }
 
@@ -4435,7 +4363,7 @@ static sqInt rgbMulwith(sqInt sourceWord, sqInt destinationWord) {
 	if (destDepth == 16) {
 		return (partitionedMulwithnBitsnPartitions(sourceWord, destinationWord, 5, 3)) + ((partitionedMulwithnBitsnPartitions(((usqInt) sourceWord) >> 16, ((usqInt) destinationWord) >> 16, 5, 3)) << 16);
 	} else {
-		return partitionedMulwithnBitsnPartitions(sourceWord, destinationWord, 8, 3);
+		return partitionedMulwithnBitsnPartitions(sourceWord, destinationWord, 8, 4);
 	}
 }
 
@@ -4446,7 +4374,7 @@ static sqInt rgbSubwith(sqInt sourceWord, sqInt destinationWord) {
 	if (destDepth == 16) {
 		return (partitionedSubfromnBitsnPartitions(sourceWord, destinationWord, 5, 3)) + ((partitionedSubfromnBitsnPartitions(((usqInt) sourceWord) >> 16, ((usqInt) destinationWord) >> 16, 5, 3)) << 16);
 	} else {
-		return partitionedSubfromnBitsnPartitions(sourceWord, destinationWord, 8, 3);
+		return partitionedSubfromnBitsnPartitions(sourceWord, destinationWord, 8, 4);
 	}
 }
 
@@ -4854,7 +4782,9 @@ static sqInt warpBits(void) {
 		affectedL = affectedR = affectedT = affectedB = 0;
 		return null;
 	}
-	lockSurfaces();
+	if (!(lockSurfaces())) {
+		return interpreterProxy->primitiveFail();
+	}
 	/* begin destMaskAndPointerInit */
 	pixPerM1 = destPPW - 1;
 	startBits = destPPW - (dx & pixPerM1);
@@ -5059,7 +4989,7 @@ l6:	/* end deltaFrom:to:nSteps: */;
 	} else {
 		smoothingCount = 1;
 		sourceMapOop = interpreterProxy->nilObject();
-    sourceMapIndex_xxx_dmu = 0;
+		sourceMapIndex_xxx_dmu = 0;
 	}
 	nSteps = width - 1;
 	if (nSteps <= 0) {
