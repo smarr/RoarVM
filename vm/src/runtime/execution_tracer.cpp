@@ -53,7 +53,7 @@ void Execution_Tracer::trace(Squeak_Interpreter* si) {
 
 void Execution_Tracer::print() {
   lprintf( "printing history\n");
-  pat();
+  The_Squeak_Interpreter()->print_all_stack_traces(dittoing_stdout_printer);
   lprintf( "\n\n\nprinting last bytecodes\n");
   Oop entries = get();
   check_it(entries);

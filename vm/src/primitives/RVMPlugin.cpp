@@ -438,7 +438,10 @@ static int setInterpreter(struct VirtualMachine* anInterpreter) {
 	return 1;
 }
 
-static int primitivePrintStack() { printCallStack(); return 0; }
+static int primitivePrintStack() { 
+  The_Squeak_Interpreter()->print_stack_trace(dittoing_stdout_printer);
+  return 0;
+}
 
 static int primitivePrint() {
   if (The_Squeak_Interpreter()->get_argumentCount() != 1) {

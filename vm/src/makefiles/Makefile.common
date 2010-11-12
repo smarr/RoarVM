@@ -237,6 +237,7 @@ RVM_HEADERS = \
   thread_memory_semantics.h \
   \
   debug_store_checks.h \
+  debug_helper.h \
   
 
 ifeq "$(PLATFORM)" "Intel"
@@ -463,6 +464,7 @@ OBJS = \
   \
   abstract_os_interface.opt \
   logical_core.opt \
+  debug_helper.opt \
 
 
 ifeq "$(PLATFORM)" "Intel"

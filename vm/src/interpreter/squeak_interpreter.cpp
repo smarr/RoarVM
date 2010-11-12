@@ -897,7 +897,8 @@ bool Squeak_Interpreter::balancedStackAfterPrimitive(int delta, int primIdx, int
 };
 
 void Squeak_Interpreter::printUnbalancedStack(int primIdx, fn_t fn) {
-  lprintf("printUnbalancedStack primitive: %d 0x%x\n", primIdx, fn); pst();
+  lprintf("printUnbalancedStack primitive: %d 0x%x\n", primIdx, fn);
+  print_stack_trace(dittoing_stdout_printer);
   unimplemented();
 }
 
@@ -1393,7 +1394,7 @@ void Squeak_Interpreter::yield(const char* why) {
     debug_printer->printf("scheduler on %d: pre yield because %s ", my_rank(), why);
     get_running_process().as_object()->print_process_or_nil(debug_printer);
     debug_printer->nl();
-    pst();
+    print_stack_trace(dittoing_stdout_printer);
   }
   assert(get_running_process() == roots.nilObj  ||  activeContext() != roots.nilObj );
   put_running_process_to_sleep(why);
@@ -1404,7 +1405,7 @@ void Squeak_Interpreter::yield(const char* why) {
     debug_printer->printf("scheduler on %d: post yield because %s ", my_rank(), why);
     get_running_process().as_object()->print_process_or_nil(debug_printer);
     debug_printer->nl();
-    pst();
+    print_stack_trace(dittoing_stdout_printer);
   }
 }
 
@@ -1569,24 +1570,6 @@ int64 Squeak_Interpreter::signed64BitValueOf(Oop x) {
 }
 
 
-
-
-int printCallStack() { pst(); return 0; }
-
-
-void pet() {
-   if (Trace_Execution && The_Squeak_Interpreter()->execution_tracer() != NULL)
-     The_Squeak_Interpreter()->execution_tracer()->print();
-}
-
-
-void pst() { // debugging
-  The_Squeak_Interpreter()->print_stack_trace(dittoing_stdout_printer);
-}
-void pat() { // debugging
-  The_Squeak_Interpreter()->print_all_stack_traces(dittoing_stdout_printer);
-}
-
 void Squeak_Interpreter::print_stack_trace(Printer* p, Object* proc) {
   if (proc == NULL) proc = get_running_process().as_object();
   if (proc == roots.nilObj.as_object()) {
@@ -1610,6 +1593,7 @@ void Squeak_Interpreter::print_stack_trace(Printer* p, Object* proc) {
     c.as_object()->print_frame(p);
   }
 }
+
 
 void Squeak_Interpreter::print_all_stack_traces(Printer* pr) {
   // print_all_processes_in_scheduler(pr, true);
