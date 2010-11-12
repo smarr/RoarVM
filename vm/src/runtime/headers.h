@@ -208,3 +208,5 @@
 # include "multicore_object_table.inline.h"
 # include "memory_system.inline.h"
 
+# include "debug_helper.h"
+

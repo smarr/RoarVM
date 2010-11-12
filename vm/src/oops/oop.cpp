@@ -39,8 +39,6 @@ bool Oop::isKindOf(char* className) {
   return false;
 }
 
-void Oop::dp() { print(stderr_printer); stderr_printer->nl(); }  // debugging print routines
-
 void Oop::test() { assert_always(sizeof(Oop) == 4); }
 
 # if 0
@@ -52,9 +50,3 @@ Oop Oop::check_after_munging() {
 }
 
 # endif
-
-void dp(Oop x) {x.dp();} // debugging
-
-extern "C" { void dp(int); };
-void dp(int x) {Oop::from_bits(x).dp(); } // debugging
-

@@ -12,13 +12,6 @@
  ******************************************************************************/
 
 
-extern "C" {void pst(); }
-void pat();
-void tex();
-extern "C" {int printCallStack(); }
-
-
-
 class Squeak_Interpreter {
 public:
   Squeak_Interpreter();
@@ -741,13 +734,16 @@ public:
       dittoing_stdout_printer->printf("on %d: ", my_rank()), roots.messageSelector.print(dittoing_stdout_printer), dittoing_stdout_printer->nl();
 
     if (check_assertions && roots.messageSelector.as_object()->equals_string("primitiveFailed")) // xxx_dmu
-      roots.messageSelector.print(dittoing_stdout_printer), dittoing_stdout_printer->nl();
+      roots.messageSelector.print(dittoing_stdout_printer), 
+      dittoing_stdout_printer->nl();
 
     if (check_assertions && roots.messageSelector.as_object()->equals_string("yourSelectorHere")) // xxx_dmu
-      roots.messageSelector.print(dittoing_stdout_printer), dittoing_stdout_printer->nl(), pat();
+      roots.messageSelector.print(dittoing_stdout_printer),
+      dittoing_stdout_printer->nl(),
+      print_all_stack_traces(dittoing_stdout_printer);
 
     if (check_assertions && roots.messageSelector.as_object()->equals_string("cannotReturn:")) // xxx_dmu
-      pst(), breakpoint();
+      print_stack_trace(dittoing_stdout_printer), breakpoint();
   }
 
 
