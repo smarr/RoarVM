@@ -13,11 +13,19 @@
 
 
 /*
- This class describes a 32-bit direct-pointer object memory for Smalltalk.  The model is very simple in principle:  a pointer is either a SmallInteger or a 32-bit direct object pointer.
+ This class describes a 32-bit direct-pointer object memory for Smalltalk.
+ The model is very simple in principle:  
+     a pointer is either a SmallInteger 
+     or a 32-bit direct object pointer.
 
-SmallIntegers are tagged with a low-order bit equal to 1, and an immediate 31-bit 2s-complement signed value in the rest of the word.
+ SmallIntegers are tagged with a low-order bit equal to 1,
+  and an immediate 31-bit 2s-complement signed value in the rest of the word.
 
-All object pointers point to a header, which may be followed by a number of data fields.  This object memory achieves considerable compactness by using a variable header size (the one complexity of the design).  The format of the 0th header word is as follows:
+ All object pointers point to a header, which may be followed by a number of data fields.
+ This object memory achieves considerable compactness by using
+ a variable header size (the one complexity of the design).
+
+ The format of the 0th header word is as follows:
 
 	3 bits	reserved for gc (mark, root, unused)
 	12 bits	object hash (for HashSets)
@@ -26,11 +34,27 @@ All object pointers point to a header, which may be followed by a number of data
 	6 bits	object size in 32-bit words
 	2 bits	header type (0: 3-word, 1: 2-word, 2: forbidden, 3: 1-word)
 
-If a class is in the compact class table, then this is the only header information needed.  If it is not, then it will have another header word at offset -4 bytes with its class in the high 30 bits, and the header type repeated in its low 2 bits.  It the objects size is greater than 255 bytes, then it will have yet another header word at offset -8 bytes with its full word size in the high 30 bits and its header type repeated in the low two bits.
+ If a class is in the compact class table, then this is the only header
+ information needed.  If it is not, then it will have another header word at
+ offset -4 bytes with its class in the high 30 bits, and the header type
+ repeated in its low 2 bits.
+ 
+ If the objects size is greater than 255 bytes, then it will have yet another
+ header word at offset -8 bytes with its full word size in the high 30 bits and
+ its header type repeated in the low two bits.
 
-The object format field provides the remaining information as given in the formatOf: method (including isPointers, isVariable, isBytes, and the low 2 size bits of byte-sized objects).
+ The object format field provides the remaining information as given in the
+ formatOf: method (including isPointers, isVariable, isBytes,
+ and the low 2 size bits of byte-sized objects).
 
-This implementation includes incremental (2-generation) and full garbage collection, each with compaction and rectification of direct pointers.  It also supports a bulk-become (exchange object identity) feature that allows many objects to be becomed at once, as when all instances of a class must be grown or shrunk.
+TODO: STEFAN, check with David where this comment is comming from: 
+ 
+ This implementation includes incremental (2-generation) and full garbage
+ collection, each with compaction and rectification of direct pointers.
+ 
+ It also supports a bulk-become (exchange object identity) feature that allows
+ many objects to be becomed at once, as when all instances of a class must be
+ grown or shrunk.
 
 */
 
