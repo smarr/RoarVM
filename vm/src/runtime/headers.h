@@ -126,10 +126,10 @@
 # include "shared_memory_message_queue.h"
 # include "ilib_message_queue.h"
 
+# include "memory_semantics.h"
 # include "abstract_memory_semantics.h"
 # include "thread_memory_semantics.h"
 # include "process_memory_semantics.h"
-# include "memory_semantics.h"
 
 # include "logical_core.h"
 
