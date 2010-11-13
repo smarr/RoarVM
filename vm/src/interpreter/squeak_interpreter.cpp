@@ -3106,7 +3106,8 @@ Oop Squeak_Interpreter::remove_running_process_from_scheduler_lists_and_put_it_t
 }
 
 void Squeak_Interpreter::handle_sigint() {
-  lprintf("received sigint\n");
+  lprintf("received sigint and will abort()\n");
+  OS_Interface::abort();
 }
 
 void Squeak_Interpreter::print_info() {
