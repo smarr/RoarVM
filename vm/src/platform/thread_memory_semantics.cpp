@@ -106,25 +106,62 @@ u_int64 Thread_Memory_Semantics::my_rank_mask() {
   return my_core()->rank_mask();
 }
 
-char* Thread_Memory_Semantics::map_heap_memory(int total_size,
-                                               int bytes_to_map,
-                                               int page_size_used_in_heap_arg,
+char  Thread_Memory_Semantics::mmap_filename[BUFSIZ] = { 0 };
+
+char* Thread_Memory_Semantics::map_heap_memory(off_t total_size,
+                                               size_t bytes_to_map,
+                                               size_t page_size_used_in_heap_arg,
                                                void* where,
-                                               int offset,
+                                               off_t offset,
                                                int main_pid,
                                                int flags) {
   assert_always(Max_Number_Of_Cores >= Logical_Core::group_size);
   
-  static char* base_address = NULL; // threadsafe
-  
   assert(cores_are_initialized());
+  assert(Logical_Core::running_on_main());
+    
+  const bool print = false;
   
-  if (Logical_Core::running_on_main() && !base_address)
-    base_address = (char*)calloc(1, total_size);
+  snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/%d", main_pid);
+  int open_flags = (where == NULL  ?  O_CREAT  :  0) | O_RDWR;
   
-  assert_message(base_address, "Initialization order is broken, it is expected, that this has already been executed on main.");
+  int mmap_fd = open(mmap_filename, open_flags, 0600);
+  if (mmap_fd == -1)  {
+    char buf[BUFSIZ];
+    sprintf(buf, "could not open mmap file, on %d, name %s, flags 0x%x",
+            Logical_Core::my_rank(), mmap_filename, open_flags);
+    perror(buf);
+  }
   
-  return base_address + offset;
+  if (!Memory_System::use_huge_pages && ftruncate(mmap_fd, total_size)) {
+    perror("ftruncate");
+    fatal("ftruncate");
+  }
+  
+  // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
+  int32 mmap_result = (int32)mmap(where, bytes_to_map, PROT_READ | PROT_WRITE,  flags, mmap_fd, offset);
+  if (check_many_assertions)
+    lprintf("mmapp: address requested 0x%x, result 0x%x, bytes 0x%x, flags 0x%x, offset in file 0x%x\n",
+            where, mmap_result, bytes_to_map, flags, offset);
+  if (print)
+    lprintf("mmap(<requested address> 0x%x, <byte count to map> 0x%x, PROT_READ | PROT_WRITE, <flags> 0x%x, open(%s, 0x%x, 0600), <offset> 0x%x) returned 0x%x\n",
+            where, bytes_to_map, flags, mmap_filename, open_flags, offset, mmap_result);
+  if (mmap_result == -1) {
+    char buf[BUFSIZ];
+    snprintf(buf, sizeof(buf),"mmap failed on tile %d", Logical_Core::my_rank());
+    perror(buf);
+    fatal("mmap");
+  }
+  if (where != NULL  &&  where != (void*)mmap_result) {
+    lprintf("mmap asked for memory at 0x%x, but got it at 0x%x\n",
+            where, mmap_result);
+    fatal("mmap was uncooperative");
+  }
+  char* mem = (char*)mmap_result;
+  close(mmap_fd);
+  
+  assert_always( mem != NULL );
+  return mem;
 }
 
 
