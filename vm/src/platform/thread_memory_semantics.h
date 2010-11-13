@@ -31,7 +31,6 @@ private:
   static void _dtor_memory_system_key(void* local_obj);
 public:
   static pthread_key_t memory_system_key;
-  static void initialize_memory_system();
 # endif
   
 public:
