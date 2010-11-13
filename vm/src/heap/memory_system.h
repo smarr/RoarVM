@@ -22,30 +22,32 @@
  * 
  * Conceptual Structure
  * --------------------
- *   TODO: add something about object table
+ *   TODO: add something about the object table
  *   A typical structure in memory could look like this:
  *
+ *     +-----------------+-----------------+
+ *     |   read-mostly   |   read-write    |
+ *     +----+----+----+--+----+----+----+--+
+ *     | c1 | c2 | c3 |..| c1 | c2 | c3 |..|
+ *     +----+----+----+--+----+----+----+--+
+ *     0                n/2                n
  *
  * Implementation Structure
  * ------------------------
  *
- * The heap is allocated with mmap in two parts.
+ * The heap is allocated with mmap in two parts but at consecutive addesses.
  * The first region is allocated for the read-mostly heap, and
  * the second region is allocated for the read-write heap.
  * See Memory_System::map_read_write_and_read_mostly_memory.
  *
- * This results in the following memory layout:
- * 
- *     +-----------------+----------------+
- *     |   read-mostly   |   read-write   |
- *     +-----------------+----------------+
- *     0                n/2               n
- *
  * The memory allocation is done on the main core and all other cores
- * receive the base address via a message to map in the same memory regions
- * at the same addresses.
+ * receive the base address via a message to map the same memory regions
+ * into the same addresses.
  * For thread-based systems, this is only done on the main core, and the other
- * cores do not need to allocate any memory.
+ * cores do not need to map in any memory.
+ *
+ * A temporary file is used to ensure that all cores are working on the same
+ * memory.
  */
 class Memory_System {
 
