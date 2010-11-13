@@ -122,7 +122,7 @@ private:
   bool ask_Linux_for_huge_pages(int);
   int how_many_huge_pages();
   void request_huge_pages(int);
-  void  map_read_write_and_read_mostly_memory(int pid, int, int);
+  void  map_read_write_and_read_mostly_memory(int pid, size_t, size_t);
   void set_second_chance_cores_for_allocation(int);
 
 public:

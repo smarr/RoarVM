@@ -14,10 +14,10 @@
 
 #include "headers.h"
 
-bool     Memory_System::use_huge_pages = !On_Apple;
+bool     Memory_System::use_huge_pages = On_Tilera;
 bool     Memory_System::replicate_methods = false; // if true methods are put on read-mostly heap
 bool     Memory_System::replicate_all = true; // if true, all (non-contexts) are allowed in read-mostly heap
-bool     Memory_System::OS_mmaps_up = On_Apple || On_Intel_Linux || false; // for newer Tilera MDEs
+bool     Memory_System::OS_mmaps_up = On_Apple;
 u_int32  Memory_System::memory_per_read_write_heap = 0;
 u_int32  Memory_System::log_memory_per_read_mostly_heap = 0;
 u_int32  Memory_System::memory_per_read_mostly_heap = 0;
@@ -663,10 +663,10 @@ void Memory_System::set_page_size_used_in_heap() {
 
 
 
-void Memory_System::map_read_write_and_read_mostly_memory(int pid, int total_read_write_memory_size, int total_read_mostly_memory_size) {
-  off_t   co_size = total_read_write_memory_size;
-  off_t inco_size = total_read_mostly_memory_size;
-  off_t grand_total = co_size + inco_size;
+void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size, size_t total_read_mostly_memory_size) {
+  size_t   co_size = total_read_write_memory_size;
+  size_t inco_size = total_read_mostly_memory_size;
+  size_t grand_total = co_size + inco_size;
 
   if (OS_mmaps_up) {
     read_mostly_memory_base = Memory_Semantics::map_heap_memory( grand_total,  inco_size,  page_size_used_in_heap,  read_mostly_memory_base,              0, pid,  MAP_SHARED | MAP_CACHE_INCOHERENT);
