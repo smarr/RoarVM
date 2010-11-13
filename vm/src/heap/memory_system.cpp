@@ -58,7 +58,7 @@ void Memory_System::finished_adding_objects_from_snapshot() {
   
   // now all objects are in the heap, so we are also sure that this file is
   // in memory and the filesystem link is not to be used by mmap anymore
-  unlink(Memory_Semantics::mmap_filename);
+  unlink(mmap_filename);
 }
 
 void Memory_System::enforce_coherence_after_each_core_has_stored_into_its_own_heap() {
@@ -673,18 +673,18 @@ void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_
   size_t grand_total = co_size + inco_size;
 
   if (OS_mmaps_up) {
-    read_mostly_memory_base = Memory_Semantics::map_heap_memory( grand_total,  inco_size,  page_size_used_in_heap,  read_mostly_memory_base,              0, pid,  MAP_SHARED | MAP_CACHE_INCOHERENT);
+    read_mostly_memory_base     = map_heap_memory( grand_total,  inco_size,  page_size_used_in_heap,  read_mostly_memory_base,              0, pid,  MAP_SHARED | MAP_CACHE_INCOHERENT);
     read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
 
-    read_write_memory_base = Memory_Semantics::map_heap_memory( grand_total,    co_size,  page_size_used_in_heap,  read_mostly_memory_past_end,  inco_size, pid,  MAP_SHARED);
-    read_write_memory_past_end =   read_write_memory_base +  co_size;
+    read_write_memory_base      = map_heap_memory( grand_total,    co_size,  page_size_used_in_heap,  read_mostly_memory_past_end,  inco_size, pid,  MAP_SHARED);
+    read_write_memory_past_end  = read_write_memory_base  + co_size;
   }
   else {
-    read_write_memory_base = Memory_Semantics::map_heap_memory(grand_total, co_size, page_size_used_in_heap, read_write_memory_base, 0, pid, MAP_SHARED);
-    read_write_memory_past_end = read_write_memory_base + co_size;
+    read_write_memory_base      = map_heap_memory(grand_total, co_size, page_size_used_in_heap, read_write_memory_base, 0, pid, MAP_SHARED);
+    read_write_memory_past_end  = read_write_memory_base + co_size;
 
     read_mostly_memory_past_end = read_write_memory_base;
-    read_mostly_memory_base = Memory_Semantics::map_heap_memory( grand_total,  inco_size,  page_size_used_in_heap, read_mostly_memory_past_end - inco_size, co_size, pid, MAP_SHARED | MAP_CACHE_INCOHERENT);
+    read_mostly_memory_base     = map_heap_memory( grand_total,  inco_size,  page_size_used_in_heap, read_mostly_memory_past_end - inco_size, co_size, pid, MAP_SHARED | MAP_CACHE_INCOHERENT);
   }
 
   assert(read_mostly_memory_base < read_mostly_memory_past_end);
@@ -1250,5 +1250,66 @@ void Memory_System::store_2_enforcing_coherence(int32* p1, int32 i1, int32 i2,  
 
 int Memory_System::assign_rank_for_snapshot_object() {
   return round_robin_rank();
+}
+
+
+char  Memory_System::mmap_filename[BUFSIZ] = { 0 };
+
+char* Memory_System::map_heap_memory(size_t total_size,
+                                     size_t bytes_to_map,
+                                     size_t page_size_used_in_heap_arg,
+                                     void*  where,
+                                     off_t  offset,
+                                     int    main_pid,
+                                     int    flags) {
+  assert_always(Max_Number_Of_Cores >= Logical_Core::group_size);
+  
+  if ( !On_Tilera ) {
+    assert(Memory_Semantics::cores_are_initialized());
+    assert(Logical_Core::running_on_main());
+  }
+  
+  const bool print = false;
+  
+  snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/rvm-%d", main_pid);
+  int open_flags = (where == NULL  ?  O_CREAT  :  0) | O_RDWR;
+  
+  int mmap_fd = open(mmap_filename, open_flags, 0600);
+  if (mmap_fd == -1)  {
+    char buf[BUFSIZ];
+    sprintf(buf, "could not open mmap file, on %d, name %s, flags 0x%x",
+            Logical_Core::my_rank(), mmap_filename, open_flags);
+    perror(buf);
+  }
+  
+  if (!Memory_System::use_huge_pages && ftruncate(mmap_fd, total_size)) {
+    perror("ftruncate");
+    fatal("ftruncate");
+  }
+  
+  // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
+  int32 mmap_result = (int32)mmap(where, bytes_to_map, PROT_READ | PROT_WRITE,  flags, mmap_fd, offset);
+  if (check_many_assertions)
+    lprintf("mmapp: address requested 0x%x, result 0x%x, bytes 0x%x, flags 0x%x, offset in file 0x%x\n",
+            where, mmap_result, bytes_to_map, flags, offset);
+  if (print)
+    lprintf("mmap(<requested address> 0x%x, <byte count to map> 0x%x, PROT_READ | PROT_WRITE, <flags> 0x%x, open(%s, 0x%x, 0600), <offset> 0x%x) returned 0x%x\n",
+            where, bytes_to_map, flags, mmap_filename, open_flags, offset, mmap_result);
+  if (mmap_result == -1) {
+    char buf[BUFSIZ];
+    snprintf(buf, sizeof(buf),"mmap failed on tile %d", Logical_Core::my_rank());
+    perror(buf);
+    fatal("mmap");
+  }
+  if (where != NULL  &&  where != (void*)mmap_result) {
+    lprintf("mmap asked for memory at 0x%x, but got it at 0x%x\n",
+            where, mmap_result);
+    fatal("mmap was uncooperative");
+  }
+  char* mem = (char*)mmap_result;
+  close(mmap_fd);
+  
+  assert_always( mem != NULL );
+  return mem;
 }
 
