@@ -40,7 +40,7 @@ char* Process_Memory_Semantics::map_heap_memory(off_t total_file_size,
   
   const bool print = false;
   
-  snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/%d", main_pid);
+  snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/rvm-%d", main_pid);
   int open_flags = (where == NULL  ?  O_CREAT  :  0) | O_RDWR;
   int mmap_fd = open(mmap_filename, open_flags, 0600);
   if (mmap_fd == -1)  {

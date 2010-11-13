@@ -55,6 +55,10 @@ void Memory_System::finished_adding_objects_from_snapshot() {
   object_table->post_store_whole_enchillada();
   The_Squeak_Interpreter()->set_am_receiving_objects_from_snapshot(false);
   enforce_coherence_after_each_core_has_stored_into_its_own_heap();
+  
+  // now all objects are in the heap, so we are also sure that this file is
+  // in memory and the filesystem link is not to be used by mmap anymore
+  unlink(Memory_Semantics::mmap_filename);
 }
 
 void Memory_System::enforce_coherence_after_each_core_has_stored_into_its_own_heap() {
@@ -773,11 +777,6 @@ void Memory_System::initialize_main(init_buf* ib) {
 
   for (int i = 0;  i < max_num_mutabilities;  ++i)
     set_second_chance_cores_for_allocation(i);
-
-# if On_Tilera
-  #warning the following is wrong here and has to be moved, I think to a place where we are sure, that each core has its memory reserved
-  //unlink(mmap_filename);  // done with this
-# endif
 
   object_table->pre_store_whole_enchillada();
 }
