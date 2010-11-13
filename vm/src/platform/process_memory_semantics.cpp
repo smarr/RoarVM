@@ -26,11 +26,11 @@ Squeak_Interpreter _interpreter;
 
 char Process_Memory_Semantics::mmap_filename[BUFSIZ] = { 0 };
 
-char* Process_Memory_Semantics::map_heap_memory(int total_file_size,
-                                          int bytes_to_map,
-                                          int page_size_used_in_heap_arg,
+char* Process_Memory_Semantics::map_heap_memory(off_t total_file_size,
+                                          size_t bytes_to_map,
+                                          size_t page_size_used_in_heap_arg,
                                           void* where,
-                                          int offset,
+                                          off_t offset,
                                           int main_pid,
                                           int flags) {
   assert_always(Max_Number_Of_Cores >= Logical_Core::group_size);

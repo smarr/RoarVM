@@ -14,7 +14,7 @@
 
 #include "headers.h"
 
-bool     Memory_System::use_huge_pages = true;
+bool     Memory_System::use_huge_pages = !On_Apple;
 bool     Memory_System::replicate_methods = false; // if true methods are put on read-mostly heap
 bool     Memory_System::replicate_all = true; // if true, all (non-contexts) are allowed in read-mostly heap
 bool     Memory_System::OS_mmaps_up = On_Apple || On_Intel_Linux || false; // for newer Tilera MDEs
@@ -23,7 +23,7 @@ u_int32  Memory_System::log_memory_per_read_mostly_heap = 0;
 u_int32  Memory_System::memory_per_read_mostly_heap = 0;
 u_int32  Memory_System::log_memory_per_read_write_heap = 0;
   int    Memory_System::round_robin_period = 1;
-  int    Memory_System::min_heap_MB = On_Tilera ? 256 : 1024; // Fewer GCs on Mac
+  size_t Memory_System::min_heap_MB = On_Tilera ? 256 : 1024; // Fewer GCs on Mac
 
 # define FOR_ALL_HEAPS(rank, mutability) \
   FOR_ALL_RANKS(rank) \
@@ -606,8 +606,8 @@ int Memory_System::calculate_total_read_mostly_pages(int page_size) {
 void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, int32 fsf, int32 lastHash) {
   set_page_size_used_in_heap();
 
-  int rw_pages = calculate_total_read_write_pages( huge_page_size);
-  int rm_pages = calculate_total_read_mostly_pages(huge_page_size);
+  int rw_pages = calculate_total_read_write_pages (page_size_used_in_heap);
+  int rm_pages = calculate_total_read_mostly_pages(page_size_used_in_heap);
   // lprintf("rw_pages %d, rm_pages %d\n", rw_pages, rm_pages);
 
 
@@ -621,8 +621,16 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
 
   map_read_write_and_read_mostly_memory(getpid(), total_read_write_memory_size, total_read_mostly_memory_size);
 
-  memory_per_read_write_heap   = total_read_write_memory_size   / Logical_Core::group_size;
+  memory_per_read_write_heap  = total_read_write_memory_size   / Logical_Core::group_size;
   memory_per_read_mostly_heap = calculate_bytes_per_read_mostly_heap(page_size_used_in_heap);
+  
+  assert(memory_per_read_write_heap                             <=  total_read_write_memory_size);
+  assert(memory_per_read_write_heap * Logical_Core::group_size  <=  total_read_write_memory_size);
+
+  assert(memory_per_read_mostly_heap                            <=  total_read_mostly_memory_size);
+  assert(memory_per_read_mostly_heap * Logical_Core::group_size <=  total_read_mostly_memory_size);
+  
+  
   log_memory_per_read_write_heap = log_of_power_of_two(memory_per_read_write_heap);
   log_memory_per_read_mostly_heap = log_of_power_of_two(memory_per_read_mostly_heap);
   object_table = new Multicore_Object_Table();
@@ -656,9 +664,9 @@ void Memory_System::set_page_size_used_in_heap() {
 
 
 void Memory_System::map_read_write_and_read_mostly_memory(int pid, int total_read_write_memory_size, int total_read_mostly_memory_size) {
-  int   co_size = total_read_write_memory_size;
-  int inco_size = total_read_mostly_memory_size;
-  int grand_total = co_size + inco_size;
+  off_t   co_size = total_read_write_memory_size;
+  off_t inco_size = total_read_mostly_memory_size;
+  off_t grand_total = co_size + inco_size;
 
   if (OS_mmaps_up) {
     read_mostly_memory_base = Memory_Semantics::map_heap_memory( grand_total,  inco_size,  page_size_used_in_heap,  read_mostly_memory_base,              0, pid,  MAP_SHARED | MAP_CACHE_INCOHERENT);
@@ -780,10 +788,11 @@ void Memory_System::initialize_helper() {
   Logical_Core* sender;
   init_buf* ib = (init_buf*)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
   
-  if (Replicate_PThread_Memory_System  ||  On_Tilera)
+  if (Replicate_PThread_Memory_System  ||  On_Tilera) {
     init_values_from_buffer(ib); // not needed with common structure
-
-  map_read_write_and_read_mostly_memory(ib->main_pid, ib->total_read_write_memory_size, ib->total_read_mostly_memory_size);
+    map_read_write_and_read_mostly_memory(ib->main_pid, ib->total_read_write_memory_size, ib->total_read_mostly_memory_size);
+  }
+  
   create_my_heaps(ib);
   
   sender->message_queue.release_oldest_buffer(ib);

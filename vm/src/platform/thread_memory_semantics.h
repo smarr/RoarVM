@@ -78,8 +78,11 @@ public:
     return calloc(num_members, mem_size);
   }
   
-  static char* map_heap_memory(int total_size, int bytes_to_map,
-                               int page_size_used_in_heap_arg, void* where, int offset,
+private:
+  static char  mmap_filename[BUFSIZ];
+public:
+  static char* map_heap_memory(off_t total_size, size_t bytes_to_map,
+                               size_t page_size_used_in_heap_arg, void* where, off_t offset,
                                int main_pid, int flags);
     
 };

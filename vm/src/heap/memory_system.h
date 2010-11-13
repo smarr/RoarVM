@@ -24,13 +24,14 @@ public:
   Multicore_Object_Heap* heaps[Max_Number_Of_Cores][max_num_mutabilities];
 
 private:
-  static const int normal_page_size =       PAGE_SIZE;
-  static const int   huge_page_size = LARGE_PAGE_SIZE;
+  static const size_t normal_page_size =       PAGE_SIZE;
+  static const size_t   huge_page_size = LARGE_PAGE_SIZE;
 
-  // need to say hugepages=56 at boot time to use the flag below
+  // On the Tilera it might be necessary to specifiy the number of required
+  // huge pages at boot time to use the use_huge_pages flag (hugepages=56)
 public:
   static bool use_huge_pages;   // threadsafe readonly config value
-  static int  min_heap_MB;      // threadsafe readonly
+  static size_t min_heap_MB;      // threadsafe readonly
   static bool replicate_methods;// threadsafe readonly
   static bool replicate_all;    // threadsafe readonly
   static bool OS_mmaps_up;      // threadsafe readonly
@@ -55,7 +56,7 @@ private:
 
   int second_chance_cores_for_allocation[max_num_mutabilities];  // made threadsafe to increase the reliability of the value
 
-  int   page_size_used_in_heap;
+  size_t page_size_used_in_heap;
 
   static int round_robin_period;
 
