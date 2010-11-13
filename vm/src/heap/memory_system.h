@@ -385,7 +385,7 @@ public:
 private:
   static char  mmap_filename[BUFSIZ];
   static char* map_heap_memory(size_t total_size, size_t bytes_to_map,
-                               size_t page_size_used_in_heap_arg, void* where, off_t offset,
+                               void* where, off_t offset,
                                int main_pid, int flags);  
 };
 
