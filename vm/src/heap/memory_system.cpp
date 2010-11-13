@@ -668,23 +668,23 @@ void Memory_System::set_page_size_used_in_heap() {
 
 
 void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size, size_t total_read_mostly_memory_size) {
-  size_t   co_size = total_read_write_memory_size;
-  size_t inco_size = total_read_mostly_memory_size;
+  size_t     co_size = total_read_write_memory_size;
+  size_t   inco_size = total_read_mostly_memory_size;
   size_t grand_total = co_size + inco_size;
 
   if (OS_mmaps_up) {
-    read_mostly_memory_base     = map_heap_memory( grand_total,  inco_size,  page_size_used_in_heap,  read_mostly_memory_base,              0, pid,  MAP_SHARED | MAP_CACHE_INCOHERENT);
+    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size, read_mostly_memory_base,                      0, pid,  MAP_SHARED | MAP_CACHE_INCOHERENT);
     read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
 
-    read_write_memory_base      = map_heap_memory( grand_total,    co_size,  page_size_used_in_heap,  read_mostly_memory_past_end,  inco_size, pid,  MAP_SHARED);
+    read_write_memory_base      = map_heap_memory(grand_total,   co_size, read_mostly_memory_past_end,  inco_size, pid,  MAP_SHARED);
     read_write_memory_past_end  = read_write_memory_base  + co_size;
   }
   else {
-    read_write_memory_base      = map_heap_memory(grand_total, co_size, page_size_used_in_heap, read_write_memory_base, 0, pid, MAP_SHARED);
+    read_write_memory_base      = map_heap_memory(grand_total,   co_size, read_write_memory_base, 0, pid, MAP_SHARED);
     read_write_memory_past_end  = read_write_memory_base + co_size;
 
     read_mostly_memory_past_end = read_write_memory_base;
-    read_mostly_memory_base     = map_heap_memory( grand_total,  inco_size,  page_size_used_in_heap, read_mostly_memory_past_end - inco_size, co_size, pid, MAP_SHARED | MAP_CACHE_INCOHERENT);
+    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size, read_mostly_memory_past_end - inco_size, co_size, pid, MAP_SHARED | MAP_CACHE_INCOHERENT);
   }
 
   assert(read_mostly_memory_base < read_mostly_memory_past_end);
@@ -1257,7 +1257,6 @@ char  Memory_System::mmap_filename[BUFSIZ] = { 0 };
 
 char* Memory_System::map_heap_memory(size_t total_size,
                                      size_t bytes_to_map,
-                                     size_t page_size_used_in_heap_arg,
                                      void*  where,
                                      off_t  offset,
                                      int    main_pid,
