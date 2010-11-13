@@ -108,7 +108,7 @@ u_int64 Thread_Memory_Semantics::my_rank_mask() {
 
 char  Thread_Memory_Semantics::mmap_filename[BUFSIZ] = { 0 };
 
-char* Thread_Memory_Semantics::map_heap_memory(off_t total_size,
+char* Thread_Memory_Semantics::map_heap_memory(size_t total_size,
                                                size_t bytes_to_map,
                                                size_t page_size_used_in_heap_arg,
                                                void* where,

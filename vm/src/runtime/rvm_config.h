@@ -28,7 +28,8 @@
   # define On_Apple 0
 # endif
 
-
+// This is necessary to allow large heaps on Linux
+# define _FILE_OFFSET_BITS 64
 
 // invoke template with name and default
 # define DO_ALL_CONFIG_FLAGS(template) \
