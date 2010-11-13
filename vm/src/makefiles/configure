@@ -198,6 +198,6 @@ echo "HIGH_OPTIMIZE_LEVEL= $HIGH_OPTIMIZE_LEVEL" >> Makefile
 echo "include $SRC_DIR/makefiles/Makefile.common" >> Makefile
 
 # after successful run, preserve this configure call for later reuse
-echo "#!/bin/sh" > config.last
-echo "$0 $CONFIGURE_ARGS \"\$@\"" >> config.last
+echo "#!/bin/sh
+$0 $CONFIGURE_ARGS \"\$@\" &" > config.last
 chmod +x config.last
