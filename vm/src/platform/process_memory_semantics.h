@@ -50,9 +50,7 @@ public:
     return OS_Interface::rvm_calloc_shared(num_members, mem_size);
   }
   
-private:
   static char  mmap_filename[BUFSIZ];
-public:
   static char* map_heap_memory(off_t total_file_size, size_t bytes_to_map,
                                size_t page_size_used_in_heap_arg, void* where, off_t offset,
                                int main_pid, int flags);
