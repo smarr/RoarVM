@@ -10,35 +10,67 @@
  ******************************************************************************/
 
 
-template <typename T> class tracked_ptr {
+#include <set>
+#include <assert.h>
+
+using namespace std;
+
+template<typename T>
+class tracked_ptr {
 private:
   
-  T* _ptr;
+  typedef set<tracked_ptr<T>*> registry_t;
+  
+  static registry_t registry;
+  
+  T* const _ptr;
+  bool valid;
+  typename registry_t::iterator it;
 
 public:
   
-  tracked_ptr(T* const ptr) : _ptr(ptr) {
-    throw 0;
+  tracked_ptr(T* const ptr) :
+    _ptr(ptr),
+    valid(true)/*,
+    it(registry.insert(this))*/ {
+      pair<typename registry_t::iterator, bool> p = registry.insert(this);
+      assert(p.second);
+      it = p.first;
+    }
+  
+  ~tracked_ptr() {
+    // ensure that the iterator is stable
+    assert(*it == this);
+    registry.erase(it);
   }
   
   T& operator* () const {
+    assert(is_valid());
     return *_ptr;
   }
   
   T* operator-> () const {
+    assert(is_valid());
     return _ptr;
   }
   
-  static bool is_registered(T* const ptr) {
-    throw 0;
-  }
+  static size_t pointers_on_stack() {
+    return registry.size();
+  }  
   
-  static bool is_valid(T* const ptr) {
-    throw 0;
+  bool is_valid() const {
+    return valid;
   }
   
   static void invalidate_all_pointer() {
-    throw 0;
+    typename registry_t::iterator i;
+    for (i = registry.begin(); i != registry.end(); i++) {
+      (*i)->valid = false;
+    }
   }
   
 }; // tracked_ptr
+
+
+template<typename T>
+set<tracked_ptr<T>*> tracked_ptr<T>::registry;
