@@ -11,6 +11,8 @@
 
 
 #include <gtest/gtest.h>
+#include <limits.h>
+
 #include "synced_queue.h"
 #include "starter.h"
 
