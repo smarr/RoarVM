@@ -193,6 +193,107 @@ TEST(TrackedPointer, InvalidUseTriggersErrorStar) {
 }
 
 /**
+ * Testing the assignment semantics, it has to be possible to pass on
+ * the tracked_ptr between variables without losing its semantics.
+ */
+TEST(TrackedPointer, AssignmentSemantics) {
+  // make sure everything is clean
+  EXPECT_EQ(0u, tracked_ptr<MyClass>::pointers_on_stack());
+  EXPECT_EQ(0u, tracked_ptr<int>::pointers_on_stack());
+  
+  MyClass* bar = new MyClass();
+  
+  // this one is not yet initialized, so nothing should get registered
+  tracked_ptr<MyClass> bar_p;
+  
+  EXPECT_EQ(0u, tracked_ptr<MyClass>::invalidate_all_pointer());
+  EXPECT_FALSE(bar_p.is_valid()); // not initialize so it should also be invalid
+  
+  // now for convinence, we just assign the pointer, and it should be converted
+  // implicitly as well as get registered correctly
+  bar_p = bar;
+  EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack());
+  
+  { // open new scope for the test
+    
+    // have a second pointer, this one should be tracked separatly I think (?)
+    tracked_ptr<MyClass> bar_p2 = bar_p;
+    EXPECT_EQ(2u, tracked_ptr<MyClass>::pointers_on_stack());
+    EXPECT_TRUE(bar_p2.is_valid());
+    
+  } // and we clean things up immediately 
+  EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack()); 
+  
+  EXPECT_TRUE(bar_p.is_valid()); // nothing should have invalidated it
+  
+  // lets do the same again
+  { // open new scope for the test
+    
+    // have a second pointer, this one should be tracked separatly I think (?)
+    tracked_ptr<MyClass> bar_p2 = bar_p;
+    EXPECT_EQ(2u, tracked_ptr<MyClass>::pointers_on_stack());
+    EXPECT_TRUE(bar_p2.is_valid());
+    
+    // but now we invalidate everything
+    tracked_ptr<MyClass>::invalidate_all_pointer();
+    
+    EXPECT_FALSE(bar_p.is_valid());
+    EXPECT_FALSE(bar_p2.is_valid());
+  } // and we clean things up immediately 
+  EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack()); 
+  
+  EXPECT_FALSE(bar_p.is_valid());
+  
+  // however, when we obtain a new one that should be fine again
+  bar_p = bar;
+  EXPECT_TRUE(bar_p.is_valid());
+  
+  // but still only a single object
+  EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack()); 
+  
+  delete bar;
+}
+
+
+/**
+ * Testing the assignment semantics, the first test was passing
+ * stuff up the stack, don't know whether it makes a lot difference,
+ * but just to be sure, lets test the other direction.
+ */
+TEST(TrackedPointer, AssignmentSemantics2) {
+  // make sure everything is clean
+  EXPECT_EQ(0u, tracked_ptr<MyClass>::pointers_on_stack());
+  EXPECT_EQ(0u, tracked_ptr<int>::pointers_on_stack());
+  
+  MyClass* bar = new MyClass();
+  
+  // this one is not yet initialized, so nothing should get registered
+  tracked_ptr<MyClass> bar_p;
+  
+  EXPECT_EQ(0u, tracked_ptr<MyClass>::invalidate_all_pointer());
+  EXPECT_FALSE(bar_p.is_valid()); // not initialize so it should also be invalid
+  
+  { // open new scope for the test
+    
+    // have a second pointer, this one should be tracked separatly I think (?)
+    tracked_ptr<MyClass> bar_p2(bar);
+    EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack());
+    EXPECT_TRUE(bar_p2.is_valid());
+    
+    // now pass it back to the first one
+    bar_p = bar_p2;
+    EXPECT_EQ(2u, tracked_ptr<MyClass>::pointers_on_stack());
+    EXPECT_TRUE(bar_p.is_valid());
+  } // and we clean things up immediately 
+  EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack()); 
+  
+  EXPECT_TRUE(bar_p.is_valid()); // nothing should have invalidated it
+    
+  delete bar;
+}
+
+
+/**
  * Bascially a compilation test, to ensure that the interfaces
  * are correct and tracked_ptr<T> can be used substituting T*
  */
