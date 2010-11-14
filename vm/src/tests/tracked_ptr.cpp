@@ -14,6 +14,12 @@
 
 #include <gtest/gtest.h>
 
+/** A simple class used in the tests **/
+class MyClass {
+public:
+  int foo() { return 42; }
+};
+
 /**
  * Test the simplest use case that a pointer was used in
  * a scope, gets properly registered, and then also properly
@@ -23,23 +29,19 @@ TEST(TrackedPointer, DirectUse) {
   int i = 42;
   
   // nothing done yet, so the pointer should not be registered
-  ASSERT_FALSE(tracked_ptr<int>::is_registered(&i));
-  
-  // and also, it should be invalid for use
-  ASSERT_FALSE(tracked_ptr<int>::is_valid(&i));
+  ASSERT_EQ(0u, tracked_ptr<int>::pointers_on_stack());
   
   { // open new scope for the test
     tracked_ptr<int> i_p(&i);
     ASSERT_EQ(42, *i_p);
     
     // now the pointer is registered and valid for use
-    ASSERT_TRUE(tracked_ptr<int>::is_registered(&i));
-    ASSERT_TRUE(tracked_ptr<int>::is_valid(&i));
+    ASSERT_EQ(1u, tracked_ptr<int>::pointers_on_stack());
+    ASSERT_TRUE(i_p.is_valid());
   }
   
   // after closing the scope, everything should be cleaned up
-  ASSERT_FALSE(tracked_ptr<int>::is_registered(&i));
-  ASSERT_FALSE(tracked_ptr<int>::is_valid(&i));
+  ASSERT_EQ(0u, tracked_ptr<int>::pointers_on_stack());
 }
 
 /**
@@ -49,35 +51,151 @@ TEST(TrackedPointer, DirectUse) {
 TEST(TrackedPointer, DirectUseInvalidationInBetween) {
   int i = 42;
   
+  ASSERT_EQ(0u, tracked_ptr<int>::pointers_on_stack());
+  
   { // open new scope for the test
     tracked_ptr<int> i_p(&i);
     ASSERT_EQ(42, *i_p);
     
     // now the pointer is registered and valid for use
-    ASSERT_TRUE(tracked_ptr<int>::is_registered(&i));
-    ASSERT_TRUE(tracked_ptr<int>::is_valid(&i));
+    ASSERT_EQ(1u, tracked_ptr<int>::pointers_on_stack());
+    ASSERT_TRUE(i_p.is_valid());
     
     tracked_ptr<int>::invalidate_all_pointer();
     
-    // now the pointer is registered and valid for use
-    ASSERT_TRUE(tracked_ptr<int>::is_registered(&i));
-    ASSERT_FALSE(tracked_ptr<int>::is_valid(&i));
+    // now the pointer is invalidated and should not be used anymore
+    ASSERT_EQ(1u, tracked_ptr<int>::pointers_on_stack());
+    ASSERT_FALSE(i_p.is_valid());
   }
   
   // after closing the scope, everything should be cleaned up
-  ASSERT_FALSE(tracked_ptr<int>::is_registered(&i));
-  ASSERT_FALSE(tracked_ptr<int>::is_valid(&i));
+  ASSERT_EQ(0u, tracked_ptr<int>::pointers_on_stack());
+}
+
+/**
+ * Allow invalid pointers that are still on the stack
+ */
+TEST(TrackedPointer, InvalidationThenDestruction) {
+  int i = 42;
+  
+  { // open new scope for the test
+    tracked_ptr<int> i_p(&i);
+    ASSERT_EQ(42, *i_p);
+    
+    ASSERT_TRUE(i_p.is_valid());
+    
+    tracked_ptr<int>::invalidate_all_pointer();
+    
+    ASSERT_EQ(1u, tracked_ptr<int>::pointers_on_stack());
+    ASSERT_FALSE(i_p.is_valid());
+  }
+
+  ASSERT_EQ(0u, tracked_ptr<int>::pointers_on_stack());
+  
+  // Ensure subsequent use is still possible
+  
+  { // open new scope for the test
+    tracked_ptr<int> i_p(&i);
+    ASSERT_EQ(42, *i_p);
+    
+    ASSERT_TRUE(i_p.is_valid());
+    
+    tracked_ptr<int>::invalidate_all_pointer();
+    
+    ASSERT_EQ(1u, tracked_ptr<int>::pointers_on_stack());
+    ASSERT_FALSE(i_p.is_valid());
+  }
+  
+  
+  // after closing the scope, everything should be cleaned up
+  ASSERT_EQ(0u, tracked_ptr<int>::pointers_on_stack());
+}
+
+/**
+ * The subsequent creation of a new valid pointer to the same
+ * object needs to be allowed.
+ */
+TEST(TrackedPointer, CleanSeparationBetweenTrackedPointers) {
+  int i = 42;
+  
+  { // open new scope for the test
+    tracked_ptr<int> i_p(&i);
+    ASSERT_EQ(42, *i_p);
+    
+    ASSERT_TRUE(i_p.is_valid());
+    
+    tracked_ptr<int>::invalidate_all_pointer();
+    
+    // now that one is invalid, however, we can obtain a new one
+    ASSERT_EQ(1u, tracked_ptr<int>::pointers_on_stack());
+    ASSERT_FALSE(i_p.is_valid());
+    
+    
+    // obtain a new one
+    tracked_ptr<int> i_p2(&i);
+    ASSERT_EQ(42, *i_p2);
+    
+    ASSERT_TRUE(i_p2.is_valid());
+    ASSERT_FALSE(i_p.is_valid()); // the old is unchanged
+    
+    // and both are still tracked
+    ASSERT_EQ(2u, tracked_ptr<int>::pointers_on_stack()); 
+    
+    tracked_ptr<int>::invalidate_all_pointer();
+    
+    // now both need to be invalid
+    ASSERT_FALSE(i_p.is_valid());
+    ASSERT_FALSE(i_p2.is_valid());
+    
+    // and both are still tracked
+    ASSERT_EQ(2u, tracked_ptr<int>::pointers_on_stack()); 
+  }
+  
+  // after closing the scope, everything should be cleaned up
+  ASSERT_EQ(0u, tracked_ptr<int>::pointers_on_stack());
+}
+
+
+/**
+ * Make sure the use of an invalid pointer triggers an error.
+ */
+TEST(TrackedPointer, InvalidUseTriggersErrorArrow) {
+  MyClass* bar = new MyClass();
+  
+  { // open new scope for the test
+    tracked_ptr<MyClass> bar_p(bar);
+    ASSERT_EQ(42, bar_p->foo());
+        
+    tracked_ptr<MyClass>::invalidate_all_pointer();
+    
+    ASSERT_DEATH(bar_p->foo(), "");
+  }
+  
+  delete bar;
+}
+
+/**
+ * Make sure the use of an invalid pointer triggers an error.
+ */
+TEST(TrackedPointer, InvalidUseTriggersErrorStar) {
+  MyClass* bar = new MyClass();
+  
+  { // open new scope for the test
+    tracked_ptr<MyClass> bar_p(bar);
+    ASSERT_EQ(42, bar_p->foo());
+    
+    tracked_ptr<MyClass>::invalidate_all_pointer();
+    
+    ASSERT_DEATH((*bar_p).foo(), "");
+  }
+  
+  delete bar;
 }
 
 /**
  * Bascially a compilation test, to ensure that the interfaces
  * are correct and tracked_ptr<T> can be used substituting T*
  */
-class MyClass {
-public:
-  int foo() { return 42; }
-};
-
 TEST(TrackedPointer, DesignTest) {
   MyClass* bar = new MyClass();
 
@@ -88,5 +206,7 @@ TEST(TrackedPointer, DesignTest) {
   
   ASSERT_EQ(42, bar_p->foo());
   ASSERT_EQ(42, (*bar_p).foo());
+  
+  delete bar;
 }
 
