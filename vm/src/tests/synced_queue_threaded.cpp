@@ -31,7 +31,7 @@ void _procuderThread(thread_param_t* const tp) {
 }
 
 
-TEST(SyncedQueueThreaded, Pressure) {
+TEST(SyncedQueueThreaded, DISABLED_Pressure) {
   int32_t buffer[BUF_SIZE];
   syncedqueue_initialize(&sq, buffer, BUF_SIZE);
   EXPECT_TRUE(syncedqueue_is_initialized(&sq));
