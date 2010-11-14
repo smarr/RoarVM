@@ -56,10 +56,19 @@ void ILib_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]
     params.argv = argv;
     
     params.tiles.x = params.tiles.y = 0;
-    params.tiles.width  = CPU_Coordinate::width;
-    params.tiles.height = CPU_Coordinate::height;
+    
+    if (CPU_Coordinate::width * CPU_Coordinate::height == Logical_Core::num_cores) {
+      params.tiles.width  = CPU_Coordinate::width;
+      params.tiles.height = CPU_Coordinate::height;
+    }
+    else {
+      params.tiles.width  = 0;
+      params.tiles.height = 0;
+    }
     
     // skip params.init_block/size
+
+    lprintf("Will ask for num_proc: %d on w:%d;h:%d\n", params.num_procs, params.tiles.width, params.tiles.height);
     
     int err = ilib_proc_exec(1, &params);
     abort_if_error("exec", err);

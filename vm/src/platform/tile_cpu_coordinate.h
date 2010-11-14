@@ -14,10 +14,9 @@
 
 class Tile_CPU_Coordinate : public Abstract_CPU_Coordinate {
 public:
-  int x, y;
   
   bool print(char* buf, int buf_size) {
-    snprintf(buf, buf_size, "%d, %d", x, y);
+    snprintf(buf, buf_size, "%d, %d", _my_x, _my_y);
     return true;
   }
   
@@ -32,11 +31,6 @@ public:
   static void set_width_height(int w, int h);  // threadsafe, read only after init, Stefan: 2009-09-06
 
   
-  static int rank_of_coords(int x, int y) { return x  +  (y * width); }
-  static int x_of_rank(int rank) { return  rank % width; }
-  static int y_of_rank(int rank) { return  rank / width; }
-    
-
   static bool is_center() { return _my_x == center_x  &&  _my_y == center_y; }
   static int my_x() { return _my_x; }
   static int my_y() { return _my_y; }

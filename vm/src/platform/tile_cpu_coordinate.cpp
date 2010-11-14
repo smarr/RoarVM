@@ -19,11 +19,11 @@
 int Tile_CPU_Coordinate::_my_x = -1;
 int Tile_CPU_Coordinate::_my_y = -1;
 
-void Tile_CPU_Coordinate::initialize(int rank) {
-  x = x_of_rank(rank);
-  y = y_of_rank(rank);
-  if (rank == Logical_Core::my_rank()  &&  (x != _my_x || y != _my_y))
+void Tile_CPU_Coordinate::initialize(int /* rank */) {
+  /*if (rank == Logical_Core::my_rank()  &&  (x != _my_x || y != _my_y)) {
+    fprintf(stderr, "_my_x: %d, _my_y: %d\n", _my_x, _my_y);
     fatal("x and y?");
+  }*/
 }
 
 

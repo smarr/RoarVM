@@ -60,6 +60,19 @@ static void set_num_cores(char* num_cores_str) {
   }
   else
     OS_Interface::die("bad argument syntax: needs to be `-num_cores <digit>'\n");
+
+  int w, h;
+  h = sqrt(num_cores);
+  w = num_cores / h;
+  if (w * h < num_cores) {
+    if   (w == h)  w += 1;
+    else           h += 1;
+
+    assert(w * h >= num_cores);
+  }
+# if On_Tilera
+  CPU_Coordinate::set_width_height(w,  h);
+# endif
 }
 
 static void set_trace_file(char* f) {
