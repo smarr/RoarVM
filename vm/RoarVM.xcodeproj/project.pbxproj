@@ -367,6 +367,8 @@
 		0A97FB2D128FE9B1003A1C74 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = googletest/xcode/build/Debug/gtest.framework; sourceTree = "<group>"; };
 		0A97FBAE12900336003A1C74 /* tracked_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracked_ptr.h; sourceTree = "<group>"; };
 		0A97FBB412900371003A1C74 /* tracked_ptr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracked_ptr.cpp; sourceTree = "<group>"; };
+		0A97FEE412909C92003A1C74 /* test_os_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_os_interface.h; sourceTree = "<group>"; };
+		0A97FEF112909D58003A1C74 /* tracked_ptr_registry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracked_ptr_registry.h; sourceTree = "<group>"; };
 		0AEC1184128DF02F00EFF6D1 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -980,6 +982,7 @@
 				0AEC1184128DF02F00EFF6D1 /* debug_helper.h */,
 				0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */,
 				0A97FBAE12900336003A1C74 /* tracked_ptr.h */,
+				0A97FEF112909D58003A1C74 /* tracked_ptr_registry.h */,
 			);
 			name = runtime;
 			path = src/runtime;
@@ -995,6 +998,7 @@
 				0A278513128DBF7400336BDE /* synced_queue.cpp */,
 				0A278514128DBF7400336BDE /* synced_queue_threaded.cpp */,
 				0A97FBB412900371003A1C74 /* tracked_ptr.cpp */,
+				0A97FEE412909C92003A1C74 /* test_os_interface.h */,
 			);
 			name = tests;
 			path = src/tests;
