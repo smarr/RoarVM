@@ -10,25 +10,20 @@
  ******************************************************************************/
 
 
-#include <set>
 #include <assert.h>
-
-using namespace std;
 
 /**
  * This class is used to track pointers on the stack.
  * The idea is that a global event can occur that invalidates the pointers
  * and this class is meant to signal all cases in which an invalid pointer
  * is used.
- *
- * WARNING: This class is not yet thread-safe in any way.
  */
 template<typename T>
 class tracked_ptr {
 private:
   
-  typedef set<tracked_ptr<T>*>          registry_t;
-  typedef typename registry_t::iterator iterator;
+  typedef tracked_ptr_registry< tracked_ptr<T> > registry_t;
+  typedef typename tracked_ptr_registry< tracked_ptr<T> >::iterator iterator;
   
   static registry_t registry;
   
@@ -37,24 +32,28 @@ private:
   iterator it;
   
   iterator register_this() {
-    size_t numElements = registry.size();
-    pair<typename registry_t::iterator, bool> p = registry.insert(this);
-    size_t numElements2 = registry.size();
-    assert(p.second);
-    assert(numElements + 1 == numElements2);
-    return p.first;
+    return registry.register_tracked_ptr(this);
   }
     
   void unregister_and_invalidate() {
-    if (it != registry.end()) {
-      // ensure that the iterator is stable
-      assert(*it == this);
-      registry.erase(it);
-    }
+    registry.register_tracked_ptr(this, it);
     valid = false;
   }
 
 public:
+  
+  /**
+   * This operation will invalidate all pointers that are tracked
+   * and on subsequent use, an assertion will fail.
+   */
+  static void invalidate_all_pointer() {
+    iterator i;
+    for (i = registry.begin(); i != registry.end(); i++) {
+      (*i)->valid = false;
+    }
+  }
+
+  
   
   /**
    * The simple constructor will initialize the tracker to be invalid.
@@ -112,14 +111,7 @@ public:
   bool is_valid() const {
     return valid;
   }
-  
-  static void invalidate_all_pointer() {
-    typename registry_t::iterator i;
-    for (i = registry.begin(); i != registry.end(); i++) {
-      (*i)->valid = false;
-    }
-  }
-  
+    
 }; // tracked_ptr
 
 
