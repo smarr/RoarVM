@@ -105,6 +105,7 @@
 		0A97FB3A128FEA77003A1C74 /* synced_queue_threaded.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278514128DBF7400336BDE /* synced_queue_threaded.cpp */; };
 		0A97FB3F128FEAF2003A1C74 /* synced_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A27845D128DBF7300336BDE /* synced_queue.cpp */; };
 		0A97FB40128FEAF7003A1C74 /* buffered_channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278458128DBF7300336BDE /* buffered_channel.cpp */; };
+		0A97FBB512900371003A1C74 /* tracked_ptr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A97FBB412900371003A1C74 /* tracked_ptr.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
 /* End PBXBuildFile section */
 
@@ -364,6 +365,8 @@
 		0A2785ED128DC42800336BDE /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		0A97FB26128FE95A003A1C74 /* UnitTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTests; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A97FB2D128FE9B1003A1C74 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = googletest/xcode/build/Debug/gtest.framework; sourceTree = "<group>"; };
+		0A97FBAE12900336003A1C74 /* tracked_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracked_ptr.h; sourceTree = "<group>"; };
+		0A97FBB412900371003A1C74 /* tracked_ptr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracked_ptr.cpp; sourceTree = "<group>"; };
 		0AEC1184128DF02F00EFF6D1 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -976,6 +979,7 @@
 				0A27850C128DBF7400336BDE /* utils.h */,
 				0AEC1184128DF02F00EFF6D1 /* debug_helper.h */,
 				0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */,
+				0A97FBAE12900336003A1C74 /* tracked_ptr.h */,
 			);
 			name = runtime;
 			path = src/runtime;
@@ -990,6 +994,7 @@
 				0A278512128DBF7400336BDE /* starter.h */,
 				0A278513128DBF7400336BDE /* synced_queue.cpp */,
 				0A278514128DBF7400336BDE /* synced_queue_threaded.cpp */,
+				0A97FBB412900371003A1C74 /* tracked_ptr.cpp */,
 			);
 			name = tests;
 			path = src/tests;
@@ -1173,6 +1178,7 @@
 				0A97FB37128FEA77003A1C74 /* starter.cpp in Sources */,
 				0A97FB39128FEA77003A1C74 /* synced_queue.cpp in Sources */,
 				0A97FB3A128FEA77003A1C74 /* synced_queue_threaded.cpp in Sources */,
+				0A97FBB512900371003A1C74 /* tracked_ptr.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
