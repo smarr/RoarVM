@@ -203,14 +203,14 @@ TEST(TrackedPointer, AssignmentSemantics) {
   
   MyClass* bar = new MyClass();
   
-  // this one is not yet initialized, so nothing should get registered
+  // this one is not yet initialized, but it already gets registered
   tracked_ptr<MyClass> bar_p;
   
-  EXPECT_EQ(0u, tracked_ptr<MyClass>::invalidate_all_pointer());
+  EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack());
   EXPECT_FALSE(bar_p.is_valid()); // not initialize so it should also be invalid
   
   // now for convinence, we just assign the pointer, and it should be converted
-  // implicitly as well as get registered correctly
+  // implicitly
   bar_p = bar;
   EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack());
   
@@ -229,7 +229,7 @@ TEST(TrackedPointer, AssignmentSemantics) {
   // lets do the same again
   { // open new scope for the test
     
-    // have a second pointer, this one should be tracked separatly I think (?)
+    // have a second tracked pointer
     tracked_ptr<MyClass> bar_p2 = bar_p;
     EXPECT_EQ(2u, tracked_ptr<MyClass>::pointers_on_stack());
     EXPECT_TRUE(bar_p2.is_valid());
@@ -267,17 +267,17 @@ TEST(TrackedPointer, AssignmentSemantics2) {
   
   MyClass* bar = new MyClass();
   
-  // this one is not yet initialized, so nothing should get registered
+  // this one is not yet initialized
   tracked_ptr<MyClass> bar_p;
   
-  EXPECT_EQ(0u, tracked_ptr<MyClass>::invalidate_all_pointer());
-  EXPECT_FALSE(bar_p.is_valid()); // not initialize so it should also be invalid
+  EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack());
+  EXPECT_FALSE(bar_p.is_valid()); // not initialize so it should be invalid
   
   { // open new scope for the test
     
-    // have a second pointer, this one should be tracked separatly I think (?)
+    // have a second tracked pointer
     tracked_ptr<MyClass> bar_p2(bar);
-    EXPECT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack());
+    EXPECT_EQ(2u, tracked_ptr<MyClass>::pointers_on_stack());
     EXPECT_TRUE(bar_p2.is_valid());
     
     // now pass it back to the first one
