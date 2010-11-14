@@ -5,6 +5,7 @@
 
 SRC_DIR ?= $(shell pwd)/../src
 OS      ?= $(shell uname)
+GTEST   ?= $(SRC_DIR)/../googletest
 
 LOW_OPTIMIZE_LEVEL  ?= -O3
 HIGH_OPTIMIZE_LEVEL ?= -O3
@@ -64,6 +65,7 @@ INCLUDES += \
 	-I$(SRC_DIR)/ilib-intel \
 	-I$(SRC_DIR)/ibm
 endif
+
 
 CONFIG_FLAGS += -Winline -DExtra_Preheader_Word_Experiment=1
 CXX_CONFIG_FLAGS += -Winline
@@ -500,10 +502,6 @@ OBJS += osx_os_interface.opt \
 endif
 
 
-TEST_SRC  := $(wildcard $(SRC_DIR)/tests/*.cpp)
-TEST_OBJS := $(TEST_SRC:.cpp=.o) $(patsubst main.o,,$(OBJS))
-
-
 X11_PATH ?= /home/ungar/renaissance/xfree86/xc/lib/X11
 Xext_PATH ?= /home/ungar/renaissance/xfree86/xc/lib/Xext
 
@@ -520,13 +518,33 @@ endif
 rvm: $(OBJS)
 	$(CXX) $(LDFLAGS) $(OBJS) -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
 
+# Test Related targets, we use the googletest framework for unit tests
+
+GTEST_INCLUDES = -I$(GTEST)/include -I$(GTEST)
+
+libgtest.a:
+	$(CXX) $(GTEST_INCLUDES) -m32 -c $(GTEST)/src/gtest-all.cc
+	$(AR) -rv libgtest.a gtest-all.o
+	ranlib libgtest.a
+
+# REM: this will build the object files inside the test folder
+#      this allows us to use the same names for tests and implementation files
+TEST_SRC  := $(wildcard $(SRC_DIR)/tests/*.cpp)
+TEST_OBJS := $(TEST_SRC:.cpp=.o) \
+  synced_queue.opt \
+  buffered_channel.opt \
+  
+
 rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
+rvm-test : INCLUDES+=$(GTEST_INCLUDES)
 rvm-test: $(TEST_OBJS)
-	$(CXX) -L/usr/local/lib -lgtest $(LDFLAGS) $(TEST_OBJS) -lm $(TILERA_LIBS) -o $@ -L$(X11_PATH)
+	$(CXX) -L. $(LIBS_LINKING) $(LDFLAGS) $(TEST_OBJS) -lm -lgtest $(TILERA_LIBS) -o $@
+
+test: libgtest.a rvm-test
+	@./rvm-test
 
 clean:
-	rm -f *.o *.opt $(EXECUTABLE) compiler_check
-
+	rm -f *.o *.opt $(EXECUTABLE) compiler_check rvm-test libgtest.a $(TEST_OBJS)
 
 
 .PHONY: all clean run test run_pci test_pci info

@@ -210,9 +210,9 @@
 		0A278473128DBF7400336BDE /* squeak_interpreter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = squeak_interpreter.cpp; sourceTree = "<group>"; };
 		0A278474128DBF7400336BDE /* squeak_interpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = squeak_interpreter.h; sourceTree = "<group>"; };
 		0A278476128DBF7400336BDE /* configure */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = configure; sourceTree = "<group>"; };
-		0A278477128DBF7400336BDE /* Makefile.common */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.common; sourceTree = "<group>"; };
-		0A278478128DBF7400336BDE /* Makefile.debug */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.debug; sourceTree = "<group>"; };
-		0A278479128DBF7400336BDE /* Makefile.opt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.opt; sourceTree = "<group>"; };
+		0A278477128DBF7400336BDE /* Makefile.common */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; indentWidth = 4; path = Makefile.common; sourceTree = "<group>"; tabWidth = 4; };
+		0A278478128DBF7400336BDE /* Makefile.debug */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; indentWidth = 4; path = Makefile.debug; sourceTree = "<group>"; tabWidth = 4; };
+		0A278479128DBF7400336BDE /* Makefile.opt */ = {isa = PBXFileReference; explicitFileType = sourcecode.make; fileEncoding = 4; indentWidth = 4; path = Makefile.opt; sourceTree = "<group>"; tabWidth = 4; };
 		0A27847B128DBF7400336BDE /* abstract_message.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = abstract_message.cpp; sourceTree = "<group>"; };
 		0A27847C128DBF7400336BDE /* abstract_message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abstract_message.h; sourceTree = "<group>"; };
 		0A27847D128DBF7400336BDE /* deferred_request.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = deferred_request.cpp; sourceTree = "<group>"; };

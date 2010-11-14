@@ -9,3 +9,6 @@ vm/RoarVM.xcodeproj/*.pbxuser
 vm/RoarVM.xcodeproj/*.perspectivev3
 vm/build/Debug/
 vm/build/RoarVM.build/
+vm/build/libgtest.a
+vm/build/rvm-test
+vm/src/tests/*.o
