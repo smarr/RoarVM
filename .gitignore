@@ -7,3 +7,5 @@ vm/build/compiler_check
 vm/build/rvm
 vm/RoarVM.xcodeproj/*.pbxuser
 vm/RoarVM.xcodeproj/*.perspectivev3
+vm/build/Debug/
+vm/build/RoarVM.build/
