@@ -97,6 +97,14 @@
 		0A2785A6128DC2B700336BDE /* logical_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784C4128DBF7400336BDE /* logical_core.cpp */; };
 		0A2785E4128DC3A000336BDE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A2785E3128DC3A000336BDE /* CoreFoundation.framework */; };
 		0A2785EE128DC42800336BDE /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A2785ED128DC42800336BDE /* CoreServices.framework */; };
+		0A97FB2E128FE9B1003A1C74 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A97FB2D128FE9B1003A1C74 /* gtest.framework */; };
+		0A97FB35128FEA77003A1C74 /* buffered_channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A27850F128DBF7400336BDE /* buffered_channel.cpp */; };
+		0A97FB36128FEA77003A1C74 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278510128DBF7400336BDE /* main.cpp */; };
+		0A97FB37128FEA77003A1C74 /* starter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278511128DBF7400336BDE /* starter.cpp */; };
+		0A97FB39128FEA77003A1C74 /* synced_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278513128DBF7400336BDE /* synced_queue.cpp */; };
+		0A97FB3A128FEA77003A1C74 /* synced_queue_threaded.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278514128DBF7400336BDE /* synced_queue_threaded.cpp */; };
+		0A97FB3F128FEAF2003A1C74 /* synced_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A27845D128DBF7300336BDE /* synced_queue.cpp */; };
+		0A97FB40128FEAF7003A1C74 /* buffered_channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278458128DBF7300336BDE /* buffered_channel.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
 /* End PBXBuildFile section */
 
@@ -345,7 +353,6 @@
 		0A27850A128DBF7400336BDE /* timeout_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timeout_timer.h; sourceTree = "<group>"; };
 		0A27850B128DBF7400336BDE /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
 		0A27850C128DBF7400336BDE /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
-		0A27850E128DBF7400336BDE /* asm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = asm.cpp; sourceTree = "<group>"; };
 		0A27850F128DBF7400336BDE /* buffered_channel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = buffered_channel.cpp; sourceTree = "<group>"; };
 		0A278510128DBF7400336BDE /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		0A278511128DBF7400336BDE /* starter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = starter.cpp; sourceTree = "<group>"; };
@@ -355,6 +362,8 @@
 		0A278516128DBF7400336BDE /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
 		0A2785E3128DC3A000336BDE /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		0A2785ED128DC42800336BDE /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		0A97FB26128FE95A003A1C74 /* UnitTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTests; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A97FB2D128FE9B1003A1C74 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = googletest/xcode/build/Debug/gtest.framework; sourceTree = "<group>"; };
 		0AEC1184128DF02F00EFF6D1 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -369,6 +378,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0A97FB24128FE95A003A1C74 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A97FB2E128FE9B1003A1C74 /* gtest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -379,6 +396,7 @@
 				0A2783EC128DBF1000336BDE /* Products */,
 				0A2785E3128DC3A000336BDE /* CoreFoundation.framework */,
 				0A2785ED128DC42800336BDE /* CoreServices.framework */,
+				0A97FB2D128FE9B1003A1C74 /* gtest.framework */,
 			);
 			sourceTree = "<group>";
 		};
@@ -410,6 +428,7 @@
 			isa = PBXGroup;
 			children = (
 				0A2783EB128DBF1000336BDE /* RoarVM */,
+				0A97FB26128FE95A003A1C74 /* UnitTests */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -965,7 +984,6 @@
 		0A27850D128DBF7400336BDE /* tests */ = {
 			isa = PBXGroup;
 			children = (
-				0A27850E128DBF7400336BDE /* asm.cpp */,
 				0A27850F128DBF7400336BDE /* buffered_channel.cpp */,
 				0A278510128DBF7400336BDE /* main.cpp */,
 				0A278511128DBF7400336BDE /* starter.cpp */,
@@ -1005,6 +1023,22 @@
 			productReference = 0A2783EB128DBF1000336BDE /* RoarVM */;
 			productType = "com.apple.product-type.tool";
 		};
+		0A97FB25128FE95A003A1C74 /* UnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0A97FB2B128FE975003A1C74 /* Build configuration list for PBXNativeTarget "UnitTests" */;
+			buildPhases = (
+				0A97FB23128FE95A003A1C74 /* Sources */,
+				0A97FB24128FE95A003A1C74 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = UnitTests;
+			productName = UnitTests;
+			productReference = 0A97FB26128FE95A003A1C74 /* UnitTests */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1026,6 +1060,7 @@
 			projectRoot = "";
 			targets = (
 				0A2783EA128DBF1000336BDE /* RoarVM */,
+				0A97FB25128FE95A003A1C74 /* UnitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1127,6 +1162,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		0A97FB23128FE95A003A1C74 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A97FB40128FEAF7003A1C74 /* buffered_channel.cpp in Sources */,
+				0A97FB3F128FEAF2003A1C74 /* synced_queue.cpp in Sources */,
+				0A97FB35128FEA77003A1C74 /* buffered_channel.cpp in Sources */,
+				0A97FB36128FEA77003A1C74 /* main.cpp in Sources */,
+				0A97FB37128FEA77003A1C74 /* starter.cpp in Sources */,
+				0A97FB39128FEA77003A1C74 /* synced_queue.cpp in Sources */,
+				0A97FB3A128FEA77003A1C74 /* synced_queue_threaded.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
@@ -1162,7 +1211,7 @@
 					"Print_Scheduler=0",
 					"Extra_Preheader_Word_Experiment=1",
 					"check_assertions=1",
-					"check_many_assertions=0",
+					"check_many_assertions=1",
 					"Include_Debugging_Code=0",
 					"Trace_For_Debugging=0",
 					"Trace_Execution=0",
@@ -1220,6 +1269,52 @@
 			};
 			name = Release;
 		};
+		0A97FB28128FE95A003A1C74 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/googletest/xcode/build/Debug\"";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
+				PREBINDING = NO;
+				PRODUCT_NAME = UnitTests;
+				VALID_ARCHS = i386;
+			};
+			name = Debug;
+		};
+		0A97FB29128FE95A003A1C74 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/googletest/xcode/build/Debug\"";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
+				PREBINDING = NO;
+				PRODUCT_NAME = UnitTests;
+				VALID_ARCHS = i386;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1237,6 +1332,15 @@
 			buildConfigurations = (
 				0A2783EE128DBF1000336BDE /* Debug */,
 				0A2783EF128DBF1000336BDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0A97FB2B128FE975003A1C74 /* Build configuration list for PBXNativeTarget "UnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0A97FB28128FE95A003A1C74 /* Debug */,
+				0A97FB29128FE95A003A1C74 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
