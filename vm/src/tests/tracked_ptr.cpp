@@ -348,3 +348,26 @@ TEST(TrackedPointer, Equality) {
   delete foo;
 }
 
+/**
+ * The getter function 
+ */
+TEST(TrackedPointer, Getter) {
+  MyClass* bar = new MyClass();
+  MyClass* foo = new MyClass();
+  
+  // two wrapper for the same pointer
+  tracked_ptr<MyClass> bar_p(bar);
+  tracked_ptr<MyClass> bar_p2(bar);
+  
+  // a wrapper for another pointer
+  tracked_ptr<MyClass> foo_p(foo);
+  
+  ASSERT_EQ(bar, bar_p.get());
+  ASSERT_EQ(bar, bar_p2.get());
+  
+  ASSERT_EQ(foo, foo_p.get());
+  
+  delete bar;
+  delete foo;
+}
+

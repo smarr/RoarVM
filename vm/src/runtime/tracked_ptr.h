@@ -111,6 +111,10 @@ public:
     return ptr != t_ptr.ptr;
   }
   
+  inline T* get() const {
+    return ptr;
+  }
+  
   static size_t pointers_on_stack() {
     return registry.size();
   }  
