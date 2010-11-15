@@ -47,10 +47,11 @@
  formatOf: method (including isPointers, isVariable, isBytes,
  and the low 2 size bits of byte-sized objects).
 
-TODO: STEFAN, check with David where this comment is comming from: 
+ Note: the following two lines were true of the original Squeak VM, 
+ but are not true in this this VM as of 11/15/10. -- dmu & sm
  
- This implementation includes incremental (2-generation) and full garbage
- collection, each with compaction and rectification of direct pointers.
+ (This implementation includes incremental (2-generation) and full garbage
+ collection, each with compaction and rectification of direct pointers.)
  
  It also supports a bulk-become (exchange object identity) feature that allows
  many objects to be becomed at once, as when all instances of a class must be
