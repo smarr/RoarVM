@@ -14,9 +14,16 @@
 
 # undef assert
 
+// forward declaration
+template<typename T>
+class tracked_ptr;
+class Object;
 
 extern int assert_failure(   const char* func, const char* file, const int line, const char* pred, const char* msg);
 extern int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void*, void*);
+extern int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, tracked_ptr<Object> a, void* b);
+extern int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, tracked_ptr<Object> a, tracked_ptr<Object> b);
+extern int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void* a, tracked_ptr<Object> b);
 extern int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, int, int);
 
 

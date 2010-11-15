@@ -51,8 +51,8 @@ inline void Object::set_extra_preheader_word(oop_int_t w) {
 
 inline bool Object::hasSender(Oop aContext) {
   // rcvr must be a context
-  Object* aco = aContext.as_object();
-  if (this == aco)  return false;
+  Object_p aco = aContext.as_object();
+  if (this == &(*aco))  return false;
   Oop nilOop = The_Squeak_Interpreter()->roots.nilObj;
   for (Oop s = fetchPointer(Object_Indices::SenderIndex);
        s != nilOop;
@@ -286,7 +286,7 @@ inline void   Object::storeInteger(oop_int_t fieldIndex, oop_int_t x) {
 }
 
 
-inline Object* Object::instantiateSmallClass(oop_int_t sizeInBytes) {
+inline Object_p Object::instantiateSmallClass(oop_int_t sizeInBytes) {
   /* "This version of instantiateClass assumes that the total object
    size is under 256 bytes, the limit for objects with only one or
    two header words. Note that the size is specified in bytes
@@ -363,13 +363,13 @@ inline oop_int_t Object::temporaryCountOfHeader(oop_int_t header) { return (head
 
 inline void Object::flushExternalPrimitive() {
 	// this is a CompiledMethod containing an external primitive. Flush the function address and session ID of the CM"
-  Object* lit = get_external_primitive_literal_of_method();
+  Object_p lit = get_external_primitive_literal_of_method();
   if (lit == NULL)  return; //  "Something's broken"
   lit->cleanup_session_ID_and_ext_prim_index_of_external_primitive_literal();
 }
 
 
-inline Object* Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
+inline Object_p Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
                                        oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize,
                                        bool doFill,
                                        bool fillWithNil) {
@@ -381,7 +381,7 @@ inline Object* Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrS
 
   Preheader* preheader_p = (Preheader*)this;
   oop_int_t* headerp = (oop_int_t*)&preheader_p[1];
-  Object*    newObj = (Object*)&headerp[hdrSize - 1];
+  Object_p    newObj = (Object*)&headerp[hdrSize - 1];
   assert(The_Memory_System()->is_address_read_write(this)); // not going to bother with coherence
 
   Multicore_Object_Heap* h = The_Memory_System()->heaps[my_rank][Memory_System::read_write];
@@ -447,7 +447,7 @@ inline Object* Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrS
 }
 
 
-inline Object* Object::instantiateContext(oop_int_t  sizeInBytes ) {
+inline Object_p Object::instantiateContext(oop_int_t  sizeInBytes ) {
   /*
    "This version of instantiateClass assumes that the total object
    size is under 256 bytes, the limit for objects with only one or
@@ -527,7 +527,7 @@ inline double Object::fetchFloatofObject(oop_int_t fieldIndex) {
 
 
 inline Oop Object::floatObject(double d) {
-  Object* r = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassFloat)
+  Object_p r = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassFloat)
   ->instantiateSmallClass(sizeof(double) + BaseHeaderSize);
   r->storeFloat(d);
   return r->as_oop();

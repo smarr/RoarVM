@@ -30,6 +30,10 @@ class Multicore_Object_Table: public Abstract_Object_Table {
     void set_entry(Entry* e COMMA_DCL_ESB) { set(oop_int_t(e)  COMMA_USE_ESB); }// async
 
     Object* obj() { return (Object*)(i & obj_mask); }
+    
+    inline void set_obj(tracked_ptr<Object> x  COMMA_DCL_ESB)  {
+      set_obj(x.get() COMMA_USE_ESB);
+    }
     void set_obj(Object* x  COMMA_DCL_ESB)  {
       set((oop_int_t)x & obj_mask  |  i & bit_mask  COMMA_USE_ESB);
     }
@@ -142,8 +146,8 @@ public:
 
 
 
-  inline Oop allocate_oop_and_set_backpointer(Object* obj, int rank  COMMA_DCL_ESB);
-  inline Oop allocate_oop_and_set_preheader(Object* obj, int r   COMMA_DCL_ESB);
+  inline Oop allocate_oop_and_set_backpointer(Object_p obj, int rank  COMMA_DCL_ESB);
+  inline Oop allocate_oop_and_set_preheader(Object_p obj, int r   COMMA_DCL_ESB);
 
 private:
   Oop allocate_oop(int rank COMMA_DCL_ESB);
@@ -163,7 +167,7 @@ public:
     if (check_many_assertions) check_for_debugging(x);
     return word_for(x)->obj();
   }
-  void set_object_for(Oop x, Object* obj  COMMA_DCL_ESB) {
+  void set_object_for(Oop x, Object_p obj  COMMA_DCL_ESB) {
     word_for(x)->set_obj(obj  COMMA_USE_ESB);
   }
 
@@ -215,6 +219,7 @@ public:
   bool verify_after_mark();
 
 
+  inline bool probably_contains(tracked_ptr<Object>);
   inline bool probably_contains(void*);
 
   Oop get_stats(int);

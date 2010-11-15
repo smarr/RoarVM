@@ -30,7 +30,7 @@ class Multicore_Object_Heap: public Abstract_Object_Heap {
   inline int32 newObjectHash();
   void set_lastHash(int x) { lastHash = x; }
   int  get_lastHash() { return lastHash; }
-  inline Object* allocate(oop_int_t byteSize, oop_int_t hdrSize,
+  inline Object_p allocate(oop_int_t byteSize, oop_int_t hdrSize,
                           oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize, bool doFill = false,
                           bool fillWithNill = false);
   inline Chunk* allocateChunk_for_a_new_object(oop_int_t total_bytes);
@@ -45,7 +45,7 @@ class Multicore_Object_Heap: public Abstract_Object_Heap {
   void snapshotCleanUp();
   void write_image_file(FILE*, u_int32*, bool&);
 
-  Object* object_address_unchecked(Oop);
+  Object_p object_address_unchecked(Oop);
 
   void set_lowSpaceThreshold(int x) { lowSpaceThreshold = x; }
   int32 get_lowSpaceThreshold()  { return lowSpaceThreshold; }
@@ -57,9 +57,9 @@ class Multicore_Object_Heap: public Abstract_Object_Heap {
 
   // Unlike check_store, etc., this is used for the inchorent heap, so even integer oops matter
   // See memory_system declarations of store_enforcing_coherence
-  inline void      store_enforcing_coherence(Oop* p, Oop x, Object* dst_obj_to_be_evacuated_or_null);
-  inline void      store_enforcing_coherence(oop_int_t*, oop_int_t, Object* dst_obj_to_be_evacuated_or_null);
-  inline void      store_bytes_enforcing_coherence(void*, const void*, int, Object* dst_obj_to_be_evacuated_or_null);
+  inline void      store_enforcing_coherence(Oop* p, Oop x, Object_p dst_obj_to_be_evacuated_or_null);
+  inline void      store_enforcing_coherence(oop_int_t*, oop_int_t, Object_p dst_obj_to_be_evacuated_or_null);
+  inline void      store_bytes_enforcing_coherence(void*, const void*, int, Object_p dst_obj_to_be_evacuated_or_null);
 
   void print(FILE*);
 

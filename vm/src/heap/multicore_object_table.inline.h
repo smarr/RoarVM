@@ -40,7 +40,7 @@ inline int Multicore_Object_Table::rank_for_adding_object_from_snapshot(Oop x) {
 
 
 
-inline Oop Multicore_Object_Table::allocate_oop_and_set_backpointer(Object* obj, int rank  COMMA_DCL_ESB) {
+inline Oop Multicore_Object_Table::allocate_oop_and_set_backpointer(Object_p obj, int rank  COMMA_DCL_ESB) {
   Oop r = allocate_oop(rank COMMA_USE_ESB);
   obj->set_backpointer(r); // should never be a read-mostly obj anyway
   set_object_for(r, obj  COMMA_USE_ESB);
@@ -49,7 +49,7 @@ inline Oop Multicore_Object_Table::allocate_oop_and_set_backpointer(Object* obj,
   return r;
 }
 
-inline Oop Multicore_Object_Table::allocate_oop_and_set_preheader(Object* obj, int r  COMMA_DCL_ESB) { 
+inline Oop Multicore_Object_Table::allocate_oop_and_set_preheader(Object_p obj, int r  COMMA_DCL_ESB) { 
   obj->init_extra_preheader_word();
   return allocate_oop_and_set_backpointer(obj, r  COMMA_USE_ESB); 
 }

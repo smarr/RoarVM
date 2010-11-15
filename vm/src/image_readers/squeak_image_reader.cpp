@@ -174,7 +174,7 @@ class Convert_Closure: public Oop_Closure {
   Squeak_Image_Reader* reader;
 public:
   Convert_Closure(Squeak_Image_Reader* r)  : Oop_Closure() { reader = r; }
-  void value(Oop* p, Object*) {
+  void value(Oop* p, Object_p) {
     if (p->is_mem()) {
       *p = reader->oop_for_oop(*p);
     }

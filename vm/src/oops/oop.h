@@ -73,9 +73,10 @@ private:
   bool is_mem() { return (bits() & Tag_Mask) == Mem_Tag; }
   bool is_int() { return (bits() & Tag_Mask) == Int_Tag; }
 
-  inline Object* as_object();
-  inline Object* as_object_unchecked();
-  inline Object* as_object_if_mem();
+  inline Object_p as_object();
+  inline Object_p as_object_unchecked();
+  inline Object_p as_object_if_mem();
+  inline Object*  as_untracked_object_ptr();  // this should only be used when it is absolutly necessary! otherwise use always as_object()
 
   inline Oop fetchClass();
   bool isMemberOf(char*);
@@ -129,6 +130,6 @@ inline int convert_byte_count_to_oop_count(int x) {
 
 
 
-inline void oopcpy_no_store_check(Oop* dst, const Oop* src, int n, Object* dstObj);
+inline void oopcpy_no_store_check(Oop* dst, const Oop* src, int n, Object_p dstObj);
 inline void oopset_no_store_check(Oop* dst, Oop src, int n);
 

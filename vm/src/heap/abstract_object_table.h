@@ -38,7 +38,7 @@ class Abstract_Object_Table {
 
   Object* object_for(Oop) { return (Object*)fatal(); }
   Object* object_for_unchecked(Oop) { return (Object*)fatal(); }
-  void set_object_for(Oop, Object*, bool /* do_check = true */ ) { fatal(); }
+  void set_object_for(Oop, Object_p, bool /* do_check = true */ ) { fatal(); }
 
   bool spare_bit_for(Oop)  { return fatal(); }
   void set_spare_bit_for(Oop, bool /* dont */ )  { fatal(); }

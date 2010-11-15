@@ -52,9 +52,9 @@ public:
  private:
   friend class Interpreter_Subset_For_Control_Transfer;
   // these get send for control transfer
-  Object* _activeContext_obj;
-  Object* _method_obj;
-  Object* _theHomeContext_obj;
+  Object_p _activeContext_obj;  //STEFAN TODO come back here and think about the exact meaning and whether we want Object* here
+  Object_p _method_obj;
+  Object_p _theHomeContext_obj;
  public:
   u_char* _instructionPointer; u_char* instructionPointer() { assert_external(); return _instructionPointer; }  void set_instructionPointer(u_char* x) { registers_unstored(); uninternalized(); _instructionPointer = x; }
   Oop*    _stackPointer;  Oop* stackPointer() { assert_external(); return _stackPointer; } void set_stackPointer(Oop* x) { registers_unstored(); uninternalized(); _stackPointer = x; }
@@ -191,7 +191,7 @@ public:
 
   u_char* _localIP;  u_char* localIP() { assert_internal(); return _localIP; }  void set_localIP(u_char* x) { _localIP = x; registers_unstored(); unexternalized(); }
   Oop*    _localSP;  Oop*    localSP() { assert_internal(); return _localSP; }  void set_localSP(Oop* x)    { _localSP = x; registers_unstored(); unexternalized(); }
-  Object* _localHomeContext;  Object* localHomeContext() { assert_internal(); return _localHomeContext; } void set_localHomeContext(Object* x) { _localHomeContext = x; registers_unstored(); unexternalized(); }
+  Object_p _localHomeContext;  Object_p localHomeContext() { assert_internal(); return _localHomeContext; } void set_localHomeContext(Object_p x) { _localHomeContext = x; registers_unstored(); unexternalized(); }
   
   int32 image_version;
 
@@ -262,7 +262,7 @@ public:
 
 
  private:
-  Object* get_addr_to_cache(Oop x) { return x.as_object_if_mem(); }
+  Object_p get_addr_to_cache(Oop x) { return x.as_object_if_mem(); }
 
  public:
 
@@ -342,9 +342,9 @@ public:
  public:
 
   Oop activeContext() { return roots._activeContext; }
-  Object* activeContext_obj() { return _activeContext_obj; }
+  Object_p activeContext_obj() { return _activeContext_obj; }
 
-  void set_activeContext(Oop x, Object* o) {
+  void set_activeContext(Oop x, Object_p o) {
     assert_eq(o->as_oop().bits(), x.bits(), "activeContext messed up");
     roots._activeContext = x;
     _activeContext_obj = o;
@@ -352,23 +352,23 @@ public:
     unexternalized();
   }
   void set_activeContext(Oop x) { set_activeContext(x, x.as_object()); }
-  void set_activeContext(Object* x) { set_activeContext( x->as_oop(), x); }
+  void set_activeContext(Object_p x) { set_activeContext( x->as_oop(), x); }
 
 
   Oop method() { return roots._method; }
-  Object* method_obj() { return _method_obj; }
+  Object_p method_obj() { return _method_obj; }
   void set_method(Oop m) { roots._method = m;  _method_obj = m.as_object(); }
-  void set_method_obj(Object* m) { roots._method = m->as_oop();  _method_obj = m; }
+  void set_method_obj(Object_p m) { roots._method = m->as_oop();  _method_obj = m; }
 
   Oop theHomeContext() { assert_external(); return roots._theHomeContext; }
-  Object* theHomeContext_obj() { assert_external(); return _theHomeContext_obj; }
+  Object_p theHomeContext_obj() { assert_external(); return _theHomeContext_obj; }
   void set_theHomeContext(Oop m, bool really_changing) { if (really_changing) {registers_unstored(); uninternalized(); }  roots._theHomeContext = m;  _theHomeContext_obj = m.as_object(); }
-  void set_theHomeContext_obj(Object* m, bool really_changing) { if (really_changing) {registers_unstored(); uninternalized(); }   roots._theHomeContext = m->as_oop();  _theHomeContext_obj = m; }
+  void set_theHomeContext_obj(Object_p m, bool really_changing) { if (really_changing) {registers_unstored(); uninternalized(); }   roots._theHomeContext = m->as_oop();  _theHomeContext_obj = m; }
 
 
-  Object* receiver_obj() { return roots.receiver.as_object(); }
-  Object* newMethod_obj() { return roots.newMethod.as_object(); }
-  Object* lkupClass_obj();
+  Object_p receiver_obj() { return roots.receiver.as_object(); }
+  Object_p newMethod_obj() { return roots.newMethod.as_object(); }
+  Object_p lkupClass_obj();
 
   void print_method_info(const char* msg);
   void preGCAction_here(bool fullGC);
@@ -395,7 +395,7 @@ public:
   void loadInitialContext();
   void initialCleanup();
 
-  void fetchContextRegisters(Oop cntx, Object* cntx_obj) {
+  void fetchContextRegisters(Oop cntx, Object_p cntx_obj) {
     assert(cntx_obj->as_oop() == cntx);
     // "if the MethodIndex field is an integer, activeCntx is a block context"
     // "otherwise, it is a method context and is its own home context "
@@ -439,7 +439,7 @@ public:
     }
   }
 
-  void storeContextRegisters(Object* cntx_obj) {
+  void storeContextRegisters(Object_p cntx_obj) {
     /*
      like internalStoreContextRegisters
 
@@ -639,7 +639,7 @@ public:
     return x.is_mem() ? floatValueOf(x.as_object())
                       : (success(false), 0.0);
   }
-  double floatValueOf(Object* x) {
+  double floatValueOf(Object_p x) {
     assertClass(x, splObj(Special_Indices::ClassFloat));
     return successFlag ? x->fetchFloatAtinto() : 0.0;
   }
@@ -790,11 +790,11 @@ public:
 
   void activateNewMethod();
 # if Include_Closure_Support
-  void activateNewClosureMethod(Object*, Object*);
+  void activateNewClosureMethod(Object_p, Object_p);
 # endif
 
 
-  void internalNewActiveContext(Oop aContext, Object* aContext_obj) {
+  void internalNewActiveContext(Oop aContext, Object_p aContext_obj) {
     assert(aContext_obj->as_oop() == aContext);
     internalStoreContextRegisters(activeContext(), activeContext_obj());
     aContext_obj->beRootIfOld();
@@ -804,10 +804,10 @@ public:
   }
 
 
-  void internalFetchContextRegisters(Oop activeCntx, Object* activeCntx_obj) {
+  void internalFetchContextRegisters(Oop activeCntx, Object_p activeCntx_obj) {
     assert(activeCntx_obj->as_oop() == activeCntx);
 
-    Object* tmp = _localHomeContext = activeCntx_obj->home_of_block_or_method_context();
+    Object_p tmp = _localHomeContext = activeCntx_obj->home_of_block_or_method_context();
 
     roots.receiver =  tmp->fetchPointer(Object_Indices::ReceiverIndex);
     set_method( tmp->fetchPointer(Object_Indices::MethodIndex) );
@@ -841,7 +841,7 @@ public:
   }
 
 
-  void internalStoreContextRegisters(Oop activeCntx, Object* activeCntx_obj) {
+  void internalStoreContextRegisters(Oop activeCntx, Object_p activeCntx_obj) {
     /*
      "The only difference between this method and fetchContextRegisters: is that this method stores from the local IP and SP."
 
@@ -963,7 +963,7 @@ public:
      support execution of images in which Symbols have been
      compacted out"
      */
-    Object* dictionary_obj = dictionary.as_object();
+    Object_p dictionary_obj = dictionary.as_object();
     int length = dictionary_obj->fetchWordLength();
     oop_int_t mask = length - Object_Indices::SelectorStart - 1;
     int index =
@@ -990,7 +990,7 @@ public:
       }
     }
     Oop methodArray = dictionary_obj->fetchPointer(Object_Indices::MethodArrayIndex);
-    Object* methodArray_obj = methodArray.as_object();
+    Object_p methodArray_obj = methodArray.as_object();
 
     if (PrintMethodDictionaryLookups) {
       dittoing_stdout_printer->printf("lookupMethodInDictionary: index = %d\n", index);
@@ -1001,15 +1001,15 @@ public:
         Oop m = methodArray_obj->fetchPointer(i - Object_Indices::SelectorStart);
         m.print(dittoing_stdout_printer);
         if (m.as_object()->isCompiledMethod()) {
-          dittoing_stdout_printer->printf(", Obj 0x%x, firstByte: %d", m.as_object(),
-                                          *(u_char*)m.as_object()->first_byte_address());
+          dittoing_stdout_printer->printf(", Obj 0x%x, firstByte: %d", &(*(m.as_object())),
+                                          *(u_char*)(m.as_object()->first_byte_address()));
         }
         dittoing_stdout_printer->nl();
       }
     }
     roots.newMethod = methodArray_obj->fetchPointer(index - Object_Indices::SelectorStart);
     // "Check if roots.newMethod is a CompiledMethod."
-    Object* nmo = newMethod_obj();
+    Object_p nmo = newMethod_obj();
     if (!nmo->isCompiledMethod()) {
       // "indicate that this is no compiled method - use primitiveInvokeObjectAsMethod"
       primitiveIndex = 248;
@@ -1109,9 +1109,9 @@ public:
     return splObj_obj(Special_Indices::SchedulerAssociation)
             ->fetchPointer(Object_Indices::ValueIndex);
   }
-  Object* schedulerPointer_obj() { return schedulerPointer().as_object(); }
+  Object_p schedulerPointer_obj() { return schedulerPointer().as_object(); }
 
-  Object* process_lists_of_scheduler() {
+  Object_p process_lists_of_scheduler() {
     return schedulerPointer_obj()->fetchPointer(Object_Indices::ProcessListsIndex).as_object();
   }
 
@@ -1127,12 +1127,12 @@ public:
   Oop  find_and_move_to_end_highest_priority_non_running_process();
   int count_processes_in_scheduler();
 
-  void newActiveContext(Oop aContext, Object* aContext_obj);
+  void newActiveContext(Oop aContext, Object_p aContext_obj);
   void commonReturn(Oop localReturnContext, Oop localReturnValue);
 
 # if Include_Closure_Support
   Oop sender() {
-    Object* context_obj = localHomeContext();
+    Object_p context_obj = localHomeContext();
     Oop n = roots.nilObj;
     for (;;) {
       Oop closureOrNil = context_obj->fetchPointer(Object_Indices::ClosureIndex);
@@ -1175,7 +1175,7 @@ public:
 
   double loadFloatOrIntFrom(Oop x) {
     if (x.is_int())  return (double)x.integerValue();
-    Object* xo = x.as_object();
+    Object_p xo = x.as_object();
     if (xo->fetchClass() == splObj(Special_Indices::ClassFloat))
       return floatValueOf(xo);
     successFlag = false;
@@ -1214,7 +1214,7 @@ public:
     assertClass(x.as_object(), klass);
   }
 
-  void assertClass(Object* x, Oop klass) {
+  void assertClass(Object_p x, Oop klass) {
     success(x->fetchClass() == klass);
   }
 
@@ -1223,12 +1223,12 @@ public:
 
 
 
-  Oop  stObjectAt(Object* a, oop_int_t index);
-  void stObjectAtPut(Object* a, oop_int_t index, Oop value);
+  Oop  stObjectAt(Object_p a, oop_int_t index);
+  void stObjectAtPut(Object_p a, oop_int_t index, Oop value);
 
 
-  Oop  subscript(Object* a, oop_int_t index);
-  void subscript(Object* a, oop_int_t index, Oop value);
+  Oop  subscript(Object_p a, oop_int_t index);
+  void subscript(Object_p a, oop_int_t index, Oop value);
 
   void changeClass(Oop rcvr, Oop argClass, bool defer);
 
@@ -1279,8 +1279,8 @@ public:
 
 
   void transferFromIndexOfObjectToIndexOfObject(oop_int_t count,
-                                                oop_int_t firstFrom, Object* fromObj,
-                                                oop_int_t firstTo,   Object*   toObj) {
+                                                oop_int_t firstFrom, Object_p fromObj,
+                                                oop_int_t firstTo,   Object_p   toObj) {
     // assume beRootIfOld: will be called on toOop
     static const int offset = Object::BaseHeaderSize / sizeof(Oop);
     oopcpy_no_store_check(toObj->as_oop_p() + firstTo + offset,  fromObj->as_oop_p() + firstFrom + offset, count, toObj);
@@ -1293,7 +1293,7 @@ public:
   void showDisplayBitsOf(Oop, oop_int_t, oop_int_t, oop_int_t, oop_int_t);
   void fullDisplayUpdate();
 
-  void print_stack_trace(Printer*, Object* proc = NULL);
+  void print_stack_trace(Printer*, Object_p proc = NULL);
   void print_all_stack_traces(Printer*);
   void print_process_lists(Printer*);
   void print_all_processes_in_scheduler(Printer*, bool);
@@ -1313,19 +1313,19 @@ public:
     return roots.specialObjectsOop.as_object()->fetchPointer(i);
   }
 
-  Object* splObj_obj(oop_int_t i) {
+  Object_p splObj_obj(oop_int_t i) {
     return splObj(i).as_object();
   }
 
 
 
 
-  Object* classString()   { return splObj_obj(Special_Indices::ClassString); }
+  Object_p classString()   { return splObj_obj(Special_Indices::ClassString); }
 
   Oop     displayObject();
 
 
-  Object* allocateOrRecycleContext(bool needsLarge);
+  Object_p allocateOrRecycleContext(bool needsLarge);
 
 
   bool verify();
@@ -1452,20 +1452,20 @@ private:
   int literal_index_of_bytecode(u_char*);
   
   
-  oop_int_t compute_primitive_index(Object* lo);
+  oop_int_t compute_primitive_index(Object_p lo);
   
-  bool lookup_in_externalPrimitiveTable(Object* lo);
+  bool lookup_in_externalPrimitiveTable(Object_p lo);
   
-  void fetch_module_and_fn_name(Object* lo, 
-                                Oop& moduleName, Object*& mno, int& moduleLength,
-                                Oop& functionName, Object*& fno, int& functionLength);
-  void lookup_in_obsoleteNamedPrimitiveTable(Oop functionName, Object*& fno, int functionLength,
-                                             Oop  moduleName, Object*& mno, int moduleLength,
+  void fetch_module_and_fn_name(Object_p lo, 
+                                Oop& moduleName, Object_p& mno, int& moduleLength,
+                                Oop& functionName, Object_p& fno, int& functionLength);
+  void lookup_in_obsoleteNamedPrimitiveTable(Oop functionName, Object_p& fno, int functionLength,
+                                             Oop  moduleName, Object_p& mno, int moduleLength,
                                              bool& on_main, fn_t& addr);
-  fn_t munge_arguments_and_load_function_from_plugin_on_main(Oop functionName, Object*& fno, int functionLength,
-                                                             Oop  moduleName, Object*& mno, int moduleLength);
-  void update_cache_and_call_external_function(Object* fno, oop_int_t ii, fn_t addr, bool on_main);  
-  void update_cache_and_report_failure_to_load_external_function(Object* mno, Object* fno);  
+  fn_t munge_arguments_and_load_function_from_plugin_on_main(Oop functionName, Object_p& fno, int functionLength,
+                                                             Oop  moduleName, Object_p& mno, int moduleLength);
+  void update_cache_and_call_external_function(Object_p fno, oop_int_t ii, fn_t addr, bool on_main);  
+  void update_cache_and_report_failure_to_load_external_function(Object_p mno, Object_p fno);  
   
 private:
   void broadcast_u_int64(u_int64*);
@@ -1502,8 +1502,8 @@ public:
 
 # define FOR_EACH_READY_PROCESS_LIST(slo, pri, list_obj, interp) /* highest to lowest priority */ \
 /* pri must be an int or oop_int_t, list_obj must be an object* */ \
-Object* slo = interp->process_lists_of_scheduler(); \
-Object* list_obj; \
+Object_p slo = interp->process_lists_of_scheduler(); \
+Object_p list_obj; \
 oop_int_t pri; \
 for ( pri = slo->fetchWordLength() - 1;  \
      pri >= 0  &&  (list_obj = slo->fetchPointer(pri).as_object());  \

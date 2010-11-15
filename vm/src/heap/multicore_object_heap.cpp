@@ -112,7 +112,7 @@ void Multicore_Object_Heap::handle_low_space_signal() {
 
 
 Oop Multicore_Object_Heap::next_instance_of_after(Oop klass, Oop x) {
-  for (Object* r = x.as_object();  ;  ) {
+  for (Object* r = x.as_untracked_object_ptr();  ;  ) {
     r = accessibleObjectAfter(r);
     if (r == NULL)
       return The_Squeak_Interpreter()->roots.nilObj;

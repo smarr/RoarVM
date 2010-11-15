@@ -109,7 +109,7 @@ public:
     e->bcCount = bc_count;
 
     if (ctx.is_mem()) {
-      e->aux1 = (int)ctx.as_object();
+      e->aux1 = (int)&(*ctx.as_object());
       e->aux2 = ctx.as_object()->fetchPointer(Object_Indices::InstructionPointerIndex).integerValue();
     }
   }
@@ -119,7 +119,7 @@ public:
 
 protected:
   Oop array_class();
-  void copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object* dst_obj);
+  void copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object_p dst_obj);
 
 };
 

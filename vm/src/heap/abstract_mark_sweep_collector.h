@@ -41,7 +41,7 @@ protected:
 
   void mark(Oop* p) {
     if (!p->is_mem()) return;
-    Object* o = p->as_object();
+    Object* o = p->as_untracked_object_ptr();
     if (o->isFreeObject())
       fatal();
     if (o->is_marked())
@@ -60,7 +60,7 @@ protected:
 
 
  public:
-  void finalizeReference(Object*);
+  void finalizeReference(Object_p);
  protected:
   bool has_been_or_will_be_freed_by_this_ongoing_gc(Oop x);
   void finalize_weak_arrays();
