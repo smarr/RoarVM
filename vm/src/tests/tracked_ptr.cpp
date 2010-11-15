@@ -310,6 +310,123 @@ TEST(TrackedPointer, DesignTest) {
   ASSERT_EQ(42, bar_p->foo());
   ASSERT_EQ(42, (*bar_p).foo());
   
+  // Can I get the wrapped pointer out of the address in the same way
+  // I can get it from a standard pointer?
+  ASSERT_EQ(&(*bar), &(*bar_p));
+  ASSERT_EQ(&(*bar), bar);
+  ASSERT_EQ(&(*bar_p), bar);
+  ASSERT_TRUE(&(*bar_p) == bar);
+  
   delete bar;
 }
+
+/**
+ * Two tracked_ptr compared for equality with each other should be equal
+ * if the wrapped pointer are equal.
+ * They should be different, when their wrapped pointer are different.
+ *
+ * REM: This is no < or > comparison, since this is needed in the contain
+ *      i.e. in the registry we are currently using...
+ */
+TEST(TrackedPointer, Equality) {
+  MyClass* bar = new MyClass();
+  MyClass* foo = new MyClass();
+  
+  // two wrapper for the same pointer
+  tracked_ptr<MyClass> bar_p(bar);
+  tracked_ptr<MyClass> bar_p2(bar);
+  
+  // a wrapper for another pointer
+  tracked_ptr<MyClass> foo_p(foo);
+  
+  // this is the basic assumption, independent of any test-framework specifics
+  ASSERT_TRUE (bar_p == bar_p2);
+  ASSERT_FALSE(bar_p != bar_p2);
+  
+  ASSERT_FALSE(bar_p == foo_p);
+  ASSERT_TRUE (bar_p != foo_p);
+  
+  // the EQ and NE macros introduce const quantifiers a long the way
+  // so that has to work, too.
+  ASSERT_EQ(bar_p, bar_p2);
+  ASSERT_NE(bar_p, foo_p);
+  
+  delete bar;
+  delete foo;
+}
+
+/**
+ * The getter function 
+ */
+TEST(TrackedPointer, Getter) {
+  MyClass* bar = new MyClass();
+  MyClass* foo = new MyClass();
+  
+  // two wrapper for the same pointer
+  tracked_ptr<MyClass> bar_p(bar);
+  tracked_ptr<MyClass> bar_p2(bar);
+  
+  // a wrapper for another pointer
+  tracked_ptr<MyClass> foo_p(foo);
+  
+  ASSERT_EQ(bar, bar_p.get());
+  ASSERT_EQ(bar, bar_p2.get());
+  
+  ASSERT_EQ(foo, foo_p.get());
+  
+  delete bar;
+  delete foo;
+}
+
+/**
+ * This should implicitly lead to an error most of the time,
+ * but make sure it also errors explicitly. Fail Early!
+ */
+TEST(TrackedPointer, NullPointerAreInvalidForDeref) {
+  MyClass* bar = NULL;
+
+  tracked_ptr<MyClass> bar_p(bar);
+
+  ASSERT_DEATH((*bar_p).foo(), "");
+  
+  ASSERT_DEATH(bar_p->foo(), "");
+    
+  delete bar;
+}
+
+/**
+ * Comparison with boolean should work equally as with its pointer.
+ * The question is, should I take validity into account?
+ * I think, yes.
+ */
+TEST(TrackedPointer, ComparisonWithBoolean) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p(bar);
+  tracked_ptr<MyClass> bar_p2;
+  
+  // the simple one with AND
+  ASSERT_TRUE(true && bar);    // that is what is expected
+  ASSERT_TRUE(true && bar_p);
+  
+  // ok, invalidate the pointer
+  tracked_ptr<MyClass>::invalidate_all_pointer();
+  
+  EXPECT_FALSE(bar_p.is_valid());
+  ASSERT_FALSE(true && bar_p);
+  
+  // make a new one that is valid
+  bar_p = bar;
+  EXPECT_TRUE(bar_p.is_valid());
+  
+  // try it with an assignment, its one of the use-cases in RoarVM
+  ASSERT_TRUE(true && (bar_p2 = bar_p));
+  
+  // and just to make sure that the false case is covered as well
+  bar_p = NULL;
+  ASSERT_FALSE(true && bar_p);
+  
+  delete bar;
+}
+
 
