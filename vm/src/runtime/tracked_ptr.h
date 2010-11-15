@@ -62,13 +62,13 @@ public:
    * The only thing we have to keep track is the pointer passed trough
    * in copy operations, and its validity.
    */
-  tracked_ptr() :
+  explicit tracked_ptr() :
     ptr(NULL), valid(false), it(register_this()) {}
   
   /**
    * Constructor initialized with the pointer to be tracked.
    */
-  tracked_ptr(T* const ptr) :
+  explicit tracked_ptr(T* const ptr) :
     ptr(ptr), valid(true), it(register_this()) {}
   
   /**
@@ -86,12 +86,17 @@ public:
     valid = t_ptr.valid;
     return *this;
   }
-  
-  tracked_ptr& operator=(tracked_ptr & t_ptr) {
+
+  tracked_ptr& operator=(T* const p) {
+    ptr   = p;
+    valid = true;
+    return *this;
+  }  
+/*  tracked_ptr& operator=(tracked_ptr & t_ptr) {
     ptr   = t_ptr.ptr;
     valid = t_ptr.valid;
     return *this;
-  }
+  }*/
   
   inline T& operator* () const {
     assert(is_valid());
@@ -112,7 +117,24 @@ public:
   inline bool operator!=(tracked_ptr const & t_ptr) const {
     return ptr != t_ptr.ptr;
   }
-    
+
+  inline bool operator==(const T* const p) const {
+    return ptr == p;
+  }
+  
+  inline bool operator!=(const T* const p) const {
+    return ptr != p;
+  }
+
+  inline bool operator==(int const p) const {
+    return ptr == (void*)p;
+  }
+  
+  inline bool operator!=(int const p) const {
+    return ptr != (void*)p;
+  }
+  
+  
   inline T* get() const {
     return ptr;
   }

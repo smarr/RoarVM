@@ -356,6 +356,50 @@ TEST(TrackedPointer, Equality) {
 }
 
 /**
+ * A tracked_ptr compared with T or void* for equality with each other should be equal
+ * if the pointer are equal.
+ * They should be different, when their pointer are different.
+ *
+ * REM: This is no < or > comparison, since this is needed in the contain
+ *      i.e. in the registry we are currently using...
+ */
+TEST(TrackedPointer, EqualityWithPointer) {
+  MyClass* bar = new MyClass();
+  MyClass* foo = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p(bar);
+  
+  // a wrapper for another pointer
+  tracked_ptr<MyClass> foo_p(foo);
+  
+  // this is the basic assumption, independent of any test-framework specifics
+  ASSERT_TRUE (bar_p == bar);
+  ASSERT_FALSE(bar_p != bar);  
+  ASSERT_FALSE(bar_p == foo);
+  ASSERT_TRUE (bar_p != foo_p);
+  
+  // the EQ and NE macros introduce const quantifiers a long the way
+  // so that has to work, too.
+  ASSERT_EQ(bar_p, bar);
+  ASSERT_NE(bar_p, foo);
+  ASSERT_EQ(foo_p, foo);
+  ASSERT_NE(foo_p, bar);
+  
+  // and now make sure everything works with a void* and NULL, too
+  //void* bar_v = bar;
+
+  //ASSERT_EQ(bar_p, bar_v);
+  ASSERT_NE(bar_p, NULL);
+  //ASSERT_NE(foo_p, bar_v);
+
+  foo_p = NULL;
+  ASSERT_EQ(foo_p, NULL);
+  
+  delete bar;
+  delete foo;
+}
+
+/**
  * The getter function 
  */
 TEST(TrackedPointer, Getter) {
