@@ -1222,7 +1222,7 @@
 					"Extra_Preheader_Word_Experiment=1",
 					"check_assertions=1",
 					"check_many_assertions=1",
-					"Include_Debugging_Code=0",
+					"Include_Debugging_Code=1",
 					"Trace_For_Debugging=0",
 					"Trace_Execution=0",
 				);
