@@ -310,6 +310,13 @@ TEST(TrackedPointer, DesignTest) {
   ASSERT_EQ(42, bar_p->foo());
   ASSERT_EQ(42, (*bar_p).foo());
   
+  // Can I get the wrapped pointer out of the address in the same way
+  // I can get it from a standard pointer?
+  ASSERT_EQ(&(*bar), &(*bar_p));
+  ASSERT_EQ(&(*bar), bar);
+  ASSERT_EQ(&(*bar_p), bar);
+  ASSERT_TRUE(&(*bar_p) == bar);
+  
   delete bar;
 }
 
@@ -370,4 +377,56 @@ TEST(TrackedPointer, Getter) {
   delete bar;
   delete foo;
 }
+
+/**
+ * This should implicitly lead to an error most of the time,
+ * but make sure it also errors explicitly. Fail Early!
+ */
+TEST(TrackedPointer, NullPointerAreInvalidForDeref) {
+  MyClass* bar = NULL;
+
+  tracked_ptr<MyClass> bar_p(bar);
+
+  ASSERT_DEATH((*bar_p).foo(), "");
+  
+  ASSERT_DEATH(bar_p->foo(), "");
+    
+  delete bar;
+}
+
+/**
+ * Comparison with boolean should work equally as with its pointer.
+ * The question is, should I take validity into account?
+ * I think, yes.
+ */
+TEST(TrackedPointer, ComparisonWithBoolean) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p(bar);
+  tracked_ptr<MyClass> bar_p2;
+  
+  // the simple one with AND
+  ASSERT_TRUE(true && bar);    // that is what is expected
+  ASSERT_TRUE(true && bar_p);
+  
+  // ok, invalidate the pointer
+  tracked_ptr<MyClass>::invalidate_all_pointer();
+  
+  EXPECT_FALSE(bar_p.is_valid());
+  ASSERT_FALSE(true && bar_p);
+  
+  // make a new one that is valid
+  bar_p = bar;
+  EXPECT_TRUE(bar_p.is_valid());
+  
+  // try it with an assignment, its one of the use-cases in RoarVM
+  ASSERT_TRUE(true && (bar_p2 = bar_p));
+  
+  // and just to make sure that the false case is covered as well
+  bar_p = NULL;
+  ASSERT_FALSE(true && bar_p);
+  
+  delete bar;
+}
+
 
