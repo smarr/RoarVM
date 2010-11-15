@@ -128,7 +128,7 @@ extern char vmPath[];
  *  moduleName and suffix.  Answer the new module entry, or 0 if the shared
  *  library could not be loaded.
  */
-static void *tryLoading(char *dirName, char *moduleName)
+static void *tryLoading(const char *dirName, const char *moduleName)
 {
   static char *prefixes[]= { "", "lib", 0 };
   static char *suffixes[]= { "", ".so", ".dylib", 0 };
@@ -166,7 +166,7 @@ static void *tryLoading(char *dirName, char *moduleName)
 }
 
 
-static void *tryLoadingPath(char *varName, char *pluginName)
+static void *tryLoadingPath(const char *varName, const char *pluginName)
 {
   char *path= getenv(varName);
   void *handle= 0;
@@ -195,7 +195,7 @@ static void *tryLoadingPath(char *varName, char *pluginName)
 /*  Find and load the named module.  Answer 0 if not found (do NOT fail
  *  the primitive!).
  */
-void *ioLoadModule(char *pluginName)
+void *ioLoadModule(const char *pluginName)
 {
   void *handle= 0;
 
@@ -306,7 +306,7 @@ void *ioLoadModule(char *pluginName)
 /*  Find a function in a loaded module.  Answer 0 if not found (do NOT
  *  fail the primitive!).
  */
-void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle)
+void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle)
 {
   char buf[256];
   void *fn;

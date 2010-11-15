@@ -42,7 +42,7 @@ static ModuleEntry *squeakModule = NULL;
 static ModuleEntry *firstModule = NULL;
 struct VirtualMachine *sqGetInterpreterProxy(void);
 
-static void *findLoadedModule(char *pluginName)
+static void *findLoadedModule(const char *pluginName)
 {
 	ModuleEntry *module;
 	if(!pluginName || !pluginName[0]) return squeakModule;
@@ -54,7 +54,7 @@ static void *findLoadedModule(char *pluginName)
 	return NULL;
 }
 
-static ModuleEntry *addToModuleList(char *pluginName, void* handle, int ffiFlag)
+static ModuleEntry *addToModuleList(const char *pluginName, void* handle, int ffiFlag)
 {
 	ModuleEntry *module;
 
@@ -94,7 +94,7 @@ static int removeFromList(ModuleEntry *entry)
 	the OS dependent call. NEVER used to search through the internal
 	primitive table.
 */
-static void *findExternalFunctionIn(char *functionName, ModuleEntry *module)
+static void *findExternalFunctionIn(const char *functionName, ModuleEntry *module)
 {
 	void *result;
 
@@ -113,7 +113,7 @@ static void *findExternalFunctionIn(char *functionName, ModuleEntry *module)
 	primitive table. If it can not be found try to look it up
 	by using the OS dependent mechanism (see comment below).
 */
-static void *findInternalFunctionIn(char *functionName, char *pluginName)
+static void *findInternalFunctionIn(const char *functionName, const char *pluginName)
 {
   char *function, *plugin;
   int listIndex, index;
@@ -152,7 +152,7 @@ static void *findInternalFunctionIn(char *functionName, char *pluginName)
 }
 
 
-static void *findFunctionIn(char *functionName, ModuleEntry *module)
+static void *findFunctionIn(const char *functionName, ModuleEntry *module)
 {
 	if(module->handle == squeakModule->handle)
 		return findInternalFunctionIn(functionName, module->name);
@@ -226,7 +226,7 @@ static int callInitializersIn(ModuleEntry *module)
 	If anything goes wrong make sure the module is unloaded
 	(WITHOUT calling shutdownModule()) and return NULL.
 */
-static ModuleEntry *findAndLoadModule(char *pluginName, int ffiLoad)
+static ModuleEntry *findAndLoadModule(const char *pluginName, int ffiLoad)
 {
 	void *handle;
 	ModuleEntry *module;
@@ -265,7 +265,7 @@ static ModuleEntry *findAndLoadModule(char *pluginName, int ffiLoad)
 	Look if the given module is already loaded.
 	If so, return it's handle, otherwise try to load it.
 */
-static ModuleEntry *findOrLoadModule(char *pluginName, int ffiLoad)
+static ModuleEntry *findOrLoadModule(const char *pluginName, int ffiLoad)
 {
 	ModuleEntry *module;
 
@@ -405,7 +405,7 @@ sqInt ioShutdownAllModules(void)
 /* ioUnloadModule:
 	Unload the module with the given name.
 */
-sqInt ioUnloadModule(char *moduleName)
+sqInt ioUnloadModule(const char *moduleName)
 {
 	ModuleEntry *entry, *temp;
 
