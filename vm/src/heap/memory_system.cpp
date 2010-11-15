@@ -787,10 +787,11 @@ void Memory_System::initialize_helper() {
   Logical_Core* sender;
   init_buf* ib = (init_buf*)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
   
-  if (Replicate_PThread_Memory_System  ||  On_Tilera) {
+  if (Replicate_PThread_Memory_System  ||  On_Tilera)
     init_values_from_buffer(ib); // not needed with common structure
+
+  if (On_Tilera)
     map_read_write_and_read_mostly_memory(ib->main_pid, ib->total_read_write_memory_size, ib->total_read_mostly_memory_size);
-  }
   
   create_my_heaps(ib);
   
@@ -1263,10 +1264,8 @@ char* Memory_System::map_heap_memory(size_t total_size,
                                      int    flags) {
   assert_always(Max_Number_Of_Cores >= Logical_Core::group_size);
   
-  if ( !On_Tilera ) {
-    assert(Memory_Semantics::cores_are_initialized());
-    assert(Logical_Core::running_on_main());
-  }
+  assert( Memory_Semantics::cores_are_initialized());
+  assert( On_Tilera || Logical_Core::running_on_main());
   
   const bool print = false;
   

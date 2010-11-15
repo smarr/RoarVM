@@ -62,6 +62,7 @@ static void set_num_cores(char* num_cores_str) {
   else
     OS_Interface::die("bad argument syntax: needs to be `-num_cores <digit>'\n");
 
+  // See if cores fit into a rectangle & if so, set dimensions
   int w, h;
   h = sqrt(num_cores);
   w = num_cores / h;
