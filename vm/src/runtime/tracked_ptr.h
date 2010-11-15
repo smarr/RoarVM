@@ -84,7 +84,6 @@ public:
   tracked_ptr& operator=(tracked_ptr const & t_ptr) {
     ptr   = t_ptr.ptr;
     valid = t_ptr.valid;
-    
     return *this;
   }
   
@@ -94,13 +93,27 @@ public:
     return *this;
   }
   
-  T& operator* () const {
+  inline T& operator* () const {
     assert(is_valid());
+    assert(ptr != NULL);
     return *ptr;
   }
   
-  T* operator-> () const {
+  inline T* operator-> () const {
     assert(is_valid());
+    assert(ptr != NULL);
+    return ptr;
+  }
+  
+  inline bool operator==(tracked_ptr const & t_ptr) const {
+    return ptr == t_ptr.ptr;
+  }
+
+  inline bool operator!=(tracked_ptr const & t_ptr) const {
+    return ptr != t_ptr.ptr;
+  }
+    
+  inline T* get() const {
     return ptr;
   }
   
@@ -114,6 +127,10 @@ public:
     
 }; // tracked_ptr
 
+template<typename T>
+inline bool operator&&(const bool a, tracked_ptr<T> const & t_ptr) {
+  return a && t_ptr.is_valid() && t_ptr.get();
+} 
 
 template<typename T>
 typename tracked_ptr<T>::registry_t tracked_ptr<T>::registry;

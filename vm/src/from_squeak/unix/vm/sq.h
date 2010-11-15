@@ -387,7 +387,7 @@ void *ioLoadExternalFunctionOfLengthFromModuleOfLength(sqInt functionNameIndex, 
 sqInt  ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength);
 void  *ioLoadFunctionFrom(const char *functionName, const char *pluginName);
 sqInt  ioShutdownAllModules(void);
-sqInt  ioUnloadModule(char *moduleName);
+sqInt  ioUnloadModule(const char *moduleName);
 sqInt  ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength);
 char  *ioListBuiltinModule(sqInt moduleIndex);
 char  *ioListLoadedModule(sqInt moduleIndex);
@@ -402,13 +402,13 @@ void  *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNam
 	a loaded one.
 	WARNING: never primitiveFail() within, just return 0
 */
-void *ioLoadModule(char *pluginName);
+void *ioLoadModule(const char *pluginName);
 
 /* ioFindExternalFunctionIn:
 	Find the function with the given name in the moduleHandle.
 	WARNING: never primitiveFail() within, just return 0.
 */
-void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle);
+void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle);
 
 /* ioFreeModule:
 	Free the module with the associated handle.
