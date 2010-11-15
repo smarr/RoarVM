@@ -21,6 +21,8 @@
 // because a GC will cause these to be incorrect! They need to be recalculated from Oops after the GC.
 // If you wanted to be really careful, you would push the oops on the mapped oop stack in the interpreter,
 // in case a future GC algorithm actually changes the Oops. -- dmu 10/1/10
+// REM: for this reason we are using now Object_p instead of plain Object*, this
+// will allow us to identify such invalid uses in debug mode.
 
 class Safepoint_Ability {
   bool _is_able;

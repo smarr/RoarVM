@@ -219,7 +219,7 @@ void* primitiveSetCoordinatesFor() {
     default: The_Squeak_Interpreter()->primitiveFail();  return 0;
   }
   if (print)  lprintf("params %d %d\n", rank, mutability);
-  Object* obj = oop.as_object();
+  Object_p obj = oop.as_object();
   int32 total_bytes = obj->extra_header_bytes() + obj->sizeBits();
 
   if ( rank < 0  ||  rank >= Logical_Core::group_size
@@ -244,7 +244,7 @@ void* primitiveGetCore() {
   Oop rcvr = The_Squeak_Interpreter()->stackTop();
   if (!rcvr.is_mem()) { The_Squeak_Interpreter()->primitiveFail(); return 0; }
 
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   The_Squeak_Interpreter()->popThenPushInteger(2, The_Memory_System()->rank_for_address(ro));
   return 0;
 }
@@ -262,7 +262,7 @@ void* primitiveGetMutability() {
   Oop rcvr = The_Squeak_Interpreter()->stackTop();
   if (!rcvr.is_mem()) { The_Squeak_Interpreter()->primitiveFail(); return 0; }
 
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   The_Squeak_Interpreter()->pop(2);
   The_Squeak_Interpreter()->pushBool(ro->is_read_write());
   return 0;
@@ -380,7 +380,7 @@ void* primitiveAllObjectsInHeap() {
       FOR_EACH_OBJECT_IN_HEAP(h, p)
         if (!p->isFreeObject())
           ++n;
-      Object* r = The_Squeak_Interpreter()->splObj(Special_Indices::ClassArray).as_object()->instantiateClass(n);
+      Object_p r = The_Squeak_Interpreter()->splObj(Special_Indices::ClassArray).as_object()->instantiateClass(n);
       int i = 0;
       FOR_EACH_OBJECT_IN_HEAP(h, p) {
         if (p->isFreeObject())
@@ -469,7 +469,7 @@ static int primitivePrintObjectForVMDebugging() {
   }
   Oop x = The_Squeak_Interpreter()->stackTop();
   stdout_printer->lprintf("primitivePrintObjectForVMDebugging: Oop 0x%x, Object* 0x%x, ", x.bits(),
-                            x.is_mem() ? x.as_object() : NULL
+                            x.is_mem() ? x.as_untracked_object_ptr() : NULL
                           );
 
   

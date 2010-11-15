@@ -40,7 +40,7 @@ class Abstract_Tracer {
 
  protected:
   virtual Oop array_class()  = 0;
-  virtual void copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object* dst_obj)  = 0;
+  virtual void copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object_p dst_obj)  = 0;
   int end_of_live_data() { return wrapped ? size : next; }
 
 

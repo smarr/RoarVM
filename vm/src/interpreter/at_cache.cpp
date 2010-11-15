@@ -15,7 +15,7 @@
 #include "headers.h"
 
 void At_Cache::Entry::install(Oop rcvr, bool stringy) {
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   int rcvr_fmt = ro->format();
   if (Object::Format::might_be_context(rcvr_fmt) && ro->hasContextHeader()) {
     The_Squeak_Interpreter()->primitiveFail();

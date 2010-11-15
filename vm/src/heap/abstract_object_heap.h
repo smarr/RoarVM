@@ -59,7 +59,7 @@ class Abstract_Object_Heap {
 
   bool sufficientSpaceToAllocate(oop_int_t bytes);
   Chunk* allocateChunk(oop_int_t total_bytes);
-  virtual Object* object_address_unchecked(Oop) = 0;
+  virtual Object_p object_address_unchecked(Oop) = 0;
 
   Object* accessibleObjectAfter(Object*);
   Object* firstAccessibleObject();

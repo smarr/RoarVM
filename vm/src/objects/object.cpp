@@ -65,7 +65,7 @@ void Object::print(Printer* p) {
   Oop klass = fetchClass();
   bool is_meta;
   Oop className = klass.as_object()->name_of_class_or_metaclass(&is_meta);
-  Object* class_name_obj = className.as_object();
+  Object_p class_name_obj = className.as_object();
   Oop n;
 
   if (class_name_obj->isBytes() && !class_name_obj->isCompiledMethod())
@@ -107,7 +107,7 @@ void Object::print_class(Printer* p) {
   }
   bool is_meta;
   Oop className = name_of_class_or_metaclass(&is_meta);
-  Object* class_name_obj = className.as_object();
+  Object_p class_name_obj = className.as_object();
   Oop n;
 
   if (class_name_obj->isBytes() && !class_name_obj->isCompiledMethod())
@@ -168,8 +168,8 @@ Oop Object::positive32BitIntegerFor(int32 integerValue) {
   // "Note - integerValue is interpreted as POSITIVE, eg, as the result of Bitmap>at:, or integer>bitAnd:."
   if (integerValue >= 0  &&  Oop::isIntegerValue(integerValue))
     return Oop::from_int(integerValue);
-  Object* clpi = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargePositiveInteger);
-  Object* newLargeInteger =
+  Object_p clpi = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargePositiveInteger);
+  Object_p newLargeInteger =
     bytesPerWord == 4
     // "Faster instantiateSmallClass: currently only works with integral word size."
     ? clpi->instantiateSmallClass(BaseHeaderSize + sizeof(int32))
@@ -189,11 +189,11 @@ Oop Object::signed32BitIntegerFor(int32 integerValue) {
   if (Oop::isIntegerValue(integerValue))
     return Oop::from_int(integerValue);
   int32 v = integerValue < 0 ? -integerValue : integerValue;
-  Object* klass =
+  Object_p klass =
     integerValue < 0
     ?  The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargeNegativeInteger)
     :  The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargePositiveInteger);
-  Object* newLargeInteger = klass->instantiateClass(sizeof(int32));
+  Object_p newLargeInteger = klass->instantiateClass(sizeof(int32));
 
   newLargeInteger->storeByte( 3, u_char(v >> 24)  &  '\xff');
   newLargeInteger->storeByte( 2, u_char(v >> 16)  &  '\xff');
@@ -208,8 +208,8 @@ Oop Object::positive64BitIntegerFor(int64 integerValue) {
   // "Note - integerValue is interpreted as POSITIVE, eg, as the result of Bitmap>at:, or integer>bitAnd:."
     return Object::positive32BitIntegerFor(int32(integerValue));
 
-  Object* clpi = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargePositiveInteger);
-  Object* newLargeInteger = clpi->instantiateClass(sizeof(int64));
+  Object_p clpi = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargePositiveInteger);
+  Object_p newLargeInteger = clpi->instantiateClass(sizeof(int64));
 
   newLargeInteger->storeByte( 7, u_char(integerValue >> 56LL)  &  '\xff');
   newLargeInteger->storeByte( 6, u_char(integerValue >> 48LL)  &  '\xff');
@@ -231,11 +231,11 @@ Oop Object::signed64BitIntegerFor(int64 integerValue) {
     return signed32BitIntegerFor(int32(integerValue));
 
   int64 v = integerValue < 0LL ? -integerValue : integerValue;
-  Object* klass =
+  Object_p klass =
   integerValue < 0LL
   ?  The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargeNegativeInteger)
   :  The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargePositiveInteger);
-  Object* newLargeInteger = klass->instantiateClass(sizeof(int64));
+  Object_p newLargeInteger = klass->instantiateClass(sizeof(int64));
 
   newLargeInteger->storeByte( 7, u_char(v >> 56LL)  &  '\xff');
   newLargeInteger->storeByte( 6, u_char(v >> 48LL)  &  '\xff');
@@ -252,7 +252,7 @@ Oop Object::signed64BitIntegerFor(int64 integerValue) {
 
 
 
-Object* Object::instantiateClass(oop_int_t size, Logical_Core* where) {
+Object_p Object::instantiateClass(oop_int_t size, Logical_Core* where) {
     /*
      "NOTE: This method supports the backward-compatible split instSize field of the
      class format word. The sizeHiBits will go away and other shifts change by 2
@@ -323,7 +323,7 @@ bool Object::okayOop() {
 
       case Header_Type::Short:
         if ( compact_class_index() == 0 ) {
-            lprintf("found zero compact class field in short header: Oop 0x%x, Object* 0x%x\n",
+            lprintf("found zero compact class field in short header: Oop 0x%x, Object_p 0x%x\n",
                     as_oop().bits(), this);
             fatal("cannot have zero compact class field in a short header");
         }
@@ -369,7 +369,7 @@ bool Object::hasOkayClass() {
   okayOop();
   Oop klass_oop = fetchClass();
   assert_always_msg(klass_oop.is_mem(), "a SmallInteger is not a valid class or behavior");
-  Object* klass = klass_oop.as_object();
+  Object_p klass = klass_oop.as_object();
   klass->okayOop();
   assert_always_msg(klass->isPointers()  &&  klass->lengthOf() >= 3,
                     "a class (behavior) must be a pointers object of size >= 3");
@@ -471,7 +471,7 @@ Oop Object::clone() {
   Multicore_Object_Heap* h = The_Memory_System()->heaps[c->rank()][Memory_System::read_write];
   Oop* newChunk = (Oop*)h->allocateChunk_for_a_new_object(bytes);
   Oop remappedOop = The_Squeak_Interpreter()->popRemappableOop();
-  Object* newObj = (Object*) ((char*)newChunk + extraHdrBytes);
+  Object_p newObj = (Object*) ((char*)newChunk + extraHdrBytes);
 
   // copy old to new incl all header words, except backpoiner
   The_Memory_System()->store_bytes_enforcing_coherence(
@@ -499,9 +499,9 @@ Oop Object::clone() {
   return newObj->as_oop();
 }
 
-Object* Object::process_list_for_priority_of_process() {
+Object_p Object::process_list_for_priority_of_process() {
   int priority = priority_of_process();
-  Object* processLists = The_Squeak_Interpreter()->process_lists_of_scheduler();
+  Object_p processLists = The_Squeak_Interpreter()->process_lists_of_scheduler();
   assert(priority - 1  <=  processLists->fetchWordLength());
   return processLists->fetchPointer(priority - 1).as_object();
 }
@@ -546,7 +546,7 @@ void Object::set_suspended_context_of_process(Oop ctx) {
 }
 
 int Object::priority_of_process_or_nil() {
-  return this == The_Squeak_Interpreter()->roots.nilObj.as_object() ? -1 : priority_of_process();
+  return this == &(*(The_Squeak_Interpreter()->roots.nilObj.as_object())) ? -1 : priority_of_process();
 }
 
 bool Object::is_process_running() {
@@ -599,7 +599,7 @@ Oop Object::remove_process_from_scheduler_list(const char* why) {
   Scheduler_Mutex sm("remove_process_from_scheduler_list");
 
   Oop processListOop = my_list_of_process();
-  Object* processList =  
+  Object_p processList =  
     processListOop == The_Squeak_Interpreter()->roots.nilObj  
       ? process_list_for_priority_of_process() 
       : processListOop.as_object();
@@ -616,8 +616,8 @@ Oop Object::remove_process_from_scheduler_list(const char* why) {
   Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
 
   Oop        proc = first_proc;
-  Object* proc_obj = proc.as_object();
-  Object* prior_proc_obj  = NULL;
+  Object_p proc_obj = proc.as_object();
+  Object_p prior_proc_obj  = NULL;
 
   for (; proc_obj != this;)  {
     prior_proc_obj = proc_obj;
@@ -654,7 +654,7 @@ Oop Object::removeFirstLinkOfList() {
   Oop nil = The_Squeak_Interpreter()->roots.nilObj;
 
   Oop first = fetchPointer(fl);  Oop last  = fetchPointer(ll);
-  Object* fo = first.as_object();
+  Object_p fo = first.as_object();
   if (first == last) {
     storePointer(fl, nil);
     storePointer(ll, nil);
@@ -665,7 +665,7 @@ Oop Object::removeFirstLinkOfList() {
   return first;
 }
 
-Oop  Object::removeLastLinkOfList(Object* penultimate) {
+Oop  Object::removeLastLinkOfList(Object_p penultimate) {
   const int nl = Object_Indices::NextLinkIndex;
   Oop nil = The_Squeak_Interpreter()->roots.nilObj;
   Oop last = fetchPointer(Object_Indices::LastLinkIndex);
@@ -676,7 +676,7 @@ Oop  Object::removeLastLinkOfList(Object* penultimate) {
   return last;
 }
 
-Oop Object::removeMiddleLinkOfList(Object* prior, Object* mid) {
+Oop Object::removeMiddleLinkOfList(Object_p prior, Object_p mid) {
   const int nl = Object_Indices::NextLinkIndex;
   prior->storePointer(nl, mid->fetchPointer(nl));
   mid->nil_out_my_list_and_next_link_fields_of_process();
@@ -744,17 +744,17 @@ void Object::print_frame(Printer* p) {
   Oop sender = fetchPointer(Object_Indices::SenderIndex);
   int sp = fetchInteger(Object_Indices::StackPointerIndex);
 
-  Object* home = home_of_block_or_method_context();
+  Object_p home = home_of_block_or_method_context();
   Oop method = home->fetchPointer(Object_Indices::MethodIndex);
   bool is_block = is_this_context_a_block_context();
   if (method.bits() == 0) {
     p->printf("method oop is zero\n");
     return;
   }
-  Object* mo = method.is_mem() ? method.as_object() : NULL;
+  Object_p mo = method.is_mem() ? method.as_object() : NULL;
 
   Oop rcvr = home->fetchPointer(Object_Indices::ReceiverIndex);
-  Object* klass = rcvr.fetchClass().as_object();
+  Object_p klass = rcvr.fetchClass().as_object();
 
 
   Oop* stack = &as_oop_p()[Object_Indices::ContextFixedSizePlusHeader];
@@ -773,7 +773,7 @@ void Object::print_frame(Printer* p) {
       mclass = rcvr.fetchClass();
 
     p->printf(" "); rcvr.print(p);
-    if (rcvr.is_mem()) p->printf("<0x%x>", rcvr.as_object());
+    if (rcvr.is_mem()) p->printf("<0x%x>", rcvr.as_untracked_object_ptr());
     if (mclass.as_object() != klass) {
       p->printf("(");
       bool is_meta;
@@ -807,9 +807,9 @@ bool Object::selector_and_class_of_method_in_me_or_ancestors(Oop method, Oop* se
     lprintf( "selector_and_class_of_method_in_me_or_ancestors: method 0x%x is an int\n", method.bits());
     return false;
   }
-  Object* mo = method.as_object();
+  Object_p mo = method.as_object();
   if (!The_Memory_System()->contains(mo)) {
-    lprintf( "selector_and_class_of_method_in_me_or_ancestors: method 0x%x is not in heap\n", mo);
+    lprintf( "selector_and_class_of_method_in_me_or_ancestors: method 0x%x is not in heap\n", &(*mo));
     return false;
   }
   Oop    methodDictOop = fetchPointer(Object_Indices::MessageDictionaryIndex);
@@ -817,9 +817,9 @@ bool Object::selector_and_class_of_method_in_me_or_ancestors(Oop method, Oop* se
     lprintf( "selector_and_class_of_method_in_me_or_ancestors: methodDictOop 0x%x is an int\n", methodDictOop.bits());
     return false;
   }
-  Object* methodDict = methodDictOop.as_object();
+  Object_p methodDict = methodDictOop.as_object();
   if (!The_Memory_System()->contains(methodDict)) {
-    lprintf( "selector_and_class_of_method_in_me_or_ancestors: methodDict 0x%x is not in heap\n", methodDict);
+    lprintf( "selector_and_class_of_method_in_me_or_ancestors: methodDict 0x%x is not in heap\n", &(*methodDict));
     return false;
   }
   Oop sel = methodDict->key_at_identity_value(method);
@@ -834,7 +834,7 @@ bool Object::selector_and_class_of_method_in_me_or_ancestors(Oop method, Oop* se
     if (!warned) {
       warned = true;
       lprintf( "selector_and_class_of_method_in_me_or_ancestors: did not find method 0x%x in class 0x%x\n",
-              mo,  this);
+              &(*mo),  this);
     }
     return false;
   }
@@ -853,7 +853,7 @@ Oop Object::key_at_identity_value(Oop val) {
       lprintf("key_at_identity_value: methodsOop is not pointers 0x%x\n", methodsOop.bits());
 
     else {
-      Object* methods = methodsOop.as_object();
+      Object_p methods = methodsOop.as_object();
       int length = fetchWordLength() - Object_Indices::SelectorStart;
       for (int index = 0;  index < length;  ++index)
         if (methods->fetchPointer(index) == val)
@@ -866,19 +866,19 @@ Oop Object::key_at_identity_value(Oop val) {
 
 
 
-Object* Object::makePoint(oop_int_t x, oop_int_t y) {
-  Object* pt = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassPoint)->instantiateSmallClass(3 * bytesPerWord);
+Object_p Object::makePoint(oop_int_t x, oop_int_t y) {
+  Object_p pt = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassPoint)->instantiateSmallClass(3 * bytesPerWord);
   pt->storeIntegerUnchecked(Object_Indices::XIndex, x);
   pt->storeIntegerUnchecked(Object_Indices::YIndex, y);
   return pt;
 }
 
-Object* Object::makeString(const char* str) {
+Object_p Object::makeString(const char* str) {
   return makeString(str, strlen(str));
 }
 
-Object* Object::makeString(const char* str, int n) {
-  Object* r = The_Squeak_Interpreter()->classString()->instantiateClass(n);
+Object_p Object::makeString(const char* str, int n) {
+  Object_p r = The_Squeak_Interpreter()->classString()->instantiateClass(n);
   The_Memory_System()->store_bytes_enforcing_coherence(r->as_char_p() + Object::BaseHeaderSize, str, n, r); // dst src n
   return r;
 }
@@ -910,7 +910,7 @@ void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
   Chunk* dst_chunk = h->allocateChunk(ehb + bnc);
   oop = The_Squeak_Interpreter()->popRemappableOop();
   char* src_chunk = as_char_p() - ehb;
-  Object* new_obj = (Object*) (((char*)dst_chunk) + ehb);
+  Object_p new_obj = (Object*) (((char*)dst_chunk) + ehb);
 
   h->enforce_coherence_before_store(dst_chunk, ehb + bnc);
   DEBUG_MULTIMOVE_CHECK(dst_chunk, src_chunk, (ehb + bnc) / bytes_per_oop );
@@ -928,9 +928,6 @@ void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
 
 
 void Object::test() { assert_always(sizeof(Object) == 4); }
-
-void dp(Object* x) {x->dp(); } // debugging
-
 
 int Object::core_where_process_is_running() {
   if (!Track_Processes) fatal("Track_Processes must be set");
@@ -961,7 +958,7 @@ u_char* Object::next_bc_to_execute_of_context() {
    method oop + ip + BaseHeaderSize
    -1 for 0-based addressing of fetchByte"
    */
-  Object* meth = home_of_block_or_method_context()->fetchPointer(Object_Indices::MethodIndex).as_object();
+  Object_p meth = home_of_block_or_method_context()->fetchPointer(Object_Indices::MethodIndex).as_object();
   oop_int_t ip_int = quickFetchInteger(Object_Indices::InstructionPointerIndex);
   return meth->as_u_char_p() + ip_int + Object::BaseHeaderSize - 1;
 }
@@ -982,7 +979,7 @@ void Object::check_IP_in_context() {
 }
 
 
-void Object::check_IP_of_method(u_char* bcp, Object* ctx) {
+void Object::check_IP_of_method(u_char* bcp, Object_p ctx) {
   if (!isCompiledMethod()) fatal("check_method_is_correct: not a method");
 
   u_char* first_bc = (u_char*)first_byte_address();
@@ -990,7 +987,7 @@ void Object::check_IP_of_method(u_char* bcp, Object* ctx) {
 
   if (bcp < first_bc) {
     lprintf("bcp 0x%x < first_bc 0x%x:  past_bc 0x%x, method header 0x%x, at 0x%x, sizeBits: 0x%x, isBlock %d, ctx obj 0x%x\n",
-            bcp, first_bc, past_bc, *as_oop_int_p(), this, sizeBits(), !ctx->isMethodContext(), ctx);
+            bcp, first_bc, past_bc, *as_oop_int_p(), this, sizeBits(), !ctx->isMethodContext(), &(*ctx));
     fatal("bcp < first_bc");
   }
   if (past_bc < bcp) {
@@ -999,9 +996,9 @@ void Object::check_IP_of_method(u_char* bcp, Object* ctx) {
     Object* orig_home = ctx->get_orig_block_home();
     Oop curr_home = ctx->fetchPointer(Object_Indices::HomeIndex);
     lprintf("past_bc 0x%x < bcp 0x%x:  first_bc 0x%x, method header 0x%x, at 0x%x, sizeBits: 00x%x, isBlock %d, ctx 0x%x, %s %s\n",
-            past_bc, bcp, first_bc, *as_oop_int_p(), this, sizeBits(), !ctx->isMethodContext(), ctx,
+            past_bc, bcp, first_bc, *as_oop_int_p(), this, sizeBits(), !ctx->isMethodContext(), &(*ctx),
             orig_meth == curr_meth ? "method same" : "method changed",
-            orig_home == curr_home.as_object() ? "home OBJ same" : "home OBJ changed");
+            orig_home == curr_home.as_untracked_object_ptr() ? "home OBJ same" : "home OBJ changed");
 
     lprintf("home 0x%x, orig_method 0x%x, curr_method 0x%x\n",
             curr_home.bits(), orig_meth.bits(), curr_meth.bits());
@@ -1026,11 +1023,11 @@ void Object::cleanup_session_ID_and_ext_prim_index_of_external_primitive_literal
   storeIntegerUnchecked(Object_Indices::EPL_External_Primitive_Table_Index, Abstract_Primitive_Table::lookup_needed);
 }
 
-Object* Object::get_external_primitive_literal_of_method() {
+Object_p Object::get_external_primitive_literal_of_method() {
   if (literalCount() <= Object_Indices::External_Primitive_Literal_Index)  return NULL;
   Oop lit = literal(Object_Indices::External_Primitive_Literal_Index);
   if (!lit.is_mem()) return NULL;
-  Object* lo = lit.as_object();
+  Object_p lo = lit.as_object();
   return lo->isArray()  &&  lo->lengthOf() == Object_Indices::EPL_Length  ?  lo  :  NULL;
 }
 
@@ -1068,7 +1065,7 @@ void Object::weakFinalizerCheckOf() {
   Oop list = fetchPointer(0);
   Oop listClass = list.fetchClass();
   if (listClass == The_Squeak_Interpreter()->splObj(Special_Indices::ClassWeakFinalizer)) {
-    Object* list_obj = list.as_object();
+    Object_p list_obj = list.as_object();
     Oop first = list_obj->fetchPointer(0);
     storePointer(1, first);
     list_obj->storePointer(0, as_oop());
@@ -1086,7 +1083,7 @@ int Object::instance_variable_names_index_of_class(const char* some_instance_var
     Oop oop = *oopp;
     if (!oop.isArray())
       continue;
-    Object* array_obj = oop.as_object();
+    Object_p array_obj = oop.as_object();
     int n = array_obj->fetchWordLength();
     bool found_var_name = false;
     bool found_non_string = false;

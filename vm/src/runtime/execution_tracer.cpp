@@ -68,9 +68,9 @@ Oop Execution_Tracer::get() {
 }
 
 
-void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object* dst_obj) {
+void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object_p dst_obj) {
   lprintf( "copy_elements src_offset %d, buffer 0x%x, dst 0x%x, dst_offset %d, num_elems %d, dst_obj 0x%x, next %d\n",
-          src_offset, buffer, dst, dst_offset, num_elems, dst_obj, next);
+          src_offset, buffer, dst, dst_offset, num_elems, &(*dst_obj), next);
 
 
 
@@ -93,7 +93,7 @@ void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, 
       }
         break;
       case k_bc: {
-        dst_oop[e_method  ] = bcp->method;  Object* mo = dst_oop[e_method].as_object();
+        dst_oop[e_method  ] = bcp->method;  Object_p mo = dst_oop[e_method].as_object();
         dst_oop[e_rcvr    ] = bcp->rcvr;
 
         dst_oop[e_rank    ] = Oop::from_int(bcp->rank);
@@ -107,7 +107,7 @@ void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, 
         assert_always(dst_oop[e_pc  ].is_int());
         assert_always(dst_oop[e_rank].is_int());
         assert_always(dst_oop[e_is_block] == The_Squeak_Interpreter()->roots.trueObj  ||  dst_oop[e_is_block] == The_Squeak_Interpreter()->roots.falseObj);
-        assert_always( (int(dst_oop) - int(dst_obj) - Object::BaseHeaderSize) % e_N  == 0 );
+        assert_always( (int(dst_oop) - int(&(*dst_obj)) - Object::BaseHeaderSize) % e_N  == 0 ); // the hack &(*dst_obj) is used to get the encapsulated pointer, it is only used here, where ever else it is possible, I fall back to a function with aan explict tracked_ptr<Object> signature
       }
         break;
       case k_gc:
@@ -129,7 +129,7 @@ void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, 
 
 
 void Execution_Tracer::check_it(Oop ents) {
-  Object* eo = ents.as_object();
+  Object_p eo = ents.as_object();
   int wl = eo->fetchWordLength();
   int n = wl / e_N;
 
@@ -162,7 +162,7 @@ void Execution_Tracer::check_it(Oop ents) {
 }
 
 void Execution_Tracer::print_entries(Oop ents, Printer* p) {
-  Object* eo = ents.as_object();
+  Object_p eo = ents.as_object();
   int n = eo->fetchWordLength()  /  e_N;
   int x;
 
@@ -174,7 +174,7 @@ void Execution_Tracer::print_entries(Oop ents, Printer* p) {
         default: fatal(); break;
         case k_proc: {
           Oop process      = eo->fetchPointer(i * e_N  +  e_process); assert(process.is_mem());
-          p->printf("switch to process 0x%x", process.as_object());
+          p->printf("switch to process 0x%x", process.as_untracked_object_ptr());
         }
           break;
 
@@ -225,7 +225,7 @@ void Execution_Tracer::print_entries(Oop ents, Printer* p) {
           p->printf(is_block ? " [] " : "    ");
           p->printf(", pc: %d, ", pc);
 
-          Object* mo = meth.as_object();
+          Object_p mo = meth.as_object();
           u_char bc = mo->first_byte_address()[pc];
           The_Squeak_Interpreter()->printBC(bc, p);
 

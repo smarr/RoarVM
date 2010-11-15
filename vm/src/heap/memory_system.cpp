@@ -196,8 +196,8 @@ void Memory_System::finalize_weak_arrays_since_we_dont_do_incrementalGC() {
 
 void Memory_System::swapOTEs(Oop* o1, Oop* o2, int len) {
   for (int i = 0;  i < len;  ++i) {
-    Object* obj1 = o1[i].as_object();
-    Object* obj2 = o2[i].as_object();
+    Object_p obj1 = o1[i].as_object();
+    Object_p obj2 = o2[i].as_object();
 
     obj2->set_object_address_and_backpointer(o1[i]  COMMA_TRUE_OR_NOTHING);
     obj1->set_object_address_and_backpointer(o2[i]  COMMA_TRUE_OR_NOTHING);
@@ -205,7 +205,7 @@ void Memory_System::swapOTEs(Oop* o1, Oop* o2, int len) {
 }
 
 
-static bool containOnlyOops(Object* a1, Object* a2) {
+static bool containOnlyOops(Object_p a1, Object_p a2) {
   for (u_oop_int_t fieldOffset = a1->lastPointer() / sizeof(Oop);
        fieldOffset >= Object::BaseHeaderSize / sizeof(Oop);
        --fieldOffset )
@@ -221,12 +221,13 @@ static bool containOnlyOops(Object* a1, Object* a2) {
 
 class Abstract_Become_Closure: public Oop_Closure {
 protected:
-  Object *array1, *array2;
+  Object_p array1;
+  Object_p array2;
   Oop *o1, *o2;
   int len;
   bool twoWay, copyHash;
 
-  Abstract_Become_Closure(Object* a1, Object* a2, bool t, bool c) : Oop_Closure() {
+  Abstract_Become_Closure(Object_p a1, Object_p a2, bool t, bool c) : Oop_Closure() {
     array1 = a1;
     array2 = a2;
     o1 = array1->as_oop_p() + Object::BaseHeaderSize/sizeof(Oop);
@@ -238,8 +239,8 @@ public:
   void copyHashes() {
     if (!copyHash) return;
     for (int i = 0;  i < len;  ++i) {
-      Object* obj1 = o1[i].as_object();  oop_int_t* hdr1p = &obj1->baseHeader;  oop_int_t hdr1 = *hdr1p;
-      Object* obj2 = o2[i].as_object();  oop_int_t* hdr2p = &obj2->baseHeader;  oop_int_t hdr2 = *hdr2p;
+      Object_p obj1 = o1[i].as_object();  oop_int_t* hdr1p = &obj1->baseHeader;  oop_int_t hdr1 = *hdr1p;
+      Object_p obj2 = o2[i].as_object();  oop_int_t* hdr2p = &obj2->baseHeader;  oop_int_t hdr2 = *hdr2p;
       if (twoWay) {
         The_Memory_System()->store_enforcing_coherence(hdr1p, hdr1 & ~Object::HashMask  |  hdr2 & Object::HashMask, obj1);
       }
@@ -252,9 +253,9 @@ public:
 
 class One_Way_Become_Closure: public Abstract_Become_Closure {
 public:
-  One_Way_Become_Closure(Object* a1, Object* a2, bool c) : Abstract_Become_Closure(a1, a2, false, c) {  }
+  One_Way_Become_Closure(Object_p a1, Object_p a2, bool c) : Abstract_Become_Closure(a1, a2, false, c) {  }
 
-  void value(Oop* p, Object* containing_obj_or_null) {
+  void value(Oop* p, Object_p containing_obj_or_null) {
     if (containing_obj_or_null != array1)
       for (int i = 0;  i < len;  ++i)
         if (*p == o1[i]) {
@@ -266,10 +267,10 @@ public:
 
 class Two_Way_Become_Closure: public Abstract_Become_Closure {
 public:
-  Two_Way_Become_Closure(Object* a1, Object* a2, bool c) : Abstract_Become_Closure(a1, a2, true, c) {}
+  Two_Way_Become_Closure(Object_p a1, Object_p a2, bool c) : Abstract_Become_Closure(a1, a2, true, c) {}
 
 
-  void value(Oop* p, Object* containing_obj_or_null) {
+  void value(Oop* p, Object_p containing_obj_or_null) {
     if (containing_obj_or_null != array1  &&  containing_obj_or_null != array2)
       for (int i = 0;  i < len;  ++i) {
         Oop x = *p;
@@ -289,8 +290,8 @@ bool Memory_System::become_with_twoWay_copyHash(Oop array1, Oop array2, bool two
   Safepoint_Ability sa(false);
 
   if (!array1.isArray()  ||  !array2.isArray())  return false;
-  Object* a1o = array1.as_object();
-  Object* a2o = array2.as_object();
+  Object_p a1o = array1.as_object();
+  Object_p a2o = array2.as_object();
   if (a1o->lastPointer() != a2o->lastPointer()) return false;
   if (!containOnlyOops(a1o, a2o)) return false;
   
@@ -384,7 +385,7 @@ void Memory_System::imageNamePut_on_this_core(const char* n, int len) {
 }
 
 
-void Memory_System::imageNameGet(Object* dst, int len) {
+void Memory_System::imageNameGet(Object_p dst, int len) {
   char* n = dst->as_char_p() + Object::BaseHeaderSize;
   assert(The_Memory_System()->contains(n));
 
@@ -553,10 +554,10 @@ Oop Memory_System::firstAccessibleObject() {
 
 
 Oop Memory_System::nextObject(Oop x) {
-  Object* obj = x.as_object();
+  Object_p obj = x.as_object();
   int start_rank = obj->rank();
   int start_mutability = obj->mutability();
-  Object* inst = heaps[start_rank][start_mutability]->accessibleObjectAfter(obj);
+  Object* inst = heaps[start_rank][start_mutability]->accessibleObjectAfter(&(*obj));
   if (inst != NULL)  return inst->as_oop();
   bool past_start = false;
   FOR_ALL_HEAPS(rank, mutability) {
@@ -1119,7 +1120,7 @@ void Memory_System::invalidate_heaps_and_fence(bool mine_too) {
   OS_Interface::mem_fence();
 }
 
-void Memory_System::enforce_coherence_before_store_into_object_by_interpreter(void* p, int nbytes, Object* dst_obj_to_be_evacuated) {
+void Memory_System::enforce_coherence_before_store_into_object_by_interpreter(void* p, int nbytes, Object_p dst_obj_to_be_evacuated) {
   // to avoid deadlock caused by asking other cores to invalidate lines in the middle of interpreter and not being able to gc when another core asks me,
   // just move this object to read-write heap afterwards. Don't do enforce_coherence_before_store stuff.
   assert(contains(p));
@@ -1196,7 +1197,7 @@ void Memory_System::print_heaps() {
 
 
 # define DEF_SEC(T) \
-void Memory_System::store_enforcing_coherence(T* p, T x, Object* dst_obj_to_be_evacuated_or_null) { \
+void Memory_System::store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_evacuated_or_null) { \
   if (sizeof(T) == bytes_per_oop) DEBUG_STORE_CHECK((oop_int_t*)(p), (oop_int_t)(x)); \
   assert(contains(p)); \
   if (is_address_read_write(p)) { *p = x; return; } \
@@ -1213,7 +1214,7 @@ void Memory_System::store_enforcing_coherence(T* p, T x, Object* dst_obj_to_be_e
 FOR_ALL_STORE_ENFORCING_COHERENCE_FUNCTIONS(DEF_SEC)
 
 
-void Memory_System::store_bytes_enforcing_coherence(void* dst, const void* src, int nbytes,   Object* dst_obj_to_be_evacuated_or_null) {
+void Memory_System::store_bytes_enforcing_coherence(void* dst, const void* src, int nbytes,   Object_p dst_obj_to_be_evacuated_or_null) {
   assert(contains(dst));
   
   DEBUG_MULTIMOVE_CHECK(dst, src, nbytes / bytes_per_oop);
@@ -1231,7 +1232,7 @@ void Memory_System::store_bytes_enforcing_coherence(void* dst, const void* src, 
 }
 
 
-void Memory_System::store_2_enforcing_coherence(int32* p1, int32 i1, int32 i2,  Object* dst_obj_to_be_evacuated_or_null) {
+void Memory_System::store_2_enforcing_coherence(int32* p1, int32 i1, int32 i2,  Object_p dst_obj_to_be_evacuated_or_null) {
   assert(contains(p1));
   DEBUG_STORE_CHECK(p1, i1);
   DEBUG_STORE_CHECK(&p1[1], i2);

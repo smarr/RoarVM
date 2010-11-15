@@ -103,7 +103,7 @@ class Mark_Closure: public Oop_Closure {
   Abstract_Mark_Sweep_Collector* gc;
 public:
   Mark_Closure(Abstract_Mark_Sweep_Collector* x) : Oop_Closure() {gc = x;}
-  void value(Oop* p, Object*) { gc->mark(p); }
+  void value(Oop* p, Object_p) { gc->mark(p); }
   virtual const char* class_name(char*) { return "Mark_Closure"; }
 };
 
@@ -186,7 +186,7 @@ bool Abstract_Mark_Sweep_Collector::add_weakRoot(Oop x) {
 
  */
 
-void Abstract_Mark_Sweep_Collector::finalizeReference(Object* weak_obj) {
+void Abstract_Mark_Sweep_Collector::finalizeReference(Object_p weak_obj) {
   int nonWeakCnt = weak_obj->nonWeakFieldsOf();
   FOR_EACH_WEAK_OOP_IN_OBJECT(weak_obj, oop_ptr) {
     Oop x = *oop_ptr;

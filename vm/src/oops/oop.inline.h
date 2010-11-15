@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-inline void oopcpy_no_store_check(Oop* dst, const Oop* src, int n, Object* dst_obj_to_be_evacuated) {
+inline void oopcpy_no_store_check(Oop* dst, const Oop* src, int n, Object_p dst_obj_to_be_evacuated) {
   assert(The_Memory_System()->contains(dst));
 
   The_Memory_System()->enforce_coherence_before_store_into_object_by_interpreter(dst, n << ShiftForWord, dst_obj_to_be_evacuated);
@@ -57,15 +57,19 @@ inline Oop Oop::from_object(Object* p) {
 
 
 
-inline Object* Oop::as_object_unchecked() {
+inline Object_p Oop::as_object_unchecked() {
   return The_Memory_System()->object_for_unchecked(*this);
 }
 
-inline Object* Oop::as_object() {
+inline Object* Oop::as_untracked_object_ptr() {
   return The_Memory_System()->object_for(*this);
 }
 
-inline Object* Oop::as_object_if_mem() {
+inline Object_p Oop::as_object() {
+  return The_Memory_System()->object_for(*this);
+}
+
+inline Object_p Oop::as_object_if_mem() {
   return is_mem() ? as_object() : NULL;
 }
 

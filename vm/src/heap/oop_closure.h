@@ -15,7 +15,7 @@
 class Oop_Closure {
  public:
   Oop_Closure() {}
-  virtual void value(Oop* x, Object* containing_obj_or_null) = 0;
+  virtual void value(Oop* x, Object_p containing_obj_or_null) = 0;
   virtual const char* class_name(char*) { return "Oop_Closure"; }
 };
 

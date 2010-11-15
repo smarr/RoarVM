@@ -17,7 +17,7 @@
 Interactions The_Interactions;
 
 
-Object* last_ctx_rcv; // xxx for debugging
+Object_p last_ctx_rcv; // xxx for debugging
 
 
 // me or one other:

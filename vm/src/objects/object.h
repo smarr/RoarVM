@@ -329,7 +329,7 @@ public:
   bool isMethodContext() { return CompactClass::isMethodContextHeader(baseHeader); }
   bool hasContextHeader() { return CompactClass::isContextHeader(baseHeader); }
   bool hasSender(Oop);
-  Object* home_of_block_or_method_context() {
+  Object_p home_of_block_or_method_context() {
     return is_this_context_a_block_context() ? fetchPointer(Object_Indices::HomeIndex).as_object() : this;
   }
   Oop key_at_identity_value(Oop);
@@ -354,14 +354,14 @@ public:
   void do_all_oops_of_object_for_marking(Abstract_Mark_Sweep_Collector*, bool do_checks = check_assertions);
 
   // ObjectMemory allocation
-  Object* fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
-                                 oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize,
-                                 bool doFill = false,
-                                 bool fillWithNil = false);
+  Object_p fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
+                                  oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize,
+                                  bool doFill = false,
+                                  bool fillWithNil = false);
   Oop clone();
 
   // ObjectMemory interpreter access
-  inline Object* instantiateContext(oop_int_t byteSize);
+  inline Object_p instantiateContext(oop_int_t byteSize);
 
   // ObjectMemory header access
   int32 classHeader() { return class_and_type_word(); }
@@ -393,8 +393,8 @@ public:
   int32& long32_at(oop_int_t fieldIndex);
 
   public:
-  inline Oop fetchPointer(oop_int_t fieldIndex);
-  inline void storePointer( oop_int_t fieldIndex, Oop oop);
+  inline Oop  fetchPointer(oop_int_t fieldIndex);
+  inline void storePointer(oop_int_t fieldIndex, Oop oop);
   inline void storePointerUnchecked( oop_int_t fieldIndex, Oop oop);
   inline void storePointerIntoContext(oop_int_t i, Oop x);
 
@@ -413,9 +413,9 @@ public:
   void storeIntegerUnchecked(oop_int_t fieldIndex, oop_int_t x) {
     storePointerUnchecked(fieldIndex, Oop::from_int(x));
   }
-   void storeIntegerUnchecked_into_context(oop_int_t fieldIndex, oop_int_t x) {
-     storePointerUnchecked(fieldIndex, Oop::from_int(x));
-   }
+  void storeIntegerUnchecked_into_context(oop_int_t fieldIndex, oop_int_t x) {
+    storePointerUnchecked(fieldIndex, Oop::from_int(x));
+  }
 
 
   inline double fetchFloatAtinto();
@@ -465,8 +465,8 @@ public:
   inline oop_int_t fetchStackPointer(); // rcvr is a ContextObject
 
 
-  Object* instantiateSmallClass(oop_int_t sizeInBytes);
-  Object* instantiateClass(oop_int_t sizeInBytes, Logical_Core* where = NULL);
+  Object_p instantiateSmallClass(oop_int_t sizeInBytes);
+  Object_p instantiateClass(oop_int_t sizeInBytes, Logical_Core* where = NULL);
 
   inline void set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB);
 
@@ -488,7 +488,7 @@ public:
 
 
   void cleanup_session_ID_and_ext_prim_index_of_external_primitive_literal();
-  Object* get_external_primitive_literal_of_method();
+  Object_p get_external_primitive_literal_of_method();
 
   inline Oop superclass();
   Oop methodClass() {
@@ -502,7 +502,7 @@ public:
   inline Oop my_list_of_process();
   int core_where_process_is_running();
   int priority_of_process_or_nil();
-  Object* process_list_for_priority_of_process();
+  Object_p process_list_for_priority_of_process();
   Oop get_suspended_context_of_process_and_mark_running();
   bool is_process_running();
   bool is_process_allowed_to_run_on_this_core();
@@ -511,8 +511,8 @@ public:
   void add_process_to_scheduler_list();
   void set_suspended_context_of_process(Oop ctx);
   Oop removeFirstLinkOfList();
-  Oop removeLastLinkOfList(Object*);
-  Oop removeMiddleLinkOfList(Object*, Object*);
+  Oop removeLastLinkOfList(Object_p);
+  Oop removeMiddleLinkOfList(Object_p, Object_p);
   Oop remove_process_from_scheduler_list(const char*);
   void kvetch_nil_list_of_process(const char*);
   void addLastLinkToList(Oop);
@@ -555,9 +555,9 @@ public:
   bool hasOkayClass();
 
 
-  static Object* makePoint(oop_int_t, oop_int_t);
-  static Object* makeString(const char* str);
-  static Object* makeString(const char* str, int n);
+  static Object_p makePoint(oop_int_t, oop_int_t);
+  static Object_p makeString(const char* str);
+  static Object_p makeString(const char* str, int n);
 
   void* firstIndexableField_for_primitives();
   char* pointerForOop_for_primitives();
@@ -589,7 +589,7 @@ public:
   void check_IP_in_context();
   void check_all_IPs_in_chain();
   u_char* next_bc_to_execute_of_context();
-  void check_IP_of_method(u_char* bcp, Object*);
+  void check_IP_of_method(u_char* bcp, Object_p);
 
   inline void save_block_method_and_IP();
   inline Oop  get_orig_block_method();
@@ -607,7 +607,7 @@ public:
   void weakFinalizerCheckOf();
    
   int instance_variable_names_index_of_class(const char*);
-  static Object* instance_variable_names_of_Process();
+  static Object_p instance_variable_names_of_Process();
   int index_of_string_in_array(const char* aString);
   
 
