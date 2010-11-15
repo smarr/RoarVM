@@ -36,7 +36,7 @@ private:
   }
     
   void unregister_and_invalidate() {
-    registry.register_tracked_ptr(this, it);
+    registry.unregister_tracked_ptr(this, it);
     valid = false;
   }
 

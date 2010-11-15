@@ -46,18 +46,15 @@ public:
   
   iterator register_tracked_ptr(TrackedPtr* t_ptr) {
     OS_Interface::mutex_lock(&lock);
-      size_t numElements = registry.size();
       pair<typename registry_t::iterator, bool> p = registry.insert(t_ptr);
-      size_t numElements2 = registry.size();
     OS_Interface::mutex_unlock(&lock);
     
     assert(p.second);
-    assert(numElements + 1 == numElements2);
     
     return p.first;
   }
   
-  void register_tracked_ptr(TrackedPtr* t_ptr, iterator it) {
+  void unregister_tracked_ptr(TrackedPtr* t_ptr, iterator it) {
     if (it != registry.end()) {
       // ensure that the iterator is stable
       assert(*it == t_ptr);
