@@ -1332,7 +1332,7 @@ void Squeak_Interpreter::signalExternalSemaphores(const char* why) {
     // use other buffer during read
     for (int i = 1;  i <= semaphoresToSignalCountB();  ++i) {
       int index = _semaphoresToSignalB[i];
-      if (index <= xSize) {
+      if (1 <= index  &&  index <= xSize) {
         Oop sema = xArray->fetchPointer(index - 1);
         // sema indices 1-based
         if (sema.fetchClass() == splObj(Special_Indices::ClassSemaphore)) {
@@ -1346,7 +1346,7 @@ void Squeak_Interpreter::signalExternalSemaphores(const char* why) {
     // use other buffer during read
     for (int i = 1;  i <= semaphoresToSignalCountA();  ++i) {
       int index = _semaphoresToSignalA[i];
-      if (index <= xSize) {
+      if (1 <= index  &&  index <= xSize) {
         Oop sema = xArray->fetchPointer(index - 1);
         // sema indices 1-based
         if (sema.fetchClass() == splObj(Special_Indices::ClassSemaphore))

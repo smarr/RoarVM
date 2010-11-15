@@ -154,6 +154,8 @@ Oop Interactions::sample_each_core(int what_to_sample) {
       // TODO: identify the problem leading to the case that the following
       //       assertion does not hold
       // assert_always(preserved == cpuCoreStats);
+	  if (preserved != cpuCoreStats)
+		lprintf("Warning: patched around potential bug in interactions.cpp\n");
 
       // TODO: remove this workaround after identifying the bug causing the assertion to fail
       cpuCoreStats = preserved;

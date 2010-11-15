@@ -1687,6 +1687,7 @@ void Squeak_Interpreter::primitiveRelinquishProcessor() {
       lprintf("Deactivating caller process of primitiveRelinquishProcessor; assuming it's the idle process\n");;
   last_wayward_idle_process = this_process;
   
+  if (Logical_Core::num_cores > 1)
   this_process.as_object()->store_allowable_cores_of_process(0LL); // not runnable anywhere
   pop(1);
   yield("stopping idle process");
