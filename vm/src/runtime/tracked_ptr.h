@@ -84,7 +84,6 @@ public:
   tracked_ptr& operator=(tracked_ptr const & t_ptr) {
     ptr   = t_ptr.ptr;
     valid = t_ptr.valid;
-    
     return *this;
   }
   
@@ -94,14 +93,22 @@ public:
     return *this;
   }
   
-  T& operator* () const {
+  inline T& operator* () const {
     assert(is_valid());
     return *ptr;
   }
   
-  T* operator-> () const {
+  inline T* operator-> () const {
     assert(is_valid());
     return ptr;
+  }
+  
+  inline bool operator==(tracked_ptr const & t_ptr) const {
+    return ptr == t_ptr.ptr;
+  }
+
+  inline bool operator!=(tracked_ptr const & t_ptr) const {
+    return ptr != t_ptr.ptr;
   }
   
   static size_t pointers_on_stack() {

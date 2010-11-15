@@ -313,3 +313,38 @@ TEST(TrackedPointer, DesignTest) {
   delete bar;
 }
 
+/**
+ * Two tracked_ptr compared for equality with each other should be equal
+ * if the wrapped pointer are equal.
+ * They should be different, when their wrapped pointer are different.
+ *
+ * REM: This is no < or > comparison, since this is needed in the contain
+ *      i.e. in the registry we are currently using...
+ */
+TEST(TrackedPointer, Equality) {
+  MyClass* bar = new MyClass();
+  MyClass* foo = new MyClass();
+  
+  // two wrapper for the same pointer
+  tracked_ptr<MyClass> bar_p(bar);
+  tracked_ptr<MyClass> bar_p2(bar);
+  
+  // a wrapper for another pointer
+  tracked_ptr<MyClass> foo_p(foo);
+  
+  // this is the basic assumption, independent of any test-framework specifics
+  ASSERT_TRUE (bar_p == bar_p2);
+  ASSERT_FALSE(bar_p != bar_p2);
+  
+  ASSERT_FALSE(bar_p == foo_p);
+  ASSERT_TRUE (bar_p != foo_p);
+  
+  // the EQ and NE macros introduce const quantifiers a long the way
+  // so that has to work, too.
+  ASSERT_EQ(bar_p, bar_p2);
+  ASSERT_NE(bar_p, foo_p);
+  
+  delete bar;
+  delete foo;
+}
+
