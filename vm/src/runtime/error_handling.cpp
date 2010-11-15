@@ -28,15 +28,15 @@ int assert_failure(const char* func, const char* file, const int line, const cha
   return 0;
 }
 
-int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, tracked_ptr<Object> a, void* b) {
+int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, const tracked_ptr<Object>& a, void* b) {
   return assert_eq_failure(func, file, line, pred, msg, a.get(), b);
 }
 
-int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, tracked_ptr<Object> a, tracked_ptr<Object> b) {
+int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, const tracked_ptr<Object>& a, const tracked_ptr<Object>& b) {
   return assert_eq_failure(func, file, line, pred, msg, a.get(), b.get());
 }
 
-int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void* a, tracked_ptr<Object> b) {
+int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void* a, const tracked_ptr<Object>& b) {
   return assert_eq_failure(func, file, line, pred, msg, a, b.get());
 }
 

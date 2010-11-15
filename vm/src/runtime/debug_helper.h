@@ -15,7 +15,7 @@
 void dp(Oop x); // print Oop
 void dp(int x); // print Oop
 void dp(Object* x); // print Object
-void dp(tracked_ptr<Object> x); // print Object_p
+void dp(const tracked_ptr<Object>& x); // print Object_p
 
 void pat(); // print all stack traces
 void pet(); // print execution trace

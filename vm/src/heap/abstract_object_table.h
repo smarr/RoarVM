@@ -58,7 +58,7 @@ class Abstract_Object_Table {
   bool verify_no_local_objects() { return fatal(); }
   bool verify_after_mark() { return fatal(); }
 
-  bool probably_contains(void*) { return fatal(); }
+  bool probably_contains(void*) const { return fatal(); }
 
   Oop get_stats(int) { return Oop::from_bits(fatal()); }
 
