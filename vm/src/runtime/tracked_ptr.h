@@ -21,9 +21,10 @@
 template<typename T>
 class tracked_ptr {
 private:
-  
   typedef tracked_ptr_registry< tracked_ptr<T> > registry_t;
   typedef typename tracked_ptr_registry< tracked_ptr<T> >::iterator iterator;
+  
+  friend class tracked_ptr_registry< tracked_ptr<T> >;
   
   static registry_t registry;
   
@@ -47,10 +48,7 @@ public:
    * and on subsequent use, an assertion will fail.
    */
   static void invalidate_all_pointer() {
-    iterator i;
-    for (i = registry.begin(); i != registry.end(); i++) {
-      (*i)->valid = false;
-    }
+    registry.invalidate_all_pointer();
   }
 
   

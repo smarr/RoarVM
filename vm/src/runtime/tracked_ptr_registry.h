@@ -65,13 +65,22 @@ public:
     }
   }
   
-  iterator begin() {
+  void invalidate_all_pointer() {
+    OS_Interface::mutex_lock(&lock);
+      iterator i;
+      for (i = registry.begin(); i != registry.end(); i++) {
+        (*i)->valid = false;
+      }
+    OS_Interface::mutex_unlock(&lock);
+  }
+  
+/*  iterator begin() {
     return registry.begin();
   }
 
   iterator end() {
     return registry.end();
-  }
+  }*/
   
   size_t size() {
     return registry.size();
