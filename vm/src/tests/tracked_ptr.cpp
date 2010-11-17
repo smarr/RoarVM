@@ -473,4 +473,30 @@ TEST(TrackedPointer, ComparisonWithBoolean) {
   delete bar;
 }
 
+/**
+ * Do casts do the right thing?
+ */
+TEST(TrackedPointer, Casts) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  
+  ASSERT_EQ(bar_p, bar);
+  ASSERT_NE(bar_p, (tracked_ptr<MyClass>)NULL);
+  
+  ASSERT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack());
+}
 
+/**
+ * The ternary operator should convert the tracked pointer to a bool.
+ */ 
+TEST(TrackedPointer, TernaryOperator) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  
+  ASSERT_TRUE(bar_p ? true : false);
+  
+  bar_p = NULL;
+  ASSERT_FALSE(bar_p ? true : false);
+}
