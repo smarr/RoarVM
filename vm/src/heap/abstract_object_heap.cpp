@@ -157,7 +157,7 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
     if (!compacting)
       continue;
 
-    Object* new_obj_addr = (Object*)((char*)dst_chunk + ((char*)obj - (char*)src_chunk));
+    Object_p new_obj_addr = (Object_p)(Object*)((char*)dst_chunk + ((char*)obj - (char*)src_chunk));
 
     if (src_chunk == dst_chunk)
       dst_chunk = next_src_chunk;

@@ -407,17 +407,17 @@ void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
     if (do_checks)
       my_heap()->contains(oopp);
-    oc->value(oopp, this);
+    oc->value(oopp, (Object_p)this);
   }
   if (contains_class_and_type_word()) {
     Oop c = get_class_oop();
     Oop new_c = c;
-    oc->value(&new_c, this);
+    oc->value(&new_c, (Object_p)this);
     if (new_c != c)
       set_class_oop(new_c);
   }
   if (Extra_Preheader_Word_Experiment)
-    oc->value((Oop*)extra_preheader_word(), this);
+    oc->value((Oop*)extra_preheader_word(), (Object_p)this);
 }
 
 
@@ -471,7 +471,7 @@ Oop Object::clone() {
   Multicore_Object_Heap* h = The_Memory_System()->heaps[c->rank()][Memory_System::read_write];
   Oop* newChunk = (Oop*)h->allocateChunk_for_a_new_object(bytes);
   Oop remappedOop = The_Squeak_Interpreter()->popRemappableOop();
-  Object_p newObj = (Object*) ((char*)newChunk + extraHdrBytes);
+  Object_p newObj = (Object_p)(Object*) ((char*)newChunk + extraHdrBytes);
 
   // copy old to new incl all header words, except backpoiner
   The_Memory_System()->store_bytes_enforcing_coherence(
@@ -617,7 +617,7 @@ Oop Object::remove_process_from_scheduler_list(const char* why) {
 
   Oop        proc = first_proc;
   Object_p proc_obj = proc.as_object();
-  Object_p prior_proc_obj  = NULL;
+  Object_p prior_proc_obj  = (Object_p)NULL;
 
   for (; proc_obj != this;)  {
     prior_proc_obj = proc_obj;
@@ -726,7 +726,7 @@ void Object::print_process_or_nil(Printer* p, bool print_stack) {
   
   if (print_stack) {
     p->nl();
-    The_Squeak_Interpreter()->print_stack_trace(p, this);
+    The_Squeak_Interpreter()->print_stack_trace(p, (Object_p)this);
     p->nl();
   }
 }
@@ -751,7 +751,7 @@ void Object::print_frame(Printer* p) {
     p->printf("method oop is zero\n");
     return;
   }
-  Object_p mo = method.is_mem() ? method.as_object() : NULL;
+  Object_p mo = method.is_mem() ? method.as_object() : (Object_p)NULL;
 
   Oop rcvr = home->fetchPointer(Object_Indices::ReceiverIndex);
   Object_p klass = rcvr.fetchClass().as_object();
@@ -910,7 +910,7 @@ void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
   Chunk* dst_chunk = h->allocateChunk(ehb + bnc);
   oop = The_Squeak_Interpreter()->popRemappableOop();
   char* src_chunk = as_char_p() - ehb;
-  Object_p new_obj = (Object*) (((char*)dst_chunk) + ehb);
+  Object_p new_obj = (Object_p)(Object*) (((char*)dst_chunk) + ehb);
 
   h->enforce_coherence_before_store(dst_chunk, ehb + bnc);
   DEBUG_MULTIMOVE_CHECK(dst_chunk, src_chunk, (ehb + bnc) / bytes_per_oop );
@@ -1024,11 +1024,11 @@ void Object::cleanup_session_ID_and_ext_prim_index_of_external_primitive_literal
 }
 
 Object_p Object::get_external_primitive_literal_of_method() {
-  if (literalCount() <= Object_Indices::External_Primitive_Literal_Index)  return NULL;
+  if (literalCount() <= Object_Indices::External_Primitive_Literal_Index)  return (Object_p)NULL;
   Oop lit = literal(Object_Indices::External_Primitive_Literal_Index);
-  if (!lit.is_mem()) return NULL;
+  if (!lit.is_mem()) return (Object_p)NULL;
   Object_p lo = lit.as_object();
-  return lo->isArray()  &&  lo->lengthOf() == Object_Indices::EPL_Length  ?  lo  :  NULL;
+  return lo->isArray()  &&  lo->lengthOf() == Object_Indices::EPL_Length  ?  lo  :  (Object_p)NULL;
 }
 
 

@@ -157,11 +157,11 @@ void Squeak_Interpreter::initialize(Oop soo, bool from_checkpoint) {
 
 
 void Squeak_Interpreter::do_all_roots(Oop_Closure* oc) {
-  FOR_EACH_ROOT(&roots,oopp) oc->value(oopp, NULL);
+  FOR_EACH_ROOT(&roots,oopp) oc->value(oopp, (Object_p)NULL);
   for (int i = 0;  i < remapBufferCount;  ++i)
-    oc->value(&remapBuffer[i], NULL);
+    oc->value(&remapBuffer[i], (Object_p)NULL);
   for (int i = 0;  i < mutated_read_mostly_objects_count;  ++i)
-    oc->value(&mutated_read_mostly_objects[i], NULL);
+    oc->value(&mutated_read_mostly_objects[i], (Object_p)NULL);
   if (mutated_read_mostly_object_tracer() != NULL)
     mutated_read_mostly_object_tracer()->do_all_roots(oc);
   if (execution_tracer() != NULL)
@@ -170,7 +170,7 @@ void Squeak_Interpreter::do_all_roots(Oop_Closure* oc) {
     debugging_tracer()->do_all_roots(oc);
   if (Logical_Core::running_on_main())
     FOR_ALL_RANKS(i)
-      oc->value(&running_process_by_core[i], NULL);
+      oc->value(&running_process_by_core[i], (Object_p)NULL);
   Deferred_Request::do_all_roots(oc);
 }
 

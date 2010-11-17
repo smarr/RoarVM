@@ -24,21 +24,21 @@ Execution_Tracer::Execution_Tracer(int n) : Abstract_Tracer(n, max_sizes, e_N) {
 Oop Execution_Tracer::array_class() { return The_Squeak_Interpreter()->splObj(Special_Indices::ClassArray); }
 
 void Execution_Tracer::do_all_roots(Oop_Closure* oc) {
-  oc->value(&ctx, NULL);
+  oc->value(&ctx, (Object_p)NULL);
   for (int i = 0;  i < end_of_live_data();  ++i) {
     bc* bcp = (bc*)entry_ptr(i);  proc* procp = (proc*)bcp;
     switch (bcp->kind) {
         default: fatal(); break;
         case k_bc:
-          oc->value(&bcp->method, NULL);
-          oc->value(&bcp->rcvr, NULL);
+          oc->value(&bcp->method, (Object_p)NULL);
+          oc->value(&bcp->rcvr, (Object_p)NULL);
           break;
         case k_gc:
         case k_rcved_interp:
         case k_aux:
           break;
         case k_proc:
-          oc->value(&procp->process, NULL);
+          oc->value(&procp->process, (Object_p)NULL);
           break;
     }
   }

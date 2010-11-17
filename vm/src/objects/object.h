@@ -330,7 +330,7 @@ public:
   bool hasContextHeader() { return CompactClass::isContextHeader(baseHeader); }
   bool hasSender(Oop);
   Object_p home_of_block_or_method_context() {
-    return is_this_context_a_block_context() ? fetchPointer(Object_Indices::HomeIndex).as_object() : this;
+    return is_this_context_a_block_context() ? fetchPointer(Object_Indices::HomeIndex).as_object() : (Object_p)this;
   }
   Oop key_at_identity_value(Oop);
 
