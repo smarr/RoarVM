@@ -115,7 +115,7 @@ class Abstract_Object_Heap {
   inline void enforce_coherence_before_store(void*, int nbytes);
   inline void enforce_coherence_after_store(void*, int nbytes);
 
-  void enforce_coherence_before_store_into_object_by_interpreter(void*, int nbytes, Object* dst);
+  void enforce_coherence_before_store_into_object_by_interpreter(void*, int nbytes, Object_p dst);
   void enforce_coherence_after_store_into_object_by_interpreter(void*, int nbytes);
 
   void enforce_coherence_in_whole_heap_before_store() { enforce_coherence_before_store(startOfMemory(), bytesUsed()); }

@@ -208,7 +208,7 @@ void Squeak_Image_Reader::distribute_objects() {
       memory_system->ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(oop_for_addr(obj), obj);
     }
   }
-  cc.value(&specialObjectsOop, NULL);
+  cc.value(&specialObjectsOop, (Object_p)NULL);
 
   memory_system->finished_adding_objects_from_snapshot();
   free(object_oops);

@@ -1293,7 +1293,7 @@ public:
   void showDisplayBitsOf(Oop, oop_int_t, oop_int_t, oop_int_t, oop_int_t);
   void fullDisplayUpdate();
 
-  void print_stack_trace(Printer*, Object_p proc = NULL);
+  void print_stack_trace(Printer*, Object_p proc = (Object_p)NULL);
   void print_all_stack_traces(Printer*);
   void print_process_lists(Printer*);
   void print_all_processes_in_scheduler(Printer*, bool);

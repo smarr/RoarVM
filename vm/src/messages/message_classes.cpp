@@ -104,7 +104,7 @@ void doAllRootsHereMessage_class::handle_me() {
 
 
 void hereIsARootResponse_class::handle_me() {
-  closure->value(&root, container_or_null);
+  closure->value(&root, (Object_p)container_or_null);
   newValueForOopMessage_class(root, addr).send_to(sender);
 }
 
@@ -390,22 +390,22 @@ void ackMessage_class::handle_me() {}
 
 
 void flushSelectiveMessage_class::do_all_roots(Oop_Closure* oc) {
-  oc->value(&selector, NULL);
+  oc->value(&selector, (Object_p)NULL);
 }
 void sampleOneCoreResponse_class::do_all_roots(Oop_Closure* oc) {
-  oc->value(&result, NULL);
+  oc->value(&result, (Object_p)NULL);
 }
 void newValueForOopMessage_class::do_all_roots(Oop_Closure* oc) {
-  oc->value(&newValue, NULL);
+  oc->value(&newValue, (Object_p)NULL);
 }
 void addObjectFromSnapshotMessage_class::do_all_roots(Oop_Closure* oc) {
-  oc->value(&dst_oop, NULL);
+  oc->value(&dst_oop, (Object_p)NULL);
 }
 void recycleContextIfPossibleMessage_class::do_all_roots(Oop_Closure* oc) {
-  oc->value(&ctx, NULL);
+  oc->value(&ctx, (Object_p)NULL);
 }
 void flushByMethodMessage_class::do_all_roots(Oop_Closure* oc) {
-  oc->value(&method, NULL);
+  oc->value(&method, (Object_p)NULL);
 }
 void addObjectFromSnapshotResponse_class::do_all_roots(Oop_Closure* oc) {
   fatal("unimp, but should not be called");

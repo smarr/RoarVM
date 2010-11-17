@@ -177,7 +177,7 @@ public:
 
   void ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(Oop dst_oop, Object* src_obj_wo_preheader) {
     int rank = object_table->rank_for_adding_object_from_snapshot(dst_oop);
-    Object* dst_obj = The_Interactions.add_object_from_snapshot_allocating_chunk(rank, dst_oop, src_obj_wo_preheader);
+    Object_p dst_obj = (Object_p)The_Interactions.add_object_from_snapshot_allocating_chunk(rank, dst_oop, src_obj_wo_preheader);
     object_table->set_object_for(dst_oop, dst_obj  COMMA_FALSE_OR_NOTHING);
   }
 

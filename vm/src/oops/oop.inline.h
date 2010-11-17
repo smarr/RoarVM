@@ -56,9 +56,10 @@ inline Oop Oop::from_object(Object* p) {
 }
 
 
-
+// TODO: perhaps it should be moved to the point right after getting it out
+//       of the object table...
 inline Object_p Oop::as_object_unchecked() {
-  return The_Memory_System()->object_for_unchecked(*this);
+  return (Object_p)The_Memory_System()->object_for_unchecked(*this);
 }
 
 inline Object* Oop::as_untracked_object_ptr() {
@@ -66,11 +67,11 @@ inline Object* Oop::as_untracked_object_ptr() {
 }
 
 inline Object_p Oop::as_object() {
-  return The_Memory_System()->object_for(*this);
+  return (Object_p)The_Memory_System()->object_for(*this);
 }
 
 inline Object_p Oop::as_object_if_mem() {
-  return is_mem() ? as_object() : NULL;
+  return is_mem() ? as_object() : (Object_p)NULL;
 }
 
 

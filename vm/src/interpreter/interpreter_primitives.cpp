@@ -2285,7 +2285,7 @@ void Squeak_Interpreter::primitiveClosureValue() {
   Object_p closureMethod_obj = closureMethod.as_object();
   if (!closureMethod_obj->isCompiledMethod()) { primitiveFail(); return; }
   
-  activateNewClosureMethod(blockClosure_obj, NULL);
+  activateNewClosureMethod(blockClosure_obj, (Object_p)NULL);
   if ( !The_Squeak_Interpreter()->doing_primitiveClosureValueNoContextSwitch)
     quickCheckForInterrupts();
 }
@@ -2365,7 +2365,7 @@ void Squeak_Interpreter::primitiveClosureValueWithArgs() {
     push( argumentArray_obj->fetchPointer(i - 1));
   
   set_argumentCount(arraySize);
-  activateNewClosureMethod(blockClosure_obj, NULL);
+  activateNewClosureMethod(blockClosure_obj, (Object_p)NULL);
   quickCheckForInterrupts();
 }
 

@@ -26,7 +26,7 @@ inline void Abstract_Object_Heap::enforce_coherence_after_store(void* p, int nby
 }
 
 
-inline void Abstract_Object_Heap::enforce_coherence_before_store_into_object_by_interpreter(void* p, int nbytes, Object* dst_obj_to_be_evacuated) {
+inline void Abstract_Object_Heap::enforce_coherence_before_store_into_object_by_interpreter(void* p, int nbytes, Object_p dst_obj_to_be_evacuated) {
   assert(The_Memory_System()->contains(p));
   The_Memory_System()->enforce_coherence_before_store_into_object_by_interpreter(p, nbytes, dst_obj_to_be_evacuated);
 }
