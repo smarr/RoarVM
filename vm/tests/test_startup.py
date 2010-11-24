@@ -38,9 +38,10 @@ class StartupTest(unittest.TestCase):
     
     
     def test_hello_world(self):
-        p = subprocess.Popen(self.rvm + ["-headless", self.image, "HelloWorld"],
+        cmd = self.rvm + ["-headless", self.image, "HelloWorld"]
+        p = subprocess.Popen(cmd,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertEquals(0, p.wait(), "Execution failed") # ends without error
+        self.assertEquals(0, p.wait(), "Execution failed" + " ".join(cmd)) # ends without error
         
         # output containts a line like this: 11 on 0: primitivePrint: Hello World!
         gotHelloWorld = False
@@ -55,21 +56,21 @@ class StartupTest(unittest.TestCase):
         
         for heap in [128, 256, 512, 1024]:
             for c in [n for n in [1,2,3,7,11,15,55,57,59] if self.cpu_count >= n]:
+                cmd = self.rvm + ["-num_cores", str(c),
+                                  "-min_heap_MB", str(heap),
+                                  "-headless", self.image, "HelloWorld"]
                 self.assertEquals(0, 
-                    subprocess.call(self.rvm + ["-num_cores", str(c),
-                                     "-min_heap_MB", str(heap),
-                                     "-headless", self.image, "HelloWorld"],
-                                    stdout=devnull, stderr=devnull),
-                    "Failed starting rvm with -num_cores %d -min_heap_MB %d" %(c, heap))
+                    subprocess.call(cmd, stdout=devnull, stderr=devnull),
+                    "Failed starting rvm with -num_cores %d -min_heap_MB %d: %s" %(c, heap, " ".join(cmd)))
                     
     def test_reliability(self):
         self.assertTrue(self.cpu_count > 1)
         devnull = open(os.devnull, 'w')
         cmd = self.rvm + ["-num_cores", str(self.cpu_count),
-                         "-min_heap_MB", "1024",
+                         "-min_heap_MB", "256" if self.on_tilera else "1024",
                          "-headless", self.image, "HelloWorld"]
         for i in range(1, 10):    
             self.assertEquals(0,
                 subprocess.call(cmd, stdout=devnull, stderr=devnull),
-                "Failed reliability test at iteration %d" %i)
+                "Failed reliability test at iteration %d: %s" %(i, " ".join(cmd)))
 
