@@ -33,7 +33,9 @@ class StartupTest(unittest.TestCase):
     
     image = os.path.dirname(__file__) + "/../../../images/benchmarks/benchmarks.image"
     rvm = determine_launch_executable()
-
+    on_tilera = len(rvm) == 2
+    cpu_count = 59 if on_tilera else multiprocessing.cpu_count()
+    
     
     def test_hello_world(self):
         p = subprocess.Popen(self.rvm + ["-headless", self.image, "HelloWorld"],
@@ -48,12 +50,11 @@ class StartupTest(unittest.TestCase):
         self.assertTrue(gotHelloWorld, "Failed to read Hello World! in output")
     
     def test_mmap_bug(self):
-        cpu_count = multiprocessing.cpu_count()
-        self.assertTrue(cpu_count > 1)
+        self.assertTrue(self.cpu_count > 1)
         devnull = open(os.devnull, 'w')
         
         for heap in [128, 256, 512, 1024]:
-            for c in range(1, cpu_count):
+            for c in [n for n in [1,2,3,7,11,15,55,57,59] if self.cpu_count >= n]:
                 self.assertEquals(0, 
                     subprocess.call(self.rvm + ["-num_cores", str(c),
                                      "-min_heap_MB", str(heap),
@@ -62,10 +63,9 @@ class StartupTest(unittest.TestCase):
                     "Failed starting rvm with -num_cores %d -min_heap_MB %d" %(c, heap))
                     
     def test_reliability(self):
-        cpu_count = multiprocessing.cpu_count()
-        self.assertTrue(cpu_count > 1)
+        self.assertTrue(self.cpu_count > 1)
         devnull = open(os.devnull, 'w')
-        cmd = self.rvm + ["-num_cores", str(cpu_count),
+        cmd = self.rvm + ["-num_cores", str(self.cpu_count),
                          "-min_heap_MB", "1024",
                          "-headless", self.image, "HelloWorld"]
         for i in range(1, 10):    
