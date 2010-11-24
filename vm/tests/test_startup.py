@@ -3,6 +3,7 @@ from twisted.trial import unittest
 import multiprocessing
 import subprocess
 import os
+import exceptions
 
 def determine_launch_executable():
     """
@@ -11,16 +12,21 @@ def determine_launch_executable():
         If it complaines that it cannot be executed, we make the guess
         that it is a Tilera binary.
     """
-    print "dddd"
     devnull = open(os.devnull, 'w')
     binary = os.path.dirname(__file__) + "/../build/rvm"
-    
-    exitcode = subprocess.call([binary], stdout=devnull, stderr=devnull)
+    try:
+        exitcode = subprocess.call([binary], stdout=devnull, stderr=devnull)
+    except exceptions.OSError as e:
+        if e.errno  == 8:
+            exitcode = 126
+        else:
+           raise e
+
     assert(exitcode == 1 or exitcode == 126)
     if exitcode == 1:
         return [binary]
     else:
-        return [os.path.dirname(__file__) + "/../build/run/tile-runner",
+        return [os.path.dirname(__file__) + "/../run/tile-runner",
                 binary]
 
 class StartupTest(unittest.TestCase):
