@@ -13,3 +13,5 @@ vm/build/RoarVM.build/
 vm/build/libgtest.a
 vm/build/rvm-test
 vm/src/tests/*.o
+vm/_trial_temp/
+*.pyc
