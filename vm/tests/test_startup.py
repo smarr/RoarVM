@@ -4,13 +4,33 @@ import multiprocessing
 import subprocess
 import os
 
+def determine_launch_executable():
+    """
+        Here we try to figure out whether it is a standard binary, or
+        whether it might be the Tilera binary.
+        If it complaines that it cannot be executed, we make the guess
+        that it is a Tilera binary.
+    """
+    print "dddd"
+    devnull = open(os.devnull, 'w')
+    binary = os.path.dirname(__file__) + "/../build/rvm"
+    
+    exitcode = subprocess.call([binary], stdout=devnull, stderr=devnull)
+    assert(exitcode == 1 or exitcode == 126)
+    if exitcode == 1:
+        return [binary]
+    else:
+        return [os.path.dirname(__file__) + "/../build/run/tile-runner",
+                binary]
+
 class StartupTest(unittest.TestCase):
     
     image = os.path.dirname(__file__) + "/../../../images/benchmarks/benchmarks.image"
-    rvm   = os.path.dirname(__file__) + "/../build/rvm"
+    rvm = determine_launch_executable()
+
     
     def test_hello_world(self):
-        p = subprocess.Popen([self.rvm, "-headless", self.image, "HelloWorld"],
+        p = subprocess.Popen(self.rvm + ["-headless", self.image, "HelloWorld"],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEquals(0, p.wait(), "Execution failed") # ends without error
         
@@ -29,7 +49,7 @@ class StartupTest(unittest.TestCase):
         for heap in [128, 256, 512, 1024]:
             for c in range(1, cpu_count):
                 self.assertEquals(0, 
-                    subprocess.call([self.rvm, "-num_cores", str(c),
+                    subprocess.call(self.rvm + ["-num_cores", str(c),
                                      "-min_heap_MB", str(heap),
                                      "-headless", self.image, "HelloWorld"],
                                     stdout=devnull, stderr=devnull),
@@ -39,7 +59,7 @@ class StartupTest(unittest.TestCase):
         cpu_count = multiprocessing.cpu_count()
         self.assertTrue(cpu_count > 1)
         devnull = open(os.devnull, 'w')
-        cmd = [self.rvm, "-num_cores", str(cpu_count),
+        cmd = self.rvm + ["-num_cores", str(cpu_count),
                          "-min_heap_MB", "1024",
                          "-headless", self.image, "HelloWorld"]
         for i in range(1, 10):    
