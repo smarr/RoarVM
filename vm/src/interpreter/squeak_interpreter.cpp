@@ -2409,6 +2409,10 @@ void Squeak_Interpreter::multicore_interrupt() {
             }
             else {
         # if On_Tilera
+              // TODO: abstract that out
+              // this is a local spin, it avoids putting any memory presure
+              // on the tile network while waiting for a few instruction
+              // busy-local-only-loop
             int   i;
             float a = 0.0;
             for (i = 0;  i < 50;  i++)  a += i;
