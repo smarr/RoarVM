@@ -286,7 +286,14 @@ void Squeak_Interpreter::primitiveCalloutToFFI() {
 
 void Squeak_Interpreter::primitiveChangeClass() {
   /*
-   "Primitive. Change the class of the receiver into the class of the argument given that the format of the receiver matches the format of the argument's class. Fail if receiver or argument are SmallIntegers, or the receiver is an instance of a compact class and the argument isn't, or when the argument's class is compact and the receiver isn't, or when the format of the receiver is different from the format of the argument's class, or when the arguments class is fixed and the receiver's size differs from the size that an instance of the argument's class should have."
+   "Primitive. Change the class of the receiver into the class of the argument
+    given that the format of the receiver matches the format of the argument's
+    class. Fail if receiver or argument are SmallIntegers, or the receiver is
+    an instance of a compact class and the argument isn't, or when the
+    argument's class is compact and the receiver isn't, or when the format of
+    the receiver is different from the format of the argument's class, or when
+    the arguments class is fixed and the receiver's size differs from the size
+    that an instance of the argument's class should have."
    */
   if (methodArgumentCount() != 1) {
     primitiveFail();
@@ -455,8 +462,9 @@ void Squeak_Interpreter::primitiveDoPrimitiveWithArgs() {
 }
 
 void Squeak_Interpreter::primitiveDoNamedPrimitiveWithArgs() {
-  /* 	"Simulate an primitiveExternalCall invocation (e.g. for the Debugger).  Do not cache anything.
-	 e.g. ContextPart>>tryNamedPrimitiveIn: aCompiledMethod for: aReceiver withArgs: arguments"
+  /* "Simulate an primitiveExternalCall invocation (e.g. for the Debugger).
+      Do not cache anything.
+      e.g. ContextPart>>tryNamedPrimitiveIn: aCompiledMethod for: aReceiver withArgs: arguments"
   */
   
   Oop argumentArray = stackTop();
@@ -1033,7 +1041,9 @@ void Squeak_Interpreter::primitiveGreaterThan() {
 }
 void Squeak_Interpreter::primitiveImageName() {
   /*
-   When called with a single string argument, record the string as the current image file name. When called with zero arguments, return a string containing the current image file name.
+   When called with a single string argument, record the string as the current
+   image file name. When called with zero arguments, return a string
+   containing the current image file name.
    */
   if (get_argumentCount() == 1) {
     Oop s = stackTop();
@@ -1059,11 +1069,14 @@ void Squeak_Interpreter::primitiveIncrementalGC() {
 
 void Squeak_Interpreter::primitiveInputSemaphore() {
   /*
-   "Register the input semaphore. The argument is an index into the ExternalObjectsArray part of the specialObjectsArray and must have been allocated via 'Smalltalk registerExternalObject: the Semaphore
+   "Register the input semaphore. The argument is an index into the
+    ExternalObjectsArray part of the specialObjectsArray and must have been
+    allocated via 'Smalltalk registerExternalObject: the Semaphore
    */
   Oop arg = stackTop();
   if (arg.is_int()) {
-    // "If arg is integer, then condsider it as an index  into the external objects array and install it  as the new event semaphore
+    // "If arg is integer, then condsider it as an index  into the external
+    //  objects array and install it  as the new event semaphore
     ioSetInputSemaphore(arg.integerValue());
     if (successFlag) pop(1);
   }
@@ -1250,7 +1263,13 @@ void Squeak_Interpreter::primitiveLoadImageSegment() {
    "This primitive is called from Squeak as...
    <imageSegment> loadSegmentFrom: aWordArray outPointers: anArray."
 
-   "This primitive will load a binary image segment created by primitiveStoreImageSegment.  It expects the outPointer array to be of the proper size, and the wordArray to be well formed.  It will return as its value the original array of roots, and the erstwhile segmentWordArray will have been truncated to a size of zero.  If this primitive should fail, the segmentWordArray will, sadly, have been reduced to an unrecognizable and unusable jumble.  But what more could you have done with it anyway?
+   "This primitive will load a binary image segment created by
+    primitiveStoreImageSegment.  It expects the outPointer array to be of the
+    proper size, and the wordArray to be well formed.  It will return as its
+    value the original array of roots, and the erstwhile segmentWordArray will
+    have been truncated to a size of zero.  If this primitive should fail, the
+    segmentWordArray will, sadly, have been reduced to an unrecognizable and
+    unusable jumble.  But what more could you have done with it anyway?
    */
   /*
   if (check_assertions) verifyCleanHeaders();
@@ -1313,7 +1332,8 @@ void Squeak_Interpreter::primitiveMakePoint() {
   popThenPush(2, pto->as_oop());
 }
 void Squeak_Interpreter::primitiveMarkHandlerMethod() {
-  // Primitive. Mark the method for exception handling. The primitive must fail after marking the context so that the regular code is run
+  // Primitive. Mark the method for exception handling. The primitive must
+  // fail after marking the context so that the regular code is run
   primitiveFail();
 }
 void Squeak_Interpreter::primitiveMarkUnwindMethod() {
@@ -1333,7 +1353,10 @@ static int ioCPUMSecs() {
 
 void Squeak_Interpreter::primitiveMillisecondClock() {
   /*
-   Return the value of the millisecond clock as an integer. Note that the millisecond clock wraps around periodically. On some platforms it can wrap daily. The range is limited to SmallInteger maxVal / 2 to allow delays of up to that length without overflowing a SmallInteger.
+   Return the value of the millisecond clock as an integer. Note that the
+   millisecond clock wraps around periodically. On some platforms it can wrap
+   daily. The range is limited to SmallInteger maxVal / 2 to allow delays of
+   up to that length without overflowing a SmallInteger.
    */
   popThenPush(1, Oop::from_int((CPU_Milliseconds_To_Run ? ioCPUMSecs() : ioMSecs()) & MillisecondClockMask));
 }

@@ -200,7 +200,11 @@ void Squeak_Interpreter::loadInitialContext() {
 
 void Squeak_Interpreter::initialCleanup() {
 
-	// "Images written by VMs earlier than 3.6/3.7 will wrongly have the root bit set on the active context. Besides clearing the root bit, we treat this as a marker that these images also lack a cleanup of external primitives (which has been introduced at the same time when the root bit problem was fixed). In this case, we merely flush them from here."
+	// "Images written by VMs earlier than 3.6/3.7 will wrongly have the root bit
+  //  set on the active context. Besides clearing the root bit, we treat this
+  //  as a marker that these images also lack a cleanup of external primitives
+  //  (which has been introduced at the same time when the root bit problem was
+  //  fixed). In this case, we merely flush them from here."
 
 	if (!(activeContext_obj()->baseHeader & Object::RootBit)) // "root bit is clean"
     return;
@@ -214,11 +218,11 @@ void Squeak_Interpreter::initialCleanup() {
 }
 
 void Squeak_Interpreter::flushExternalPrimitives() {
-	// "Flush the references to external functions from plugin
-	// primitives. This will force a reload of those primitives when
-	// accessed next.
-	// Note: We must flush the method cache here so that any
-	// failed primitives are looked up again."
+  // "Flush the references to external functions from plugin
+  // primitives. This will force a reload of those primitives when
+  // accessed next.
+  // Note: We must flush the method cache here so that any
+  // failed primitives are looked up again."
   //
   // return true iff found a call to primitiveThisProcerss
 
@@ -241,7 +245,13 @@ __attribute__((unused)) static u_char lastBC;
 __attribute__((unused)) static int lastBCCount;
 void Squeak_Interpreter::interpret() {
   /*
-   "This is the main interpreter loop. It normally loops forever, fetching and executing bytecodes. When running in the context of a browser plugin VM, however, it must return control to the browser periodically. This should done only when the state of the currently running Squeak thread is safely stored in the object heap. Since this is the case at the moment that a check for interrupts is performed, that is when we return to the browser if it is time to do so. Interrupt checks happen quite frequently."
+   "This is the main interpreter loop. It normally loops forever,
+    fetching and executing bytecodes. When running in the context of a browser
+    plugin VM, however, it must return control to the browser periodically.
+    This should done only when the state of the currently running Squeak thread
+    is safely stored in the object heap. Since this is the case at the moment
+    that a check for interrupts is performed, that is when we return to the
+    browser if it is time to do so. Interrupt checks happen quite frequently."
    */
 
   assert_message(Header_Type::Shift == 0  &&  Header_Type::Width >= Tag_Size,
@@ -874,7 +884,10 @@ Oop Squeak_Interpreter::modify_send_for_preheader_word(Oop rcvr) {
 
 
 bool Squeak_Interpreter::balancedStackAfterPrimitive(int delta, int primIdx, int nArgs, Oop pre_prim_active_context) {
-  // Return true if the stack is still balanced after executing primitive primIndex with nArgs args. Delta is 'stackPointer - activeContext' which is a relative measure for the stack pointer (so we don't have to relocate it during the primitive)
+  // Return true if the stack is still balanced after executing primitive
+  // primIndex with nArgs args. Delta is 'stackPointer - activeContext' which
+  // is a relative measure for the stack pointer
+  // (so we don't have to relocate it during the primitive)
   if (!do_I_hold_baton())
     return true; // prim gave up baton
   if (activeContext() != pre_prim_active_context)
@@ -1755,7 +1768,15 @@ void Squeak_Interpreter::commonAtPut(bool stringy) {
 
 void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool defer) {
    /*
-   "Change the class of the receiver into the class specified by the argument given that the format of the receiver matches the format of the argument. Fail if receiver or argument are SmallIntegers, or the receiver is an instance of a compact class and the argument isn't, or when the argument's class is compact and the receiver isn't, or when the format of the receiver is different from the format of the argument's class, or when the arguments class is fixed and the receiver's size differs from the size that an instance of the argument's class should have."
+   "Change the class of the receiver into the class specified by the argument
+    given that the format of the receiver matches the format of the argument.
+    
+    Fail if receiver or argument are SmallIntegers, or the receiver is an
+    instance of a compact class and the argument isn't, or when the argument's
+    class is compact and the receiver isn't, or when the format of the receiver
+    is different from the format of the argument's class, or when the arguments
+    class is fixed and the receiver's size differs from the size that an
+    instance of the argument's class should have."
    */
   Object* ro = rcvr.as_object();
   oop_int_t classHdr = argClass.as_object()->formatOfClass();
@@ -1848,7 +1869,11 @@ void Squeak_Interpreter::internalExecuteNewMethod() {
 
 void Squeak_Interpreter::executeNewMethod() {
   /*
-  execute a method not found in the mCache - which means that primitiveIndex must be manually set. Used by primitiveValue & primitiveExecuteMethod, where no lookup is previously done
+   execute a method not found in the mCache - which means
+   that primitiveIndex must be manually set.
+   
+   Used by primitiveValue & primitiveExecuteMethod,
+   where no lookup is previously done
    */
   if (primitiveIndex > 0) {
     primitiveResponse();
@@ -2152,8 +2177,12 @@ void Squeak_Interpreter::copyBitsFromtoat(oop_int_t x0, oop_int_t x1, oop_int_t 
 
 oop_int_t Squeak_Interpreter::ioFilenamefromStringofLengthresolveAliases(char* aCharBuffer, char* aFilenameString, oop_int_t filenameLength, oop_int_t resolveFlag) {
   /*
-   the vm has to convert aFilenameString via any canonicalization and char-mapping and put the result in aCharBuffer.
-   Note the resolveAliases flag - this is an awful artefact of OSX and Apples demented alias handling. When opening a file, the flag must be  true, when closing or renaming it must be false. Sigh.
+   the vm has to convert aFilenameString via any canonicalization and
+   char-mapping and put the result in aCharBuffer.
+   
+   Note the resolveAliases flag - this is an awful artefact of OSX and Apples
+   demented alias handling. When opening a file, the flag must be  true,
+   when closing or renaming it must be false. Sigh.
    */
   sqGetFilenameFromString(aCharBuffer, aFilenameString, filenameLength, resolveFlag);
   return 0;
@@ -2826,8 +2855,10 @@ void Squeak_Interpreter::subscript(Object* a, oop_int_t index, Oop value) {
 
 Logical_Core* Squeak_Interpreter::coreWithSufficientSpaceToInstantiate(Oop klass, oop_int_t indexableSize) {
   /*
-   "Return the number of bytes required to allocate an instance of the given class with the given number of indexable fields."
-   "Details: For speed, over-estimate space needed for fixed fields or literals; the low space threshold is a blurry line."
+   "Return the number of bytes required to allocate an instance of the given 
+    class with the given number of indexable fields."
+   "Details: For speed, over-estimate space needed for fixed fields or 
+    literals; the low space threshold is a blurry line."
    */
   int fmt = (klass.as_object()->formatOfClass() & Object::FormatMask) >> Object::FormatShift;
   if (indexableSize != 0  &&  Object::Format::has_only_fixed_fields(fmt)) // non-indexable
@@ -3200,8 +3231,8 @@ void Squeak_Interpreter::signal_emergency_semaphore() {
 bool Squeak_Interpreter::roomToPushNArgs(int n) {
   /*
    "Answer if there is room to push n arguments onto the current stack.
-	 There may be room in this stackPage but there may not be room if
-	 the frame were converted into a context."
+    There may be room in this stackPage but there may not be room if
+    the frame were converted into a context."
    */
   // compiler bug:
   int lcs = Object_Indices::LargeContextSize;

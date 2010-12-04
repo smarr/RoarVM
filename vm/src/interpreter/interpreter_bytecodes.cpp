@@ -149,10 +149,12 @@ void Squeak_Interpreter::singleExtendedSendBytecode() {
 }
 void Squeak_Interpreter::doubleExtendedDoAnythingBytecode() {
   /*
-   "Replaces the Blue Book double-extended send [132], in which the first byte was wasted on 8 bits of argument count.
-   Here we use 3 bits for the operation sub-type (opType),  and the remaining 5 bits for argument count where needed.
-   The last byte give access to 256 instVars or literals.
-   See also secondExtendedSendBytecode"
+   "Replaces the Blue Book double-extended send [132], in which the first byte 
+    was wasted on 8 bits of argument count.
+    Here we use 3 bits for the operation sub-type (opType),  and the remaining
+    5 bits for argument count where needed.
+    The last byte give access to 256 instVars or literals.
+    See also secondExtendedSendBytecode"
    */
   u_char b2 = fetchByte();
   u_char b3 = fetchByte();
@@ -832,9 +834,12 @@ void Squeak_Interpreter::storeRemoteTempInVectorAt(u_char indexIntoVector, u_cha
 
 
 void Squeak_Interpreter::pushClosureCopyCopiedValuesBytecode() {
-  /* "The compiler has pushed the values to be copied, if any.  Find numArgs and numCopied in the byte following.
-	 Create a Closure with space for the copiedValues and pop numCopied values off the stack into the closure.
-	 Set numArgs as specified, and set startpc to the pc following the block size and jump over that code."*/
+  /* "The compiler has pushed the values to be copied, if any.  Find numArgs 
+      and numCopied in the byte following.
+      Create a Closure with space for the copiedValues and pop numCopied
+      values off the stack into the closure.
+      Set numArgs as specified, and set startpc to the pc following the block
+      size and jump over that code."*/
   
   image_version = Squeak_Image_Reader::Post_Closure_32_Bit_Image_Version;
 
