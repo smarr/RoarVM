@@ -23,7 +23,9 @@ class Safepoint_Actions {
 
 // typedef Abstract_Mutex<Safepoint_Actions> Safepoint;
 
-// NOTE: Safepoint_for_moving_objects means I may do a GC, or move objects. In other words, change the locations of objects, or change the allocation pointers.
+// NOTE: Safepoint_for_moving_objects means I may do a GC, or move objects.
+// In other words, change the locations of objects, 
+// or change the allocation pointers.
 
 
 Define_RVM_Mutex(Safepoint_for_moving_objects, Safepoint_Actions,17,18)

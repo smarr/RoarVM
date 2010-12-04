@@ -56,9 +56,21 @@ void Squeak_Image_Reader::read_image() {
 /*
 
 readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
-	"Read an image from the given file stream, allocating the given amount of memory to its object heap. Fail if the image has an unknown format or requires more than the given amount of memory."
-	"Details: This method detects when the image was stored on a machine with the opposite byte ordering from this machine and swaps the bytes automatically. Furthermore, it allows the header information to start 512 bytes into the file, since some file transfer programs for the Macintosh apparently prepend a Mac-specific header of this size. Note that this same 512 bytes of prefix area could also be used to store an exec command on Unix systems, allowing one to launch Smalltalk by invoking the image name as a command."
-	"This code is based on C code by Ian Piumarta and Smalltalk code by Tim Rowledge. Many thanks to both of you!!"
+   "Read an image from the given file stream, allocating the given amount of
+    memory to its object heap. Fail if the image has an unknown format or
+    requires more than the given amount of memory."
+    
+   "Details: This method detects when the image was stored on a machine with
+    the opposite byte ordering from this machine and swaps the bytes
+    automatically. Furthermore, it allows the header information to start 512
+    bytes into the file, since some file transfer programs for the Macintosh
+    apparently prepend a Mac-specific header of this size. Note that this same
+    512 bytes of prefix area could also be used to store an exec command on
+    Unix systems, allowing one to launch Smalltalk by invoking the image name
+    as a command."
+    
+   "This code is based on C code by Ian Piumarta and Smalltalk code by Tim
+    Rowledge. Many thanks to both of you!!"
 */
 
   Object::verify_constants();
@@ -98,7 +110,8 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
 
 
 void Squeak_Image_Reader::imageNamePut_on_all_cores(char* bytes, unsigned int len) {
-  // Use a shared buffer to reduce the size of the message to optimize the footprint of message buffer allocation -- dmu & sm
+  // Use a shared buffer to reduce the size of the message to optimize the
+  // footprint of message buffer allocation -- dmu & sm
   char* shared_buffer = (char*)Memory_Semantics::shared_malloc(len);
   bcopy(bytes, shared_buffer, len);
   imageNamePutMessage_class m(shared_buffer, len);
@@ -151,7 +164,9 @@ int32 Squeak_Image_Reader::get_long() {
 }
 
 bool Squeak_Image_Reader::readable_format(int32 version) {
-  /* Check against a magic constant that changes when the image format changes. Since the image reading code uses this to detect byte ordering, one must avoid version numbers that are invariant under byte reversal. */
+  /* Check against a magic constant that changes when the image format
+     changes. Since the image reading code uses this to detect byte ordering,
+     one must avoid version numbers that are invariant under byte reversal. */
   return version == Pre_Closure_32_Bit_Image_Version ||  version == Post_Closure_32_Bit_Image_Version;
 }
 
