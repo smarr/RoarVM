@@ -39,8 +39,12 @@ inline Object_p Multicore_Object_Heap::allocate(oop_int_t byteSize, oop_int_t hd
                  bool doFill,
                  bool fillWithNil) {
 
-  /* "Allocate a new object of the given size and number of header words. (Note: byteSize already includes space for the base header word.) Initialize the header fields of the new object and fill the remainder of the object with the given value.
-   May cause a GC" */
+  /* "Allocate a new object of the given size and number of header words.
+      (Note: byteSize already includes space for the base header word.)
+      Initialize the header fields of the new object and fill the remainder of
+      the object with the given value.
+      
+      May cause a GC" */
 
   // "remap classOop in case GC happens during allocation"
   if (hdrSize > 1) The_Squeak_Interpreter()->pushRemappableOop(classOop);

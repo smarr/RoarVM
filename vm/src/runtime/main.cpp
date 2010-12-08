@@ -62,6 +62,10 @@ static void set_num_cores(char* num_cores_str) {
   else
     OS_Interface::die("bad argument syntax: needs to be `-num_cores <digit>'\n");
 
+# if On_Tilera
+  // TODO: put this into its own routine, and avoid the #if
+
+  // Calculate the dimensions of the rectangle fitting all cores
   int w, h;
   h = sqrt(num_cores);
   w = num_cores / h;
@@ -71,7 +75,7 @@ static void set_num_cores(char* num_cores_str) {
 
     assert(w * h >= num_cores);
   }
-# if On_Tilera
+
   CPU_Coordinate::set_width_height(w,  h);
 # endif
 }

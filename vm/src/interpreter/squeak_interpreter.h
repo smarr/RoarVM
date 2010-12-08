@@ -696,8 +696,10 @@ public:
 
   void superclassSend() {
     /*
-     "Send a message to self, starting lookup with the superclass of the class containing the currently executing method."
-     "Assume: messageSelector and get_argumentCount() have been set, and that the receiver and arguments have been pushed onto the stack,"
+     "Send a message to self, starting lookup with the superclass of the class
+      containing the currently executing method."
+     "Assume: messageSelector and get_argumentCount() have been set, and that 
+      the receiver and arguments have been pushed onto the stack,"
      */
     roots.lkupClass = method_obj()->methodClass().as_object()->superclass();
     assert(roots.lkupClass.verify_oop());
@@ -940,8 +942,11 @@ public:
 
   void quickCheckForInterrupts() {
     /*
-     "Quick check for possible user or timer interrupts. Decrement a counter and only do a real check when counter reaches zero or when a low space or user interrupt is pending."
-     "Note: Clients that trigger interrupts should set use forceInterruptCheck to set interruptCheckCounter to zero and get immediate results."
+     "Quick check for possible user or timer interrupts. Decrement a counter
+      and only do a real check when counter reaches zero or when a low space
+      or user interrupt is pending."
+     "Note: Clients that trigger interrupts should set use forceInterruptCheck
+      to set interruptCheckCounter to zero and get immediate results."
      "Note: Requires that instructionPointer and stackPointer be external."
      */
     if (--interruptCheckCounter <= 0) {
@@ -970,8 +975,9 @@ public:
     Object_Indices::SelectorStart +
     (mask &  (roots.messageSelector.is_int() ? roots.messageSelector.integerValue() : roots.messageSelector.as_object()->hashBits()));
     /*
-     "It is assumed that there are some nils in this dictionary, and search will
-     stop when one is encountered. However, if there are no nils, then wrapAround
+     "It is assumed that there are some nils in this dictionary, and search
+      will stop when one is encountered. However, if there are no nils, then
+      wrapAround
      will be detected the second time the loop gets to the end of the table."
      */
     bool wrapAround = false;
@@ -1379,7 +1385,8 @@ public:
  private:
   void check_for_multicore_interrupt() {
     assert(multicore_interrupt_check  ||  do_I_hold_baton());
-    // xxxxxx If set multicore_interrupt_check whenever yield_requested() will be true, could speed up this test.
+    // xxxxxx If set multicore_interrupt_check whenever yield_requested() 
+    //        will be true, could speed up this test.
     // -- dmu 4/09
     if (multicore_interrupt_check || yield_requested() || Message_Queue::are_data_available(my_core()))
        multicore_interrupt();

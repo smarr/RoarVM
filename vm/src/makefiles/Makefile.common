@@ -537,10 +537,10 @@ TEST_OBJS := $(TEST_SRC:.cpp=.o) \
 
 rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
 rvm-test : INCLUDES+=$(GTEST_INCLUDES)
-rvm-test: $(TEST_OBJS)
+rvm-test: libgtest.a $(TEST_OBJS)
 	$(CXX) -L. $(LIBS_LINKING) $(LDFLAGS) $(TEST_OBJS) -lm -lgtest $(TILERA_LIBS) -o $@
 
-test: libgtest.a rvm-test
+test: rvm-test
 	@./rvm-test
 
 clean:

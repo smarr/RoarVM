@@ -86,7 +86,8 @@ void Safepoint_Tracker::spin_if_safepoint_requested_with_arguments(const char* f
   if (!Safepoint_Ability::is_interpreter_able())
     return;
 
-  // need !is_spinning because otherwise will spin waiting for response message to I am spinning message
+  // need !is_spinning because otherwise will spin waiting for response
+  // message to I am spinning message
   if (does_another_core_need_me_to_spin()  &&  !am_spinning()) {
     if (verbose) lprintf( "spin_if_safepoint_requested about to spin, spin_depth %d\n", spin_depth());
     spin_in_safepoint(fn, file, line);
@@ -201,14 +202,16 @@ void Safepoint_Master_Control::a_core_is_now_safe(int r, int seq_no, bool was_sp
 
 
 void Safepoint_Master_Control::run() {
-  // Cannot just ask all needed spinners to spin because things change while waiting for the answer
+  // Cannot just ask all needed spinners to spin because things change while 
+  // waiting for the answer
   // Instead loop till outstanding requests matches what's needed
   while (step());
 }
 
 
 bool Safepoint_Master_Control::step() {
-  // Cannot just ask all needed spinners to spin because things change while waiting for the answer
+  // Cannot just ask all needed spinners to spin because things change while 
+  // waiting for the answer
   // Do one step, return true if did something
   if (verbose)  smc_printf("step");
   if (step_recurse_level > 0  &&  !spinners.includes(Logical_Core::my_rank()) /* might never run if I am spinning*/) {
@@ -232,7 +235,8 @@ bool Safepoint_Master_Control::step_towards_granting() {
 
   if (verbose)  smc_printf("step_towards_granting: spinners_needed_for_next_grantee 0x%llx", spinners_needed_for_next_grantee.contents());
 
-  // must ask myself to spin last, otherwise, recursion block will prevent me from finishing safepoint
+  // must ask myself to spin last, otherwise, recursion block will prevent me 
+  // from finishing safepoint
 
   return maybe_stop_a_spinner()
   ||     maybe_cancel_a_spin_request()
