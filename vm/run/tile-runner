@@ -1,7 +1,6 @@
 #!/bin/sh
 BASE_PATH=`pwd`
 tile-monitor --pci --rtc --bootrom-file /users/smarr/Projects/Tilera-custom-bootrom/vmlinux-pci-RVM.bootrom \
-        --debug-on-crash \
 	--huge-pages 80 --export /users/smarr/ --cd $BASE_PATH \
 	--env DISPLAY=134.184.43.183:0 --env SQUEAK_NOTIMER=1 --run \
 	--- \
