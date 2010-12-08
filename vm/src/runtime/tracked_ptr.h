@@ -95,6 +95,13 @@ public:
    * Cast operator to bool
    */
   operator bool() const {
+    return valid && ptr;
+  }
+  
+  /**
+   * Cast operator to void*
+   */
+  operator void*() const {
     return ptr;
   }
   
@@ -108,6 +115,16 @@ public:
     assert(is_valid());
     assert(ptr != NULL);
     return ptr;
+  }
+  
+  /**
+   * Make sure there is nobody doing something stupid with the address.
+   * Lets have it fail for now. In case there is a real need for it to work,
+   * it can be changed by removing the assert.
+   */
+  inline T** operator& () {
+    assert(false); // This assert is added to avoid surprises. Remove with caution!
+    return &ptr;
   }
   
   inline bool operator==(tracked_ptr const & t_ptr) const {
@@ -148,10 +165,13 @@ public:
     
 }; // tracked_ptr
 
+/* STEFAN: this is not necessary for the moment, the bool() conversion operator
+           is sufficient. And, overloading && breaks short circuiting, so stay
+           away here! -- 2010-12-09
 template<typename T>
 inline bool operator&&(const bool a, tracked_ptr<T> const & t_ptr) {
   return a && t_ptr.is_valid() && t_ptr.get();
-} 
+} */
 
 template<typename T>
 inline bool operator==(const bool a, tracked_ptr<T> const & t_ptr) {

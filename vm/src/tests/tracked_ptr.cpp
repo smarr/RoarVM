@@ -500,3 +500,31 @@ TEST(TrackedPointer, TernaryOperator) {
   bar_p = NULL;
   ASSERT_FALSE(bar_p ? true : false);
 }
+
+TEST(TrackedPointer, ReferenceOperator) {
+  // compiler check
+  int i = 0;
+  int* i_p = &i;
+  // compiler check done
+  
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  MyClass** bar_pp;
+  
+  ASSERT_DEATH(bar_pp = &bar_p, "");  //We want that to fail for the moment!
+  
+  // REM: if we don't want it to fail, then the following should hold:
+  //  ASSERT_EQ(*bar_pp, bar);
+  //  ASSERT_NE((MyClass*)NULL, bar);
+}
+
+TEST(TrackedPointer, CastVoidP) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  void* bar_v = (void*)bar_p;
+  
+  ASSERT_EQ(bar_v, bar);
+  ASSERT_NE((void*)NULL, bar_v);
+}
