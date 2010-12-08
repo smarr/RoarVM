@@ -230,7 +230,9 @@ inline void    Object::storeByte( oop_int_t byteIndex, u_char valueByte) {
 inline Oop& Object::pointer_at(oop_int_t fieldIndex) {
   return as_oop_p()[BaseHeaderSize / sizeof(Oop)  +  fieldIndex];
 }
+
 inline Oop  Object::fetchPointer(oop_int_t fieldIndex) {
+  assert(fieldIndex >= 0); // STEFAN that should always hold, shouldn't it?
   Oop r;
   MEASURE(fetch_pointer, r.bits(), r = pointer_at(fieldIndex));
   return r;
