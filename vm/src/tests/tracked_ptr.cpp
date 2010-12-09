@@ -474,6 +474,29 @@ TEST(TrackedPointer, ComparisonWithBoolean) {
 }
 
 /**
+ * Ensure that the short-circuiting of && works properly.
+ */
+tracked_ptr<MyClass> _helperThatShouldBeNeverCalled(bool& wasNeverCalled, MyClass* bar) {
+  wasNeverCalled = false;
+  return tracked_ptr<MyClass>(bar);
+}
+bool _helperThatShouldBeCalledAlways(bool& wasCalled) {
+  wasCalled = true;
+  return false;
+}
+TEST(TrackedPointer, ShortCircuiting) {
+  MyClass* bar = new MyClass();
+  
+  bool shouldStayTrue = true;
+  bool shouldBecomeTrue = false;
+  
+  bool testResult = _helperThatShouldBeCalledAlways(shouldBecomeTrue) && _helperThatShouldBeNeverCalled(shouldStayTrue, bar);
+  ASSERT_FALSE(testResult);
+  ASSERT_TRUE(shouldStayTrue);
+  ASSERT_TRUE(shouldBecomeTrue);
+}
+
+/**
  * Do casts do the right thing?
  */
 TEST(TrackedPointer, Casts) {
