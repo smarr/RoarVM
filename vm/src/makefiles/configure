@@ -10,6 +10,7 @@ echo_usage () {
     echo "    --opt-workaround    Reduce optimization level for problematic files"
     echo
     echo "    --debug"
+    echo "    --enforce-opt       Should be used together with --debug to enforce full optimization"
     echo
     echo "Libraries:"
     echo "    --x11-lib <path>    Path to the X11 lib folder"
@@ -29,6 +30,7 @@ OPERATING_SYSTEM=`uname`
 USE_TILERA=0
 OPT_WORKAROUND=0
 DEBUG=0
+ENFORCE_OPT=0
 #CC=
 #CXX=
 CONFIGURE_ARGS="$@"
@@ -52,6 +54,10 @@ do
     ;;
     --debug)
       DEBUG=1
+      shift 1
+    ;;
+    --enforce-opt)
+      ENFORCE_OPT=1
       shift 1
     ;;
     --x11-lib)
@@ -92,8 +98,11 @@ then
     CONFIG_FLAGS="$CONFIG_FLAGS"
 else
     CONFIG_FLAGS="$CONFIG_FLAGS -g3 -Dcheck_assertions=1 -Dcheck_many_assertions=1 -DTrace_Execution=0"
-	LOW_OPTIMIZE_LEVEL=-O0
-	HIGH_OPTIMIZE_LEVEL=-O0
+	if [ $ENFORCE_OPT -eq 0 ]
+    then
+	    LOW_OPTIMIZE_LEVEL=-O0
+	    HIGH_OPTIMIZE_LEVEL=-O0
+    fi
 fi
 
 if [ $USE_TILERA -eq 0 ]
