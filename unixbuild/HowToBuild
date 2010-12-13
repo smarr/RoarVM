@@ -1,0 +1,64 @@
+How to build the Cog Croquet VM on Unix
+-------------------------------
+1. Install the tools (gcc, X11-devel, etc (e.g. libpng, libX11 & libxt source))
+2. Check out the following sources from svn (if you haven't already - if you're
+   reading this in unixbuild its likely you've already got the sources)
+     svn co http://www.squeakvm.org/svn/squeak/branches/Cog/platforms
+     svn co http://www.squeakvm.org/svn/squeak/branches/Cog/src
+     svn co http://www.squeakvm.org/svn/squeak/branches/Cog/unixbuild
+3. Open a shell, cd into the unixbuild/bld directory and execute
+     ../../platforms/unix/config/configure CFLAGS="-g -O2 -msse2 -D_GNU_SOURCE -DNDEBUG -DITIMER_HEARTBEAT=1 -DNO_VM_PROFILE=1 -DCOGMTVM=0 -DDEBUGVM=0" LIBS=-lpthread
+     make install prefix=WhereYouWantTheVmToGo
+
+	N.B.  On Ubuntu *do not* supply "LIBS=-lpthread", i.e. use
+     ../../platforms/unix/config/configure CFLAGS="-g -O2 -msse2 -D_GNU_SOURCE -DNDEBUG -DITIMER_HEARTBEAT=1 -DNO_VM_PROFILE=1 -DCOGMTVM=0 -DDEBUGVM=0"
+
+4. At the end of it you'll get a new VM in the path provided via -prefix
+
+
+3a. For an assert-enabled VM do
+     ../../platforms/unix/config/configure --without-vm-display-fbdev --without-npsqueak -prefix=/home/qwaq/qwaqvm/ CFLAGS="-g -O1 -msse2 -D_GNU_SOURCE -DITIMER_HEARTBEAT=1 -DNO_VM_PROFILE=1 -DCOGMTVM=0 -DDEBUGVM=0" LIBS=-lpthread
+
+3b. For a full debug VM do
+     ../../platforms/unix/config/configure --without-vm-display-fbdev --without-npsqueak -prefix=/home/qwaq/qwaqvm/ CFLAGS="-g3 -msse2 -D_GNU_SOURCE -DITIMER_HEARTBEAT=1 -DNO_VM_PROFILE=1 -DCOGMTVM=0 -DDEBUGVM=1" LIBS=-lpthread
+
+N.B.  As of early 2010 the linux pthreads implementation doesn't appear to
+provide a way of setting priorities for the default thread scheduling policy
+SCHED_OTHER (unlike e.g. Mac OS X) and doesn't appear to allow changing the
+policy to one that does (e.g. SCHED_RR).  So for now we use the itimer
+scheme.  See platforms/unix/vm/sqUnixHeartbeat.c
+
+3c. If you want to get the Cog VM simulator working you'll need to build the
+BochsIA32Plugin/BochsIA32Plugin.xcodeproj project and to build that you'll
+need to first build bochs.  First check-out the processor simulator source tree
+containing Bochs:
+     svn co http://www.squeakvm.org/svn/squeak/branches/Cog/processors
+Then build using the following, which works on Mac OS and is hence likely to
+work on linux:
+  $ cd ROOT/processors/IA32/bochs
+  $ ./conf.COG
+  $ ./makeem
+  $ cd ROOT/macbuild/BochsIA32Plugin
+  $ xcodebuild
+
+3d. If you're building the VM on a 64-bit OS, you'll need a compiler which can
+compile and link to 32-bit binaries. On most Linuxes the gcc-multilib package
+provides the 32-bit compiler and the ia32-libs provides the 32-bit libraries.
+You'll also have to add the -m32 switch to all gcc & g++ invocations.  The
+easiest way to do this is to add CC="gcc -m32" & CXX="g++ -m32" to the configure
+script:
+     ../../platforms/unix/config/configure CC="gcc -m32" CXX="g++ -m32" CFLAGS="-g -O2 -msse2 -D_GNU_SOURCE -DNDEBUG -DITIMER_HEARTBEAT=1 -DNO_VM_PROFILE=1 -DCOGMTVM=0" LIBS=-lpthread
+To run a 32-bit VM on a 64-bit OS, you'll also need the 32-bit libraries
+provided by the ia32-libs package.
+
+
+According to Paul DeBruicker  the following packages need to be installed to
+compile in 32-bt mode on 64-bit ubuntu.  YMMV.
+
+lib32asound2-dev
+libgl1-mesa-dev
+libglu1-mesa-dev
+build-essential
+ia32-libs
+gcc-multilib
+g++multilib
