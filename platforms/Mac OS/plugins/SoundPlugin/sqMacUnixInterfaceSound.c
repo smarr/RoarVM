@@ -39,14 +39,14 @@ int snd_AvailableSpace(void)
   return sound_AvailableSpace();
 }
 
-int snd_InsertSamplesFromLeadTime(int frameCount, int srcBufPtr, int samplesOfLeadTime)
+sqInt snd_InsertSamplesFromLeadTime(sqInt frameCount, void * srcBufPtr, sqInt samplesOfLeadTime)
 {
-  return sound_InsertSamplesFromLeadTime(frameCount, srcBufPtr, samplesOfLeadTime);
+  return sound_InsertSamplesFromLeadTime(frameCount, (int)srcBufPtr, samplesOfLeadTime);
 }
 
-int snd_PlaySamplesFromAtLength(int frameCount, int arrayIndex, int startIndex)
+sqInt snd_PlaySamplesFromAtLength(sqInt frameCount, void *srcBufPtr, sqInt startIndex)
 {
-  return sound_PlaySamplesFromAtLength(frameCount, arrayIndex, startIndex);
+  return sound_PlaySamplesFromAtLength(frameCount, (int) srcBufPtr, startIndex);
 }
 
 int snd_PlaySilence(void)
@@ -81,9 +81,9 @@ double snd_GetRecordingSampleRate(void)
   return sound_GetRecordingSampleRate();
 }
 
-int snd_RecordSamplesIntoAtLength(int buf, int startSliceIndex, int bufferSizeInBytes)
+sqInt snd_RecordSamplesIntoAtLength(void * buf, sqInt startSliceIndex, sqInt bufferSizeInBytes)
 {
-  return sound_RecordSamplesIntoAtLength(buf, startSliceIndex, bufferSizeInBytes);
+  return sound_RecordSamplesIntoAtLength((int)buf, startSliceIndex, bufferSizeInBytes);
 }
 
 /* Acoustic echo-cancellation (AEC) is not supported on Macintosh yet. */
@@ -108,8 +108,8 @@ void snd_Volume(double *left, double *right)	{
 	sound_Volume(left, right); }
 void snd_SetVolume(double left, double right)	{ 
 	sound_SetVolume(left, right); }
-int  snd_SetRecordLevel(int level)		{ 
-	return sound_SetRecordLevel(level); }
+void snd_SetRecordLevel(sqInt level)		{ 
+	 sound_SetRecordLevel(level); }
 int  snd_GetRecordLevel(void)		{	// howard.stearns@qwaq.com October 24 2008
 	return sound_GetRecordLevel(); }
 

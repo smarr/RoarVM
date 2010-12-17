@@ -413,7 +413,7 @@ static void * copy124BitsTheHardWay(unsigned int* dispBitsIndex, int width, int 
 	int affectedL, int affectedR, int affectedT, int affectedB, int windowIndex, int *pitch);
 
 int ioShowDisplayOnWindow(
-	unsigned int*  dispBitsIndex, int width, int height, int depth,
+	unsigned char*  dispBitsIndex, int width, int height, int depth,
 	int affectedL, int affectedR, int affectedT, int affectedB, int windowIndex) {
 
 	static CGColorSpaceRef colorspace = NULL;
