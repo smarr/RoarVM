@@ -517,7 +517,7 @@
 		947E64CA10AA16FE00D3B69E /* sqSqueakOSXApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqSqueakOSXApplication.h; path = vm/OSX/sqSqueakOSXApplication.h; sourceTree = "<group>"; };
 		947E64CB10AA16FE00D3B69E /* sqSqueakOSXApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sqSqueakOSXApplication.m; path = vm/OSX/sqSqueakOSXApplication.m; sourceTree = "<group>"; };
 		947E64DD10AA18FE00D3B69E /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		94883B400E0C2B9C005A4738 /* sqUnixSocket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqUnixSocket.c; path = ../../../../../Cog5x/platforms/unix/plugins/SocketPlugin/sqUnixSocket.c; sourceTree = "<group>"; };
+		94883B400E0C2B9C005A4738 /* sqUnixSocket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSocket.c; sourceTree = "<group>"; };
 		948EC38F1155312600B08A4F /* MainWindow-iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "MainWindow-iPad.xib"; path = "Resources-iPad/MainWindow-iPad.xib"; sourceTree = "<group>"; };
 		9492452F10BA43AA00E726F5 /* SqueakOSXApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SqueakOSXApplication.h; path = vm/OSX/SqueakOSXApplication.h; sourceTree = "<group>"; };
 		9492453010BA43AA00E726F5 /* SqueakOSXApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SqueakOSXApplication.m; path = vm/OSX/SqueakOSXApplication.m; sourceTree = "<group>"; };
@@ -630,7 +630,7 @@
 		94E6591A0DDD03FE00358328 /* StarSqueakPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = StarSqueakPlugin.c; sourceTree = "<group>"; };
 		94E6591D0DDD03FE00358328 /* UUIDPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = UUIDPlugin.c; sourceTree = "<group>"; };
 		94E6591F0DDD03FE00358328 /* ZipPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZipPlugin.c; sourceTree = "<group>"; };
-		94E659200DDD03FE00358328 /* sqNamedPrims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqNamedPrims.h; path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/sqNamedPrims.h; sourceTree = "<absolute>"; };
+		94E659200DDD03FE00358328 /* sqNamedPrims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqNamedPrims.h; path = src/vm/sqNamedPrims.h; sourceTree = SOURCE_ROOT; };
 		94E659430DDD04FA00358328 /* AsynchFilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsynchFilePlugin.h; sourceTree = "<group>"; };
 		94E659450DDD04FA00358328 /* FilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilePlugin.h; sourceTree = "<group>"; };
 		94E659460DDD04FA00358328 /* sqFilePluginBasicPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqFilePluginBasicPrims.c; sourceTree = "<group>"; };
@@ -890,8 +890,8 @@
 				94210B280E956AC200C1A314 /* ObjectiveCPlugin.c */,
 			);
 			name = ObjectiveCPlugin;
-			path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/ObjectiveCPlugin;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/ObjectiveCPlugin;
+			sourceTree = SOURCE_ROOT;
 		};
 		9424FF570DDCB17F009912BF /* platforms */ = {
 			isa = PBXGroup;
@@ -1040,8 +1040,8 @@
 				94584F6110F020BD001401E7 /* ClipboardExtendedPlugin.c */,
 			);
 			name = ClipboardExtendedPlugin;
-			path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/ClipboardExtendedPlugin;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/ClipboardExtendedPlugin;
+			sourceTree = SOURCE_ROOT;
 		};
 		94584FD810F02378001401E7 /* ClipboardExtended */ = {
 			isa = PBXGroup;
@@ -1139,8 +1139,8 @@
 				947E20F50EB281C5007957D0 /* SqueakFFIPrims.c */,
 			);
 			name = SqueakFFIPrims;
-			path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/SqueakFFIPrims;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/SqueakFFIPrims;
+			sourceTree = SOURCE_ROOT;
 		};
 		947E20F80EB2826C007957D0 /* SqueakFFIPrims */ = {
 			isa = PBXGroup;
@@ -1223,9 +1223,8 @@
 				94883B400E0C2B9C005A4738 /* sqUnixSocket.c */,
 				949493BF11E52ADE0019BC29 /* aio.c */,
 			);
-			name = SocketPlugin;
-			path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/unix/plugins/SocketPlugin;
-			sourceTree = "<absolute>";
+			path = SocketPlugin;
+			sourceTree = "<group>";
 		};
 		948EC38E1155311D00B08A4F /* Resources-iPad */ = {
 			isa = PBXGroup;
@@ -1339,9 +1338,8 @@
 			children = (
 				94BCE7870DDDF61200F38F31 /* sqUnixUUID.c */,
 			);
-			name = UUIDPlugin;
-			path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/unix/plugins/UUIDPlugin;
-			sourceTree = "<absolute>";
+			path = UUIDPlugin;
+			sourceTree = "<group>";
 		};
 		94BCEAF10DDE16B400F38F31 /* SecurityPlugin */ = {
 			isa = PBXGroup;
@@ -1522,8 +1520,8 @@
 				94E658FA0DDD03FE00358328 /* HostWindowPlugin.c */,
 			);
 			name = HostWindowPlugin;
-			path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/HostWindowPlugin;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/HostWindowPlugin;
+			sourceTree = SOURCE_ROOT;
 		};
 		94E658FD0DDD03FE00358328 /* JPEGReaderPlugin */ = {
 			isa = PBXGroup;
@@ -1627,8 +1625,8 @@
 				94E659160DDD03FE00358328 /* SoundPlugin.c */,
 			);
 			name = SoundPlugin;
-			path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/SoundPlugin;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/SoundPlugin;
+			sourceTree = SOURCE_ROOT;
 		};
 		94E659170DDD03FE00358328 /* Squeak3D */ = {
 			isa = PBXGroup;
@@ -1636,8 +1634,8 @@
 				94E659180DDD03FE00358328 /* Squeak3D.c */,
 			);
 			name = Squeak3D;
-			path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/Squeak3D;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/Squeak3D;
+			sourceTree = SOURCE_ROOT;
 		};
 		94E659190DDD03FE00358328 /* StarSqueakPlugin */ = {
 			isa = PBXGroup;

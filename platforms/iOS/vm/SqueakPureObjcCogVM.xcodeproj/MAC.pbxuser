@@ -1,17 +1,5 @@
 // !$*UTF8*$!
 {
-	041883BE12C0CC5E001D3867 /* sqSqueakMainApplication+attributes.m */ = {
-		isa = PBXFileReference;
-		lastKnownFileType = sourcecode.c.objc;
-		name = "sqSqueakMainApplication+attributes.m";
-		path = "/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/Common/Classes/sqSqueakMainApplication+attributes.m";
-		sourceTree = "<absolute>";
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {679, 1300}}";
-			sepNavSelRange = "{296, 0}";
-			sepNavVisRange = "{0, 1221}";
-		};
-	};
 	043F2D5E12C2D42F003DD14E /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 94F879900E6C0C7E00662DEA /* sqSqueakIPhoneInfoPlistInterface.m */;
@@ -52,61 +40,6 @@
 		vrLen = 647;
 		vrLoc = 0;
 	};
-	043F2D6412C2D82B003DD14E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 94E659200DDD03FE00358328 /* sqNamedPrims.h */;
-		name = "sqNamedPrims.h: 9";
-		rLen = 0;
-		rLoc = 284;
-		rType = 0;
-		vrLen = 1057;
-		vrLoc = 0;
-	};
-	043F2D6512C2D82B003DD14E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 041883BE12C0CC5E001D3867 /* sqSqueakMainApplication+attributes.m */;
-		name = "sqSqueakMainApplication+attributes.m: 10";
-		rLen = 0;
-		rLoc = 296;
-		rType = 0;
-		vrLen = 1221;
-		vrLoc = 0;
-	};
-	043F2D6612C2D82B003DD14E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 043F2D6712C2D82B003DD14E /* squeakProxy.m */;
-		rLen = 0;
-		rLoc = 9223372036854775807;
-		rType = 0;
-	};
-	043F2D6712C2D82B003DD14E /* squeakProxy.m */ = {
-		isa = PBXFileReference;
-		lastKnownFileType = sourcecode.c.objc;
-		name = squeakProxy.m;
-		path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/plugins/SqueakObjectiveC/squeakProxy.m;
-		sourceTree = "<absolute>";
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {679, 2613}}";
-			sepNavSelRange = "{169, 0}";
-			sepNavVisRange = "{0, 941}";
-		};
-	};
-	043F2D6812C2D82B003DD14E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 043F2D6912C2D82B003DD14E /* squeakProxy.m */;
-		name = "squeakProxy.m: 8";
-		rLen = 0;
-		rLoc = 169;
-		rType = 0;
-		vrLen = 941;
-		vrLoc = 0;
-	};
-	043F2D6912C2D82B003DD14E /* squeakProxy.m */ = {
-		isa = PBXFileReference;
-		name = squeakProxy.m;
-		path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/plugins/SqueakObjectiveC/squeakProxy.m;
-		sourceTree = "<absolute>";
-	};
 	0477FABF12C188A200EB4B40 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 0477FAC012C188A200EB4B40 /* stdio.h */;
@@ -122,23 +55,6 @@
 		lastKnownFileType = sourcecode.c.h;
 		name = stdio.h;
 		path = /Developer/SDKs/MacOSX10.5.sdk/usr/include/stdio.h;
-		sourceTree = "<absolute>";
-	};
-	0477FAC112C188A200EB4B40 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 0477FAC212C188A200EB4B40 /* sqPlatformSpecific.h */;
-		name = "sqPlatformSpecific.h: 87";
-		rLen = 5;
-		rLoc = 3291;
-		rType = 0;
-		vrLen = 1007;
-		vrLoc = 2827;
-	};
-	0477FAC212C188A200EB4B40 /* sqPlatformSpecific.h */ = {
-		isa = PBXFileReference;
-		lastKnownFileType = sourcecode.c.h;
-		name = sqPlatformSpecific.h;
-		path = /Users/MAC/Desktop/Dev/VMBuild/Cog5x/platforms/unix/vm/sqPlatformSpecific.h;
 		sourceTree = "<absolute>";
 	};
 	0477FB1112C1969D00EB4B40 /* PBXTextBookmark */ = {
@@ -182,16 +98,6 @@
 	0477FB2312C1977D00EB4B40 /* PBXBookmark */ = {
 		isa = PBXBookmark;
 		fRef = 9414421F10BC89440088F8AC /* SqueakChanges.icns */;
-	};
-	0477FB2412C1977D00EB4B40 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 947E20F50EB281C5007957D0 /* SqueakFFIPrims.c */;
-		name = "SqueakFFIPrims.c: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 818;
-		vrLoc = 0;
 	};
 	0477FB2512C1977D00EB4B40 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -396,33 +302,6 @@
 		vrLen = 751;
 		vrLoc = 0;
 	};
-	0477FB3F12C1980C00EB4B40 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 94883B400E0C2B9C005A4738 /* sqUnixSocket.c */;
-		name = "sqUnixSocket.c: 5";
-		rLen = 0;
-		rLoc = 207;
-		rType = 0;
-		vrLen = 1405;
-		vrLoc = 0;
-	};
-	0477FB5212C2110D00EB4B40 /* sqUnixSocket.c */ = {
-		isa = PBXFileReference;
-		lastKnownFileType = sourcecode.c.c;
-		name = sqUnixSocket.c;
-		path = /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/unix/plugins/SocketPlugin/sqUnixSocket.c;
-		sourceTree = "<absolute>";
-	};
-	04E0703A12C2D04C007397EE /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 0477FB5212C2110D00EB4B40 /* sqUnixSocket.c */;
-		name = "sqUnixSocket.c: 35";
-		rLen = 0;
-		rLoc = 1585;
-		rType = 0;
-		vrLen = 811;
-		vrLoc = 1106;
-	};
 	04E0703B12C2D04C007397EE /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 94E658E40DDD03FE00358328 /* ADPCMCodecPlugin.c */;
@@ -597,8 +476,8 @@
 	};
 	29B97313FDCFA39411CA2CEA /* Project object */ = {
 		activeBuildConfigurationName = Distribution;
-		activeExecutable = 04F521B312B78AED0063E79B /* SqueakNoOGLIPhone */;
-		activeTarget = 1D6058900D05DD3D006BFB54 /* SqueakNoOGLIPhone */;
+		activeExecutable = 04F521B412B78AED0063E79B /* SqueakPureObjc */;
+		activeTarget = 947E626F10AA098300D3B69E /* SqueakPureObjc */;
 		codeSenseManager = 04F521BF12B78AF70063E79B /* Code sense */;
 		executables = (
 			04F521B312B78AED0063E79B /* SqueakNoOGLIPhone */,
@@ -627,59 +506,51 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 314757870;
-			PBXWorkspaceStateSaveDate = 314757870;
+			PBXPerProjectTemplateStateSaveDate = 314805480;
+			PBXWorkspaceStateSaveDate = 314805480;
 		};
 		perUserProjectItems = {
-			043F2D5E12C2D42F003DD14E /* PBXTextBookmark */ = 043F2D5E12C2D42F003DD14E /* PBXTextBookmark */;
-			043F2D5F12C2D42F003DD14E /* PBXTextBookmark */ = 043F2D5F12C2D42F003DD14E /* PBXTextBookmark */;
-			043F2D6012C2D42F003DD14E /* PBXTextBookmark */ = 043F2D6012C2D42F003DD14E /* PBXTextBookmark */;
-			043F2D6112C2D42F003DD14E /* PBXTextBookmark */ = 043F2D6112C2D42F003DD14E /* PBXTextBookmark */;
-			043F2D6412C2D82B003DD14E /* PBXTextBookmark */ = 043F2D6412C2D82B003DD14E /* PBXTextBookmark */;
-			043F2D6512C2D82B003DD14E /* PBXTextBookmark */ = 043F2D6512C2D82B003DD14E /* PBXTextBookmark */;
-			043F2D6612C2D82B003DD14E /* PBXTextBookmark */ = 043F2D6612C2D82B003DD14E /* PBXTextBookmark */;
-			043F2D6812C2D82B003DD14E /* PBXTextBookmark */ = 043F2D6812C2D82B003DD14E /* PBXTextBookmark */;
-			0477FABF12C188A200EB4B40 /* PBXTextBookmark */ = 0477FABF12C188A200EB4B40 /* PBXTextBookmark */;
-			0477FAC112C188A200EB4B40 /* PBXTextBookmark */ = 0477FAC112C188A200EB4B40 /* PBXTextBookmark */;
-			0477FB1112C1969D00EB4B40 /* PBXTextBookmark */ = 0477FB1112C1969D00EB4B40 /* PBXTextBookmark */;
-			0477FB1212C1969D00EB4B40 /* PBXTextBookmark */ = 0477FB1212C1969D00EB4B40 /* PBXTextBookmark */;
-			0477FB1E12C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB1E12C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2112C1977D00EB4B40 /* PBXBookmark */ = 0477FB2112C1977D00EB4B40 /* PBXBookmark */;
-			0477FB2212C1977D00EB4B40 /* PBXBookmark */ = 0477FB2212C1977D00EB4B40 /* PBXBookmark */;
-			0477FB2312C1977D00EB4B40 /* PBXBookmark */ = 0477FB2312C1977D00EB4B40 /* PBXBookmark */;
-			0477FB2412C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB2412C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2512C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB2512C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2612C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB2612C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2712C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB2712C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2812C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB2812C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2912C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB2912C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2A12C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB2A12C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2B12C1977D00EB4B40 /* PBXBookmark */ = 0477FB2B12C1977D00EB4B40 /* PBXBookmark */;
-			0477FB2C12C1977D00EB4B40 /* PBXBookmark */ = 0477FB2C12C1977D00EB4B40 /* PBXBookmark */;
-			0477FB2D12C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB2D12C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2E12C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB2E12C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB2F12C1977D00EB4B40 /* PlistBookmark */ = 0477FB2F12C1977D00EB4B40 /* PlistBookmark */;
-			0477FB3012C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3012C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3112C1977D00EB4B40 /* PBXBookmark */ = 0477FB3112C1977D00EB4B40 /* PBXBookmark */;
-			0477FB3212C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3212C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3312C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3312C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3412C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3412C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3512C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3512C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3612C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3612C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3712C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3712C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3812C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3812C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3912C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3912C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3A12C1977D00EB4B40 /* PBXTextBookmark */ = 0477FB3A12C1977D00EB4B40 /* PBXTextBookmark */;
-			0477FB3F12C1980C00EB4B40 /* PBXTextBookmark */ = 0477FB3F12C1980C00EB4B40 /* PBXTextBookmark */;
-			04E0703A12C2D04C007397EE /* PBXTextBookmark */ = 04E0703A12C2D04C007397EE /* PBXTextBookmark */;
-			04E0703B12C2D04C007397EE /* PBXTextBookmark */ = 04E0703B12C2D04C007397EE /* PBXTextBookmark */;
-			04E0703C12C2D04C007397EE /* PBXTextBookmark */ = 04E0703C12C2D04C007397EE /* PBXTextBookmark */;
-			04E0703E12C2D04C007397EE /* PBXTextBookmark */ = 04E0703E12C2D04C007397EE /* PBXTextBookmark */;
-			04E0703F12C2D04C007397EE /* PBXTextBookmark */ = 04E0703F12C2D04C007397EE /* PBXTextBookmark */;
-			04E0704012C2D04C007397EE /* PBXTextBookmark */ = 04E0704012C2D04C007397EE /* PBXTextBookmark */;
-			04E0704112C2D04C007397EE /* PBXTextBookmark */ = 04E0704112C2D04C007397EE /* PBXTextBookmark */;
-			04E0704212C2D04C007397EE /* PBXTextBookmark */ = 04E0704212C2D04C007397EE /* PBXTextBookmark */;
-			04F521C112B78B350063E79B /* PBXTextBookmark */ = 04F521C112B78B350063E79B /* PBXTextBookmark */;
+			043F2D5E12C2D42F003DD14E = 043F2D5E12C2D42F003DD14E /* PBXTextBookmark */;
+			043F2D5F12C2D42F003DD14E = 043F2D5F12C2D42F003DD14E /* PBXTextBookmark */;
+			043F2D6012C2D42F003DD14E = 043F2D6012C2D42F003DD14E /* PBXTextBookmark */;
+			043F2D6112C2D42F003DD14E = 043F2D6112C2D42F003DD14E /* PBXTextBookmark */;
+			0477FABF12C188A200EB4B40 = 0477FABF12C188A200EB4B40 /* PBXTextBookmark */;
+			0477FB1112C1969D00EB4B40 = 0477FB1112C1969D00EB4B40 /* PBXTextBookmark */;
+			0477FB1212C1969D00EB4B40 = 0477FB1212C1969D00EB4B40 /* PBXTextBookmark */;
+			0477FB1E12C1977D00EB4B40 = 0477FB1E12C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB2112C1977D00EB4B40 = 0477FB2112C1977D00EB4B40 /* PBXBookmark */;
+			0477FB2212C1977D00EB4B40 = 0477FB2212C1977D00EB4B40 /* PBXBookmark */;
+			0477FB2312C1977D00EB4B40 = 0477FB2312C1977D00EB4B40 /* PBXBookmark */;
+			0477FB2512C1977D00EB4B40 = 0477FB2512C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB2612C1977D00EB4B40 = 0477FB2612C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB2712C1977D00EB4B40 = 0477FB2712C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB2812C1977D00EB4B40 = 0477FB2812C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB2912C1977D00EB4B40 = 0477FB2912C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB2A12C1977D00EB4B40 = 0477FB2A12C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB2B12C1977D00EB4B40 = 0477FB2B12C1977D00EB4B40 /* PBXBookmark */;
+			0477FB2C12C1977D00EB4B40 = 0477FB2C12C1977D00EB4B40 /* PBXBookmark */;
+			0477FB2D12C1977D00EB4B40 = 0477FB2D12C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB2E12C1977D00EB4B40 = 0477FB2E12C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB2F12C1977D00EB4B40 = 0477FB2F12C1977D00EB4B40 /* PlistBookmark */;
+			0477FB3012C1977D00EB4B40 = 0477FB3012C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB3112C1977D00EB4B40 = 0477FB3112C1977D00EB4B40 /* PBXBookmark */;
+			0477FB3212C1977D00EB4B40 = 0477FB3212C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB3312C1977D00EB4B40 = 0477FB3312C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB3412C1977D00EB4B40 = 0477FB3412C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB3512C1977D00EB4B40 = 0477FB3512C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB3612C1977D00EB4B40 = 0477FB3612C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB3712C1977D00EB4B40 = 0477FB3712C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB3812C1977D00EB4B40 = 0477FB3812C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB3912C1977D00EB4B40 = 0477FB3912C1977D00EB4B40 /* PBXTextBookmark */;
+			0477FB3A12C1977D00EB4B40 = 0477FB3A12C1977D00EB4B40 /* PBXTextBookmark */;
+			04E0703B12C2D04C007397EE = 04E0703B12C2D04C007397EE /* PBXTextBookmark */;
+			04E0703C12C2D04C007397EE = 04E0703C12C2D04C007397EE /* PBXTextBookmark */;
+			04E0703E12C2D04C007397EE = 04E0703E12C2D04C007397EE /* PBXTextBookmark */;
+			04E0703F12C2D04C007397EE = 04E0703F12C2D04C007397EE /* PBXTextBookmark */;
+			04E0704012C2D04C007397EE = 04E0704012C2D04C007397EE /* PBXTextBookmark */;
+			04E0704112C2D04C007397EE = 04E0704112C2D04C007397EE /* PBXTextBookmark */;
+			04E0704212C2D04C007397EE = 04E0704212C2D04C007397EE /* PBXTextBookmark */;
+			04F521C112B78B350063E79B = 04F521C112B78B350063E79B /* PBXTextBookmark */;
 		};
 		sourceControlManager = 04F521BE12B78AF70063E79B /* Source Control */;
 		userBuildSettings = {
