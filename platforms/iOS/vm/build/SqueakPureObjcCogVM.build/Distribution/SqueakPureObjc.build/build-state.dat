@@ -1,7 +1,7 @@
 TSqueakPureObjc
 v7
 r0
-t314806075.935681
+t314807476.236383
 cCheck dependencies
 cProcessInfoPlistFile /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/build/Distribution/Squeak.app/Contents/Info.plist SqueakPureObjc-InfoCOG.plist
 cCompileXIB /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/English.lproj/MainMenu.xib
@@ -258,6 +258,11 @@ c0000000047BA993000000000000003EB
 t1203411248
 s1003
 
+N/Developer/SDKs/MacOSX10.5.sdk/usr/include/fcntl.h
+c0000000047BA993000000000000003EA
+t1203411248
+s1002
+
 N/Developer/SDKs/MacOSX10.5.sdk/usr/include/mach-o/getsect.h
 c00000000487581E50000000000000BD2
 t1215660517
@@ -333,6 +338,11 @@ c0000000047E883CF0000000000002C30
 t1206420431
 s11312
 
+N/Developer/SDKs/MacOSX10.5.sdk/usr/include/sys/filio.h
+c0000000047E883CF0000000000001073
+t1206420431
+s4211
+
 N/Developer/SDKs/MacOSX10.5.sdk/usr/include/sys/ioctl.h
 c0000000047E883CF00000000000011D1
 t1206420431
@@ -347,6 +357,11 @@ N/Developer/SDKs/MacOSX10.5.sdk/usr/include/sys/param.h
 c0000000047E883D00000000000002742
 t1206420432
 s10050
+
+N/Developer/SDKs/MacOSX10.5.sdk/usr/include/sys/select.h
+c0000000047E883D100000000000016A2
+t1206420433
+s5794
 
 N/Developer/SDKs/MacOSX10.5.sdk/usr/include/sys/socket.h
 c0000000047E883D1000000000000559B
@@ -2581,6 +2596,29 @@ N/Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/build/Distribution/../../../
 c000000004D12AD15000000000000264D
 t1293069589
 s9805
+i"sqaio.h"
+i"config.h"
+i<sys/types.h>
+i<unistd.h>
+i<stdio.h>
+i<signal.h>
+i<errno.h>
+i<fcntl.h>
+i<sys/ioctl.h>
+i<sys/time.h>
+i<time.h>
+i<sys/select.h>
+i<sys/filio.h>
+i<stdio.h>
+i<stdlib.h>
+i<unistd.h>
+i<errno.h>
+i<signal.h>
+i<sys/types.h>
+i<sys/time.h>
+i<sys/select.h>
+i<sys/ioctl.h>
+i<fcntl.h>
 
 N/Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/build/Distribution/Squeak.app
 t1293113215
@@ -3417,6 +3455,11 @@ c000000004D12AD1500000000000009DB
 t1293069589
 s2523
 
+N/Users/MAC/Desktop/Dev/VM/cog-osx/platforms/unix/vm/sqaio.h
+c000000004D12AD150000000000000FF8
+t1293069589
+s4088
+
 N/Users/MAC/Desktop/Dev/VM/cog-osx/src/vm/cogit.h
 c000000004D101A9500000000000013B3
 t1292901013
@@ -3484,7 +3527,7 @@ s13744
 
 CCheck dependencies
 r0
-lSLF07#2@18"Check dependencies314806075#314806075#0(0"0(0#1#0"8608339328#0"0#
+lSLF07#2@18"Check dependencies314807474#314807476#0(0"0(0#1#0"8600690912#0"0#
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution/SqueakPureObjc.build/Objects-normal/i386/ADPCMCodecPlugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../../src/vm/../plugins/ADPCMCodecPlugin/ADPCMCodecPlugin.c normal i386 c com.apple.compilers.gcc.4_2
 s314805961.993440
