@@ -1877,6 +1877,11 @@ s6833
 i<unistd.h>
 i<pthread.h>
 
+N/Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/plugins/SocketPlugin/../../../../../Cog5x/platforms/unix/plugins/SocketPlugin/sqUnixSocket.c
+c00000000000000000000000000000000
+t2
+s0
+
 N/Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/plugins/SocketPlugin/sqUnixSocket.c
 c000000004D12AD150000000000009E47
 t1293069589
@@ -3695,6 +3700,51 @@ c000000004D12AD1500000000000009DB
 t1293069589
 s2523
 
+N/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/ClipboardExtendedPlugin/ClipboardExtendedPlugin.c
+c00000000000000000000000000000000
+t2
+s0
+
+N/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/HostWindowPlugin/HostWindowPlugin.c
+c00000000000000000000000000000000
+t2
+s0
+
+N/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/ObjectiveCPlugin/ObjectiveCPlugin.c
+c00000000000000000000000000000000
+t2
+s0
+
+N/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/SoundPlugin/SoundPlugin.c
+c00000000000000000000000000000000
+t2
+s0
+
+N/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/Squeak3D/Squeak3D.c
+c00000000000000000000000000000000
+t2
+s0
+
+N/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/SqueakFFIPrims/SqueakFFIPrims.c
+c00000000000000000000000000000000
+t2
+s0
+
+N/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/sqNamedPrims.h
+c00000000000000000000000000000000
+t2
+s0
+
+N/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/unix/plugins/SocketPlugin/../../../../../Cog5x/platforms/unix/plugins/SocketPlugin/sqUnixSocket.c
+c00000000000000000000000000000000
+t2
+s0
+
+N/Users/MAC/Desktop/Dev/VMBuild/5x/platforms/unix/plugins/UUIDPlugin/sqUnixUUID.c
+c00000000000000000000000000000000
+t2
+s0
+
 N/var/folders/hR/hR-1g8+eFWapdcNOgC+00++++TM/-Caches-/com.apple.Xcode.502/SharedPrecompiledHeaders/SqueakNoOGLIPhone_Prefix-ainezfyfabbeylbjsgrwwgkrtvzn/SqueakNoOGLIPhone_Prefix.pch.gch
 t2
 s0
@@ -3731,6 +3781,9 @@ r0
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/ClipboardExtendedPlugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/ClipboardExtendedPlugin/ClipboardExtendedPlugin.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/ClipboardExtendedPlugin.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/ClipboardExtendedPlugin/ClipboardExtendedPlugin.c normal armv6 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/DSAPrims.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../../src/vm/../plugins/DSAPrims/DSAPrims.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
@@ -3752,6 +3805,9 @@ r0
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/HostWindowPlugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/HostWindowPlugin/HostWindowPlugin.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/HostWindowPlugin.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/HostWindowPlugin/HostWindowPlugin.c normal armv6 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/JPEGReadWriter2Plugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../../src/vm/../plugins/JPEGReadWriter2Plugin/JPEGReadWriter2Plugin.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
@@ -3771,6 +3827,9 @@ CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhon
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/ObjectiveCPlugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/ObjectiveCPlugin/ObjectiveCPlugin.c normal armv6 objective-c com.apple.compilers.gcc.4_2
+r0
+
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/ObjectiveCPlugin.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/ObjectiveCPlugin/ObjectiveCPlugin.c normal armv6 objective-c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/PDColoredProgressView.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../iOS/plugins/SqueakObjectiveC/PDColoredProgressView.m normal armv6 objective-c com.apple.compilers.gcc.4_2
@@ -3797,10 +3856,19 @@ r0
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/SoundPlugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/SoundPlugin/SoundPlugin.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/SoundPlugin.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/SoundPlugin/SoundPlugin.c normal armv6 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/Squeak3D.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/Squeak3D/Squeak3D.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/Squeak3D.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/Squeak3D/Squeak3D.c normal armv6 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/SqueakFFIPrims.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/SqueakFFIPrims/SqueakFFIPrims.c normal armv6 c com.apple.compilers.gcc.4_2
+r0
+
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/SqueakFFIPrims.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/SqueakFFIPrims/SqueakFFIPrims.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/SqueakNoOGLIPhoneAppDelegate.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../iOS/vm/iPhone/Classes/SqueakNoOGLIPhoneAppDelegate.m normal armv6 objective-c com.apple.compilers.gcc.4_2
@@ -4148,13 +4216,22 @@ r0
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/sqUnixHeartbeat.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/vm/sqUnixHeartbeat.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/sqUnixSocket.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/plugins/SocketPlugin/../../../../../Cog5x/platforms/unix/plugins/SocketPlugin/sqUnixSocket.c normal armv6 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/sqUnixSocket.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/plugins/SocketPlugin/sqUnixSocket.c normal armv6 c com.apple.compilers.gcc.4_2
+r0
+
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/sqUnixSocket.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/unix/plugins/SocketPlugin/../../../../../Cog5x/platforms/unix/plugins/SocketPlugin/sqUnixSocket.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/sqUnixThreads.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/vm/sqUnixThreads.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/sqUnixUUID.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/plugins/UUIDPlugin/sqUnixUUID.c normal armv6 c com.apple.compilers.gcc.4_2
+r0
+
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/sqUnixUUID.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/unix/plugins/UUIDPlugin/sqUnixUUID.c normal armv6 c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv6/sqVirtualMachine.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../Cross/vm/sqVirtualMachine.c normal armv6 c com.apple.compilers.gcc.4_2
@@ -4187,6 +4264,9 @@ r0
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/ClipboardExtendedPlugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/ClipboardExtendedPlugin/ClipboardExtendedPlugin.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/ClipboardExtendedPlugin.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/ClipboardExtendedPlugin/ClipboardExtendedPlugin.c normal armv7 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/DSAPrims.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../../src/vm/../plugins/DSAPrims/DSAPrims.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
@@ -4208,6 +4288,9 @@ r0
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/HostWindowPlugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/HostWindowPlugin/HostWindowPlugin.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/HostWindowPlugin.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/HostWindowPlugin/HostWindowPlugin.c normal armv7 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/JPEGReadWriter2Plugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../../src/vm/../plugins/JPEGReadWriter2Plugin/JPEGReadWriter2Plugin.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
@@ -4227,6 +4310,9 @@ CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhon
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/ObjectiveCPlugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/ObjectiveCPlugin/ObjectiveCPlugin.c normal armv7 objective-c com.apple.compilers.gcc.4_2
+r0
+
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/ObjectiveCPlugin.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/ObjectiveCPlugin/ObjectiveCPlugin.c normal armv7 objective-c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/PDColoredProgressView.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../iOS/plugins/SqueakObjectiveC/PDColoredProgressView.m normal armv7 objective-c com.apple.compilers.gcc.4_2
@@ -4253,10 +4339,19 @@ r0
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/SoundPlugin.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/SoundPlugin/SoundPlugin.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/SoundPlugin.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/SoundPlugin/SoundPlugin.c normal armv7 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/Squeak3D.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/Squeak3D/Squeak3D.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/Squeak3D.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/Squeak3D/Squeak3D.c normal armv7 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/SqueakFFIPrims.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/src/vm/intplugins/SqueakFFIPrims/SqueakFFIPrims.c normal armv7 c com.apple.compilers.gcc.4_2
+r0
+
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/SqueakFFIPrims.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/iOS/vm/src/vm/intplugins/SqueakFFIPrims/SqueakFFIPrims.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/SqueakNoOGLIPhoneAppDelegate.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../iOS/vm/iPhone/Classes/SqueakNoOGLIPhoneAppDelegate.m normal armv7 objective-c com.apple.compilers.gcc.4_2
@@ -4604,13 +4699,22 @@ r0
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/sqUnixHeartbeat.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/vm/sqUnixHeartbeat.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/sqUnixSocket.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/plugins/SocketPlugin/../../../../../Cog5x/platforms/unix/plugins/SocketPlugin/sqUnixSocket.c normal armv7 c com.apple.compilers.gcc.4_2
+r0
+
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/sqUnixSocket.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/plugins/SocketPlugin/sqUnixSocket.c normal armv7 c com.apple.compilers.gcc.4_2
+r0
+
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/sqUnixSocket.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/unix/plugins/SocketPlugin/../../../../../Cog5x/platforms/unix/plugins/SocketPlugin/sqUnixSocket.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/sqUnixThreads.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/vm/sqUnixThreads.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/sqUnixUUID.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../unix/plugins/UUIDPlugin/sqUnixUUID.c normal armv7 c com.apple.compilers.gcc.4_2
+r0
+
+CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/sqUnixUUID.o /Users/MAC/Desktop/Dev/VMBuild/5x/platforms/unix/plugins/UUIDPlugin/sqUnixUUID.c normal armv7 c com.apple.compilers.gcc.4_2
 r0
 
 CCompileC build/SqueakPureObjcCogVM.build/Distribution-iphoneos/SqueakNoOGLIPhone.build/Objects-normal/armv7/sqVirtualMachine.o /Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/vm/../../Cross/vm/sqVirtualMachine.c normal armv7 c com.apple.compilers.gcc.4_2
