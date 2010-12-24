@@ -577,7 +577,7 @@
 		94BCE93F0DDE044700F38F31 /* sqSqueakIPhoneApplication+events.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "sqSqueakIPhoneApplication+events.m"; sourceTree = "<group>"; };
 		94BCEA2B0DDE0C1600F38F31 /* sqMacHostWindow.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqMacHostWindow.c; sourceTree = "<group>"; };
 		94BCEAF20DDE16B400F38F31 /* sqMacSecurity.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqMacSecurity.c; sourceTree = "<group>"; };
-		94BD816F11C8A58D00556751 /* sqManualSurface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqManualSurface.c; path = /Users/johnmci/Documents/Squeak3.8.0/platforms/Cross/plugins/SqueakFFIPrims/sqManualSurface.c; sourceTree = "<absolute>"; };
+		94BD816F11C8A58D00556751 /* sqManualSurface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqManualSurface.c; sourceTree = "<group>"; };
 		94C2068810AF4F53002F4160 /* sqSqueakOSXNSView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqSqueakOSXNSView.h; path = vm/OSX/sqSqueakOSXNSView.h; sourceTree = "<group>"; };
 		94C2068910AF4F53002F4160 /* sqSqueakOSXNSView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = sqSqueakOSXNSView.m; path = vm/OSX/sqSqueakOSXNSView.m; sourceTree = "<group>"; };
 		94C208F810AF7262002F4160 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
@@ -630,7 +630,7 @@
 		94E6591A0DDD03FE00358328 /* StarSqueakPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = StarSqueakPlugin.c; sourceTree = "<group>"; };
 		94E6591D0DDD03FE00358328 /* UUIDPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = UUIDPlugin.c; sourceTree = "<group>"; };
 		94E6591F0DDD03FE00358328 /* ZipPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZipPlugin.c; sourceTree = "<group>"; };
-		94E659200DDD03FE00358328 /* sqNamedPrims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqNamedPrims.h; path = /Users/johnmci/Documents/Squeak3.8.0/platforms/iOS/vm/src/vm/sqNamedPrims.h; sourceTree = "<absolute>"; };
+		94E659200DDD03FE00358328 /* sqNamedPrims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqNamedPrims.h; path = src/vm/sqNamedPrims.h; sourceTree = SOURCE_ROOT; };
 		94E659430DDD04FA00358328 /* AsynchFilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsynchFilePlugin.h; sourceTree = "<group>"; };
 		94E659450DDD04FA00358328 /* FilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilePlugin.h; sourceTree = "<group>"; };
 		94E659460DDD04FA00358328 /* sqFilePluginBasicPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqFilePluginBasicPrims.c; sourceTree = "<group>"; };
@@ -890,8 +890,8 @@
 				94210B280E956AC200C1A314 /* ObjectiveCPlugin.c */,
 			);
 			name = ObjectiveCPlugin;
-			path = /Users/johnmci/Documents/Squeak3.8.0/platforms/iOS/vm/src/vm/intplugins/ObjectiveCPlugin;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/ObjectiveCPlugin;
+			sourceTree = SOURCE_ROOT;
 		};
 		9424FF570DDCB17F009912BF /* platforms */ = {
 			isa = PBXGroup;
@@ -1040,8 +1040,8 @@
 				94584F6110F020BD001401E7 /* ClipboardExtendedPlugin.c */,
 			);
 			name = ClipboardExtendedPlugin;
-			path = /Users/johnmci/Documents/Squeak3.8.0/platforms/iOS/vm/src/vm/intplugins/ClipboardExtendedPlugin;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/ClipboardExtendedPlugin;
+			sourceTree = SOURCE_ROOT;
 		};
 		94584FD810F02378001401E7 /* ClipboardExtended */ = {
 			isa = PBXGroup;
@@ -1139,8 +1139,8 @@
 				947E20F50EB281C5007957D0 /* SqueakFFIPrims.c */,
 			);
 			name = SqueakFFIPrims;
-			path = /Users/johnmci/Documents/Squeak3.8.0/platforms/iOS/vm/src/vm/intplugins/SqueakFFIPrims;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/SqueakFFIPrims;
+			sourceTree = SOURCE_ROOT;
 		};
 		947E20F80EB2826C007957D0 /* SqueakFFIPrims */ = {
 			isa = PBXGroup;
@@ -1223,9 +1223,8 @@
 				94883B400E0C2B9C005A4738 /* sqUnixSocket.c */,
 				949493BF11E52ADE0019BC29 /* aio.c */,
 			);
-			name = SocketPlugin;
-			path = /Users/johnmci/Documents/Squeak3.8.0/platforms/unix/plugins/SocketPlugin;
-			sourceTree = "<absolute>";
+			path = SocketPlugin;
+			sourceTree = "<group>";
 		};
 		948EC38E1155311D00B08A4F /* Resources-iPad */ = {
 			isa = PBXGroup;
@@ -1339,9 +1338,8 @@
 			children = (
 				94BCE7870DDDF61200F38F31 /* sqUnixUUID.c */,
 			);
-			name = UUIDPlugin;
-			path = /Users/johnmci/Documents/Squeak3.8.0/platforms/unix/plugins/UUIDPlugin;
-			sourceTree = "<absolute>";
+			path = UUIDPlugin;
+			sourceTree = "<group>";
 		};
 		94BCEAF10DDE16B400F38F31 /* SecurityPlugin */ = {
 			isa = PBXGroup;
@@ -1522,8 +1520,8 @@
 				94E658FA0DDD03FE00358328 /* HostWindowPlugin.c */,
 			);
 			name = HostWindowPlugin;
-			path = /Users/johnmci/Documents/Squeak3.8.0/platforms/iOS/vm/src/vm/intplugins/HostWindowPlugin;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/HostWindowPlugin;
+			sourceTree = SOURCE_ROOT;
 		};
 		94E658FD0DDD03FE00358328 /* JPEGReaderPlugin */ = {
 			isa = PBXGroup;
@@ -1627,8 +1625,8 @@
 				94E659160DDD03FE00358328 /* SoundPlugin.c */,
 			);
 			name = SoundPlugin;
-			path = /Users/johnmci/Documents/Squeak3.8.0/platforms/iOS/vm/src/vm/intplugins/SoundPlugin;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/SoundPlugin;
+			sourceTree = SOURCE_ROOT;
 		};
 		94E659170DDD03FE00358328 /* Squeak3D */ = {
 			isa = PBXGroup;
@@ -1636,8 +1634,8 @@
 				94E659180DDD03FE00358328 /* Squeak3D.c */,
 			);
 			name = Squeak3D;
-			path = /Users/johnmci/Documents/Squeak3.8.0/platforms/iOS/vm/src/vm/intplugins/Squeak3D;
-			sourceTree = "<absolute>";
+			path = src/vm/intplugins/Squeak3D;
+			sourceTree = SOURCE_ROOT;
 		};
 		94E659190DDD03FE00358328 /* StarSqueakPlugin */ = {
 			isa = PBXGroup;
@@ -2502,7 +2500,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = i386;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "iPhone Distribution: Corporate Smalltalk Consulting Ltd";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Don't Code Sign";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
@@ -2527,8 +2525,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PER_ARCH_CFLAGS_i386 = "-DLSB_FIRST -mfpmath=sse -finline-functions  -fomit-frame-pointer -fno-cse-follow-jumps -fno-gcse -mtune=prescott -march=pentium-m -falign-functions=16";
 				PRODUCT_NAME = Squeak;
-				"PROVISIONING_PROFILE[sdk=macosx*]" = "4D1323CE-3998-4FF8-AB83-49838083E965";
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx10.5;
 			};
 			name = Distribution;
 		};
@@ -2587,7 +2584,7 @@
 				);
 				PRODUCT_NAME = Squeak;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "813AC9F6-39F6-492C-8710-8D1C5D88E049";
-				SDKROOT = iphoneos4.1;
+				SDKROOT = iphoneos4.2;
 				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Distribution;
