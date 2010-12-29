@@ -54,14 +54,26 @@ class StartupTest(unittest.TestCase):
         self.assertTrue(self.cpu_count > 1)
         devnull = open(os.devnull, 'w')
         
-        for heap in [128, 256, 512, 1024]:
+        for heap in [128, 1024]:
             for c in [n for n in [1,2,3,7,11,15,55,57,59] if self.cpu_count >= n]:
                 cmd = self.rvm + ["-num_cores", str(c),
                                   "-min_heap_MB", str(heap),
                                   "-headless", self.image, "HelloWorld"]
-                self.assertEquals(0, 
-                    subprocess.call(cmd, stdout=devnull, stderr=devnull),
-                    "Failed starting rvm with -num_cores %d -min_heap_MB %d: %s" %(c, heap, " ".join(cmd)))
+		print cmd
+                p = subprocess.Popen(cmd, stdout=devnull, stderr=subprocess.PIPE)
+                exitcode = p.wait()
+		print "Exitcode: %d"%exitcode
+
+                errmsgFound = False
+                if exitcode is not 0:
+                    for l in p.stderr.readlines():
+                        found = l.find("mmap failed on core") is not -1
+                        if found:
+                           errmsgFound = True
+                           print l
+                           break
+		self.assertTrue(exitcode is 0 or (errmsgFound and heap is not 128),
+                    "Failed starting rvm with -num_cores %d -min_heap_MB %d and no usefull error: %s" %(c, heap, " ".join(cmd)))
                     
     def test_reliability(self):
         self.assertTrue(self.cpu_count > 1)
