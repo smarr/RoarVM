@@ -1276,28 +1276,36 @@ char* Memory_System::map_heap_memory(size_t total_size,
   int mmap_fd = open(mmap_filename, open_flags, 0600);
   if (mmap_fd == -1)  {
     char buf[BUFSIZ];
-    sprintf(buf, "could not open mmap file, on %d, name %s, flags 0x%x",
+    snprintf(buf, sizeof(buf), "could not open mmap file, on %d, name %s, flags 0x%x",
             Logical_Core::my_rank(), mmap_filename, open_flags);
     perror(buf);
   }
   
   if (!Memory_System::use_huge_pages && ftruncate(mmap_fd, total_size)) {
-    perror("ftruncate");
+    char buf[BUFSIZ];
+    snprintf(buf, sizeof(buf), "The mmap-file could not be extended to the required heap-size. Requested size was %.2f MB. ftruncate", (float) total_size / 1024.0 / 1024.0);
+    perror(buf);
+    unlink(mmap_filename);
     fatal("ftruncate");
   }
   
   // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
-  int32 mmap_result = (int32)mmap(where, bytes_to_map, PROT_READ | PROT_WRITE,  flags, mmap_fd, offset);
+  void* mmap_result = mmap(where, bytes_to_map, PROT_READ | PROT_WRITE,  flags, mmap_fd, offset);
   if (check_many_assertions)
     lprintf("mmapp: address requested 0x%x, result 0x%x, bytes 0x%x, flags 0x%x, offset in file 0x%x\n",
             where, mmap_result, bytes_to_map, flags, offset);
   if (print)
     lprintf("mmap(<requested address> 0x%x, <byte count to map> 0x%x, PROT_READ | PROT_WRITE, <flags> 0x%x, open(%s, 0x%x, 0600), <offset> 0x%x) returned 0x%x\n",
             where, bytes_to_map, flags, mmap_filename, open_flags, offset, mmap_result);
-  if (mmap_result == -1) {
+  if (mmap_result == MAP_FAILED) {
     char buf[BUFSIZ];
-    snprintf(buf, sizeof(buf),"mmap failed on tile %d", Logical_Core::my_rank());
+    snprintf(buf, sizeof(buf),
+             "mmap failed on core %d. Requested %.2f MB for %s. mmap", 
+             Logical_Core::my_rank(),
+             (float)bytes_to_map / 1024.0 / 1024.0, 
+             (where == NULL) ? "1st heap part" : "2nd heap part");
     perror(buf);
+    unlink(mmap_filename);
     fatal("mmap");
   }
   if (where != NULL  &&  where != (void*)mmap_result) {
