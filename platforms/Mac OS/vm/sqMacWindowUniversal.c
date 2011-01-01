@@ -391,7 +391,7 @@ int ioShowDisplay(
 	int affectedL, int affectedR, int affectedT, int affectedB) {
 	
 	if (gSqueakHeadless && !browserActiveAndDrawingContextOk()) return 1;
-	ioShowDisplayOnWindow( (unsigned int*)  dispBitsIndex,  width,  height,  depth, affectedL,  affectedR,  affectedT,  affectedB, 1);
+	ioShowDisplayOnWindow( (unsigned char*)  dispBitsIndex,  width,  height,  depth, affectedL,  affectedR,  affectedT,  affectedB, 1);
 	return 1;
 }
 
