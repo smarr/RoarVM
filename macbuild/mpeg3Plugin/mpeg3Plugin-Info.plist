@@ -5,17 +5,17 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>mpeg3Plugin</string>
+	<string>Mpeg3Plugin</string>
 	<key>CFBundleGetInfoString</key>
-	<string>mpeg3Plugin for Squeak</string>
+	<string>Mpeg3Plugin for Squeak</string>
 	<key>CFBundleIconFile</key>
 	<string>SqueakPlugin.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.squeak.mpeg3Plugin</string>
+	<string>org.squeak.Mpeg3Plugin</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>mpeg3Plugin for Squeak</string>
+	<string>Mpeg3Plugin for Squeak</string>
 	<key>CFBundlePackageType</key>
 	<string>BNDL</string>
 	<key>CFBundleShortVersionString</key>
