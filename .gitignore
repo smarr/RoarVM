@@ -3,3 +3,11 @@ image/JMMFixBackToTrunk.2.cs
 image/package-cache
 image/PharoDebug.log
 push.sh
+image/SqueakDebug.log
+notes/
+platforms/iOS/plugins/FT2Plugin/build/
+platforms/iOS/plugins/SqueakLocale/build/
+platforms/iOS/plugins/UnixOSProcessPlugin/build/
+platforms/iOS/vm/build 
+src/
+Compiled/

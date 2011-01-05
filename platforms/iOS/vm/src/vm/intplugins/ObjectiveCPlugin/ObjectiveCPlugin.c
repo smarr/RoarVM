@@ -8,6 +8,7 @@
 #include <string.h>
 #include <time.h>
 #include <Foundation/Foundation.h>
+
  /* Default EXPORT macro that does nothing (see comment in sq.h): */
 #define EXPORT(returnType) returnType
 

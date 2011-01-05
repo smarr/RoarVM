@@ -51,9 +51,9 @@ such third-party acknowledgments.
 
 #warning what about these guyes?
 /*** Variables -- globals for access from pluggable primitives ***/
-int		argCnt= 0;
-char	**argVec= 0;
-char	**envVec= 0;
+EXPORT(int)		argCnt= 0;
+EXPORT(char**)	argVec= 0;
+EXPORT(char**)	envVec= 0;
 
 extern sqSqueakAppDelegate *gDelegateApp;
 
