@@ -198,7 +198,14 @@
 			isa = PBXProject;
 			buildConfigurationList = 949BAFE309326DA600684056 /* Build configuration list for PBXProject "FT2Plugin" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 66DF6BFE01D7DCEA00A80119;
 			productRefGroup = 66DF6C4501D7DEEE00A80119 /* Products */;
 			projectDirPath = "";

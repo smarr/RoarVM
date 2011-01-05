@@ -350,7 +350,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Squeak VM 5.8b12 http://www.squeak.org</string>
+	<string>Squeak VM 5.8b13 http://www.squeak.org</string>
 	<key>CFBundleIconFile</key>
 	<string>Squeak.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -362,7 +362,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>5.8b12</string>
+	<string>5.8b13</string>
 	<key>CFBundleSignature</key>
 	<string>FAST</string>
 	<key>CFBundleVersion</key>
@@ -400,7 +400,7 @@
 	<key>SqueakBrowserMouseOptionButton3</key>
 	<integer>2</integer>
 	<key>SqueakDebug</key>
-	<integer>0</integer>
+	<integer>1</integer>
 	<key>SqueakExplicitWindowOpenNeeded</key>
 	<false/>
 	<key>SqueakImageName</key>

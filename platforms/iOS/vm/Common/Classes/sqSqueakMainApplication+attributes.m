@@ -93,7 +93,7 @@ extern struct VirtualMachine* interpreterProxy;
 				return "0";
 				
 			default: 
-				if ((indexNumber - 2) > 0 && ((indexNumber - 2) < [self.argsArguments count]))
+				if ((indexNumber - 2) >= 0 && ((indexNumber - 2) < [self.argsArguments count]))
 					return (char *) [[self.argsArguments objectAtIndex: (NSUInteger) (indexNumber - 2)] cStringUsingEncoding: [self currentVMEncoding]];
 		}
 	}
