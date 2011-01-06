@@ -109,7 +109,7 @@ public:
     e->bcCount = bc_count;
 
     if (ctx.is_mem()) {
-      e->aux1 = (int)&(*ctx.as_object());
+      e->aux1 = (int)ctx.as_object();
       e->aux2 = ctx.as_object()->fetchPointer(Object_Indices::InstructionPointerIndex).integerValue();
     }
   }

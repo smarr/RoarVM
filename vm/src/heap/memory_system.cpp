@@ -557,7 +557,7 @@ Oop Memory_System::nextObject(Oop x) {
   Object_p obj = x.as_object();
   int start_rank = obj->rank();
   int start_mutability = obj->mutability();
-  Object* inst = heaps[start_rank][start_mutability]->accessibleObjectAfter(&(*obj));
+  Object* inst = heaps[start_rank][start_mutability]->accessibleObjectAfter(obj);
   if (inst != NULL)  return inst->as_oop();
   bool past_start = false;
   FOR_ALL_HEAPS(rank, mutability) {

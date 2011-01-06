@@ -70,7 +70,7 @@ Oop Execution_Tracer::get() {
 
 void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object_p dst_obj) {
   lprintf( "copy_elements src_offset %d, buffer 0x%x, dst 0x%x, dst_offset %d, num_elems %d, dst_obj 0x%x, next %d\n",
-          src_offset, buffer, dst, dst_offset, num_elems, &(*dst_obj), next);
+          src_offset, buffer, dst, dst_offset, num_elems, (Object*)dst_obj, next);
 
 
 
@@ -107,7 +107,7 @@ void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, 
         assert_always(dst_oop[e_pc  ].is_int());
         assert_always(dst_oop[e_rank].is_int());
         assert_always(dst_oop[e_is_block] == The_Squeak_Interpreter()->roots.trueObj  ||  dst_oop[e_is_block] == The_Squeak_Interpreter()->roots.falseObj);
-        assert_always( (int(dst_oop) - int(&(*dst_obj)) - Object::BaseHeaderSize) % e_N  == 0 ); // the hack &(*dst_obj) is used to get the encapsulated pointer, it is only used here, where ever else it is possible, I fall back to a function with aan explict tracked_ptr<Object> signature
+        assert_always( (int(dst_oop) - int(dst_obj) - Object::BaseHeaderSize) % e_N  == 0 );
       }
         break;
       case k_gc:

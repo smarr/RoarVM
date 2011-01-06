@@ -902,7 +902,7 @@ bool Squeak_Interpreter::balancedStackAfterPrimitive(int delta, int primIdx, int
     // must have nArgs popped off
     if  ( stackPointer() - activeContext_obj()->as_oop_p() + nArgs ==  delta ) return true;
     lprintf("balancedStackAfterPrimitive failed: stackPointer 0x%x, activeContext_obj() 0x%x, nArgs %d, delta $d\n",
-            _stackPointer, &(*(activeContext_obj())), nArgs, delta);
+            _stackPointer, (Object*)activeContext_obj(), nArgs, delta);
     return false;
   }
   // failed prim leaves stack intact
@@ -1593,7 +1593,7 @@ void Squeak_Interpreter::print_stack_trace(Printer* p, Object_p proc) {
   if (cntxt != roots.nilObj) ;
   else if ((cntxt = activeContext()) != roots.nilObj) ;
   else {
-    p->printf("on %d: cannot print stack, process 0x%x is running elsewhere\n", my_rank(), &(*proc));
+    p->printf("on %d: cannot print stack, process 0x%x is running elsewhere\n", my_rank(), (Object*)proc);
     return;
   }
   for (Oop c = cntxt;
@@ -2700,7 +2700,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
 void Squeak_Interpreter::internalCannotReturn(Oop resultObj, bool b1, bool b2, bool b3) {
 
   lprintf("internalCannotReturn %d %d %d\n", b1, b2, b3);
-  lprintf("this ctx object is 0x%x\n", &(*activeContext_obj()));
+  lprintf("this ctx object is 0x%x\n", (Object*)activeContext_obj());
   // fatal("internal cannot return");
 
   internalPush(activeContext());
@@ -3090,8 +3090,8 @@ void Squeak_Interpreter::receive_initial_interpreter_from_main(Squeak_Interprete
 void Squeak_Interpreter::print_method_info(const char* msg) {
   error_printer->printf("%d on %d: %s, do_I_hold_baton %d, method 0x%x, method_obj 0x%x, localIP 0x%x, instructionPointer 0x%x, activeContext_obj() 0x%x, activeContext().as_object() 0x%x, freeContexts 0x%x\n",
                         increment_print_sequence_number(),
-                        my_rank(), msg, do_I_hold_baton(), method().bits(), &(*method_obj()), _localIP, _instructionPointer,
-                        &(*activeContext_obj()), activeContext().as_untracked_object_ptr(),
+                        my_rank(), msg, do_I_hold_baton(), method().bits(), (Object*)method_obj(), _localIP, _instructionPointer,
+                        (Object*)activeContext_obj(), activeContext().as_untracked_object_ptr(),
                         roots.freeContexts.bits());
   if (do_I_hold_baton()) {
     method_obj()->print_compiled_method(error_printer);

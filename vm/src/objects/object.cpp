@@ -482,7 +482,7 @@ Oop Object::clone() {
   
   Oop* newChunk = (Oop*)h->allocateChunk_for_a_new_object(bytes);
   Oop remappedOop = The_Squeak_Interpreter()->popRemappableOop();
-  Object* remappedObject = remappedOop.as_object(); // GC may have moved it; cannot use THIS in rest of method
+  Object_p remappedObject = remappedOop.as_object(); // GC may have moved it; cannot use THIS in rest of method
   Object_p newObj = (Object_p)(Object*) ((char*)newChunk + extraHdrBytes);
 
   // copy old to new incl all header words, fix backpointer later, might include extra header words
@@ -559,7 +559,7 @@ void Object::set_suspended_context_of_process(Oop ctx) {
 }
 
 int Object::priority_of_process_or_nil() {
-  return this == &(*(The_Squeak_Interpreter()->roots.nilObj.as_object())) ? -1 : priority_of_process();
+  return (this == (Object*)The_Squeak_Interpreter()->roots.nilObj.as_object()) ? -1 : priority_of_process();
 }
 
 bool Object::is_process_running() {
@@ -822,7 +822,7 @@ bool Object::selector_and_class_of_method_in_me_or_ancestors(Oop method, Oop* se
   }
   Object_p mo = method.as_object();
   if (!The_Memory_System()->contains(mo)) {
-    lprintf( "selector_and_class_of_method_in_me_or_ancestors: method 0x%x is not in heap\n", &(*mo));
+    lprintf( "selector_and_class_of_method_in_me_or_ancestors: method 0x%x is not in heap\n", (Object*)mo);
     return false;
   }
   Oop    methodDictOop = fetchPointer(Object_Indices::MessageDictionaryIndex);
@@ -832,7 +832,7 @@ bool Object::selector_and_class_of_method_in_me_or_ancestors(Oop method, Oop* se
   }
   Object_p methodDict = methodDictOop.as_object();
   if (!The_Memory_System()->contains(methodDict)) {
-    lprintf( "selector_and_class_of_method_in_me_or_ancestors: methodDict 0x%x is not in heap\n", &(*methodDict));
+    lprintf( "selector_and_class_of_method_in_me_or_ancestors: methodDict 0x%x is not in heap\n", (Object*)methodDict);
     return false;
   }
   Oop sel = methodDict->key_at_identity_value(method);
@@ -847,7 +847,7 @@ bool Object::selector_and_class_of_method_in_me_or_ancestors(Oop method, Oop* se
     if (!warned) {
       warned = true;
       lprintf( "selector_and_class_of_method_in_me_or_ancestors: did not find method 0x%x in class 0x%x\n",
-              &(*mo),  this);
+              (Object*)mo,  this);
     }
     return false;
   }
@@ -1000,7 +1000,7 @@ void Object::check_IP_of_method(u_char* bcp, Object_p ctx) {
 
   if (bcp < first_bc) {
     lprintf("bcp 0x%x < first_bc 0x%x:  past_bc 0x%x, method header 0x%x, at 0x%x, sizeBits: 0x%x, isBlock %d, ctx obj 0x%x\n",
-            bcp, first_bc, past_bc, *as_oop_int_p(), this, sizeBits(), !ctx->isMethodContext(), &(*ctx));
+            bcp, first_bc, past_bc, *as_oop_int_p(), this, sizeBits(), !ctx->isMethodContext(), (Object*)ctx);
     fatal("bcp < first_bc");
   }
   if (past_bc < bcp) {
@@ -1009,7 +1009,7 @@ void Object::check_IP_of_method(u_char* bcp, Object_p ctx) {
     Object* orig_home = ctx->get_orig_block_home();
     Oop curr_home = ctx->fetchPointer(Object_Indices::HomeIndex);
     lprintf("past_bc 0x%x < bcp 0x%x:  first_bc 0x%x, method header 0x%x, at 0x%x, sizeBits: 00x%x, isBlock %d, ctx 0x%x, %s %s\n",
-            past_bc, bcp, first_bc, *as_oop_int_p(), this, sizeBits(), !ctx->isMethodContext(), &(*ctx),
+            past_bc, bcp, first_bc, *as_oop_int_p(), this, sizeBits(), !ctx->isMethodContext(), (Object*)ctx,
             orig_meth == curr_meth ? "method same" : "method changed",
             orig_home == curr_home.as_untracked_object_ptr() ? "home OBJ same" : "home OBJ changed");
 

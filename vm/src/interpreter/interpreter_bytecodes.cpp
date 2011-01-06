@@ -765,7 +765,7 @@ void Squeak_Interpreter::sendLiteralSelectorBytecode() {
   if (check_assertions && !roots.messageSelector.is_mem()) {
     Printer* p = error_printer;
     p->printf("on %d: msgSel is int; method bits 0x%x, method->obj 0x%x, method obj 0x%x, method obj as_oop 0x%x, msgSel 0x%x\n",
-              Logical_Core::my_rank(), method().bits(), &(*(method().as_object())), &(*(method_obj())), method_obj()->as_oop().bits(), roots.messageSelector.bits());
+              Logical_Core::my_rank(), method().bits(), (Object*)method().as_object(), (Object*)method_obj(), method_obj()->as_oop().bits(), roots.messageSelector.bits());
     method_obj()->print(p);
     p->nl();
     method_obj()->print_compiled_method(p);

@@ -78,10 +78,7 @@ public:
   sender(sender) {}
 
   void value(Oop* p, Object_p containing_obj_or_nil) {
-    // the hack &(*containing_obj_or_nil) is used to get the encapsulated 
-    // pointer, it is only used here, where ever else it is possible, 
-    // I fall back to a function with an explict tracked_ptr<Object> signature
-    SEND_THEN_WAIT_FOR_MESSAGE(hereIsARootResponse_class(*p, p, &(*containing_obj_or_nil), closure), sender, newValueForOopMessage);
+    SEND_THEN_WAIT_FOR_MESSAGE(hereIsARootResponse_class(*p, p, containing_obj_or_nil, closure), sender, newValueForOopMessage);
   }
   
   virtual const char* class_name(char* buf) { 
