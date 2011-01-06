@@ -52,7 +52,7 @@ inline void Object::set_extra_preheader_word(oop_int_t w) {
 inline bool Object::hasSender(Oop aContext) {
   // rcvr must be a context
   Object_p aco = aContext.as_object();
-  if (this == &(*aco))  return false;
+  if (this == (Object*)aco)  return false;
   Oop nilOop = The_Squeak_Interpreter()->roots.nilObj;
   for (Oop s = fetchPointer(Object_Indices::SenderIndex);
        s != nilOop;
@@ -422,7 +422,7 @@ inline Object_p Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdr
     DEBUG_STORE_CHECK(headerp, contents);
     *headerp   = contents;
   }
-  assert_eq(newObj, (Object*)headerp, "");
+  assert_eq(newObj, headerp, "");
 
   The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, my_rank  COMMA_TRUE_OR_NOTHING);
 

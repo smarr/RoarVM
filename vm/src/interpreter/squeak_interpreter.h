@@ -1007,7 +1007,7 @@ public:
         Oop m = methodArray_obj->fetchPointer(i - Object_Indices::SelectorStart);
         m.print(dittoing_stdout_printer);
         if (m.as_object()->isCompiledMethod()) {
-          dittoing_stdout_printer->printf(", Obj 0x%x, firstByte: %d", &(*(m.as_object())),
+          dittoing_stdout_printer->printf(", Obj 0x%x, firstByte: %d", (Object*)m.as_object(),
                                           *(u_char*)(m.as_object()->first_byte_address()));
         }
         dittoing_stdout_printer->nl();
