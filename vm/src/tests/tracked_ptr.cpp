@@ -533,7 +533,7 @@ TEST(TrackedPointer, ReferenceOperator) {
   MyClass* bar = new MyClass();
   
   tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
-  MyClass** bar_pp;
+  MyClass* const * bar_pp;
   
   ASSERT_DEATH(bar_pp = &bar_p, "");  //We want that to fail for the moment!
   
@@ -551,3 +551,56 @@ TEST(TrackedPointer, CastVoidP) {
   ASSERT_EQ(bar_v, bar);
   ASSERT_NE((void*)NULL, bar_v);
 }
+
+TEST(TrackedPointer, CastToContainedPointer) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  MyClass* bar2 = (MyClass*)bar_p;
+  MyClass* bar3 = bar_p;
+  
+  
+  ASSERT_EQ(bar2, bar);
+  ASSERT_NE((MyClass*)NULL, bar2);
+}
+
+/**
+ * It should be possible to catch somehow the invalidation of ``this``
+ * during a method call.
+ */
+class InvalidationDuringCall {
+public:
+  volatile bool testField1;
+  volatile bool testField2;
+  
+  InvalidationDuringCall() : testField1(true), testField2(true) {}
+  
+  void someMethodChangingFields() {
+    testField1 = not testField1 or testField2;
+    this->testField2 = not this->testField2;
+  }
+  
+  void somethingComplexWhichWillProvokeInvalidationInTheMiddle() {
+    testField1 = true; // that should work with a valid this
+    
+    tracked_ptr<InvalidationDuringCall>::invalidate_all_pointer();
+    
+    // well, and that should fail. Not sure yet how to achieve that
+    testField2 = true;
+  }
+  
+  inline InvalidationDuringCall* operator-> () {
+    return this;
+  }
+};
+// currently diabled since it does not seem to be possible to capture this and 
+// do magic with it in the method body
+TEST(TrackedPointer, DISABLED_InvalidationDuringCall) {
+  tracked_ptr<InvalidationDuringCall> t = (tracked_ptr<InvalidationDuringCall>)new InvalidationDuringCall();
+  
+  t->someMethodChangingFields();
+  t->somethingComplexWhichWillProvokeInvalidationInTheMiddle();
+  t->someMethodChangingFields();
+}
+
+
