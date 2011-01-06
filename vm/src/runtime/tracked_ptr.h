@@ -102,6 +102,12 @@ public:
    * Cast operator to void*
    */
   operator void*() const {
+    assert(is_valid());  // not sure why that was not here before, Stefan 2011-01-06
+    return ptr;
+  }
+  
+  operator T*() const {
+    assert(is_valid());
     return ptr;
   }
   
@@ -122,7 +128,7 @@ public:
    * Lets have it fail for now. In case there is a real need for it to work,
    * it can be changed by removing the assert.
    */
-  inline T** operator& () {
+  inline T* const * operator& () const {
     assert(false); // This assert is added to avoid surprises. Remove with caution!
     return &ptr;
   }
@@ -135,13 +141,13 @@ public:
     return ptr != t_ptr.ptr;
   }
 
-  inline bool operator==(const T* const p) const {
+  /*inline bool operator==(const T* const p) const {
     return ptr == p;
   }
   
   inline bool operator!=(const T* const p) const {
     return ptr != p;
-  }
+  }*/
 
   inline bool operator==(int const p) const {
     return ptr == (void*)p;
