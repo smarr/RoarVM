@@ -3221,6 +3221,11 @@ void Squeak_Interpreter::preGCAction_everywhere(bool fullGC) {
 }
 
 void Squeak_Interpreter::postGCAction_everywhere(bool fullGC) {
+  // STEFAN: this looks like a good place to invalidate our tracked_ptr's
+# if Include_Debugging_Code
+  tracked_ptr<Object>::invalidate_all_pointer();
+# endif
+  
   postGCActionMessage_class(fullGC, safepoint_ability->is_able()).send_to_all_cores();
 }
 
