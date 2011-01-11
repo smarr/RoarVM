@@ -422,7 +422,7 @@ inline Object_p Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdr
     DEBUG_STORE_CHECK(headerp, contents);
     *headerp   = contents;
   }
-  assert_eq(newObj, headerp, "");
+  assert_eq((void*)newObj, (void*)headerp, "");
 
   The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, my_rank  COMMA_TRUE_OR_NOTHING);
 
