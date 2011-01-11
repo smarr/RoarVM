@@ -14,6 +14,8 @@
 
 #include <pthread.h>
 
+# define Max_Number_Of_Cores 64
+
 /**
  * A simplified version of the OS_Interface used in the RoarVM.
  * It provides only functionallity required by tests.

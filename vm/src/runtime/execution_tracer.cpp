@@ -24,21 +24,21 @@ Execution_Tracer::Execution_Tracer(int n) : Abstract_Tracer(n, max_sizes, e_N) {
 Oop Execution_Tracer::array_class() { return The_Squeak_Interpreter()->splObj(Special_Indices::ClassArray); }
 
 void Execution_Tracer::do_all_roots(Oop_Closure* oc) {
-  oc->value(&ctx, NULL);
+  oc->value(&ctx, (Object_p)NULL);
   for (int i = 0;  i < end_of_live_data();  ++i) {
     bc* bcp = (bc*)entry_ptr(i);  proc* procp = (proc*)bcp;
     switch (bcp->kind) {
         default: fatal(); break;
         case k_bc:
-          oc->value(&bcp->method, NULL);
-          oc->value(&bcp->rcvr, NULL);
+          oc->value(&bcp->method, (Object_p)NULL);
+          oc->value(&bcp->rcvr, (Object_p)NULL);
           break;
         case k_gc:
         case k_rcved_interp:
         case k_aux:
           break;
         case k_proc:
-          oc->value(&procp->process, NULL);
+          oc->value(&procp->process, (Object_p)NULL);
           break;
     }
   }
@@ -68,9 +68,9 @@ Oop Execution_Tracer::get() {
 }
 
 
-void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object* dst_obj) {
+void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object_p dst_obj) {
   lprintf( "copy_elements src_offset %d, buffer 0x%x, dst 0x%x, dst_offset %d, num_elems %d, dst_obj 0x%x, next %d\n",
-          src_offset, buffer, dst, dst_offset, num_elems, dst_obj, next);
+          src_offset, buffer, dst, dst_offset, num_elems, (Object*)dst_obj, next);
 
 
 
@@ -93,7 +93,7 @@ void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, 
       }
         break;
       case k_bc: {
-        dst_oop[e_method  ] = bcp->method;  Object* mo = dst_oop[e_method].as_object();
+        dst_oop[e_method  ] = bcp->method;  Object_p mo = dst_oop[e_method].as_object();
         dst_oop[e_rcvr    ] = bcp->rcvr;
 
         dst_oop[e_rank    ] = Oop::from_int(bcp->rank);
@@ -129,7 +129,7 @@ void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, 
 
 
 void Execution_Tracer::check_it(Oop ents) {
-  Object* eo = ents.as_object();
+  Object_p eo = ents.as_object();
   int wl = eo->fetchWordLength();
   int n = wl / e_N;
 
@@ -162,7 +162,7 @@ void Execution_Tracer::check_it(Oop ents) {
 }
 
 void Execution_Tracer::print_entries(Oop ents, Printer* p) {
-  Object* eo = ents.as_object();
+  Object_p eo = ents.as_object();
   int n = eo->fetchWordLength()  /  e_N;
   int x;
 
@@ -174,7 +174,7 @@ void Execution_Tracer::print_entries(Oop ents, Printer* p) {
         default: fatal(); break;
         case k_proc: {
           Oop process      = eo->fetchPointer(i * e_N  +  e_process); assert(process.is_mem());
-          p->printf("switch to process 0x%x", process.as_object());
+          p->printf("switch to process 0x%x", process.as_untracked_object_ptr());
         }
           break;
 
@@ -225,7 +225,7 @@ void Execution_Tracer::print_entries(Oop ents, Printer* p) {
           p->printf(is_block ? " [] " : "    ");
           p->printf(", pc: %d, ", pc);
 
-          Object* mo = meth.as_object();
+          Object_p mo = meth.as_object();
           u_char bc = mo->first_byte_address()[pc];
           The_Squeak_Interpreter()->printBC(bc, p);
 

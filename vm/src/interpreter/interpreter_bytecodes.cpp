@@ -765,7 +765,7 @@ void Squeak_Interpreter::sendLiteralSelectorBytecode() {
   if (check_assertions && !roots.messageSelector.is_mem()) {
     Printer* p = error_printer;
     p->printf("on %d: msgSel is int; method bits 0x%x, method->obj 0x%x, method obj 0x%x, method obj as_oop 0x%x, msgSel 0x%x\n",
-              Logical_Core::my_rank(), method().bits(), method().as_object(), method_obj(), method_obj()->as_oop().bits(), roots.messageSelector.bits());
+              Logical_Core::my_rank(), method().bits(), (Object*)method().as_object(), (Object*)method_obj(), method_obj()->as_oop().bits(), roots.messageSelector.bits());
     method_obj()->print(p);
     p->nl();
     method_obj()->print_compiled_method(p);
@@ -786,7 +786,7 @@ void Squeak_Interpreter::pushNewArrayBytecode() {
   size &= 127;
   fetchNextBytecode();
   externalizeIPandSP();
-  Object* array_obj;
+  Object_p array_obj;
   {
     Safepoint_Ability sa(true);
     array_obj = splObj_obj(Special_Indices::ClassArray)->instantiateClass(size);
@@ -855,7 +855,7 @@ void Squeak_Interpreter::pushClosureCopyCopiedValuesBytecode() {
   // Recover from GC, but no Object* 's
 
   internalizeIPandSP();
-  Object* newClosure_obj = newClosure.as_object();
+  Object_p newClosure_obj = newClosure.as_object();
   newClosure_obj->storePointerUnchecked(Object_Indices::ClosureOuterContextIndex, activeContext());
   reclaimableContextCount = 0; // The closure refers to thisContext so it cannot be reclaimed
   if (numCopied > 0) {
@@ -870,7 +870,7 @@ void Squeak_Interpreter::pushClosureCopyCopiedValuesBytecode() {
 
 
 Oop Squeak_Interpreter::closureCopy(u_int32 numArgs, u_int32 initialIP, u_int32 numCopied) {
-  Object* newClosure_obj;
+  Object_p newClosure_obj;
   {
     Safepoint_Ability sa(true);
     newClosure_obj = splObj_obj(Special_Indices::ClassBlockClosure)->instantiateSmallClass(

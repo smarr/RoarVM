@@ -21,6 +21,6 @@ Oop Oop_Tracer::array_class() { return The_Squeak_Interpreter()->splObj(Special_
 
 void Oop_Tracer::do_all_roots(Oop_Closure* oc) {
   for (int i = 0;  i < end_of_live_data();  ++i)
-    oc->value(&((Oop*)buffer)[i], NULL);
+    oc->value(&((Oop*)buffer)[i], (Object_p)NULL);
 }
 

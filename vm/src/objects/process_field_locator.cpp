@@ -15,7 +15,7 @@
 
 Process_Field_Locator The_Process_Field_Locator;
 
-Object* Process_Field_Locator::instance_variable_names_of_Process() {
+Object_p Process_Field_Locator::instance_variable_names_of_Process() {
   return class_process()->fetchPointer(class_process()->instance_variable_names_index_of_class("suspendedContext")).as_object();
 }
 
@@ -25,7 +25,7 @@ int Process_Field_Locator::instance_variable_count_of_superclasses_of_Process() 
 
 void Process_Field_Locator::update_indices() {
   if (The_Squeak_Interpreter()->process_object_layout_timestamp() == last_timestamp)  return;
-  Object* instance_variable_names = instance_variable_names_of_Process();
+  Object_p instance_variable_names = instance_variable_names_of_Process();
   int n = instance_variable_count_of_superclasses_of_Process();
   for (int i = 0; i < count;  ++i) {
     int index =  instance_variable_names->index_of_string_in_array(names[i]);
@@ -52,4 +52,4 @@ void Process_Field_Locator::print_results() {
 }
 
 
-Object* Process_Field_Locator::class_process() { return The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassProcess); }
+Object_p Process_Field_Locator::class_process() { return The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassProcess); }

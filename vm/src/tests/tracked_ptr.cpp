@@ -356,6 +356,50 @@ TEST(TrackedPointer, Equality) {
 }
 
 /**
+ * A tracked_ptr compared with T or void* for equality with each other should be equal
+ * if the pointer are equal.
+ * They should be different, when their pointer are different.
+ *
+ * REM: This is no < or > comparison, since this is needed in the contain
+ *      i.e. in the registry we are currently using...
+ */
+TEST(TrackedPointer, EqualityWithPointer) {
+  MyClass* bar = new MyClass();
+  MyClass* foo = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p(bar);
+  
+  // a wrapper for another pointer
+  tracked_ptr<MyClass> foo_p(foo);
+  
+  // this is the basic assumption, independent of any test-framework specifics
+  ASSERT_TRUE (bar_p == bar);
+  ASSERT_FALSE(bar_p != bar);  
+  ASSERT_FALSE(bar_p == foo);
+  ASSERT_TRUE (bar_p != foo_p);
+  
+  // the EQ and NE macros introduce const quantifiers a long the way
+  // so that has to work, too.
+  ASSERT_EQ(bar_p, bar);
+  ASSERT_NE(bar_p, foo);
+  ASSERT_EQ(foo_p, foo);
+  ASSERT_NE(foo_p, bar);
+  
+  // and now make sure everything works with a void* and NULL, too
+  //void* bar_v = bar;
+
+  //ASSERT_EQ(bar_p, bar_v);
+  ASSERT_NE(bar_p, NULL);
+  //ASSERT_NE(foo_p, bar_v);
+
+  foo_p = NULL;
+  ASSERT_EQ(foo_p, NULL);
+  
+  delete bar;
+  delete foo;
+}
+
+/**
  * The getter function 
  */
 TEST(TrackedPointer, Getter) {
@@ -427,6 +471,136 @@ TEST(TrackedPointer, ComparisonWithBoolean) {
   ASSERT_FALSE(true && bar_p);
   
   delete bar;
+}
+
+/**
+ * Ensure that the short-circuiting of && works properly.
+ */
+tracked_ptr<MyClass> _helperThatShouldBeNeverCalled(bool& wasNeverCalled, MyClass* bar) {
+  wasNeverCalled = false;
+  return tracked_ptr<MyClass>(bar);
+}
+bool _helperThatShouldBeCalledAlways(bool& wasCalled) {
+  wasCalled = true;
+  return false;
+}
+TEST(TrackedPointer, ShortCircuiting) {
+  MyClass* bar = new MyClass();
+  
+  bool shouldStayTrue = true;
+  bool shouldBecomeTrue = false;
+  
+  bool testResult = _helperThatShouldBeCalledAlways(shouldBecomeTrue) && _helperThatShouldBeNeverCalled(shouldStayTrue, bar);
+  ASSERT_FALSE(testResult);
+  ASSERT_TRUE(shouldStayTrue);
+  ASSERT_TRUE(shouldBecomeTrue);
+}
+
+/**
+ * Do casts do the right thing?
+ */
+TEST(TrackedPointer, Casts) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  
+  ASSERT_EQ(bar_p, bar);
+  ASSERT_NE(bar_p, (tracked_ptr<MyClass>)NULL);
+  
+  ASSERT_EQ(1u, tracked_ptr<MyClass>::pointers_on_stack());
+}
+
+/**
+ * The ternary operator should convert the tracked pointer to a bool.
+ */ 
+TEST(TrackedPointer, TernaryOperator) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  
+  ASSERT_TRUE(bar_p ? true : false);
+  
+  bar_p = NULL;
+  ASSERT_FALSE(bar_p ? true : false);
+}
+
+TEST(TrackedPointer, ReferenceOperator) {
+  // compiler check
+  int i = 0;
+  int* i_p = &i;
+  // compiler check done
+  
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  MyClass* const * bar_pp;
+  
+  ASSERT_DEATH(bar_pp = &bar_p, "");  //We want that to fail for the moment!
+  
+  // REM: if we don't want it to fail, then the following should hold:
+  //  ASSERT_EQ(*bar_pp, bar);
+  //  ASSERT_NE((MyClass*)NULL, bar);
+}
+
+TEST(TrackedPointer, CastVoidP) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  void* bar_v = (void*)bar_p;
+  
+  ASSERT_EQ(bar_v, bar);
+  ASSERT_NE((void*)NULL, bar_v);
+}
+
+TEST(TrackedPointer, CastToContainedPointer) {
+  MyClass* bar = new MyClass();
+  
+  tracked_ptr<MyClass> bar_p = (tracked_ptr<MyClass>)bar;
+  MyClass* bar2 = (MyClass*)bar_p;
+  MyClass* bar3 = bar_p;
+  
+  
+  ASSERT_EQ(bar2, bar);
+  ASSERT_NE((MyClass*)NULL, bar2);
+}
+
+/**
+ * It should be possible to catch somehow the invalidation of ``this``
+ * during a method call.
+ */
+class InvalidationDuringCall {
+public:
+  volatile bool testField1;
+  volatile bool testField2;
+  
+  InvalidationDuringCall() : testField1(true), testField2(true) {}
+  
+  void someMethodChangingFields() {
+    testField1 = not testField1 or testField2;
+    this->testField2 = not this->testField2;
+  }
+  
+  void somethingComplexWhichWillProvokeInvalidationInTheMiddle() {
+    testField1 = true; // that should work with a valid this
+    
+    tracked_ptr<InvalidationDuringCall>::invalidate_all_pointer();
+    
+    // well, and that should fail. Not sure yet how to achieve that
+    testField2 = true;
+  }
+  
+  inline InvalidationDuringCall* operator-> () {
+    return this;
+  }
+};
+// currently diabled since it does not seem to be possible to capture this and 
+// do magic with it in the method body
+TEST(TrackedPointer, DISABLED_InvalidationDuringCall) {
+  tracked_ptr<InvalidationDuringCall> t = (tracked_ptr<InvalidationDuringCall>)new InvalidationDuringCall();
+  
+  t->someMethodChangingFields();
+  t->somethingComplexWhichWillProvokeInvalidationInTheMiddle();
+  t->someMethodChangingFields();
 }
 
 

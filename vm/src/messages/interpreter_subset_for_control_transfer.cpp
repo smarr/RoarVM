@@ -50,7 +50,7 @@ void Interpreter_Subset_For_Control_Transfer::fill_in_interpreter() {
 
 
 void Interpreter_Subset_For_Control_Transfer::do_all_roots(Oop_Closure* oc) {
-# define INVOKE_CLOSURE(type, my_var, in_var) oc->value(&my_var, NULL);
+# define INVOKE_CLOSURE(type, my_var, in_var) oc->value(&my_var, (Object_p)NULL);
   FOR_ALL_OOPS_IN_SUBSET(INVOKE_CLOSURE)
 # undef INVOKE_CLOSURE
 }

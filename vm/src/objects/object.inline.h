@@ -14,7 +14,7 @@
 
 inline void Object::set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB) {
   Safepoint_for_moving_objects::assert_held();
-  The_Memory_System()->object_table->set_object_for(x, this  COMMA_USE_ESB);
+  The_Memory_System()->object_table->set_object_for(x, (Object_p)this  COMMA_USE_ESB);
   set_backpointer(x);
 }
 
@@ -25,7 +25,7 @@ inline void Object::set_class_oop(Oop x) {
   The_Memory_System()->store_enforcing_coherence(&class_and_type_word(),
                                               Header_Type::extract_from(class_and_type_word())
                                               |  Header_Type::without_type(x.bits()),
-                                              this);
+                                              (Object_p)this);
 }
 
 inline void Object::set_class_oop_no_barrier(Oop x) {
@@ -40,19 +40,19 @@ inline void Object::unmark_without_store_barrier() { baseHeader &= ~MarkBit; }
 
 inline void Object::set_backpointer_word(oop_int_t w) {
   oop_int_t* dst = backpointer_word();
-  The_Memory_System()->store_enforcing_coherence(dst, w, this);
+  The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);
 }
 
 inline void Object::set_extra_preheader_word(oop_int_t w) {
   assert_always(w); // bug hunt qqq
   oop_int_t* dst = extra_preheader_word();
-  The_Memory_System()->store_enforcing_coherence(dst, w, this);
+  The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);
 }
 
 inline bool Object::hasSender(Oop aContext) {
   // rcvr must be a context
-  Object* aco = aContext.as_object();
-  if (this == aco)  return false;
+  Object_p aco = aContext.as_object();
+  if (this == (Object*)aco)  return false;
   Oop nilOop = The_Squeak_Interpreter()->roots.nilObj;
   for (Oop s = fetchPointer(Object_Indices::SenderIndex);
        s != nilOop;
@@ -223,14 +223,16 @@ inline oop_int_t Object::fetchLong32Length() {
 inline u_char& Object::byte_at(oop_int_t byteIndex) { return as_u_char_p()[BaseHeaderSize + byteIndex]; }
 inline u_char  Object::fetchByte(oop_int_t byteIndex) { return byte_at(byteIndex); }
 inline void    Object::storeByte( oop_int_t byteIndex, u_char valueByte) {
-  The_Memory_System()->store_enforcing_coherence(&byte_at(byteIndex), valueByte, this); // used in interpreter, mostly for new objects
+  The_Memory_System()->store_enforcing_coherence(&byte_at(byteIndex), valueByte, (Object_p)this); // used in interpreter, mostly for new objects
 }
 
 
 inline Oop& Object::pointer_at(oop_int_t fieldIndex) {
   return as_oop_p()[BaseHeaderSize / sizeof(Oop)  +  fieldIndex];
 }
+
 inline Oop  Object::fetchPointer(oop_int_t fieldIndex) {
+  assert(fieldIndex >= 0); // STEFAN that should always hold, shouldn't it?
   Oop r;
   MEASURE(fetch_pointer, r.bits(), r = pointer_at(fieldIndex));
   return r;
@@ -250,7 +252,7 @@ inline void Object::catch_stores_of_method_in_home_ctxs(Oop* addr, int n,  Oop x
 inline void Object::storePointer( oop_int_t fieldIndex, Oop oop) {
   Oop* addr = &pointer_at(fieldIndex);
   catch_stores_of_method_in_home_ctxs(addr, fieldIndex, oop);
-  The_Memory_System()->store_enforcing_coherence(addr, oop, this);
+  The_Memory_System()->store_enforcing_coherence(addr, oop, (Object_p)this);
 }
 inline void Object::storePointerUnchecked( oop_int_t fieldIndex, Oop oop) {
   // "Like storePointer:ofObject:withValue:, 
@@ -260,7 +262,7 @@ inline void Object::storePointerUnchecked( oop_int_t fieldIndex, Oop oop) {
   // Must NOT send any messages; may be called with safepoint ability true, but caller is not safe.
   Oop* addr = &pointer_at(fieldIndex);
   catch_stores_of_method_in_home_ctxs(addr, fieldIndex, oop);
-  The_Memory_System()->store_enforcing_coherence(addr, oop, this);
+  The_Memory_System()->store_enforcing_coherence(addr, oop, (Object_p)this);
 }
 
 void Object::storePointerIntoContext(oop_int_t fieldIndex, Oop x) {
@@ -277,7 +279,7 @@ inline int32  Object::fetchLong32(oop_int_t fieldIndex) {
   return long32_at(fieldIndex);
 }
 inline void   Object::storeLong32(oop_int_t fieldIndex, int32 x) {
-  The_Memory_System()->store_enforcing_coherence(&long32_at(fieldIndex), x, this);
+  The_Memory_System()->store_enforcing_coherence(&long32_at(fieldIndex), x, (Object_p)this);
 }
 
 inline void   Object::storeInteger(oop_int_t fieldIndex, oop_int_t x) {
@@ -286,7 +288,7 @@ inline void   Object::storeInteger(oop_int_t fieldIndex, oop_int_t x) {
 }
 
 
-inline Object* Object::instantiateSmallClass(oop_int_t sizeInBytes) {
+inline Object_p Object::instantiateSmallClass(oop_int_t sizeInBytes) {
   /* "This version of instantiateClass assumes that the total object
    size is under 256 bytes, the limit for objects with only one or
    two header words. Note that the size is specified in bytes
@@ -363,13 +365,13 @@ inline oop_int_t Object::temporaryCountOfHeader(oop_int_t header) { return (head
 
 inline void Object::flushExternalPrimitive() {
 	// this is a CompiledMethod containing an external primitive. Flush the function address and session ID of the CM"
-  Object* lit = get_external_primitive_literal_of_method();
+  Object_p lit = get_external_primitive_literal_of_method();
   if (lit == NULL)  return; //  "Something's broken"
   lit->cleanup_session_ID_and_ext_prim_index_of_external_primitive_literal();
 }
 
 
-inline Object* Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
+inline Object_p Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
                                        oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize,
                                        bool doFill,
                                        bool fillWithNil) {
@@ -381,7 +383,7 @@ inline Object* Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrS
 
   Preheader* preheader_p = (Preheader*)this;
   oop_int_t* headerp = (oop_int_t*)&preheader_p[1];
-  Object*    newObj = (Object*)&headerp[hdrSize - 1];
+  Object_p    newObj = (Object_p)(Object*)&headerp[hdrSize - 1];
   assert(The_Memory_System()->is_address_read_write(this)); // not going to bother with coherence
 
   Multicore_Object_Heap* h = The_Memory_System()->heaps[my_rank][Memory_System::read_write];
@@ -420,7 +422,7 @@ inline Object* Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrS
     DEBUG_STORE_CHECK(headerp, contents);
     *headerp   = contents;
   }
-  assert_eq(newObj, (Object*)headerp, "");
+  assert_eq(newObj, headerp, "");
 
   The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, my_rank  COMMA_TRUE_OR_NOTHING);
 
@@ -447,7 +449,7 @@ inline Object* Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrS
 }
 
 
-inline Object* Object::instantiateContext(oop_int_t  sizeInBytes ) {
+inline Object_p Object::instantiateContext(oop_int_t  sizeInBytes ) {
   /*
    "This version of instantiateClass assumes that the total object
    size is under 256 bytes, the limit for objects with only one or
@@ -527,7 +529,7 @@ inline double Object::fetchFloatofObject(oop_int_t fieldIndex) {
 
 
 inline Oop Object::floatObject(double d) {
-  Object* r = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassFloat)
+  Object_p r = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassFloat)
   ->instantiateSmallClass(sizeof(double) + BaseHeaderSize);
   r->storeFloat(d);
   return r->as_oop();
@@ -535,7 +537,7 @@ inline Oop Object::floatObject(double d) {
 
 inline void Object::storeFloat(double d) {
   The_Memory_System()->store_2_enforcing_coherence(
-    &as_int32_p()[0 + BaseHeaderSize/sizeof(int32)], ((int32*)&d)[1],((int32*)&d)[0], this);
+    &as_int32_p()[0 + BaseHeaderSize/sizeof(int32)], ((int32*)&d)[1],((int32*)&d)[0], (Object_p)this);
 }
 
 inline bool Object::equals_string(const char* s) {

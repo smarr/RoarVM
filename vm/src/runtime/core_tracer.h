@@ -18,7 +18,7 @@ class Core_Tracer: public Abstract_Tracer {
   void add(char i) {
     ((char*)buffer)[get_free_entry()] = i;
   }
-  void copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object* dst_obj) {
+  void copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object_p dst_obj) {
     bcopy((char*)buffer + src_offset, (char*)dst + dst_offset, num_elems * sizeof(char));
   }
 

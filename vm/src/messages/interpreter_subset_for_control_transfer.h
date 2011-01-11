@@ -35,9 +35,9 @@ template(Oop, running_process_or_nil, roots.running_process_or_nil) \
 
 
 # define FOR_ALL_VARS_IN_SUBSET(template) \
-template(Object*, activeContext_obj, _activeContext_obj) \
-template(Object*, method_obj, _method_obj) \
-template(Object*, theHomeContext_obj, _theHomeContext_obj) \
+template(Object_p, activeContext_obj, _activeContext_obj) \
+template(Object_p, method_obj, _method_obj) \
+template(Object_p, theHomeContext_obj, _theHomeContext_obj) \
 template(u_char*, instructionPointer, _instructionPointer) \
 template(Oop*, stackPointer, _stackPointer) \
 template(u_char*, _localIP, _localIP) \

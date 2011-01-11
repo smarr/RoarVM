@@ -33,10 +33,10 @@ class Process_Field_Locator {
   const char* names[count];
   int32 last_timestamp;
   
-  Object* instance_variable_names_of_Process();  
+  Object_p instance_variable_names_of_Process();  
   int instance_variable_count_of_superclasses_of_Process();
   void update_indices();
-  static Object* class_process();
+  static Object_p class_process();
   
   public:
   int index_of_process_inst_var(Fields);

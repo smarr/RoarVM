@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-inline void Multicore_Object_Heap::store_enforcing_coherence(oop_int_t* p, oop_int_t x, Object* dst_obj_to_be_evacuated_or_null) {
+inline void Multicore_Object_Heap::store_enforcing_coherence(oop_int_t* p, oop_int_t x, Object_p dst_obj_to_be_evacuated_or_null) {
   if (is_read_write()) {
     DEBUG_STORE_CHECK(p, x);
     *p = x;
@@ -20,11 +20,11 @@ inline void Multicore_Object_Heap::store_enforcing_coherence(oop_int_t* p, oop_i
   else The_Memory_System()->store_enforcing_coherence(p, x, dst_obj_to_be_evacuated_or_null);
 }
 
-inline void Multicore_Object_Heap::store_enforcing_coherence(Oop* p, Oop x, Object* dst_obj_to_be_evacuated_or_null) {
+inline void Multicore_Object_Heap::store_enforcing_coherence(Oop* p, Oop x, Object_p dst_obj_to_be_evacuated_or_null) {
   store_enforcing_coherence((oop_int_t*)p, x.bits(), dst_obj_to_be_evacuated_or_null);
 }
 
-inline void Multicore_Object_Heap::store_bytes_enforcing_coherence(void* dst, const void* src, int nbytes, Object* dst_obj_to_be_evacuated_or_null) {
+inline void Multicore_Object_Heap::store_bytes_enforcing_coherence(void* dst, const void* src, int nbytes, Object_p dst_obj_to_be_evacuated_or_null) {
   if (is_read_write())  {
     DEBUG_MULTIMOVE_CHECK( dst, src, nbytes / bytes_per_oop);
     memmove(dst, src, nbytes);
@@ -34,7 +34,7 @@ inline void Multicore_Object_Heap::store_bytes_enforcing_coherence(void* dst, co
 
 
 
-inline Object* Multicore_Object_Heap::allocate(oop_int_t byteSize, oop_int_t hdrSize,
+inline Object_p Multicore_Object_Heap::allocate(oop_int_t byteSize, oop_int_t hdrSize,
                  oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize,
                  bool doFill,
                  bool fillWithNil) {
@@ -60,7 +60,7 @@ inline Object* Multicore_Object_Heap::allocate(oop_int_t byteSize, oop_int_t hdr
   Safepoint_Ability sa(false); // from here on, no GCs!
   Oop remappedClassOop = hdrSize > 1  ?  The_Squeak_Interpreter()->popRemappableOop() : Oop::from_int(0);
   Chunk* saved_next = !check_assertions ? NULL : (Chunk*) chunk->my_heap()->end_objects();
-  Object* newObj = chunk->fill_in_after_allocate(byteSize, hdrSize, baseHeader,
+  Object_p newObj = chunk->fill_in_after_allocate(byteSize, hdrSize, baseHeader,
                                                  remappedClassOop, extendedSize, doFill, fillWithNil);
   assert_eq(newObj->nextChunk(), saved_next, "allocate bug: did not set header of new oop correctly");
   
@@ -84,7 +84,7 @@ inline int32 Multicore_Object_Heap::newObjectHash() {
   return lastHash = (13849 + (27181 * (lastHash + Logical_Core::my_rank()))) & 65535;
 }
 
-inline Object* Multicore_Object_Heap::object_address_unchecked(Oop x) {
+inline Object_p Multicore_Object_Heap::object_address_unchecked(Oop x) {
   return x.as_object_unchecked();
 }
 
@@ -97,7 +97,11 @@ inline bool Multicore_Object_Table::Entry::is_used() {
 }
 
 
-inline bool Multicore_Object_Table::probably_contains(void* p) {
+inline bool Multicore_Object_Table::probably_contains(const tracked_ptr<Object>& p) const {
+  return probably_contains(p.get());
+}
+
+inline bool Multicore_Object_Table::probably_contains(void* p) const {
   if (The_Memory_System()->contains(p)) return false;
   FOR_ALL_RANKS(r)
     if (lowest_address[r] <= p  &&  p  < lowest_address_after_me[r])

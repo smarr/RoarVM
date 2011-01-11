@@ -67,7 +67,7 @@ void Squeak_Interpreter::primitiveAt() {
 
 void Squeak_Interpreter::primitiveAtEnd() {
   Oop stream = popStack();
-  Object* so;
+  Object_p so;
   successFlag = stream.is_mem() && (so = stream.as_object())->isPointers()
   && so->lengthOf() >= Object_Indices::StreamReadLimitIndex + 1;
   if (successFlag) {
@@ -99,10 +99,11 @@ void Squeak_Interpreter::primitiveBeCursor() {
   }
   success(get_argumentCount() < 2);
 
-  Object* co;
+  Object_p co;
   success(cursorObj.is_mem() && (co = cursorObj.as_object())->lengthOf() >= 5);
   Oop bitsObj;
-  Object *bo, *oo;
+  Object_p bo;
+  Object_p oo;
   oop_int_t extentX, extentY, depth;
   if (successFlag) {
     bitsObj = co->fetchPointer(0);
@@ -124,7 +125,7 @@ void Squeak_Interpreter::primitiveBeCursor() {
     cursorBitsIndex = bo->as_char_p() + Object::BaseHeaderSize;
   }
   if (get_argumentCount() == 1) {
-    Object* mo;
+    Object_p mo;
     success(maskObj.is_mem() && (mo = maskObj.as_object())->lengthOf() >= 5);
     if (successFlag) {
       bitsObj = mo->fetchPointer(0);
@@ -207,13 +208,13 @@ void Squeak_Interpreter::primitiveBlockCopy() {
   Oop methodContext;
   oop_int_t contextSize;
   {
-    Oop context = stackValue(1); Object* co = context.as_object();
+    Oop context = stackValue(1); Object_p co = context.as_object();
     methodContext = co->home_of_block_or_method_context()->as_oop();
     assert(methodContext.as_object()->isMethodContext());
     contextSize = methodContext.as_object()->sizeBits(); // in bytes, incl header
   }
   pushRemappableOop(methodContext);
-  Object* nco = splObj_obj(Special_Indices::ClassBlockContext)->instantiateContext(contextSize);
+  Object_p nco = splObj_obj(Special_Indices::ClassBlockContext)->instantiateContext(contextSize);
   methodContext = popRemappableOop();
 
   oop_int_t initialIP = (instructionPointer() + 1 + 3) - (method_obj()->as_u_char_p() + Object::BaseHeaderSize);
@@ -317,7 +318,7 @@ void Squeak_Interpreter::primitiveClipboardText() {
    string containing the current clipboard contents."*/
   if (get_argumentCount() == 1) {
     Oop s = stackTop();
-    Object* so;
+    Object_p so;
     if (!s.is_mem()  || !(so = s.as_object())->isBytes()) {
       primitiveFail(); return;
     }
@@ -332,7 +333,7 @@ void Squeak_Interpreter::primitiveClipboardText() {
       primitiveFail();  return;
     }
     Oop s = classString()->instantiateClass(sz)->as_oop();
-    Object* so = s.as_object();
+    Object_p so = s.as_object();
     char* start = so->as_char_p() + Object::BaseHeaderSize;
     assert(The_Memory_System()->contains(start));
 
@@ -357,7 +358,7 @@ void Squeak_Interpreter::primitiveConstantFill() {
   // rcvr is indexable bytes or words
   oop_int_t fillValue = positive32BitValueOf(stackTop());
   Oop rcvr = stackValue(1);
-  Object* ro;
+  Object_p ro;
   success(rcvr.is_mem()  && (ro = rcvr.as_object())->isWordsOrBytes());
   if (!successFlag) return;
   bool isB = ro->isBytes();
@@ -391,7 +392,8 @@ void Squeak_Interpreter::primitiveCopyObject() {
   Oop rcvr = stackObjectValue(1);
 
   if (failed()) return;
-  Object *ro, *ao;
+  Object_p ro;
+  Object_p ao;
   if (!rcvr.is_mem() || !arg.is_mem()) { primitiveFail(); return; }
   ro = rcvr.as_object();  ao = arg.as_object();
   if (ro->fetchClass() != ao->fetchClass()) { primitiveFail(); return; }
@@ -430,7 +432,7 @@ void Squeak_Interpreter::primitiveDivide() {
 void Squeak_Interpreter::primitiveDoPrimitiveWithArgs() {
   Oop argumentArray = stackTop();
   if (!argumentArray.is_mem()) { primitiveFail();  return; }
-  Object* aao = argumentArray.as_object();
+  Object_p aao = argumentArray.as_object();
   oop_int_t arraySize = aao->fetchWordLength();
   oop_int_t cntxSize = activeContext_obj()->fetchWordLength();
   success(stackPointerIndex() + arraySize  <  cntxSize);
@@ -469,14 +471,14 @@ void Squeak_Interpreter::primitiveDoNamedPrimitiveWithArgs() {
   
   Oop argumentArray = stackTop();
   if (!argumentArray.isArray()) { primitiveFail();  return; }
-  Object* argumentArray_obj = argumentArray.as_object();
+  Object_p argumentArray_obj = argumentArray.as_object();
   
   oop_int_t arraySize = argumentArray_obj->fetchWordLength();
   success( roomToPushNArgs( arraySize));
   
   Oop methodArg = stackObjectValue(2);
   if ( !successFlag ) { primitiveFail(); return; }
-  Object* methodArg_object = methodArg.as_object();
+  Object_p methodArg_object = methodArg.as_object();
   if (!methodArg_object->isCompiledMethod()) { primitiveFail(); return; }
   
   int methodHeader = methodArg_object->methodHeader();
@@ -485,7 +487,7 @@ void Squeak_Interpreter::primitiveDoNamedPrimitiveWithArgs() {
   Oop spec = methodArg_object->fetchPointer(1); // first literal
   assertClass(spec, splObj(Special_Indices::ClassArray));
   if (!successFlag) return;
-  Object* spec_obj = spec.as_object();
+  Object_p spec_obj = spec.as_object();
   if ( spec_obj->lengthOf() != 4  
       ||  Object::primitiveIndex_of_header(methodHeader) != 117
       ||  Object::argumentCountOfHeader(methodHeader) != arraySize) {
@@ -494,13 +496,13 @@ void Squeak_Interpreter::primitiveDoNamedPrimitiveWithArgs() {
   // Function not loaded yet. Fetch module & func name
   Oop moduleName = spec_obj->fetchPointer(0);
   if (!moduleName.is_mem()) { primitiveFail(); return; }
-  Object* moduleName_obj = moduleName.as_object();
+  Object_p moduleName_obj = moduleName.as_object();
   int moduleLength = moduleName == roots.nilObj  ?  0  :  moduleName_obj->lengthOf();
   
   Oop functionName = spec_obj->fetchPointer(1);
   success( functionName.isBytes() );
   if (!successFlag) return;
-  Object* functionName_obj = functionName.as_object();
+  Object_p functionName_obj = functionName.as_object();
   int functionLength = functionName_obj->lengthOf();
   
   fn_t addr;
@@ -549,7 +551,7 @@ void Squeak_Interpreter::primitiveExecuteMethod() {
     unPop(1);
     return;
   }
-  Object* nmo = newMethod_obj();
+  Object_p nmo = newMethod_obj();
   primitiveIndex = nmo->primitiveIndex();
   success(get_argumentCount() - 1  ==  nmo->argumentCount());
   if (successFlag)
@@ -565,11 +567,11 @@ void Squeak_Interpreter::primitiveExecuteMethodArgsArray() {
     primitiveFail();
     return;
   }
-  Object* nmo = newMethod_obj();
+  Object_p nmo = newMethod_obj();
   primitiveIndex = nmo->primitiveIndex();
   int argCnt = nmo->argumentCount();
   Oop argumentArray = popStack();
-  Object* aao;
+  Object_p aao;
   if (!argumentArray.is_mem()  ||  !(aao = argumentArray.as_object())->isArray()) {
     unPop(2);
     primitiveFail();
@@ -651,7 +653,7 @@ void Squeak_Interpreter::primitiveExternalCall() {
 
   // fetch first literal
   Safepoint_Ability sa(false);
-  Object* lo = newMethod_obj()->get_external_primitive_literal_of_method();
+  Object_p lo = newMethod_obj()->get_external_primitive_literal_of_method();
   success(lo != NULL);
   if (!successFlag) return;
 
@@ -663,7 +665,8 @@ void Squeak_Interpreter::primitiveExternalCall() {
 
   // fn not loaded yet, fetch module and fn name
   Oop moduleName, functionName;
-  Object *mno, *fno;
+  Object_p mno;
+  Object_p fno;
   int moduleLength, functionLength;
   fetch_module_and_fn_name(lo, moduleName, mno, moduleLength, functionName, fno, functionLength);
   if (!successFlag) return;
@@ -704,7 +707,7 @@ void Squeak_Interpreter::primitiveExternalCall() {
 }
 
 
-oop_int_t Squeak_Interpreter::compute_primitive_index(Object* lo) {
+oop_int_t Squeak_Interpreter::compute_primitive_index(Object_p lo) {
   Oop index = lo->fetchPointer(Object_Indices::EPL_External_Primitive_Table_Index);
   oop_int_t ii = index.checkedIntegerValue();
   if (!successFlag) return Abstract_Primitive_Table::lookup_failed;
@@ -719,7 +722,7 @@ oop_int_t Squeak_Interpreter::compute_primitive_index(Object* lo) {
 
 
 
-bool Squeak_Interpreter::lookup_in_externalPrimitiveTable(Object* lo) {
+bool Squeak_Interpreter::lookup_in_externalPrimitiveTable(Object_p lo) {
   oop_int_t ii = compute_primitive_index(lo);
   if (!successFlag) 
     return true;
@@ -740,9 +743,9 @@ bool Squeak_Interpreter::lookup_in_externalPrimitiveTable(Object* lo) {
   return true;
 }
 
-void Squeak_Interpreter::fetch_module_and_fn_name(Object* lo, 
-                                                  Oop& moduleName, Object*& mno, int& moduleLength,
-                                                  Oop& functionName, Object*& fno, int& functionLength) {
+void Squeak_Interpreter::fetch_module_and_fn_name(Object_p lo, 
+                                                  Oop& moduleName, Object_p& mno, int& moduleLength,
+                                                  Oop& functionName, Object_p& fno, int& functionLength) {
   // fn not loaded yet, fetch module and fn name
   moduleName = lo->fetchPointer(Object_Indices::EPL_Module_Name);
   if (!moduleName.is_mem()) { primitiveFail(); return; }
@@ -764,8 +767,8 @@ void Squeak_Interpreter::fetch_module_and_fn_name(Object* lo,
 
 
 
-void Squeak_Interpreter::lookup_in_obsoleteNamedPrimitiveTable(Oop functionName, Object*& fno, int functionLength,
-                                                               Oop  moduleName, Object*& mno, int moduleLength,
+void Squeak_Interpreter::lookup_in_obsoleteNamedPrimitiveTable(Oop functionName, Object_p& fno, int functionLength,
+                                                               Oop  moduleName, Object_p& mno, int moduleLength,
                                                                bool& on_main, fn_t& addr) { 
   // we use the obs named table to direct RVMPlugin prims to local core
   oop_int_t ii = obsoleteNamedPrimitiveTable.find( fno->as_char_p() + Object::BaseHeaderSize, functionLength, 
@@ -786,8 +789,8 @@ void Squeak_Interpreter::lookup_in_obsoleteNamedPrimitiveTable(Oop functionName,
 }
 
 
-fn_t Squeak_Interpreter::munge_arguments_and_load_function_from_plugin_on_main(Oop functionName, Object*& fno, int functionLength,
-                                                                               Oop  moduleName, Object*& mno, int moduleLength) { 
+fn_t Squeak_Interpreter::munge_arguments_and_load_function_from_plugin_on_main(Oop functionName, Object_p& fno, int functionLength,
+                                                                               Oop  moduleName, Object_p& mno, int moduleLength) { 
   char fn[10000], mod[10000];
   assert_always(functionLength < sizeof(fn)  &&  moduleLength < sizeof(mod));
   strncpy( fn, fno->as_char_p() + Object::BaseHeaderSize, functionLength);  fn[functionLength] = '\0';
@@ -801,7 +804,7 @@ fn_t Squeak_Interpreter::munge_arguments_and_load_function_from_plugin_on_main(O
 }
 
 
-void Squeak_Interpreter::update_cache_and_call_external_function(Object* fno, oop_int_t ii, fn_t addr, bool on_main) {
+void Squeak_Interpreter::update_cache_and_call_external_function(Object_p fno, oop_int_t ii, fn_t addr, bool on_main) {
   static const bool verbose = false;
   
   methodCache.rewrite(roots.messageSelector, roots.lkupClass, 1000 + ii, addr, on_main);
@@ -820,7 +823,7 @@ void Squeak_Interpreter::update_cache_and_call_external_function(Object* fno, oo
 }
 
 
-void Squeak_Interpreter::update_cache_and_report_failure_to_load_external_function(Object* mno, Object* fno) {
+void Squeak_Interpreter::update_cache_and_report_failure_to_load_external_function(Object_p mno, Object_p fno) {
   if (mno->equals_string("SecurityPlugin")
       || fno->equals_string("primitivePluginBrowserReady")
       || fno->equals_string("primSetCompositionWindowPosition"))
@@ -846,7 +849,7 @@ void Squeak_Interpreter::primitiveFindHandlerContext() {
       push(nil);
       return;
     }
-  Object* tco = thisCntx.as_object();
+  Object_p tco = thisCntx.as_object();
   if (tco->isHandlerMarked()) {
       push(thisCntx);
       return;
@@ -857,7 +860,7 @@ void Squeak_Interpreter::primitiveFindHandlerContext() {
 void Squeak_Interpreter::primitiveFindNextUnwindContext() {
   Oop aContext = popStack();
   Oop nilOop = roots.nilObj;
-  Object* tco;
+  Object_p tco;
 
   for (Oop thisCntx  = popStack().as_object()->fetchPointer(Object_Indices::SenderIndex);
            thisCntx != aContext  &&  thisCntx != nilOop;
@@ -938,14 +941,14 @@ void Squeak_Interpreter::primitiveFormPrint() {
   Oop rcvr = stackValue(3);
   if (!rcvr.is_mem())
     success(false);
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   if (!successFlag) return;
   success(ro->lengthOf() >= 4);
   if (!successFlag) return;
   Oop bitsArray = ro->fetchPointer(0);
   success(bitsArray.is_mem());
   if (!successFlag) return;
-  Object* bo = bitsArray.as_object();
+  Object_p bo = bitsArray.as_object();
   int w = ro->fetchInteger(1);
   int h = ro->fetchInteger(2);
   int d = ro->fetchInteger(3);
@@ -986,7 +989,7 @@ void Squeak_Interpreter::primitiveGetAttribute() {
   if (!successFlag) return;
   int sz = attributeSize(attr);
   if (!successFlag) return;
-  Object* s = classString()->instantiateClass(sz);
+  Object_p s = classString()->instantiateClass(sz);
   getAttributeIntoLength(attr, s->as_char_p() + Object::BaseHeaderSize, sz);
   popThenPush(2, s->as_oop());
 }
@@ -1001,7 +1004,7 @@ void Squeak_Interpreter::primitiveGetNextEvent() {
     primitiveFail();
   if (!successFlag) return;
 
-  Oop arg = stackTop(); Object* ao;
+  Oop arg = stackTop(); Object_p ao;
   if (!arg.is_mem() || !(ao = arg.as_object())->isArray() || ao->slotSize() != 8) {
     primitiveFail(); return;
   }
@@ -1054,7 +1057,7 @@ void Squeak_Interpreter::primitiveImageName() {
   }
   else {
     oop_int_t sz = The_Memory_System()->imageNameSize();
-    Object* so = classString()->instantiateClass(sz);
+    Object_p so = classString()->instantiateClass(sz);
     The_Memory_System()->imageNameGet(so, sz);
     pop(1);
     push(so->as_oop());
@@ -1091,7 +1094,7 @@ void Squeak_Interpreter::primitiveInstVarAt() {
   oop_int_t index = stackIntegerValue(0);
   Oop rcvr = stackValue(1);
   if (!rcvr.is_mem()) { primitiveFail(); return; }
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   if (successFlag) {
     oop_int_t fixedFields = ro->fixedFieldsOfArray();
     if (index < 1  ||  index > fixedFields)
@@ -1108,7 +1111,7 @@ void Squeak_Interpreter::primitiveInstVarAtPut() {
   Oop rcvr = stackValue(2);
   if (!rcvr.is_mem()) primitiveFail();
   if (!successFlag) return;
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   if (index < 1  ||  index > ro->fixedFieldsOfArray()) {
     primitiveFail();
     return;
@@ -1125,7 +1128,7 @@ void Squeak_Interpreter::primitiveIntegerAt() {
   unimplemented();
   oop_int_t index = stackIntegerValue(0);
   Oop rcvr = stackValue(1);
-  Object* ro;
+  Object_p ro;
   if (!rcvr.is_mem()  ||  !(ro = rcvr.as_object())->isWords()
       || index < 1  || index > ro->lengthOf() ) {
     success(false); return;
@@ -1143,7 +1146,7 @@ void Squeak_Interpreter::primitiveIntegerAtPut() {
   untested();
   Oop valueOop = stackValue(0);
   oop_int_t index = stackIntegerValue(1);
-  Oop rcvr = stackValue(2); Object* ro;
+  Oop rcvr = stackValue(2); Object_p ro;
 
   if (!rcvr.is_mem() || !(ro = rcvr.as_object())->isWords()
     ||  index < 1
@@ -1170,7 +1173,7 @@ void Squeak_Interpreter::primitiveInterruptSemaphore() {
 
 void Squeak_Interpreter::primitiveInvokeObjectAsMethod() {
   if (check_many_assertions) assert(roots.newMethod.verify_oop());
-  Object* rao = splObj_obj(Special_Indices::ClassArray)->instantiateClass(get_argumentCount());
+  Object_p rao = splObj_obj(Special_Indices::ClassArray)->instantiateClass(get_argumentCount());
   rao->beRootIfOld();
   oopcpy_no_store_check(rao->as_oop_p() + Object::BaseHeaderSize/sizeof(Oop),
                         stackPointer() - (get_argumentCount() - 1),
@@ -1235,7 +1238,7 @@ void Squeak_Interpreter::primitiveListBuiltinModule() {
     push(roots.nilObj);
     return;
   }
-  Object* nameObj = Object::makeString(moduleName);
+  Object_p nameObj = Object::makeString(moduleName);
   popThenPush(2, nameObj->as_oop());
   forceInterruptCheck();
 }
@@ -1252,7 +1255,7 @@ void Squeak_Interpreter::primitiveListExternalModule() {
     push(roots.nilObj);
     return;
   }
-  Object* nameObj = Object::makeString(moduleName);
+  Object_p nameObj = Object::makeString(moduleName);
   popThenPush(2, nameObj->as_oop());
   forceInterruptCheck();
 }
@@ -1275,11 +1278,11 @@ void Squeak_Interpreter::primitiveLoadImageSegment() {
   if (check_assertions) verifyCleanHeaders();
   Oop outPointerArray = stackTop();
   if (!outPointerArray.is_mem())  { primitiveFail();  return; }
-  Object* opao = outPointerArray.as_object();
+  Object_p opao = outPointerArray.as_object();
   Oop* lastOut = opao.as_oop_p()  +  opao->lastPointer() / sizeof(Oop);
   Oop segmentWordArray = stackValue(1);
   if (!segmentWordArray.is_mem()) { primitiveFail();  return }
-  Object* sqao = segmentWordArray.as_object();
+  Object_p sqao = segmentWordArray.as_object();
   Oop* endSeg = swao->as_oop_p() + (swao->sizeBits() - Object::BaseHeaderSize) / sizeof(Oop);
 
   if (apao->format() != Format::indexable_fields_only  ||  swao->format() != Format:indexable_word_fields_only) {
@@ -1310,7 +1313,7 @@ void Squeak_Interpreter::primitiveLowSpaceSemaphore() {
 void Squeak_Interpreter::primitiveMakePoint() {
   Oop a = stackTop();
   Oop r = stackValue(1);
-  Object* pto;
+  Object_p pto;
   if (r.is_int()) {
     if (a.is_int())
       pto = Object::makePoint(r.integerValue(), a.integerValue());
@@ -1320,7 +1323,7 @@ void Squeak_Interpreter::primitiveMakePoint() {
     }
   }
   else {
-    Object* ro = r.as_object();
+    Object_p ro = r.as_object();
     if (!ro->isFloatObject()) {
       successFlag = false;
       return;
@@ -1401,7 +1404,7 @@ void Squeak_Interpreter::primitiveNewMethod() {
   if (!successFlag) { unPop(2); return; }
   Oop klass = popStack();
   oop_int_t size = (Object::literalCountOfHeader(header.bits()) + 1) * bytesPerWord + bytecodeCount;
-  Object* thisMethod = klass.as_object()->instantiateClass(size);
+  Object_p thisMethod = klass.as_object()->instantiateClass(size);
   thisMethod->storePointer(Object_Indices::HeaderIndex, header);
   oop_int_t lc = Object::literalCountOfHeader(header.bits());
   for (int i = 1;  i <= lc;  ++i)
@@ -1431,7 +1434,7 @@ void Squeak_Interpreter::primitiveNext() {
    */
   Oop stream = stackTop();
   if (!stream.is_mem()) { primitiveFail(); return; }
-  Object* so = stream.as_object();
+  Object_p so = stream.as_object();
   if (!so->isPointers()  ||  so->lengthOf() <  Object_Indices::StreamReadLimitIndex + 1) {
     primitiveFail();
     return;
@@ -1480,7 +1483,7 @@ void Squeak_Interpreter::primitiveNextPut() {
   // only succeed if in atPutCache
   Oop value = stackTop();
   Oop stream = stackValue(1);
-  Object* so;
+  Object_p so;
   if (!stream.isPointers()  || (so = stream.as_object())->lengthOf() < Object_Indices::StreamReadLimitIndex + 1) {
     primitiveFail();
     return;
@@ -1514,7 +1517,7 @@ void Squeak_Interpreter::primitiveNotEqual() {
 void Squeak_Interpreter::primitiveObjectAt() {
   oop_int_t index = popInteger();
   Oop rcvr = popStack();
-  Object* ro;
+  Object_p ro;
   // only defined for compiled methods
   success(index > 0  &&  rcvr.is_mem()  &&   index <= (ro = rcvr.as_object())->literalCount() + Object_Indices::LiteralStart);
   if (successFlag)
@@ -1527,7 +1530,7 @@ void Squeak_Interpreter::primitiveObjectAtPut() {
   Oop newV = popStack();
   oop_int_t index = popInteger();
   Oop rcvr = popStack();
-  Object* ro;
+  Object_p ro;
   success(index > 0  &&  rcvr.is_mem()  &&  index <= (ro = rcvr.as_object())->literalCount() + Object_Indices::LiteralStart);
   if (successFlag) {
     ro->storePointer(index - 1, newV);
@@ -1544,7 +1547,7 @@ void Squeak_Interpreter::primitiveObjectPointsTo() {
     pushBool(false);
     return;
   }
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   oop_int_t lastField = ro->lastPointer() / sizeof(Oop);
   for( int i = Object::BaseHeaderSize / sizeof(Oop);  i <= lastField;  ++i)
     if (ro->as_oop_p()[i] == thang) {
@@ -1601,7 +1604,7 @@ void Squeak_Interpreter::primitivePerform() {
   findNewMethodInClass(lookupClass);
 
   {
-  Object* nmo = newMethod_obj();
+  Object_p nmo = newMethod_obj();
   if (nmo->isCompiledMethod())
     success(nmo->argumentCount() == get_argumentCount());
   }
@@ -1627,7 +1630,7 @@ void Squeak_Interpreter::primitivePerformInSuperclass() {
   untested();
   Oop lookupClass = stackTop();
   Oop rcvr = stackValue(get_argumentCount());
-  Object* cco;
+  Object_p cco;
 
   for (Oop currentClass = rcvr.fetchClass();
         currentClass != roots.nilObj;
@@ -1729,12 +1732,12 @@ void Squeak_Interpreter::primitiveScanCharacters() {
 
   oop_int_t kernDelta = stackIntegerValue(0);
   Oop stops = stackObjectValue(1);
-  Object* so = stops.as_object();
+  Object_p so = stops.as_object();
   if (!so->isArray()) { primitiveFail();  return; }
   if (so->slotSize() < 258)  { primitiveFail();  return; }
   oop_int_t scanRightX = stackIntegerValue(2);
   Oop sourceString = stackObjectValue(3);
-  Object* sso = sourceString.as_object();
+  Object_p sso = sourceString.as_object();
   if (!sso->isBytes()) { primitiveFail();  return; }
   oop_int_t scanStopIndex = stackIntegerValue(4);
   oop_int_t scanStartIndex = stackIntegerValue(5);
@@ -1744,7 +1747,7 @@ void Squeak_Interpreter::primitiveScanCharacters() {
 
 
   Oop rcvr = stackObjectValue(6);
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   if (!ro->isPointers() || ro->slotSize() < 4) {
     primitiveFail();  return;
   }
@@ -1752,11 +1755,11 @@ void Squeak_Interpreter::primitiveScanCharacters() {
   oop_int_t scanLastIndex = ro->fetchInteger(1);
   Oop scanXTable = ro->fetchPointer(2);
   Oop scanMap = ro->fetchPointer(3);
-  Object* sxto;
+  Object_p sxto;
   if (!scanXTable.is_mem()  ||  !(sxto = scanXTable.as_object())->isArray()) {
     primitiveFail();  return;
   }
-  Object* smo;
+  Object_p smo;
   if (!scanMap.is_mem()  ||  (smo = scanMap.as_object())->slotSize() != 256) {
     primitiveFail();  return;
   }
@@ -1859,7 +1862,7 @@ void Squeak_Interpreter::primitiveSetInterruptKey() {
 
 void Squeak_Interpreter::primitiveShortAt() {
   oop_int_t index = stackIntegerValue(0);
-  Oop rcvr = stackValue(1); Object* ro;
+  Oop rcvr = stackValue(1); Object_p ro;
   success(rcvr.is_mem()  &&  (ro = rcvr.as_object())->isWordsOrBytes());
   if (!successFlag) return;
   oop_int_t sz = ro->sizeBits() - Object::BaseHeaderSize/sizeof(int16);
@@ -1871,7 +1874,7 @@ void Squeak_Interpreter::primitiveShortAt() {
 void Squeak_Interpreter::primitiveShortAtPut() {
   oop_int_t value = stackIntegerValue(0);
   oop_int_t index = stackIntegerValue(1);
-  Oop rcvr = stackValue(2);  Object* ro;
+  Oop rcvr = stackValue(2);  Object_p ro;
   success(rcvr.is_mem()  &&  (ro = rcvr.as_object())->isWordsOrBytes());
   if (!successFlag) return;
   oop_int_t sz = ro->sizeBits() - Object::BaseHeaderSize/sizeof(int16);
@@ -1939,7 +1942,7 @@ void Squeak_Interpreter::primitiveSize() {
     primitiveFail();
     return;
   }
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   if ( Object::Format::has_only_fixed_fields(ro->format())) {
     primitiveFail();
     return;
@@ -1994,7 +1997,7 @@ void Squeak_Interpreter::primitiveStoreStackp() {
       &&  newStackp <=  (Object_Indices::LargeContextSize - Object::BaseHeaderSize) / bytesPerWord  - Object_Indices::CtextTempFrameStart
       &&  ctxt.is_mem());
   if (!successFlag) { primitiveFail(); return; }
-  Object* co = ctxt.as_object();
+  Object_p co = ctxt.as_object();
   int stackp = co->fetchStackPointer();
   for (int i = stackp + 1;  i <= newStackp;  ++i)
     co->storePointer(i + Object_Indices::CtextTempFrameStart - 1,  roots.nilObj);
@@ -2020,14 +2023,14 @@ void Squeak_Interpreter::primitiveStringReplace() {
     primitiveFail();
     return;
   }
-  Object* ao = array.as_object();
+  Object_p ao = array.as_object();
   oop_int_t totalLength = ao->lengthOf();
   oop_int_t arrayInstSize = ao->fixedFieldsOfArray();
   if (start < 1  ||  start - 1 > stop  ||  stop + arrayInstSize > totalLength) {
     primitiveFail();
     return;
   }
-  Object* ro = repl.as_object();
+  Object_p ro = repl.as_object();
   totalLength = ro->lengthOf();
   oop_int_t replInstSize = ro->fixedFieldsOfArray();
   if (replStart < 1  &&  stop - start + replStart + replInstSize > totalLength) {
@@ -2078,7 +2081,7 @@ void Squeak_Interpreter::primitiveSuspend() {
   Oop old_list;
   {
     Scheduler_Mutex sm("primitiveSuspend");
-    Object* proc = procToSuspend.as_object();
+    Object_p proc = procToSuspend.as_object();
     old_list = proc->remove_process_from_scheduler_list("primitiveSuspend");
     pop(1);
     push(old_list);
@@ -2093,12 +2096,13 @@ void Squeak_Interpreter::primitiveSuspend() {
 
 static void terminate_to(Oop aContext, Oop thisCntx) {
   // Warning: only works if called for this very process
-  Object *aco = aContext.as_object(), *tco = thisCntx.as_object();
+  Object_p aco = aContext.as_object();
+  Object_p tco = thisCntx.as_object();
   
   if (tco->hasSender(aContext)) {
     Oop nilOop = The_Squeak_Interpreter()->roots.nilObj;
-    Object* nextCntx;
-    for (Object* currentCntx = tco->fetchPointer(Object_Indices::SenderIndex).as_object();
+    Object_p nextCntx;
+    for (Object_p currentCntx = tco->fetchPointer(Object_Indices::SenderIndex).as_object();
          currentCntx != aco;
          currentCntx = nextCntx) {
       nextCntx = currentCntx->fetchPointer(Object_Indices::SenderIndex).as_object();
@@ -2162,7 +2166,7 @@ void Squeak_Interpreter::primitiveVMParameter() {
   lprintf("primitiveVMParameter really not done\n");
   static const int paramsArraySize = 40;
   if (get_argumentCount() == 0) {
-    Object* ro = splObj_obj(Special_Indices::ClassArray)->instantiateClass(paramsArraySize);
+    Object_p ro = splObj_obj(Special_Indices::ClassArray)->instantiateClass(paramsArraySize);
     for (int i = 0;  i < paramsArraySize;  ++i)  ro->storePointer(i, Oop::from_int(0));
     ro->storePointer(23, Oop::from_int(The_Memory_System()->get_shrinkThreshold()));
     ro->storePointer(24, Oop::from_int(The_Memory_System()->get_growHeadroom()   ));
@@ -2213,7 +2217,7 @@ void Squeak_Interpreter::primitiveVMParameter() {
 
 void Squeak_Interpreter::primitiveVMPath() {
   oop_int_t sz = vmPathSize();
-  Object* s = classString()->instantiateClass(sz);
+  Object_p s = classString()->instantiateClass(sz);
   vmPathGetLength(s->as_char_p() + Object::BaseHeaderSize, sz);
   popThenPush(1, s->as_oop());
 }
@@ -2221,7 +2225,7 @@ void Squeak_Interpreter::primitiveVMPath() {
 void Squeak_Interpreter::primitiveValue() {
   Oop blockContext = stackValue(get_argumentCount());
   if (!blockContext.is_mem()) { primitiveFail(); return; }
-  Object* bco = blockContext.as_object();
+  Object_p bco = blockContext.as_object();
   oop_int_t blockArgumentCount = bco->argumentCountOfBlock();
   success(get_argumentCount() == blockArgumentCount
       &&  bco->fetchPointer(Object_Indices::CallerIndex) == roots.nilObj);
@@ -2251,7 +2255,8 @@ void Squeak_Interpreter::primitiveValueUninterruptably() {
 void Squeak_Interpreter::primitiveValueWithArgs() {
   Oop argumentArray = popStack();
   Oop blockContext = popStack();
-  Object *argumentArray_obj,  *blockContext_obj;
+  Object_p argumentArray_obj;
+  Object_p blockContext_obj;
 
   if (!argumentArray.is_mem()  ||  !blockContext.is_mem()
       ||  !(argumentArray_obj = argumentArray.as_object())->isArray()) {
@@ -2289,7 +2294,7 @@ void Squeak_Interpreter::primitiveValueWithArgs() {
 void Squeak_Interpreter::primitiveClosureValue() {
   Oop blockClosure = stackValue(get_argumentCount());
   if (!blockClosure.is_mem()) { primitiveFail(); return; }
-  Object* blockClosure_obj = blockClosure.as_object();
+  Object_p blockClosure_obj = blockClosure.as_object();
   int blockArgumentCount = blockClosure_obj->argumentCountOfClosure();
   if ( !successFlag || get_argumentCount() != blockArgumentCount) { 
     primitiveFail(); 
@@ -2298,13 +2303,13 @@ void Squeak_Interpreter::primitiveClosureValue() {
   
   Oop outerContext = blockClosure_obj->fetchPointer(Object_Indices::ClosureOuterContextIndex);
   if (!outerContext.isContext()) { primitiveFail(); return; }
-  Object* outerContext_obj = outerContext.as_object();
+  Object_p outerContext_obj = outerContext.as_object();
   
   Oop closureMethod = outerContext_obj->fetchPointer(Object_Indices::MethodIndex);
-  Object* closureMethod_obj = closureMethod.as_object();
+  Object_p closureMethod_obj = closureMethod.as_object();
   if (!closureMethod_obj->isCompiledMethod()) { primitiveFail(); return; }
   
-  activateNewClosureMethod(blockClosure_obj, NULL);
+  activateNewClosureMethod(blockClosure_obj, (Object_p)NULL);
   if ( !The_Squeak_Interpreter()->doing_primitiveClosureValueNoContextSwitch)
     quickCheckForInterrupts();
 }
@@ -2355,7 +2360,7 @@ void Squeak_Interpreter::primitiveClosureValueNoContextSwitch() {
 void Squeak_Interpreter::primitiveClosureValueWithArgs() {
   Oop argumentArray = stackTop();
   if (!argumentArray.is_mem()) { primitiveFail(); return; }
-  Object* argumentArray_obj = argumentArray.as_object();
+  Object_p argumentArray_obj = argumentArray.as_object();
   
   // check for enough space in thisContext to push all args
   int arraySize = argumentArray_obj->fetchWordLength();
@@ -2364,17 +2369,17 @@ void Squeak_Interpreter::primitiveClosureValueWithArgs() {
   
   Oop blockClosure = stackValue(get_argumentCount());
   if (blockClosure.fetchClass() != splObj(Special_Indices::ClassBlockClosure)) { primitiveFail(); return; }
-  Object* blockClosure_obj = blockClosure.as_object();
+  Object_p blockClosure_obj = blockClosure.as_object();
   int blockArgumentCount = blockClosure_obj->argumentCountOfClosure();
   if ( arraySize != blockArgumentCount ) { primitiveFail(); return; }
   
   // paranoid check could discard later
   Oop outerContext = blockClosure_obj->fetchPointer(Object_Indices::ClosureOuterContextIndex);
   if (!outerContext.isContext()) { primitiveFail(); return; }
-  Object* outerContext_obj = outerContext.as_object();
+  Object_p outerContext_obj = outerContext.as_object();
   
   Oop closureMethod = outerContext_obj->fetchPointer(Object_Indices::MethodIndex);
-  Object* closureMethod_obj = closureMethod.as_object();
+  Object_p closureMethod_obj = closureMethod.as_object();
   if (!closureMethod_obj->isCompiledMethod()) { primitiveFail(); return; }
   
   popStack();
@@ -2384,7 +2389,7 @@ void Squeak_Interpreter::primitiveClosureValueWithArgs() {
     push( argumentArray_obj->fetchPointer(i - 1));
   
   set_argumentCount(arraySize);
-  activateNewClosureMethod(blockClosure_obj, NULL);
+  activateNewClosureMethod(blockClosure_obj, (Object_p)NULL);
   quickCheckForInterrupts();
 }
 
@@ -2394,7 +2399,7 @@ void Squeak_Interpreter::primitiveClosureValueWithArgs() {
 void Squeak_Interpreter::primitiveWait() {
   Oop sema = stackTop();
   if (!sema.is_mem()) {  primitiveFail(); return; }
-  Object* so = sema.as_object();
+  Object_p so = sema.as_object();
   assertClass(so, splObj(Special_Indices::ClassSemaphore));
   Semaphore_Mutex sm("primitiveWait");
   if (successFlag) {
@@ -2507,14 +2512,14 @@ void Squeak_Interpreter::primitiveClosureCopyWithCopiedValues() {
   success( copiedValues.fetchClass() == splObj(Special_Indices::ClassArray) );
   if (!successFlag)  { return; }  
   
-  Object* copiedValues_obj = copiedValues.as_object();
+  Object_p copiedValues_obj = copiedValues.as_object();
   int numCopiedValues = copiedValues_obj->fetchWordLength();
   
   Oop newClosure = closureCopy(numArgs,
                                // greater by 1 because of preincre of localIP
                               instructionPointer() + 2 - (method_obj()->as_u_char_p() + Object::BaseHeaderSize),
                                numCopiedValues);
-  Object* newClosure_obj = newClosure.as_object();
+  Object_p newClosure_obj = newClosure.as_object();
   newClosure_obj->storePointer(Object_Indices::ClosureOuterContextIndex, stackValue(2));
   if (numCopiedValues > 0) {
     // alloc for gc may have moved copied values

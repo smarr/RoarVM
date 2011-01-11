@@ -146,7 +146,11 @@ public:
 
 
   void compute_snapshot_offsets(u_int32 *offsets);
-  int32 adjust_for_snapshot(void* addr, u_int32* address_offsets) {
+  
+  int32 adjust_for_snapshot(const tracked_ptr<Object>& addr, u_int32* address_offsets) const {
+    return adjust_for_snapshot(addr.get(), address_offsets);
+  }
+  int32 adjust_for_snapshot(void* addr, u_int32* address_offsets) const {
     return (int32)addr - address_offsets[&heaps[rank_for_address(addr)][mutability_for_address(addr)] - &heaps[0][0]];
   }
 
@@ -173,7 +177,7 @@ public:
 
   void ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(Oop dst_oop, Object* src_obj_wo_preheader) {
     int rank = object_table->rank_for_adding_object_from_snapshot(dst_oop);
-    Object* dst_obj = The_Interactions.add_object_from_snapshot_allocating_chunk(rank, dst_oop, src_obj_wo_preheader);
+    Object_p dst_obj = (Object_p)The_Interactions.add_object_from_snapshot_allocating_chunk(rank, dst_oop, src_obj_wo_preheader);
     object_table->set_object_for(dst_oop, dst_obj  COMMA_FALSE_OR_NOTHING);
   }
 
@@ -197,19 +201,27 @@ public:
   int round_robin_rank();
   int assign_rank_for_snapshot_object();
 
-  bool contains(void* p) {
+  bool contains(const tracked_ptr<Object>& p) const {
+    return contains(p.get());
+  }
+  
+  bool contains(void* p) const {
     return read_mostly_memory_base <= (char*)p  &&  (char*)p < read_write_memory_past_end;
   }
 
-  int mutability_for_address(void* p) {
+  int mutability_for_address(const tracked_ptr<Object>& p) const {  return mutability_for_address(p.get());  }
+  int mutability_for_address(void* p) const {
     // compiler bug:
     static const int c = read_write;
     static const int i = read_mostly;
     return is_address_read_write(p) ? c : i;
   }
 
-
-  int rank_for_address(void* p) {
+  int rank_for_address(const tracked_ptr<Object>& p) const {
+    return rank_for_address(p.get());
+  }
+  
+  int rank_for_address(void* p) const {
     bool is_rw = is_address_read_write(p);
     u_int32 delta  = (char*)p - (is_rw ? read_write_memory_base : read_mostly_memory_base);
     u_int32 result = delta >> (is_rw ? log_memory_per_read_write_heap : log_memory_per_read_mostly_heap);
@@ -279,7 +291,7 @@ public:
 
 
   void  imageNamePut_on_this_core(const char*, int);
-  void  imageNameGet(Object*, int);
+  void  imageNameGet(Object_p, int);
   int   imageNameSize();
   char* imageName();
 
@@ -318,7 +330,7 @@ public:
   void restore_from_checkpoint(FILE*, int dataSize, int lastHash, int savedWindowSize, int fullScreenFlag);
 
   // Cannot accept GC requests, defers to next BC boundary
-  void enforce_coherence_before_store_into_object_by_interpreter(void* p, int nbytes, Object* dst_obj_to_be_evacuated);
+  void enforce_coherence_before_store_into_object_by_interpreter(void* p, int nbytes, Object_p dst_obj_to_be_evacuated);
 
   // OK to accept GC requests, so don't use inside of interpreter
   void  enforce_coherence_before_store(void* p, int nbytes) {
@@ -332,18 +344,18 @@ public:
     if (is_address_read_mostly(p)) post_cohere(p, nbytes);
   }
 
-  void store_enforcing_coherence(Oop* p, Oop x, Object* dst_obj_to_be_evacuated_or_null) {
+  void store_enforcing_coherence(Oop* p, Oop x, Object_p dst_obj_to_be_evacuated_or_null) {
     assert(contains(p));
     store_enforcing_coherence((oop_int_t*)p, x.bits(), dst_obj_to_be_evacuated_or_null);
   }
   // used when p may be either in the heap or in a C++ structure
-  void store_enforcing_coherence_if_in_heap(Oop* p, Oop x, Object* dst_obj_to_be_evacuated_or_null) {
+  void store_enforcing_coherence_if_in_heap(Oop* p, Oop x, Object_p dst_obj_to_be_evacuated_or_null) {
     if (contains(p))
       store_enforcing_coherence((oop_int_t*)p, x.bits(), dst_obj_to_be_evacuated_or_null);
     else *p = x;
   }
 
-  void store_2_enforcing_coherence(int32* p1, int32 i1, int32 i2,  Object* dst_obj_to_be_evacuated_or_null);
+  void store_2_enforcing_coherence(int32* p1, int32 i1, int32 i2,  Object_p dst_obj_to_be_evacuated_or_null);
 
 # define FOR_ALL_STORE_ENFORCING_COHERENCE_FUNCTIONS(template) \
     template(oop_int_t) \
@@ -352,11 +364,11 @@ public:
     template(char) \
     template(u_char)
 
-# define DCL_SEC(T) void store_enforcing_coherence(T* p, T x, Object* dst_obj_to_be_evacuated_or_null);
+# define DCL_SEC(T) void store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_evacuated_or_null);
   FOR_ALL_STORE_ENFORCING_COHERENCE_FUNCTIONS(DCL_SEC)
 # undef DCL_SEC
 
-  void store_bytes_enforcing_coherence(void* dst, const void* src, int nbytes,   Object* dst_obj_to_be_evacuated_or_null);
+  void store_bytes_enforcing_coherence(void* dst, const void* src, int nbytes,   Object_p dst_obj_to_be_evacuated_or_null);
 
   void  pre_cohere_object_table(void* p, int sz) {  pre_cohere(p, sz); }
   void post_cohere_object_table(void* p, int sz) { post_cohere(p, sz); }
@@ -375,12 +387,12 @@ public:
   void print_heaps();
   void print();
 
-  inline bool is_address_read_mostly(void* p) {
+  inline bool is_address_read_mostly(void* p) const {
     // don't use read_mostly_heap->contains(p) because that is slower, as it tests the bottom before the top
     // in the common case, p is in the read_write heap, which is above the read_mostly one.
     return (char*)p < read_mostly_memory_past_end;
   }
-  inline bool is_address_read_write(void* p) { return !is_address_read_mostly(p); }
+  inline bool is_address_read_write(void* p) const { return !is_address_read_mostly(p); }
 
   void do_all_oops_including_roots_here(Oop_Closure* oc, bool sync_with_roots);
   

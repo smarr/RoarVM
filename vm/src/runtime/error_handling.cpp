@@ -28,6 +28,19 @@ int assert_failure(const char* func, const char* file, const int line, const cha
   return 0;
 }
 
+int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, const tracked_ptr<Object>& a, void* b) {
+  return assert_eq_failure(func, file, line, pred, msg, a.get(), b);
+}
+
+int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, const tracked_ptr<Object>& a, const tracked_ptr<Object>& b) {
+  return assert_eq_failure(func, file, line, pred, msg, a.get(), b.get());
+}
+
+int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void* a, const tracked_ptr<Object>& b) {
+  return assert_eq_failure(func, file, line, pred, msg, a, b.get());
+}
+
+
 int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void* a, void* b) {
   static char buf[10000];   // threadsafe? does not really matter here anymore...
   error_printer->printf("%s: file %s, line %d, function %s, predicate %s, pid %d, 0x%x != 0x%x",
