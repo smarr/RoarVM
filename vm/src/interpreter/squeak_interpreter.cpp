@@ -157,11 +157,11 @@ void Squeak_Interpreter::initialize(Oop soo, bool from_checkpoint) {
 
 
 void Squeak_Interpreter::do_all_roots(Oop_Closure* oc) {
-  FOR_EACH_ROOT(&roots,oopp) oc->value(oopp, NULL);
+  FOR_EACH_ROOT(&roots,oopp) oc->value(oopp, (Object_p)NULL);
   for (int i = 0;  i < remapBufferCount;  ++i)
-    oc->value(&remapBuffer[i], NULL);
+    oc->value(&remapBuffer[i], (Object_p)NULL);
   for (int i = 0;  i < mutated_read_mostly_objects_count;  ++i)
-    oc->value(&mutated_read_mostly_objects[i], NULL);
+    oc->value(&mutated_read_mostly_objects[i], (Object_p)NULL);
   if (mutated_read_mostly_object_tracer() != NULL)
     mutated_read_mostly_object_tracer()->do_all_roots(oc);
   if (execution_tracer() != NULL)
@@ -170,7 +170,7 @@ void Squeak_Interpreter::do_all_roots(Oop_Closure* oc) {
     debugging_tracer()->do_all_roots(oc);
   if (Logical_Core::running_on_main())
     FOR_ALL_RANKS(i)
-      oc->value(&running_process_by_core[i], NULL);
+      oc->value(&running_process_by_core[i], (Object_p)NULL);
   Deferred_Request::do_all_roots(oc);
 }
 
@@ -277,7 +277,7 @@ void Squeak_Interpreter::interpret() {
       assert((activeContext_obj()->baseHeader & ~0xff));
       Oop s = activeContext_obj()->fetchPointer(Object_Indices::SenderIndex);
       assert(s.is_mem());
-      Object* s_obj = s.as_object();
+      Object_p s_obj = s.as_object();
       assert(s_obj->my_heap_contains_me());
 
       assert (!roots.freeContexts.is_mem() ||
@@ -798,7 +798,7 @@ void Squeak_Interpreter::findNewMethodInClass(Oop klass) {
 
 Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
   assert(safepoint_ability->is_able()); // need to be able to allocate message object without deadlock
-  Object* currentClass_obj;
+  Object_p currentClass_obj;
   for (  Oop currentClass = lkupClass;
          currentClass != roots.nilObj;
        currentClass = currentClass_obj->superclass()) {
@@ -902,7 +902,7 @@ bool Squeak_Interpreter::balancedStackAfterPrimitive(int delta, int primIdx, int
     // must have nArgs popped off
     if  ( stackPointer() - activeContext_obj()->as_oop_p() + nArgs ==  delta ) return true;
     lprintf("balancedStackAfterPrimitive failed: stackPointer 0x%x, activeContext_obj() 0x%x, nArgs %d, delta $d\n",
-            _stackPointer, activeContext_obj(), nArgs, delta);
+            _stackPointer, (Object*)activeContext_obj(), nArgs, delta);
     return false;
   }
   // failed prim leaves stack intact
@@ -919,7 +919,7 @@ void Squeak_Interpreter::printUnbalancedStack(int primIdx, fn_t fn) {
 void Squeak_Interpreter::internalActivateNewMethod() {
   oop_int_t methodHeader = newMethod_obj()->methodHeader();
   bool needsLarge = methodHeader & Object::LargeContextBit;
-  Object* nco;  Oop newContext;
+  Object_p nco;  Oop newContext;
 
   if (!needsLarge &&  roots.freeContexts != Object::NilContext()) {
     newContext = roots.freeContexts;
@@ -1006,7 +1006,7 @@ void Squeak_Interpreter::internalActivateNewMethod() {
 
 void Squeak_Interpreter::activateNewMethod() {
   oop_int_t methodHeader = newMethod_obj()->methodHeader();
-  Object* nco = allocateOrRecycleContext(methodHeader & Object::LargeContextBit);
+  Object_p nco = allocateOrRecycleContext(methodHeader & Object::LargeContextBit);
 
   if (check_many_assertions
       && nco->get_count_of_blocks_homed_to_this_method_ctx() > 0  &&  nco->fetchPointer(Object_Indices::MethodIndex) != roots.newMethod)
@@ -1062,17 +1062,17 @@ void Squeak_Interpreter::activateNewMethod() {
 
 # if Include_Closure_Support
 
-void Squeak_Interpreter::activateNewClosureMethod(Object* blockClosure_obj, Object* argumentArray_obj_or_null) {
+void Squeak_Interpreter::activateNewClosureMethod(Object_p blockClosure_obj, Object_p argumentArray_obj_or_null) {
   assert(blockClosure_obj->verify());
   Oop outerContext = blockClosure_obj->fetchPointer(Object_Indices::ClosureOuterContextIndex);
-  Object* outerContext_obj = outerContext.as_object();
+  Object_p outerContext_obj = outerContext.as_object();
   
   Oop closureMethod = outerContext_obj->fetchPointer(Object_Indices::MethodIndex);
-  Object* closureMethod_obj = closureMethod.as_object();
+  Object_p closureMethod_obj = closureMethod.as_object();
   oop_int_t methodHeader = closureMethod_obj->methodHeader();
   
   pushRemappableOop(blockClosure_obj->as_oop());
-  Object* newContext_obj = allocateOrRecycleContext(methodHeader & Object::LargeContextBit); 
+  Object_p newContext_obj = allocateOrRecycleContext(methodHeader & Object::LargeContextBit); 
   Oop newContext = newContext_obj->as_oop(); 
   Oop blockClosure = popRemappableOop();
   blockClosure_obj = blockClosure.as_object();
@@ -1249,11 +1249,11 @@ void Squeak_Interpreter::createActualMessageTo(Oop aClass) {
    */
 	// | argumentArray message lookupClass |
   pushRemappableOop(aClass);
-  Object* argumentArray_obj = splObj_obj(Special_Indices::ClassArray)->instantiateClass(get_argumentCount());
+  Object_p argumentArray_obj = splObj_obj(Special_Indices::ClassArray)->instantiateClass(get_argumentCount());
 	Oop argumentArray = argumentArray_obj->as_oop();
   // "remap argumentArray in case GC happens during allocation"
 	pushRemappableOop(argumentArray);
-	Object* message_obj = splObj_obj(Special_Indices::ClassMessage)->instantiateClass(0);
+	Object_p message_obj = splObj_obj(Special_Indices::ClassMessage)->instantiateClass(0);
   Oop message = message_obj->as_oop();
 	argumentArray = popRemappableOop(); argumentArray_obj = argumentArray.as_object();
 	Oop lookupClass = popRemappableOop();
@@ -1316,7 +1316,7 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
 
   {
     Scheduler_Mutex sm("resume");
-    Object* aProcess_obj = aProcess.as_object();
+    Object_p aProcess_obj = aProcess.as_object();
     assert(aProcess_obj->my_list_of_process() == roots.nilObj);
     aProcess_obj->add_process_to_scheduler_list();
   }
@@ -1339,7 +1339,7 @@ void Squeak_Interpreter::signalExternalSemaphores(const char* why) {
 
   set_semaphoresUseBufferA(!semaphoresUseBufferA());
 
-  Object* xArray = splObj_obj(Special_Indices::ExternalObjectsArray);
+  Object_p xArray = splObj_obj(Special_Indices::ExternalObjectsArray);
   oop_int_t xSize = xArray->stSize();
   if (semaphoresUseBufferA()) {
     // use other buffer during read
@@ -1511,7 +1511,7 @@ int32 Squeak_Interpreter::positive32BitValueOf(Oop x) {
     }
     return v;
   }
-  Object* xo = x.as_object();
+  Object_p xo = x.as_object();
   assertClass(x, splObj(Special_Indices::ClassLargePositiveInteger));
   if (!successFlag)
     return 0;
@@ -1526,7 +1526,7 @@ int32 Squeak_Interpreter::positive32BitValueOf(Oop x) {
 
 int32 Squeak_Interpreter::signed32BitValueOf(Oop x) {
   if (x.is_int()) return x.integerValue();
-  Object* xo = x.as_object();
+  Object_p xo = x.as_object();
   Oop largeClass = xo->fetchClass();
   bool neg =
     largeClass == splObj(Special_Indices::ClassLargePositiveInteger)  ?  false :
@@ -1549,7 +1549,7 @@ int64 Squeak_Interpreter::positive64BitValueOf(Oop x) {
     }
     return v;
   }
-  Object* xo = x.as_object();
+  Object_p xo = x.as_object();
   assertClass(x, splObj(Special_Indices::ClassLargePositiveInteger));
   if (!successFlag)
     return 0;
@@ -1567,7 +1567,7 @@ int64 Squeak_Interpreter::positive64BitValueOf(Oop x) {
 
 int64 Squeak_Interpreter::signed64BitValueOf(Oop x) {
   if (x.is_int()) return x.integerValue();
-  Object* xo = x.as_object();
+  Object_p xo = x.as_object();
   Oop largeClass = xo->fetchClass();
   bool neg =
     largeClass == splObj(Special_Indices::ClassLargePositiveInteger)  ?  false :
@@ -1583,7 +1583,7 @@ int64 Squeak_Interpreter::signed64BitValueOf(Oop x) {
 }
 
 
-void Squeak_Interpreter::print_stack_trace(Printer* p, Object* proc) {
+void Squeak_Interpreter::print_stack_trace(Printer* p, Object_p proc) {
   if (proc == NULL) proc = get_running_process().as_object();
   if (proc == roots.nilObj.as_object()) {
     p->printf("on %d: cannot print stack; no running process\n", my_rank());
@@ -1593,7 +1593,7 @@ void Squeak_Interpreter::print_stack_trace(Printer* p, Object* proc) {
   if (cntxt != roots.nilObj) ;
   else if ((cntxt = activeContext()) != roots.nilObj) ;
   else {
-    p->printf("on %d: cannot print stack, process 0x%x is running elsewhere\n", my_rank(), proc);
+    p->printf("on %d: cannot print stack, process 0x%x is running elsewhere\n", my_rank(), (Object*)proc);
     return;
   }
   for (Oop c = cntxt;
@@ -1646,9 +1646,9 @@ void Squeak_Interpreter::print_all_processes_in_scheduler_or_on_a_list(Printer* 
   
   
 bool Squeak_Interpreter::is_process_on_a_scheduler_list(Oop proc) {
-  Object* po = proc.as_object();
+  Object_p po = proc.as_object();
   FOR_EACH_READY_PROCESS_LIST(slo, p, processList, this) {
-    for ( Object* ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
+    for ( Object_p ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
          ll != roots.nilObj.as_object();
          ll = ll->fetchPointer(Object_Indices::NextLinkIndex).as_object()) {
       if (ll == po)
@@ -1661,7 +1661,7 @@ bool Squeak_Interpreter::is_process_on_a_scheduler_list(Oop proc) {
 bool Squeak_Interpreter::verify_all_processes_in_scheduler() {
   bool ok = true;
   FOR_EACH_READY_PROCESS_LIST(slo, p, processList, this) {
-    for ( Object* ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
+    for ( Object_p ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
          ll != roots.nilObj.as_object();
          ll = ll->fetchPointer(Object_Indices::NextLinkIndex).as_object()) {
       ok = ok && ll->verify_process(); 
@@ -1674,7 +1674,7 @@ bool Squeak_Interpreter::verify_all_processes_in_scheduler() {
 void Squeak_Interpreter::print_all_processes_in_scheduler(Printer* pr, bool print_stacks) {
   pr->nl();
   FOR_EACH_READY_PROCESS_LIST(slo, p, processList, this) {
-    for ( Object* ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
+    for ( Object_p ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
          ll != roots.nilObj.as_object();
          ll = ll->fetchPointer(Object_Indices::NextLinkIndex).as_object()) {
       ll->print_process_or_nil(pr, print_stacks); 
@@ -1697,7 +1697,7 @@ void Squeak_Interpreter::commonAt(bool stringy) {
   oop_int_t index = positive32BitValueOf(stackTop());
   Oop rcvr = stackValue(1);
   if (!successFlag || !rcvr.is_mem()) { primitiveFail(); return; }
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   /*
    "NOTE:  The at-cache, since it is specific to the non-super response to #at:.
    Therefore we must determine that the message is #at: (not, eg, #basicAt:),
@@ -1741,7 +1741,7 @@ void Squeak_Interpreter::commonAtPut(bool stringy) {
   if (!successFlag || !rcvr.is_mem()) {
     primitiveFail();  return;
   }
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   if (roots.messageSelector == specialSelector(17)  &&  roots.lkupClass == ro->fetchClass()) {
     At_Cache::Entry* e = atCache.get_entry(rcvr, true);
     if (!e->matches(rcvr)) {
@@ -1778,7 +1778,7 @@ void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool defer) {
     class is fixed and the receiver's size differs from the size that an
     instance of the argument's class should have."
    */
-  Object* ro = rcvr.as_object();
+  Object_p ro = rcvr.as_object();
   oop_int_t classHdr = argClass.as_object()->formatOfClass();
 
   // compute size of instances, for fixed field classes
@@ -1903,7 +1903,9 @@ bool Squeak_Interpreter::primitiveResponse() {
 
 
 void Squeak_Interpreter::primitivePerformAt(Oop lookupClass) {
-  Oop argumentArray = stackTop();   Object* aao;
+  Oop argumentArray = stackTop();
+  Object_p aao;
+  
   if (!argumentArray.is_mem() || !(aao = argumentArray.as_object())->isArray()) {
     primitiveFail();  return;
   }
@@ -1929,7 +1931,7 @@ void Squeak_Interpreter::primitivePerformAt(Oop lookupClass) {
   findNewMethodInClass(lookupClass);
 
   {
-  Object* nmo;
+  Object_p nmo;
   if (roots.newMethod.is_mem()  && (nmo = newMethod_obj())->isCompiledMethod())
     success(nmo->argumentCount() == get_argumentCount());
   }
@@ -2019,7 +2021,7 @@ void Squeak_Interpreter::showDisplayBitsOf(Oop aForm, oop_int_t l, oop_int_t t, 
 void Squeak_Interpreter::displayBitsOf(Oop aForm, oop_int_t l, oop_int_t t, oop_int_t r, oop_int_t b) {
   Oop displayObj = displayObject();
   if (aForm != displayObj)  return;
-  Object* doo;
+  Object_p doo;
   Oop dispBits;
   success(displayObj.is_mem()  &&  (doo = displayObj.as_object())->lengthOf() >= 4);
   oop_int_t w, h, d;
@@ -2056,7 +2058,7 @@ void Squeak_Interpreter::displayBitsOf(Oop aForm, oop_int_t l, oop_int_t t, oop_
 void Squeak_Interpreter::fullDisplayUpdate() {
   Oop displayObj = displayObject();
   if (!displayObj.is_mem()) return;
-  Object* dOo = displayObj.as_object();
+  Object_p dOo = displayObj.as_object();
   if (!dOo->isPointers()  ||  dOo->lengthOf() < 4)  return;
   displayBitsOf(displayObj, 0, 0, dOo->fetchInteger(1), dOo->fetchInteger(2));
   ioForceDisplayUpdate();
@@ -2085,8 +2087,8 @@ Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_proces
     Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
 
     Oop        proc = first_proc;
-    Object* proc_obj = proc.as_object();
-    Object* prior_proc_obj  = NULL;
+    Object_p proc_obj = proc.as_object();
+    Object_p prior_proc_obj;
     for (;;)  {
       if (verbose) {
         debug_printer->printf("on %d: find_and_move_to_end_highest_priority_non_running_process proc: ",
@@ -2142,7 +2144,7 @@ int Squeak_Interpreter::count_processes_in_scheduler() {
     Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
     
     Oop        proc = first_proc;
-    Object* proc_obj = proc.as_object();
+    Object_p proc_obj = proc.as_object();
     for (;;)  {
       ++count;
       if  (last_proc == proc)
@@ -2273,7 +2275,7 @@ Oop Squeak_Interpreter::get_stats(int what_to_sample) {
 Oop Squeak_Interpreter::makeArray(int start) {
   int n = remapBufferCount - start;
 
-  Object* r = splObj(Special_Indices::ClassArray).as_object()->instantiateClass(n);
+  Object_p r = splObj(Special_Indices::ClassArray).as_object()->instantiateClass(n);
 
   for (int i = n-1;  i >= 0;  --i)
     r->storePointer(i, popRemappableOop());
@@ -2606,7 +2608,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
     release_baton();
     return;
   }
-  Object* newProc_obj = newProc.as_object();
+  Object_p newProc_obj = newProc.as_object();
   if (newProc_obj->is_process_running()) {
     lprintf("releasing baton in start_running\n");
     release_baton();
@@ -2616,7 +2618,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
 
   set_running_process(newProc, why);
   Oop nac = newProc_obj->get_suspended_context_of_process_and_mark_running();
-  Object* naco = nac.as_object();
+  Object_p naco = nac.as_object();
   nac.beRootIfOld();
   assert(nac != roots.nilObj); // looking for bug with nil ctx, nonnil proc
   set_activeContext( nac, naco );
@@ -2628,7 +2630,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
 }
 
 
-void Squeak_Interpreter::newActiveContext(Oop aContext, Object* aContext_obj) {
+void Squeak_Interpreter::newActiveContext(Oop aContext, Object_p aContext_obj) {
   assert(aContext_obj->as_oop() == aContext);
   // internalNewActiveContext must stay consistent with this
   if (do_I_hold_baton())
@@ -2643,7 +2645,7 @@ void Squeak_Interpreter::newActiveContext(Oop aContext, Object* aContext_obj) {
 void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   Oop nilOop = roots.nilObj;
   assert(localCntx.is_mem());
-  Object* localCntx_obj = localCntx.as_object();
+  Object_p localCntx_obj = localCntx.as_object();
 
   // make sure can return to given ctx
   if (localCntx == nilOop  ||  localCntx_obj->fetchPointer(Object_Indices::InstructionPointerIndex) == nilOop) {
@@ -2670,7 +2672,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   // no unwind
   Oop thisCntx = activeContext();
   while (thisCntx != localCntx) {
-    Object* thisCntx_obj = thisCntx.as_object();
+    Object_p thisCntx_obj = thisCntx.as_object();
     assert(!The_Memory_System()->object_table->probably_contains(thisCntx_obj));
 
     Oop contextOfCaller = thisCntx_obj->fetchPointer(Object_Indices::SenderIndex);
@@ -2685,7 +2687,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
     }
     thisCntx = contextOfCaller;
   }
-  Object* thisCntx_obj = thisCntx.as_object();
+  Object_p thisCntx_obj = thisCntx.as_object();
   assert(thisCntx != roots.nilObj);
   set_activeContext( thisCntx, thisCntx_obj);
   thisCntx.beRootIfOld();
@@ -2698,7 +2700,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
 void Squeak_Interpreter::internalCannotReturn(Oop resultObj, bool b1, bool b2, bool b3) {
 
   lprintf("internalCannotReturn %d %d %d\n", b1, b2, b3);
-  lprintf("this ctx object is 0x%x\n", activeContext_obj());
+  lprintf("this ctx object is 0x%x\n", (Object*)activeContext_obj());
   // fatal("internal cannot return");
 
   internalPush(activeContext());
@@ -2719,7 +2721,7 @@ void Squeak_Interpreter::internalAboutToReturn(Oop resultObj, Oop aContext) {
 
 
 void Squeak_Interpreter::recycleContextIfPossible_on_its_core(Oop ctx) {
-  Object* ctx_obj = ctx.as_object();
+  Object_p ctx_obj = ctx.as_object();
   int rank = ctx_obj->rank();
   if (rank == Logical_Core::my_rank()) 
     recycleContextIfPossible_here(ctx); // optimize critical case
@@ -2738,7 +2740,7 @@ void Squeak_Interpreter::recycleContextIfPossible_here(Oop ctx) {
    with minimal fuss. The recycled context lists are cleared at
    every garbage collect."
    */
-  Object* ctx_obj = ctx.as_object();
+  Object_p ctx_obj = ctx.as_object();
   // unimplemented if (ctx.is_old())  return;
 
   assert(ctx_obj->rank() == my_rank());
@@ -2759,14 +2761,14 @@ void Squeak_Interpreter::recycleContextIfPossible_here(Oop ctx) {
 
 
 
-Object* Squeak_Interpreter::allocateOrRecycleContext(bool needsLarge) {
+Object_p Squeak_Interpreter::allocateOrRecycleContext(bool needsLarge) {
   if (Trace_For_Debugging  &&  debugging_tracer() != NULL
   &&  debugging_tracer()->force_real_context_allocation())
     ;
   else {
     Oop& freeC = needsLarge ? roots.freeLargeContexts : roots.freeContexts;
     if (freeC != Object::NilContext()) {
-      Object* r = freeC.as_object();
+      Object_p r = freeC.as_object();
       Oop fc = r->fetchPointer(Object_Indices::Free_Chain_Index);
       assert(fc.is_mem()  ||  fc == Object::NilContext());
       freeC = fc;
@@ -2779,10 +2781,10 @@ Object* Squeak_Interpreter::allocateOrRecycleContext(bool needsLarge) {
   }
 
   // xxxxxxxx optimize spl objects by replicating the special objects array someday -- dmu 4/09
-  Object* class_method_context = splObj_obj(Special_Indices::ClassMethodContext);
+  Object_p class_method_context = splObj_obj(Special_Indices::ClassMethodContext);
   const int lcs = Object_Indices::LargeContextSize; // this and next needed for C++ bug
   const int scs = Object_Indices::SmallContextSize;
-  Object* r = class_method_context->instantiateContext(
+  Object_p r = class_method_context->instantiateContext(
                                                        needsLarge
                                                        ? lcs
                                                        : scs);
@@ -2798,7 +2800,7 @@ Object* Squeak_Interpreter::allocateOrRecycleContext(bool needsLarge) {
   return r;
 }
 
-Oop Squeak_Interpreter::stObjectAt(Object* a, oop_int_t index) {
+Oop Squeak_Interpreter::stObjectAt(Object_p a, oop_int_t index) {
   // "Return what ST would return for <obj> at: index."
   oop_int_t fmt = a->format();
   oop_int_t fixedFields = a->fixedFieldsOfArray();
@@ -2810,7 +2812,7 @@ Oop Squeak_Interpreter::stObjectAt(Object* a, oop_int_t index) {
   return roots.nilObj;
 }
 
-void Squeak_Interpreter::stObjectAtPut(Object* a, oop_int_t index, Oop value) {
+void Squeak_Interpreter::stObjectAtPut(Object_p a, oop_int_t index, Oop value) {
   oop_int_t fmt = a->format();
   oop_int_t totalLength = a->lengthOf();
   oop_int_t fixedFields = a->fixedFieldsOfArray();
@@ -2824,7 +2826,7 @@ void Squeak_Interpreter::stObjectAtPut(Object* a, oop_int_t index, Oop value) {
 
 
 
-Oop Squeak_Interpreter::subscript(Object* a, oop_int_t index) {  // rcvr is array
+Oop Squeak_Interpreter::subscript(Object_p a, oop_int_t index) {  // rcvr is array
   // "Note: This method assumes that the index is within bounds!"
   oop_int_t fmt = a->format();
   oop_int_t index0 = index - 1; // C is 0-based
@@ -2835,7 +2837,7 @@ Oop Squeak_Interpreter::subscript(Object* a, oop_int_t index) {  // rcvr is arra
   : Oop::from_int(a->fetchByte(index0));
 }
 
-void Squeak_Interpreter::subscript(Object* a, oop_int_t index, Oop value) {
+void Squeak_Interpreter::subscript(Object_p a, oop_int_t index, Oop value) {
   oop_int_t fmt = a->format();
   if (Object::Format::has_only_oops(fmt))
     a->storePointer(index - 1, value);
@@ -2874,7 +2876,7 @@ Oop Squeak_Interpreter::commonVariableAt(Oop rcvr, oop_int_t index, At_Cache::En
   oop_int_t stSize = e->size;
   if (1 <= u_int32(index)  &&  u_int32(index) <= u_int32(stSize)) {
     int fmt = e->fmt;
-    Object* rcvr_obj = rcvr.as_object();
+    Object_p rcvr_obj = rcvr.as_object();
     assert_eq(fmt & ~16, rcvr_obj->format(), "format check");
 
     if (Object::Format::has_only_oops(fmt))
@@ -2994,7 +2996,7 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
 
 
   assert_internal();
-  Object* m = method_obj();
+  Object_p m = method_obj();
   // m->get_argumentCount()
   // m->temporaryCount()
   u_char* bcp = localIP() + (will_be_fetched ? 1 : 0);
@@ -3088,8 +3090,8 @@ void Squeak_Interpreter::receive_initial_interpreter_from_main(Squeak_Interprete
 void Squeak_Interpreter::print_method_info(const char* msg) {
   error_printer->printf("%d on %d: %s, do_I_hold_baton %d, method 0x%x, method_obj 0x%x, localIP 0x%x, instructionPointer 0x%x, activeContext_obj() 0x%x, activeContext().as_object() 0x%x, freeContexts 0x%x\n",
                         increment_print_sequence_number(),
-                        my_rank(), msg, do_I_hold_baton(), method().bits(), method_obj(), _localIP, _instructionPointer,
-                        activeContext_obj(), activeContext().as_object(),
+                        my_rank(), msg, do_I_hold_baton(), method().bits(), (Object*)method_obj(), _localIP, _instructionPointer,
+                        (Object*)activeContext_obj(), activeContext().as_untracked_object_ptr(),
                         roots.freeContexts.bits());
   if (do_I_hold_baton()) {
     method_obj()->print_compiled_method(error_printer);
@@ -3219,6 +3221,11 @@ void Squeak_Interpreter::preGCAction_everywhere(bool fullGC) {
 }
 
 void Squeak_Interpreter::postGCAction_everywhere(bool fullGC) {
+  // STEFAN: this looks like a good place to invalidate our tracked_ptr's
+# if Include_Debugging_Code
+  tracked_ptr<Object>::invalidate_all_pointer();
+# endif
+  
   postGCActionMessage_class(fullGC, safepoint_ability->is_able()).send_to_all_cores();
 }
 

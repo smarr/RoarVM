@@ -38,7 +38,7 @@ class Abstract_Object_Table {
 
   Object* object_for(Oop) { return (Object*)fatal(); }
   Object* object_for_unchecked(Oop) { return (Object*)fatal(); }
-  void set_object_for(Oop, Object*, bool /* do_check = true */ ) { fatal(); }
+  void set_object_for(Oop, Object_p, bool /* do_check = true */ ) { fatal(); }
 
   bool spare_bit_for(Oop)  { return fatal(); }
   void set_spare_bit_for(Oop, bool /* dont */ )  { fatal(); }
@@ -58,7 +58,7 @@ class Abstract_Object_Table {
   bool verify_no_local_objects() { return fatal(); }
   bool verify_after_mark() { return fatal(); }
 
-  bool probably_contains(void*) { return fatal(); }
+  bool probably_contains(void*) const { return fatal(); }
 
   Oop get_stats(int) { return Oop::from_bits(fatal()); }
 

@@ -1223,9 +1223,9 @@
 					"Extra_Preheader_Word_Experiment=1",
 					"check_assertions=1",
 					"check_many_assertions=1",
-					"Include_Debugging_Code=0",
-					"Trace_For_Debugging=1",
-					"Trace_Execution=1",
+					"Include_Debugging_Code=1",
+					"Trace_For_Debugging=0",
+					"Trace_Execution=0",
 				);
 				HEADER_SEARCH_PATHS = "./**";
 				INSTALL_PATH = /usr/local/bin;

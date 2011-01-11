@@ -59,7 +59,7 @@ class Abstract_Object_Heap {
 
   bool sufficientSpaceToAllocate(oop_int_t bytes);
   Chunk* allocateChunk(oop_int_t total_bytes);
-  virtual Object* object_address_unchecked(Oop) = 0;
+  virtual Object_p object_address_unchecked(Oop) = 0;
 
   Object* accessibleObjectAfter(Object*);
   Object* firstAccessibleObject();
@@ -115,7 +115,7 @@ class Abstract_Object_Heap {
   inline void enforce_coherence_before_store(void*, int nbytes);
   inline void enforce_coherence_after_store(void*, int nbytes);
 
-  void enforce_coherence_before_store_into_object_by_interpreter(void*, int nbytes, Object* dst);
+  void enforce_coherence_before_store_into_object_by_interpreter(void*, int nbytes, Object_p dst);
   void enforce_coherence_after_store_into_object_by_interpreter(void*, int nbytes);
 
   void enforce_coherence_in_whole_heap_before_store() { enforce_coherence_before_store(startOfMemory(), bytesUsed()); }

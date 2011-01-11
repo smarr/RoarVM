@@ -37,7 +37,7 @@ class Debugging_Tracer : public Abstract_Tracer {
 
 protected:
   Oop array_class() { fatal("inappropriate"); return Oop::from_bits(0); }
-  void copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object* dst_obj) {
+  void copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object_p dst_obj) {
     fatal("inappropriate");
   }
 };

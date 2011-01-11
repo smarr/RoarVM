@@ -17,7 +17,7 @@
 
 Oop Abstract_Tracer::get() {
   int n = wrapped  ?  size  :  next;
-  Object* r = array_class().as_object()->instantiateClass(n * elem_gotten_elem_size);
+  Object_p r = array_class().as_object()->instantiateClass(n * elem_gotten_elem_size);
   void* p = r->firstIndexableField_for_primitives();
 
   if (!wrapped)

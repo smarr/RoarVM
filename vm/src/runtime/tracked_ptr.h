@@ -21,9 +21,10 @@
 template<typename T>
 class tracked_ptr {
 private:
-  
   typedef tracked_ptr_registry< tracked_ptr<T> > registry_t;
   typedef typename tracked_ptr_registry< tracked_ptr<T> >::iterator iterator;
+  
+  friend class tracked_ptr_registry< tracked_ptr<T> >;
   
   static registry_t registry;
   
@@ -36,7 +37,7 @@ private:
   }
     
   void unregister_and_invalidate() {
-    registry.register_tracked_ptr(this, it);
+    registry.unregister_tracked_ptr(this, it);
     valid = false;
   }
 
@@ -47,10 +48,7 @@ public:
    * and on subsequent use, an assertion will fail.
    */
   static void invalidate_all_pointer() {
-    iterator i;
-    for (i = registry.begin(); i != registry.end(); i++) {
-      (*i)->valid = false;
-    }
+    registry.invalidate_all_pointer();
   }
 
   
@@ -62,13 +60,13 @@ public:
    * The only thing we have to keep track is the pointer passed trough
    * in copy operations, and its validity.
    */
-  tracked_ptr() :
+  explicit tracked_ptr() :
     ptr(NULL), valid(false), it(register_this()) {}
   
   /**
    * Constructor initialized with the pointer to be tracked.
    */
-  tracked_ptr(T* const ptr) :
+  explicit tracked_ptr(T* const ptr) :
     ptr(ptr), valid(true), it(register_this()) {}
   
   /**
@@ -86,11 +84,31 @@ public:
     valid = t_ptr.valid;
     return *this;
   }
-  
-  tracked_ptr& operator=(tracked_ptr & t_ptr) {
-    ptr   = t_ptr.ptr;
-    valid = t_ptr.valid;
+
+  tracked_ptr& operator=(T* const p) {
+    ptr   = p;
+    valid = true;
     return *this;
+  }  
+  
+  /**
+   * Cast operator to bool
+   */
+  operator bool() const {
+    return valid && ptr;
+  }
+  
+  /**
+   * Cast operator to void*
+   */
+  operator void*() const {
+    assert(is_valid());  // not sure why that was not here before, Stefan 2011-01-06
+    return ptr;
+  }
+  
+  operator T*() const {
+    assert(is_valid());
+    return ptr;
   }
   
   inline T& operator* () const {
@@ -105,6 +123,16 @@ public:
     return ptr;
   }
   
+  /**
+   * Make sure there is nobody doing something stupid with the address.
+   * Lets have it fail for now. In case there is a real need for it to work,
+   * it can be changed by removing the assert.
+   */
+  inline T* const * operator& () const {
+    assert(false); // This assert is added to avoid surprises. Remove with caution!
+    return &ptr;
+  }
+  
   inline bool operator==(tracked_ptr const & t_ptr) const {
     return ptr == t_ptr.ptr;
   }
@@ -112,7 +140,23 @@ public:
   inline bool operator!=(tracked_ptr const & t_ptr) const {
     return ptr != t_ptr.ptr;
   }
-    
+
+  /*inline bool operator==(const T* const p) const {
+    return ptr == p;
+  }
+  
+  inline bool operator!=(const T* const p) const {
+    return ptr != p;
+  }*/
+
+  inline bool operator==(int const p) const {
+    return ptr == (void*)p;
+  }
+  
+  inline bool operator!=(int const p) const {
+    return ptr != (void*)p;
+  }
+  
   inline T* get() const {
     return ptr;
   }
@@ -127,10 +171,19 @@ public:
     
 }; // tracked_ptr
 
+/* STEFAN: this is not necessary for the moment, the bool() conversion operator
+           is sufficient. And, overloading && breaks short circuiting, so stay
+           away here! -- 2010-12-09
 template<typename T>
 inline bool operator&&(const bool a, tracked_ptr<T> const & t_ptr) {
   return a && t_ptr.is_valid() && t_ptr.get();
+} */
+
+template<typename T>
+inline bool operator==(const bool a, tracked_ptr<T> const & t_ptr) {
+  return a && t_ptr.is_valid() && t_ptr.get();
 } 
+
 
 template<typename T>
 typename tracked_ptr<T>::registry_t tracked_ptr<T>::registry;
