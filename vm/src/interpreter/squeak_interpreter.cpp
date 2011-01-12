@@ -838,7 +838,7 @@ Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
       breakpoint();
     }
     roots.dnuSelector = roots.messageSelector;
-    if (!roots.messageSelector.isBytes()) {
+    if (check_assertions && !roots.messageSelector.isBytes()) {
       lprintf("sel not bytes\n");
       *(int*)0 = 17;
     }
@@ -1131,6 +1131,7 @@ void Squeak_Interpreter::signalSemaphoreWithIndex(int index) {
 
   forceInterruptCheck();
 }
+
 
 void Squeak_Interpreter::checkForInterrupts(bool is_safe_to_process_events) {
   if (doing_primitiveClosureValueNoContextSwitch)
