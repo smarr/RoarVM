@@ -109,7 +109,8 @@ public:
   static void start_processes(void (*helper_core_main)(), char* argv[]);
   
   static int abort_if_error(const char*, int); 
-
+  
+  static inline void yield_or_spin_a_bit() { float a = 0.0;  for (int i = 0;  i < 50;  i++)  a += i; }
 
 };
 

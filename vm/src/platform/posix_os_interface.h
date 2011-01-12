@@ -154,6 +154,9 @@ public:
   static inline int get_thread_rank() { return (int)pthread_getspecific(rank_key); }
   
   static int abort_if_error(const char*, int); 
+  
+  static inline void yield_or_spin_a_bit() { assert_always(/*Memory_Semantics::is_using_threads()*/ !On_Tilera); pthread_yield_np(); }
+
 
 
 private:
