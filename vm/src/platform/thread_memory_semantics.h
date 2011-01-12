@@ -78,6 +78,7 @@ public:
     return calloc(num_members, mem_size);
   }
       
+  static inline bool is_using_threads() { return true; }
 };
 
 class Memory_System;
