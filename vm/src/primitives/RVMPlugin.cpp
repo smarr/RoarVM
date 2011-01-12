@@ -691,6 +691,7 @@ static int primitiveCycleCounter() {
 # if On_Tilera
   cycles = ::get_cycle_count();
 # else
+  # warning STEFAN: we should make sure that we have here something which is accurate also between cores. We can not pin the interpreter on specific cores on OSX
   asm volatile("rdtsc" : "=A" (cycles));
 # endif
   
