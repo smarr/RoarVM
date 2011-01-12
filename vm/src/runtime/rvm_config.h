@@ -76,7 +76,6 @@
   /* The following are all used to analyze the unicore performance regression in porting to phthreads -- dmu 1/10 */ \
   template(CPU_Milliseconds_To_Run) \
   template(Force_Direct_Squeak_Interpreter_Access) \
-  template(Dont_Sleep_While_Waiting_For_Work) \
   template(Dont_Trace_Bytecode_Fetching) \
   template(Force_Direct_Timeout_Timer_List_Head_Access) \
   template(Omit_PThread_Locks) \
@@ -272,10 +271,6 @@
 
 # ifndef Force_Direct_Squeak_Interpreter_Access
 # define Force_Direct_Squeak_Interpreter_Access 0
-# endif
-
-# ifndef Dont_Sleep_While_Waiting_For_Work
-# define Dont_Sleep_While_Waiting_For_Work 0 // I think I now have sleeping working. -- dmu
 # endif
 
 # ifndef Dont_Trace_Bytecode_Fetching
