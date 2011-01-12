@@ -840,7 +840,7 @@ Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
     roots.dnuSelector = roots.messageSelector;
     if (check_assertions && !roots.messageSelector.isBytes()) {
       lprintf("sel not bytes\n");
-      *(int*)0 = 17;
+      fatal("Message selector not isBytes");
     }
 
   } // xxx_dmu
