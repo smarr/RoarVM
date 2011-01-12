@@ -56,6 +56,7 @@
   template(Work_Around_Barrier_Bug) \
   template(Print_Barriers) \
   template(Include_Debugging_Code) \
+  template(Track_OnStackPointer) \
   template(Omit_Duplicated_OT_Overhead) \
   template(Omit_Spare_Bit) \
   template(Trace_Execution) \
@@ -159,7 +160,9 @@
 # define Include_Debugging_Code 0
 # endif
 
-
+# ifndef Track_OnStackPointer
+# define Track_OnStackPointer check_many_assertions
+# endif
 
 # ifndef DoBalanceChecks
 #  define DoBalanceChecks check_assertions

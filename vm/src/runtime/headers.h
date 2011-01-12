@@ -113,11 +113,7 @@
 # include "tracked_ptr_registry.h"
 # include "tracked_ptr.h"
 
-# if Include_Debugging_Code
-typedef tracked_ptr<Object> Object_p;
-# else
-typedef Object* Object_p;
-# endif
+# include "object_p.h"
 
 # include "abstract_oop.h"
 # include "oop.h"
