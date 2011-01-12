@@ -14,6 +14,9 @@
 
 # include "headers.h"
 # include <CoreServices/CoreServices.h>
+# include <CoreFoundation/CoreFoundation.h>
+# include <IOKit/ps/IOPowerSources.h>
+# include <IOKit/ps/IOPSKeys.h>
 
 void OSX_OS_Interface::ensure_Time_Machine_backs_up_run_directory() {
   // Since we put images in same directory as compiled rvm, tell TM to back up that directory,
@@ -51,3 +54,24 @@ void OSX_OS_Interface::ensure_Time_Machine_backs_up_run_directory() {
   free(the_directory);
 }
 
+// Following contributed by Kristen McIntyre:
+
+Abstract_OS_Interface::Power_Source OSX_OS_Interface::get_power_source() {
+  CFTypeRef powerInfo = IOPSCopyPowerSourcesInfo();
+  CFArrayRef powerSources = IOPSCopyPowerSourcesList(powerInfo);
+  CFIndex count = CFArrayGetCount(powerSources);
+  int ac_count = 0, battery_count = 0, offline_count = 0;
+  for ( int i = 0;  i < count;  i++) {
+    CFTypeRef source = (CFTypeRef)CFArrayGetValueAtIndex(powerSources, i);
+    CFDictionaryRef dict = IOPSGetPowerSourceDescription(powerInfo, source);
+    if (dict != NULL) {
+      CFStringRef state = (CFStringRef)CFDictionaryGetValue(dict, CFSTR(kIOPSPowerSourceStateKey));
+           if (CFStringCompare(state, CFSTR(kIOPSACPowerValue), 0) == kCFCompareEqualTo) ++ac_count;
+      else if (CFStringCompare(state, CFSTR(kIOPSBatteryPowerValue), 0) == kCFCompareEqualTo) ++battery_count;
+      else if (CFStringCompare(state, CFSTR(kIOPSOffLineValue), 0) == kCFCompareEqualTo) ++offline_count;
+    }
+  }
+  CFRelease(powerInfo);
+  CFRelease(powerSources);
+  return ac_count ? AC :  battery_count ? battery : AC;
+}

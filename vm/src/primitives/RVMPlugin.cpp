@@ -12,7 +12,11 @@
  ******************************************************************************/
 
 
-#include "headers.h"
+# include "headers.h"
+# include "sys/time.h"
+# include <time.h>
+# include <math.h>
+
 
 static const char *moduleName =
 #ifdef SQUEAK_BUILTIN_PLUGIN
@@ -664,6 +668,41 @@ static int primitiveWriteSnapshot() {
   return 0;
 }
 
+
+static int primitiveMicrosecondClock() {
+  // return a microsecond clock
+  struct timeval now;
+  gettimeofday(&now, 0);
+  int r = now.tv_usec;
+  The_Squeak_Interpreter()->popThenPush(1, Oop::from_int(r));
+  return 0;
+}
+
+
+
+static int primitiveCycleCounter() {
+  if (The_Squeak_Interpreter()->get_argumentCount() != 0) {
+    The_Squeak_Interpreter()->primitiveFail();
+    return 0;
+  }
+  uint64_t cycles;
+  
+  // burrow down below OS_Interface level to avoid effect of Dont_Count_Cycles
+# if On_Tilera
+  cycles = ::get_cycle_count();
+# else
+  # warning STEFAN: we should make sure that we have here something which is accurate also between cores. We can not pin the interpreter on specific cores on OSX
+  asm volatile("rdtsc" : "=A" (cycles));
+# endif
+  
+  int mask = u_int32(~Tag_Mask) >> u_int32(Tag_Size + 1) /*must be positive*/;
+  int short_cycles = (int) cycles & mask; // avoid weird time overheads for big ints
+  The_Squeak_Interpreter()->popThenPush(1, Oop::from_int(short_cycles)); 
+  return 0;
+}
+  
+
+
 void* RVMPlugin_exports[][3] = {
   {(void*) "RVMPlugin", (void*)"primitiveDebugSampleRVM", (void*)primitiveDebugSampleRVM},
   {(void*) "RVMPlugin", (void*)"primitiveSampleRVM", (void*)primitiveSampleRVM},
@@ -697,7 +736,9 @@ void* RVMPlugin_exports[][3] = {
   {(void*) "RVMPlugin", (void*)"primitiveWriteSnapshot", (void*)primitiveWriteSnapshot},
 
   {(void*) "RVMPlugin", (void*)"primitiveEmergencySemaphore", (void*)primitiveEmergencySemaphore},
-
+  {(void*) "RVMPlugin", (void*)"primitiveMicrosecondClock", (void*)primitiveMicrosecondClock},
+  {(void*) "RVMPlugin", (void*)"primitiveCycleCounter", (void*)primitiveCycleCounter},
+ 
   {(void*) "RVMPlugin", (void*)"setInterpreter", (void*)setInterpreter},
 
   {NULL, NULL, NULL}

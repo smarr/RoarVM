@@ -23,6 +23,8 @@ public:
   static inline void profiler_disable() { moncontrol(0); }
   static inline void profiler_clear()   {}
   
+  static Power_Source get_power_source();
+  
 };
 
 # endif // On_Apple
