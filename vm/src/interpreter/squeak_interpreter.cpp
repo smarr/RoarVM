@@ -2411,68 +2411,8 @@ void Squeak_Interpreter::multicore_interrupt() {
 
     mi_cyc_1 += OS_Interface::get_cycle_count() - start;
 
-<<<<<<< HEAD
-    while (!do_I_hold_baton()) {
-      uint32_t busyWaitCount = 0;
-
-      do {
-        safepoint_tracker->spin_if_safepoint_requested(); // since we are about to wait for a message
-        Message_Statics::process_any_incoming_messages(false);
-
-
-        // STEFAN: think we should try to sleep here and avoid busy waiting too much
-        // DAVID: the problem is that the sleeps won't wake up if the core receives a request message
-        if (added_process_count < 1  &&  !Dont_Sleep_While_Waiting_For_Work) {
-          busyWaitCount++;
-
-          if (busyWaitCount > 32) {
-            useconds_t sleep = 1 << (busyWaitCount - 32); // wait an exponentially growing time span
-			static const int max_sleep_usecs = 500; // experimentally determined on Mac by watching Kiviats, etc -- dmu 10/1/10
-            if (Logical_Core::running_on_main()) {
-              ioRelinquishProcessorForMicroseconds(min(max_sleep_usecs, sleep));          
-              added_process_count = 1;
-            }
-            else {
-              usleep(min(max_sleep_usecs, sleep));
-            }
-          }
-          else if (busyWaitCount > 16) {
-            if (Logical_Core::running_on_main()) {
-              ioRelinquishProcessorForMicroseconds(0);
-            }
-            else {
-        # if On_Tilera
-              // TODO: abstract that out
-              // this is a local spin, it avoids putting any memory presure
-              // on the tile network while waiting for a few instruction
-              // busy-local-only-loop
-            int   i;
-            float a = 0.0;
-            for (i = 0;  i < 50;  i++)  a += i;
-        # else
-                pthread_yield_np();
-        # endif
-            }
-          }
-          else { /* NOP */ }
-        }
-        if (Logical_Core::running_on_main()) { // since we don't run idle process, extra check for events
-          ioRelinquishProcessorForMicroseconds(0);
-        }
-        // in case a mouse event came in, and asynchronously signaled a semaphore
-        checkForInterrupts(false); // since we don't run idle process, extra check for events
-        // Recover from GC if needed
-        
-      } while (added_process_count < 1); // avoid hitting the mutex too hard
-
-      --added_process_count;
-      transfer_to_highest_priority("find_a_process_to_run_and_start_running_it");
-      assert_method_is_correct_internalizing(true, "after transfer_to_highest_priority");
-    }
-=======
     while (!do_I_hold_baton()) 
       try_to_find_a_process_to_run_and_start_running_it();
->>>>>>> 58780e06c69acb65f41c27a6af6a28f25f1e6e22
   } // end safepoint ability true
   internalizeIPandSP();
   if (Check_Prefetch) assert_always(have_executed_currentBytecode);
