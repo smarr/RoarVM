@@ -112,6 +112,7 @@ public:
   template(bool,bool,signalLowSpace, false) \
   template(bool,bool,deferDisplayUpdates, false) \
   template(bool,bool,interruptPending, false) \
+  template(bool,bool,idle_cores_relinquish_cpus, false) \
   \
   template(bool,bool,semaphoresUseBufferA, true) \
   template(bool,bool,primitiveThisProcess_was_called, false) \
@@ -1393,6 +1394,9 @@ public:
   }
 
   void multicore_interrupt();
+  void try_to_find_a_process_to_run_and_start_running_it();
+  void minimize_scheduler_mutex_load_by_spinning_till_there_might_be_a_runnable_process();
+  void give_up_CPU_instead_of_spinning(uint32_t&);
   void fixup_localIP_after_being_transferred_to();
  private:
   void move_mutated_read_mostly_objects();

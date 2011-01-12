@@ -125,20 +125,17 @@ void Memory_System::fullGC(const char* why) {
   global_GC_values->inter_gc_ms = global_GC_values->mutator_start_time ? ioMSecs() - global_GC_values->mutator_start_time : 0;
   u_int32 last_gc_start = ioMSecs();
   
-  global_GC_values->gcMilliseconds -= last_gc_start;
   global_GC_values->gcCycles -= OS_Interface::get_cycle_count();
   
   Mark_Sweep_Collector msc;
   msc.gc();
   
   ++global_GC_values->gcCount;
-  global_GC_values->gcMilliseconds += ioMSecs();
+  global_GC_values->gcMilliseconds += (global_GC_values->last_gc_ms = ioMSecs() - last_gc_start);
   global_GC_values->gcCycles += OS_Interface::get_cycle_count();
   
   global_GC_values->mutator_start_time = ioMSecs();
 
-  global_GC_values->last_gc_ms = ioMSecs() - last_gc_start;
-  
   level_out_heaps_if_needed();
 }
 

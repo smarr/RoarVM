@@ -67,4 +67,9 @@ public:
   
   static inline int abort_if_error(const char*, int) { fatal(); return -1; }  
   
+  enum Power_Source { AC, battery, unknown };
+  static Power_Source get_power_source() { return unknown; }
+  
+  static inline void yield_or_spin_a_bit() { fatal(); }
+  
 };

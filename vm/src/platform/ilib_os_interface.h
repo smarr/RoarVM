@@ -110,6 +110,15 @@ public:
   
   static int abort_if_error(const char*, int); 
 
+  /**
+  * this is a local spin, it avoids putting any memory presure
+  * on the tile network while waiting for a few instruction
+  * busy-local-only-loop
+  */
+  static inline void yield_or_spin_a_bit() {
+    float a = 0.0;
+    for (int i = 0;  i < 50;  i++)  a += i;
+  }
 
 };
 
