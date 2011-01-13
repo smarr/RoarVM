@@ -144,6 +144,7 @@ then
     then
         CC="\$(BIN)tile-cc"
         CXX="\$(BIN)tile-c++"
+		CONFIG_FLAGS="$CONFIG_FLAGS -DTrack_OnStackPointer=0"
         if [[ `tile-cc --version` == "2.1.0.98943"* ]]
         then
           CONFIG_FLAGS="$CONFIG_FLAGS -DUse_CMem=1"
