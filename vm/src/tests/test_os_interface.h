@@ -51,5 +51,9 @@ public:
     return pthread_mutex_unlock(mutex);
   }
 
+  static inline int atomic_fetch_and_add(int* mem, int increment) {
+    return __sync_fetch_and_add(mem, increment);
+  }
+  
 };
 

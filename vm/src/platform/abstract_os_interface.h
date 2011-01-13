@@ -40,6 +40,8 @@ public:
   static inline int  mutex_trylock(Mutex*)     { fatal(); return 0; }
   static inline int  mutex_unlock(Mutex*)      { fatal(); return 0; }
   
+  static inline int atomic_fetch_and_add(int*, int) { fatal(); return 0; }
+  
   static inline uint32_t leading_zeros(uint32_t x)    { fatal(); return 0; }
   static inline uint32_t population_count(uint32_t x) { fatal(); return 0; }
   

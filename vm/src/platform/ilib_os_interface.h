@@ -14,6 +14,8 @@
 
 # if On_Tilera
 
+# include <atomic.h>
+
 class ILib_OS_Interface : public Abstract_OS_Interface {
 public:
   
@@ -72,6 +74,10 @@ public:
     return ilib_mutex_unlock(mutex);
   }
   
+  static inline int atomic_fetch_and_add(int* mem, int increment) {
+    return atomic_add_val(mem, increment);
+  }
+    
   static inline uint32_t leading_zeros(uint32_t x)    { return __insn_clz(x);  }
   static inline uint32_t population_count(uint32_t x) { return __insn_pcnt(x); }
   

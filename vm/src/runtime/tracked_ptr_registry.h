@@ -36,7 +36,7 @@ private:
     if (registry == NULL) {
       registry = new registry_t();
       pthread_setspecific(registry_key, registry);
-      int32_t my_rank = __sync_fetch_and_add(&next_rank, 1);
+      int32_t my_rank = OS_Interface::atomic_fetch_and_add(&next_rank, 1);
       registries[my_rank] = registry;
     }
     return registry;
