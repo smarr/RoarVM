@@ -130,6 +130,7 @@
 
 # include "abstract_message_queue.h"
 # include "shared_memory_message_queue.h"
+# include "shared_memory_message_queue_per_sender.h"
 # include "ilib_message_queue.h"
 
 # include "memory_semantics.h"
