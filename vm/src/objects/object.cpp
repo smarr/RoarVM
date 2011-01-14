@@ -543,10 +543,11 @@ Oop Object::get_suspended_context_of_process_and_mark_running() {
 }
 
 void Object::set_suspended_context_of_process(Oop ctx) {
+  Squeak_Interpreter* const intp = The_Squeak_Interpreter();
   assert(Scheduler_Mutex::is_held());
   assert(ctx != fetchPointer(Object_Indices::SuspendedContextIndex));
-  assert(is_process_running());
-  The_Squeak_Interpreter()->assert_registers_stored();
+  assert(is_process_running(intp->roots.nilObj));
+  intp->assert_registers_stored();
   if (Print_Scheduler) {
     debug_printer->printf("scheduler: on %d set_suspended_context_of_process ", Logical_Core::my_rank());
     this->print_process_or_nil(debug_printer);
@@ -562,8 +563,9 @@ int Object::priority_of_process_or_nil() {
   return (this == (Object*)The_Squeak_Interpreter()->roots.nilObj.as_object()) ? -1 : priority_of_process();
 }
 
-bool Object::is_process_running() {
-  return fetchPointer(Object_Indices::SuspendedContextIndex) == The_Squeak_Interpreter()->roots.nilObj;
+bool Object::is_process_running(Oop nilObj) {
+  // STEFAN: passed in the nilObj to avoid looking up thread-local interpreter object to get roots
+  return fetchPointer(Object_Indices::SuspendedContextIndex) == nilObj;
 }
 
 
@@ -723,12 +725,13 @@ bool Object::isEmptyList() {
 
 void Object::print_process_or_nil(Printer* p, bool print_stack) {
   Oop my_oop = as_oop();
-  if (my_oop == The_Squeak_Interpreter()->roots.nilObj) {
+  Oop nilObj = The_Squeak_Interpreter()->roots.nilObj;
+  if (my_oop == nilObj) {
     p->printf("nil");
     return;
   }
   print(p);
-  p->printf("(0x%x, pri %d, %s, ", as_oop().bits(), priority_of_process(), is_process_running() ? "running" : "not running");
+  p->printf("(0x%x, pri %d, %s, ", as_oop().bits(), priority_of_process(), is_process_running(nilObj) ? "running" : "not running");
   p->printf("myList: ");    my_list_of_process().print(p);  p->printf(", ");
   p->printf("nextLink: ");  fetchPointer(Object_Indices::NextLinkIndex).print(p);  p->printf(", ");
 
