@@ -84,6 +84,7 @@
   \
   template(Extra_Preheader_Word_Experiment) \
   template(Use_BufferedChannelDebug) \
+  template(Use_PerSender_Message_Queue) \
   template(Include_Closure_Support) \
   template(Hammer_Safepoints) /* for debugging */ \
   \
@@ -314,7 +315,14 @@
 // If you turn this off, run on Mac, and run with Hammer_Safepoints with >2 cores, you can see the system break -- dmu 5/21/10
 // E.g.: check_received_transmission_sequence_number: message tellCoreIAmSpinningMessage from 2 to 0 is 5730 should_be 5731
 //  Fatal: message delivery error: file /Users/ungar/renaissance/rvm/src/messages/messages.cpp, line 204, function check_received_transmission_sequence_number, predicate 0, rank 0, main_rank 0, pid 95221
+// STEFAN: 2011-01-14, I just tried it, and the system reliably breaks down with an assertion on sequence numbers for spin requests.
 # define Use_BufferedChannelDebug 1
+# endif
+
+# ifndef Use_PerSender_Message_Queue
+// This will use Shared_Memory_Queue_Per_Sender class
+// It is the new default.
+# define Use_PerSender_Message_Queue 1
 # endif
 
 # ifndef Include_Closure_Support

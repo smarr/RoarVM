@@ -14,19 +14,21 @@
 
 #include "headers.h"
 
-# if !Use_PerSender_Message_Queue
+# if Use_PerSender_Message_Queue
 
-void Shared_Memory_Message_Queue::buffered_send_buffer(void* p, int size) {
-  buffered_channel.send(p, size);
+void Shared_Memory_Message_Queue_Per_Sender::buffered_send_buffer(void* p, int size) {
+  buffered_channels[Logical_Core::my_rank()].channel.send(p, size);
 }
 
 
-void* Shared_Memory_Message_Queue::buffered_receive_from_anywhere(bool wait, Logical_Core** buffer_owner, Logical_Core* const me) {
+void* Shared_Memory_Message_Queue_Per_Sender::buffered_receive_from_anywhere(bool wait, Logical_Core** buffer_owner, Logical_Core* const me) {
   do {
     size_t size;
-    if (me->message_queue.buffered_channel.hasData()) {
-      *buffer_owner = me;
-      return (void*)me->message_queue.buffered_channel.receive(size);
+    for (size_t i = 0; i < Max_Number_Of_Cores; i++) {
+      if (me->message_queue.buffered_channels[i].channel.hasData()) {
+        *buffer_owner = me;
+        return (void*)me->message_queue.buffered_channels[i].channel.receive(size);
+      }
     }
   }
   while (wait);
@@ -35,8 +37,8 @@ void* Shared_Memory_Message_Queue::buffered_receive_from_anywhere(bool wait, Log
 }
 
 
-void Shared_Memory_Message_Queue::release_oldest_buffer(void* buffer_to_be_released_for_debugging) {
-  buffered_channel.releaseOldest(buffer_to_be_released_for_debugging);
+void Shared_Memory_Message_Queue_Per_Sender::release_oldest_buffer(void* buffer_to_be_released_for_debugging) {
+  free(buffer_to_be_released_for_debugging);
 }
 
 
@@ -44,7 +46,7 @@ void Shared_Memory_Message_Queue::release_oldest_buffer(void* buffer_to_be_relea
 # include <signal.h>
 
 
-void Shared_Memory_Message_Queue::send_message(abstractMessage_class* msg) {
+void Shared_Memory_Message_Queue_Per_Sender::send_message(abstractMessage_class* msg) {
 #warning STEFAN: needs to be refactored. Shared_Memory_Message_Queue_Per_Sender and Shared_Memory_Message_Queue have identical implementations.
   
   Message_Stats::collect_send_msg_stats(msg->header);

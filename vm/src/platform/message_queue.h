@@ -15,11 +15,16 @@
 # if   On_Tilera
 
 class   ILib_Message_Queue;
-typedef ILib_Message_Queue          Message_Queue;
+typedef ILib_Message_Queue                     Message_Queue;
+
+# elif Use_PerSender_Message_Queue
+
+class   Shared_Memory_Message_Queue_Per_Sender;
+typedef Shared_Memory_Message_Queue_Per_Sender Message_Queue;
 
 # else
 
 class   Shared_Memory_Message_Queue;
-typedef Shared_Memory_Message_Queue Message_Queue;
+typedef Shared_Memory_Message_Queue            Message_Queue;
 
 # endif

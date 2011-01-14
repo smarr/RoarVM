@@ -224,6 +224,7 @@ RVM_HEADERS = \
   \
   abstract_message_queue.h \
   shared_memory_message_queue.h \
+  shared_memory_message_queue_per_sender.h \
   ilib_message_queue.h \
   tilera_chip_to_chip_message_queue.h \
   host_pci_info.h \
@@ -475,6 +476,7 @@ OBJS += \
   buffered_channel.opt \
   posix_os_interface.opt \
   shared_memory_message_queue.opt \
+  shared_memory_message_queue_per_sender.opt \
   thread_memory_semantics.opt \
   dummy_cpu_coordinate.opt \
 
