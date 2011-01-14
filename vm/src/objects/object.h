@@ -505,7 +505,7 @@ public:
   int priority_of_process_or_nil();
   Object_p process_list_for_priority_of_process();
   Oop get_suspended_context_of_process_and_mark_running();
-  bool is_process_running();
+  bool is_process_running(Oop nilObj /* passed in as optimization */);
   bool is_process_allowed_to_run_on_this_core();
   void store_host_core_of_process(int);
   void store_allowable_cores_of_process(u_int64 bitMask);

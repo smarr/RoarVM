@@ -305,7 +305,7 @@ void Squeak_Interpreter::interpret() {
     assert(get_running_process() != roots.nilObj);
 
     assert_stored_if_no_proc();
-    assert(get_running_process().as_object()->is_process_running());
+    assert(get_running_process().as_object()->is_process_running(roots.nilObj));
 
     assert_method_is_correct(false, "right before dispatch");
 
@@ -341,7 +341,7 @@ void Squeak_Interpreter::interpret() {
     }
 # endif
 
-    assert(!do_I_hold_baton() || get_running_process().as_object()->is_process_running());
+    assert(!do_I_hold_baton() || get_running_process().as_object()->is_process_running(roots.nilObj));
 
     assert_stored_if_no_proc();
 
@@ -1287,7 +1287,7 @@ void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
   if (newProc == roots.nilObj)
     return;
 
-  if (check_many_assertions)  assert(!newProc.as_object()->is_process_running());
+  if (check_many_assertions)  assert(!newProc.as_object()->is_process_running(roots.nilObj));
 
   if (Print_Scheduler) {
     debug_printer->printf("on %d: in transfer_to_highest_priority %s: ", my_rank(), why);
@@ -2099,7 +2099,7 @@ Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_proces
       }
       OS_Interface::mem_fence(); // xxxxxx Is this fence needed? -- dmu 4/09
       assert(proc_obj->as_oop() == proc  &&  proc.as_object() == proc_obj);
-      if (proc_obj->is_process_running()  ||  !proc_obj->is_process_allowed_to_run_on_this_core())
+      if (proc_obj->is_process_running(roots.nilObj)  ||  !proc_obj->is_process_allowed_to_run_on_this_core())
         ;
       else if (last_proc == proc) {
          return proc;
@@ -2586,7 +2586,7 @@ void Squeak_Interpreter::booleanCheat(bool cond) {
 }
 
 void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
+  if (check_many_assertions) assert(!newProc.as_object()->is_process_running(roots.nilObj));
 
   Scheduler_Mutex sm("transferTo"); // in case another cpu starts running this
   if (Print_Scheduler) {
@@ -2596,9 +2596,9 @@ void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
     newProc.print_process_or_nil(debug_printer);
     debug_printer->printf(", %s\n", why);
   }
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
+  if (check_many_assertions) assert(!newProc.as_object()->is_process_running(roots.nilObj));
   put_running_process_to_sleep(why);
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
+  if (check_many_assertions) assert(!newProc.as_object()->is_process_running(roots.nilObj));
   OS_Interface::mem_fence();
   start_running(newProc, why);
 }
@@ -2613,7 +2613,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
     return;
   }
   Object_p newProc_obj = newProc.as_object();
-  if (newProc_obj->is_process_running()) {
+  if (newProc_obj->is_process_running(roots.nilObj)) {
     lprintf("releasing baton in start_running\n");
     release_baton();
     multicore_interrupt_check = true; // so we stop running
@@ -2974,7 +2974,7 @@ void Squeak_Interpreter::release_baton() {
   set_activeContext(roots.nilObj);
   multicore_interrupt_check = true; // must go into multicore_interrupt to wait for baton
   assert(    roots.running_process_or_nil == roots.nilObj
-         || !roots.running_process_or_nil.as_object()->is_process_running());
+         || !roots.running_process_or_nil.as_object()->is_process_running(roots.nilObj));
   roots.running_process_or_nil = roots.nilObj;
   if (Track_Processes)
     running_process_by_core[my_rank()] = roots.running_process_or_nil;
