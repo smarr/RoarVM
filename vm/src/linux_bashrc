@@ -1,0 +1,183 @@
+alias setdisp="export DISPLAY=10.0.1.250:0"
+alias setdispa="export DISPLAY=10.0.1.250:0"
+
+alias aprofB="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_BUNDLE_RETIRED:750000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_1.image ---"
+alias aprof2B="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_BUNDLE_RETIRED:750000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_2.image ---"
+alias aprofI="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_INSTRUCTION_CACHE_STALL:750000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_1.image ---"
+alias aprof2I="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_INSTRUCTION_CACHE_STALL:750000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_2.image ---"
+alias aprofD="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_DATA_CACHE_STALL:750000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_1.image ---"
+alias aprof2D="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_DATA_CACHE_STALL:750000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_2.image ---"
+alias aprofT="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=TLB_EXC:75000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_1.image ---"
+alias aprof2T="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=TLB_EXC:75000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_2.image ---"
+alias aprofUR="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_UDN_READ_STALL:10000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_1.image ---"
+alias aprof2UR="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_UDN_READ_STALL:10000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_2.image ---"
+alias aprofUW="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_UDN_WRITE_STALL:10000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_1.image ---"
+alias aprof2UW="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_UDN_WRITE_STALL:10000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_2.image ---"
+alias aprof2IW="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_IDN_WRITE_STALL:10000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_2.image ---"
+alias aprof2SW="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_SN_WRITE_STALL:10000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_25_base_2.image ---"
+
+alias eprofB="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_BUNDLE_RETIRED:750000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_1.image ---"
+alias eprof2B="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_BUNDLE_RETIRED:750000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_2.image ---"
+alias eprofI="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_INSTRUCTION_CACHE_STALL:750000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_1.image ---"
+alias eprof2I="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_INSTRUCTION_CACHE_STALL:750000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_2.image ---"
+alias eprofD="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_DATA_CACHE_STALL:750000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_1.image ---"
+alias eprof2D="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_DATA_CACHE_STALL:750000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_2.image ---"
+alias eprofT="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=TLB_EXC:75000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_1.image ---"
+alias eprof2T="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=TLB_EXC:75000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_2.image ---"
+
+alias eprofUR="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_UDN_READ_STALL:10000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_1.image ---"
+alias eprof2UR="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_UDN_READ_STALL:10000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_2.image ---"
+alias eprofUW="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_UDN_WRITE_STALL:10000'  --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_1.image ---"
+alias eprof2UW="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_UDN_WRITE_STALL:10000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_2.image ---"
+alias eprof2IW="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_IDN_WRITE_STALL:10000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_2.image ---"
+alias eprof2SW="tile-monitor --pci --bootrom vmlinux-pci-RVM --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --profile-init --profile-kernel --profile-events '--event=ONE:750000 --event=MP_SN_WRITE_STALL:10000' --profile-flags '--callgraph=10' --rtc --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --profile-start --run --- rvm -geom 5,1 /home/ungar/renaissance/rvm/run/basicSqueak_8_29_bench10_2.image ---"
+
+# tile-opreport  --symbols archive:sampleOne_TLB -merge=all
+#tile-monitor --simulator --ide-port 34541 --xml-profile /home/ungar/renaissance/rvm/profile_sim_1 --image 1x1
+#tile-mkboot --output vmlinux-pci-RVM.bootrom config=/opt/Tilera/lib/boot/vmlinux-pci-RVM.hvconfig vmlinux=/opt/Tilera/tile/boot/vmlinux
+
+alias testping="tile-monitor --pci --hvd XGBE_ARGS=native_driver --hvx TLR_NETWORK=xgbe/0 --hvx TLR_NETADDR=10.0.1.252 --hvx TLR_NETMASK=255.255.255.0 --hvx TLR_INITSWITCH=y  --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1"
+
+export mon_args=" --debug-on-crash    --hvd XGBE_ARGS=native_driver --hvx TLR_NETWORK=xgbe/0 --hvx TLR_NETADDR=10.0.1.252 --hvx TLR_NETMASK=255.255.255.0 --hvx TLR_INITSWITCH=y --huge-pages 64  --here  --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1  --run -+-"
+
+export mon_args_no_eth=" --debug-on-crash    --hvd XGBE_ARGS=native_driver --hvx TLR_NETWORK=xgbe/0 --hvx TLR_NETMASK=255.255.255.0 --hvx TLR_INITSWITCH=y --huge-pages 64  --here  --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 "
+
+export run_args_1="-min_heap_MB 32 -profile_after 5000"
+export last_args="/home/ungar/renaissance/rvm/run/zauchu-RVM-compiler.image --- --quit"
+export last_args929="/home/ungar/renaissance/rvm/run/rvm-base-9-29-bench.image --- --quit"
+
+alias check1="tile-monitor --pci --rtc $mon_args rvm -geom 1,1 $run_args_1 -headless -make_checkpoint $last_args"
+alias check2="tile-monitor --pci --rtc $mon_args rvm -geom 2,1 $run_args_1 -headless -make_checkpoint $last_args"
+alias check32="tile-monitor --pci --rtc $mon_args rvm -geom 8,4 $run_args_1 -headless -make_checkpoint $last_args"
+alias check56="tile-monitor --pci --rtc $mon_args rvm -geom 8,7 $run_args_1 -headless -make_checkpoint $last_args"
+
+alias test1="tile-monitor --pci --rtc $mon_args rvm -geom 1,1 $run_args_1 -quit_after 15000 -headless -use_checkpoint $last_args"
+alias test2="tile-monitor --pci --rtc $mon_args rvm -geom 2,1 $run_args_1 -quit_after 15000 -headless -use_checkpoint $last_args"
+alias test32="tile-monitor --pci --rtc $mon_args rvm -geom 8,4 $run_args_1 -headless -use_checkpoint $last_args"
+alias test56="tile-monitor --pci --rtc $mon_args rvm -geom 8,7 $run_args_1 -headless -use_checkpoint $last_args"
+
+alias run1="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 1,1 $run_args_1 -use_checkpoint $last_args"
+alias run2="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 2,1 $run_args_1 -use_checkpoint $last_args"
+alias run56="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 8,7 $run_args_1 -use_checkpoint $last_args"
+
+alias sim1="tile-monitor --simulator --xml-profile profile_sim_1h --image 1x1  $mon_args rvm -geom 1,1 $run_args_1 -headless -use_checkpoint $last_args"
+alias sim2="tile-monitor --simulator --xml-profile profile_sim_2h --image 2x2  $mon_args rvm -geom 2,1 $run_args_1 -headless -use_checkpoint $last_args"
+alias sim32="tile-monitor --simulator --xml-profile profile_sim_32h --image 8x4  $mon_args rvm -geom 8,4 $run_args_1 -headless -use_checkpoint $last_args"
+alias sim56="tile-monitor --simulator --xml-profile profile_sim_56h --image 8x8  $mon_args rvm -geom 8,7 $run_args_1 -headless -use_checkpoint $last_args"
+
+
+
+alias rbi1rp="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -eschew_huge_pages -geom 1,1 -min_heap_MB 256 /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+
+alias xbi1="tile-monitor --pci --rtc  $mon_args rvm -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xif="tile-monitor --pci --rtc  $mon_args ifconfig -a -+- --quit"
+alias xbi2="tile-monitor --pci --rtc  $mon_args rvm -geom 2,1 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi3="tile-monitor --pci --rtc  $mon_args rvm -geom 3,1 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi4="tile-monitor --pci --rtc  $mon_args rvm -geom 4,1 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi5="tile-monitor --pci --rtc  $mon_args rvm -geom 5,1 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi6="tile-monitor --pci --rtc  $mon_args rvm -geom 6,1 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi7="tile-monitor --pci --rtc  $mon_args rvm -geom 7,1 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi8="tile-monitor --pci --rtc  $mon_args rvm -geom 8,1 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi9="tile-monitor --pci --rtc  $mon_args rvm -geom 3,3 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi10="tile-monitor --pci --rtc $mon_args rvm -geom 5,2 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi16="tile-monitor --pci --rtc $mon_args rvm -geom 4,4 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi24="tile-monitor --pci --rtc $mon_args rvm -geom 4,6 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi32="tile-monitor --pci --rtc $mon_args rvm -geom 8,4 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi40="tile-monitor --pci --rtc $mon_args rvm -geom 8,5 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi48="tile-monitor --pci --rtc $mon_args rvm -geom 8,6 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi56="tile-monitor --pci --rtc $mon_args rvm -geom 8,7 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi56bar="tile-monitor --pci --rtc $mon_args rvm -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+
+alias xbi1A="tile-monitor --pci-card 0 --rtc  $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.252 --run -+- rvm -num_chips 4 -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+alias xbi1B="tile-monitor --pci-card 1 --rtc  $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.251 --run -+- rvm -num_chips 4 -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+alias xbi1C="tile-monitor --pci-card 2 --rtc  $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.250 --run -+- rvm -num_chips 4 -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+alias xbi1D="tile-monitor --pci-card 3 --rtc  $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.249 --run -+- rvm -num_chips 4 -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+
+alias xbi56A="tile-monitor --pci-card 0 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.252 --run -+- rvm -num_chips 4 -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+alias xbi56B="tile-monitor --pci-card 1 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.251 --run -+- rvm -num_chips 4 -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+alias xbi56C="tile-monitor --pci-card 2 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.250 --run -+- rvm -num_chips 4 -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+alias xbi56D="tile-monitor --pci-card 3 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.249 --run -+- rvm -num_chips 4 -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+
+alias A="tile-monitor --pci-card 0 --rtc  $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.252 --run -+- rvm -num_chips 2 -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+alias B="tile-monitor --pci-card 1 --rtc  $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.251 --run -+- rvm -num_chips 2 -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+
+
+
+
+alias rbi56coin="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/rvm-coin.image --- --quit"
+
+alias rbi1fy="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 1,1 -min_heap_MB 256 -force_yields /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+alias rbi1fycro="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 1,1 -min_heap_MB 16 -force_yields -consolidate_replicated_objects /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+alias rbi1cro="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 1,1 -min_heap_MB 16 -consolidate_replicated_objects /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+alias rbi2fy="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 2,1 -min_heap_MB 256 -force_yields /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+alias rbi56fy="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 8,7 -min_heap_MB 16 -force_yields /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+alias rbi56fycro="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 8,7 -min_heap_MB 16 -force_yields -consolidate_replicated_objects /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+alias rbi56cro="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 8,7 -min_heap_MB 16 -consolidate_replicated_objects /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+
+alias rbi1r="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 1,1 -min_heap_MB 16 -replicate_OT  /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+alias rbi2r="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 2,1 -min_heap_MB 16  -replicate_OT /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+alias rbi56r="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args rvm -geom 8,7 -min_heap_MB 16 -replicate_OT /home/ungar/renaissance/rvm/run/rvm-base.image --- --quit"
+
+alias rbi1_912="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args ../tbuild912.opt/rvm -geom 1,1 -min_heap_MB 16 -force_yields  /home/ungar/renaissance/rvm/run/rvm-base912.image --- --quit"
+alias rbi2_912="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args ../tbuild912.opt/rvm -geom 2,1 -min_heap_MB 16  -force_yields /home/ungar/renaissance/rvm/run/rvm-base912.image --- --quit"
+alias rbi56_912="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args ../tbuild912.opt/rvm -geom 8,7 -min_heap_MB 16 -force_yields /home/ungar/renaissance/rvm/run/rvm-base912.image --- --quit"
+
+
+
+alias check1dr="tile-monitor --pci --rtc $mon_args -geom 1,1 -dont_replicate_OT $run_args_1 -headless -make_checkpoint $last_args"
+alias check2dr="tile-monitor --pci --rtc $mon_args -geom 2,1 -dont_replicate_OT $run_args_1 -headless -make_checkpoint $last_args"
+alias sim1dr="tile-monitor --simulator --xml-profile profile_sim_1h --image 1x1  $mon_args -geom 1,1 -dont_replicate_OT $run_args_1 -headless -use_checkpoint $last_args"
+alias sim2dr="tile-monitor --simulator --xml-profile profile_sim_2h --image 2x2  $mon_args -geom 2,1 -dont_replicate_OT $run_args_1 -headless -use_checkpoint $last_args"
+alias test1dr="tile-monitor --pci --rtc $mon_args -geom 1,1 -dont_replicate_OT $run_args_1 -quit_after 15000 -headless -use_checkpoint $last_args"
+alias test2dr="tile-monitor --pci --rtc $mon_args -geom 2,1 -dont_replicate_OT $run_args_1 -quit_after 15000 -headless -use_checkpoint $last_args"
+
+
+
+
+alias check1_912="tile-monitor --pci --rtc $mon_args ../tbuild912.opt/rvm -geom 1,1 $run_args_1 -headless -force_yields -make_checkpoint $last_args929"
+alias check2_912="tile-monitor --pci --rtc $mon_args ../tbuild912.opt/rvm -geom 2,1 $run_args_1 -headless -force_yields -make_checkpoint $last_args929"
+alias check32_912="tile-monitor --pci --rtc $mon_args ../tbuild912.opt/rvm -geom 8,4 $run_args_1 -headless -force_yields -make_checkpoint $last_args929"
+alias check56_912="tile-monitor --pci --rtc $mon_args ../tbuild912.opt/rvm -geom 8,7 $run_args_1 -headless -force_yields -make_checkpoint $last_args929"
+
+alias test1_912="tile-monitor --pci --rtc $mon_args ../tbuild912.opt/rvm -geom 1,1 $run_args_1 -quit_after 15000 -headless -force_yields -use_checkpoint $last_args929"
+alias test2_912="tile-monitor --pci --rtc $mon_args ../tbuild912.opt/rvm -geom 2,1 $run_args_1 -quit_after 15000 -headless -force_yields -use_checkpoint $last_args929"
+alias test32_912="tile-monitor --pci --rtc $mon_args ../tbuild912.opt/rvm -geom 8,4 $run_args_1 -headless -force_yields -use_checkpoint $last_args929"
+alias test56_912="tile-monitor --pci --rtc $mon_args ../tbuild912.opt/rvm -geom 8,7 $run_args_1 -headless -force_yields -use_checkpoint $last_args929"
+
+alias run1_912="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args ../tbuild912.opt/rvm -geom 1,1 $run_args_1 -force_yields -use_checkpoint $last_args929"
+alias run2_912="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args ../tbuild912.opt/rvm -geom 2,1 $run_args_1 -force_yields -use_checkpoint $last_args929"
+alias run56_912="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args ../tbuild912.opt/rvm -geom 8,7 $run_args_1 -force_yields -use_checkpoint $last_args929"
+
+alias sim1_912="tile-monitor --simulator --xml-profile profile_sim_1h --image 1x1  $mon_args ../tbuild912.opt/rvm -geom 1,1 $run_args_1 -headless -force_yields -use_checkpoint $last_args929"
+alias sim2_912="tile-monitor --simulator --xml-profile profile_sim_2h --image 2x2  $mon_args ../tbuild912.opt/rvm -geom 2,1 $run_args_1 -headless -force_yields -use_checkpoint $last_args929"
+alias sim32_912="tile-monitor --simulator --xml-profile profile_sim_32h --image 8x4  $mon_args ../tbuild912.opt/rvm -geom 8,4 $run_args_1 -headless -force_yields -use_checkpoint $last_args929"
+alias sim56_912="tile-monitor --simulator --xml-profile profile_sim_56h --image 8x8  $mon_args ../tbuild912.opt/rvm -geom 8,7 $run_args_1 -headless -force_yields -use_checkpoint $last_args929"
+
+
+
+
+alias check1_929="tile-monitor --pci --rtc $mon_args ../tbuild.opt/rvm -geom 1,1 $run_args_1 -headless -make_checkpoint $last_args929"
+alias check2_929="tile-monitor --pci --rtc $mon_args ../tbuild.opt/rvm -geom 2,1 $run_args_1 -headless -make_checkpoint $last_args929"
+alias check32_929="tile-monitor --pci --rtc $mon_args ../tbuild.opt/rvm -geom 8,4 $run_args_1 -headless -make_checkpoint $last_args929"
+alias check56_929="tile-monitor --pci --rtc $mon_args ../tbuild.opt/rvm -geom 8,7 $run_args_1 -headless -make_checkpoint $last_args929"
+
+alias test1_929="tile-monitor --pci --rtc $mon_args ../tbuild.opt/rvm -geom 1,1 $run_args_1 -quit_after 15000 -headless -use_checkpoint $last_args929"
+alias test2_929="tile-monitor --pci --rtc $mon_args ../tbuild.opt/rvm -geom 2,1 $run_args_1 -quit_after 15000 -headless -use_checkpoint $last_args929"
+alias test32_929="tile-monitor --pci --rtc $mon_args ../tbuild.opt/rvm -geom 8,4 $run_args_1 -headless -use_checkpoint $last_args929"
+alias test56_929="tile-monitor --pci --rtc $mon_args ../tbuild.opt/rvm -geom 8,7 $run_args_1 -headless -use_checkpoint $last_args929"
+
+alias run1_929="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args ../tbuild.opt/rvm -geom 1,1 $run_args_1 -use_checkpoint $last_args929"
+alias run2_929="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args ../tbuild.opt/rvm -geom 2,1 $run_args_1 -use_checkpoint $last_args929"
+alias run56_929="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM $mon_args ../tbuild.opt/rvm -geom 8,7 $run_args_1 -use_checkpoint $last_args929"
+
+alias sim1_929="tile-monitor --simulator --xml-profile profile_sim_1h --image 1x1  $mon_args ../tbuild.opt/rvm -geom 1,1 $run_args_1 -headless -use_checkpoint $last_args929"
+alias sim2_929="tile-monitor --simulator --xml-profile profile_sim_2h --image 2x2  $mon_args ../tbuild.opt/rvm -geom 2,1 $run_args_1 -headless -use_checkpoint $last_args929"
+alias sim32_929="tile-monitor --simulator --xml-profile profile_sim_32h --image 8x4  $mon_args ../tbuild.opt/rvm -geom 8,4 $run_args_1 -headless -use_checkpoint $last_args929"
+alias sim56_929="tile-monitor --simulator --xml-profile profile_sim_56h --image 8x8  $mon_args ../tbuild.opt/rvm -geom 8,7 $run_args_1 -headless -use_checkpoint $last_args929"
+
+alias mt='tile-monitor --pci --rtc --huge-pages 64 --export /home/ungar/renaissance --cd /home/ungar/renaissance/mutex_test --run --- ./a.out --- --quit'
+alias mtr='tile-monitor --pci  --export /home/ungar/renaissance --cd /home/ungar/renaissance/mutex_test --run --- ./a.out --- --quit'
+
+
+alias rbi2in="tile-monitor --pci --rtc --bootrom vmlinux-pci-RVM --huge-pages 64 --export /home/ungar/renaissance --cd /home/ungar/renaissance/rvm/run --env DISPLAY=10.0.1.250:0 --env SQUEAK_NOTIMER=1 --debug-tile 0,0 --debug-tile 0,1
+"
