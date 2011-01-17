@@ -678,7 +678,9 @@ static int primitiveMicrosecondClock() {
   return 0;
 }
 
-
+# if On_Apple
+# include "/Developer/Headers/FlatCarbon/MacTypes.h" // Ugh! Why won't xCode supply UnsignedWide??? -- dmu
+# endif
 
 static int primitiveCycleCounter() {
   if (The_Squeak_Interpreter()->get_argumentCount() != 0) {
@@ -690,6 +692,12 @@ static int primitiveCycleCounter() {
   // burrow down below OS_Interface level to avoid effect of Dont_Count_Cycles
 # if On_Tilera
   cycles = ::get_cycle_count();
+  
+# elif On_Apple
+  struct UnsignedWide microTickCount;
+  Microseconds(&microTickCount);
+  cycles = (u_int64(microTickCount.hi) << 32LL) |  u_int64(microTickCount.lo);
+  
 # else
   # warning STEFAN: we should make sure that we have here something which is accurate also between cores. We can not pin the interpreter on specific cores on OSX
   asm volatile("rdtsc" : "=A" (cycles));
