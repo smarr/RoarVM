@@ -1,6 +1,0 @@
-#!/bin/sh
-# Make the libraries we depend on
-for d in cpu fpu disasm
-do
-	(cd $d; make)
-done

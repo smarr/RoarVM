@@ -1,3 +1,0 @@
-#!/bin/bash
-
-rm -r ./build ./*/build ./plugin-projects/*/build ./Teleplace.app
