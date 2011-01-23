@@ -10,6 +10,8 @@
  ******************************************************************************/
 
 
+# if Track_OnStackPointer
+
 #include <set>
 #include <assert.h>
 #include <stdint.h>
@@ -98,3 +100,5 @@ public:
   }
   
 }; // tracked_ptr_registry
+
+# endif // Track_OnStackPointer

@@ -10,6 +10,8 @@
  ******************************************************************************/
 
 
+# if Track_OnStackPointer
+
 #include <assert.h>
 
 /**
@@ -187,3 +189,5 @@ inline bool operator==(const bool a, tracked_ptr<T> const & t_ptr) {
 
 template<typename T>
 typename tracked_ptr<T>::registry_t tracked_ptr<T>::registry;
+
+# endif // Track_OnStackPointer

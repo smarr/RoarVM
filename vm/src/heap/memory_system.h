@@ -147,9 +147,7 @@ public:
 
   void compute_snapshot_offsets(u_int32 *offsets);
   
-  int32 adjust_for_snapshot(const tracked_ptr<Object>& addr, u_int32* address_offsets) const {
-    return adjust_for_snapshot(addr.get(), address_offsets);
-  }
+ 
   int32 adjust_for_snapshot(void* addr, u_int32* address_offsets) const {
     return (int32)addr - address_offsets[&heaps[rank_for_address(addr)][mutability_for_address(addr)] - &heaps[0][0]];
   }
@@ -201,24 +199,16 @@ public:
   int round_robin_rank();
   int assign_rank_for_snapshot_object();
 
-  bool contains(const tracked_ptr<Object>& p) const {
-    return contains(p.get());
-  }
-  
+ 
   bool contains(void* p) const {
     return read_mostly_memory_base <= (char*)p  &&  (char*)p < read_write_memory_past_end;
   }
-
-  int mutability_for_address(const tracked_ptr<Object>& p) const {  return mutability_for_address(p.get());  }
+  
   int mutability_for_address(void* p) const {
     // compiler bug:
     static const int c = read_write;
     static const int i = read_mostly;
     return is_address_read_write(p) ? c : i;
-  }
-
-  int rank_for_address(const tracked_ptr<Object>& p) const {
-    return rank_for_address(p.get());
   }
   
   int rank_for_address(void* p) const {

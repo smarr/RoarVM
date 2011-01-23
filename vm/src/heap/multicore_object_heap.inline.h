@@ -96,11 +96,6 @@ inline bool Multicore_Object_Table::Entry::is_used() {
   return The_Memory_System()->contains(ow);
 }
 
-
-inline bool Multicore_Object_Table::probably_contains(const tracked_ptr<Object>& p) const {
-  return probably_contains(p.get());
-}
-
 inline bool Multicore_Object_Table::probably_contains(void* p) const {
   if (The_Memory_System()->contains(p)) return false;
   FOR_ALL_RANKS(r)

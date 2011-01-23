@@ -1386,7 +1386,7 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
   }
 
   assert(activeContext() != roots.nilObj);
-  assert_eq(activeContext_obj(), activeContext().as_object(), "active context is messed up");
+  assert_eq(activeContext_obj(), (void*)activeContext().as_object(), "active context is messed up");
   if (Check_Prefetch)  assert_always(have_executed_currentBytecode);
   storeContextRegisters(activeContext_obj()); // xxxxxx redundant maybe with newActiveContext call in start_running
   aProcess.as_object()->set_suspended_context_of_process(activeContext());
@@ -3033,9 +3033,9 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
   error_printer->nl();
 
   assert_always_eq(activeContext().bits(), activeContext_obj()->as_oop().bits());
-  assert_always_eq(activeContext_obj(), activeContext().as_object());
+  assert_always_eq(activeContext_obj(), (void*)activeContext().as_object());
   assert_always_eq(method().bits(), activeContext_obj()->fetchPointer(Object_Indices::MethodIndex).bits());
-  assert_always_eq(method().as_object(), method_obj());
+  assert_always_eq(method().as_object(), (void*)method_obj());
   assert_always_eq(method_obj()->as_oop().bits(), method().bits());
   fatal("check_method_is_correct");
 

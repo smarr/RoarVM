@@ -22,11 +22,8 @@
 // OOP
 
 void dp(Oop x) { x.dp(); }
-void dp(int x) { Oop::from_bits(x).dp(); } 
 void Oop::dp() { print(stderr_printer); stderr_printer->nl(); }  // debugging print routines
 void dp(Object* x) {x->dp(); } // print Object
-void dp(const tracked_ptr<Object>& x) {x->dp(); } // print Object_p
-
 
 // Interpreter
 
