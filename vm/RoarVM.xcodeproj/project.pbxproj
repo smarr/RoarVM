@@ -1026,6 +1026,23 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXLegacyTarget section */
+		0AC76D9212EC5FCD00C86B11 /* make */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 0AC76D9812EC5FF200C86B11 /* Build configuration list for PBXLegacyTarget "make" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = /Users/smarr/Projects/PhD/IBM/github/vm/build;
+			dependencies = (
+			);
+			name = make;
+			passBuildSettingsInEnvironment = 1;
+			productName = make;
+		};
+/* End PBXLegacyTarget section */
+
 /* Begin PBXNativeTarget section */
 		0A2783EA128DBF1000336BDE /* RoarVM */ = {
 			isa = PBXNativeTarget;
@@ -1081,6 +1098,7 @@
 			targets = (
 				0A2783EA128DBF1000336BDE /* RoarVM */,
 				0A97FB25128FE95A003A1C74 /* UnitTests */,
+				0AC76D9212EC5FCD00C86B11 /* make */,
 			);
 		};
 /* End PBXProject section */
@@ -1341,6 +1359,27 @@
 			};
 			name = Release;
 		};
+		0AC76D9312EC5FCD00C86B11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = make;
+			};
+			name = Debug;
+		};
+		0AC76D9412EC5FCD00C86B11 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = make;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1367,6 +1406,15 @@
 			buildConfigurations = (
 				0A97FB28128FE95A003A1C74 /* Debug */,
 				0A97FB29128FE95A003A1C74 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0AC76D9812EC5FF200C86B11 /* Build configuration list for PBXLegacyTarget "make" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0AC76D9312EC5FCD00C86B11 /* Debug */,
+				0AC76D9412EC5FCD00C86B11 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

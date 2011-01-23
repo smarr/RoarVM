@@ -45,7 +45,7 @@ void Interpreter_Subset_For_Control_Transfer::fill_in_interpreter() {
   The_Squeak_Interpreter()->assert_stored_if_no_proc();
   if (Trace_Execution && The_Squeak_Interpreter()->execution_tracer() != NULL)
     The_Squeak_Interpreter()->execution_tracer()->received_current_bytecode();
-  assert_eq(The_Squeak_Interpreter()->activeContext_obj(), The_Squeak_Interpreter()->activeContext().as_object(), "activeContext");
+  assert_eq(The_Squeak_Interpreter()->activeContext_obj(), (void*)The_Squeak_Interpreter()->activeContext().as_object(), "activeContext");
 }
 
 

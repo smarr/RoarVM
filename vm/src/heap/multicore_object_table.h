@@ -30,10 +30,7 @@ class Multicore_Object_Table: public Abstract_Object_Table {
     void set_entry(Entry* e COMMA_DCL_ESB) { set(oop_int_t(e)  COMMA_USE_ESB); }// async
 
     Object* obj() { return (Object*)(i & obj_mask); }
-    
-    inline void set_obj(const tracked_ptr<Object>& x  COMMA_DCL_ESB)  {
-      set_obj(x.get() COMMA_USE_ESB);
-    }
+        
     void set_obj(Object* x  COMMA_DCL_ESB)  {
       set((oop_int_t)x & obj_mask  |  i & bit_mask  COMMA_USE_ESB);
     }
@@ -218,8 +215,6 @@ public:
   bool verify();
   bool verify_after_mark();
 
-
-  inline bool probably_contains(const tracked_ptr<Object>&) const;
   inline bool probably_contains(void*) const;
 
   Oop get_stats(int);
