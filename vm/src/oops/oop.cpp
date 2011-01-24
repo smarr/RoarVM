@@ -24,9 +24,6 @@ void Oop::print(Printer* p) {
 void Oop::print_briefly(Printer* p) {
   unimplemented();
 }
-void Oop::print_process_or_nil(Printer* p) {
-  as_object()->print_process_or_nil(p);
-}
 
 bool Oop::isMemberOf(char* className) {
   return fetchClass().as_object()->className().as_object()->equals_string(className);

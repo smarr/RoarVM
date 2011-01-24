@@ -187,9 +187,9 @@ void Squeak_Interpreter::loadInitialContext() {
     Scheduler_Mutex sm("loadInitialContext");
     assert_active_process_not_nil();
     Oop proc = schedulerPointer_obj()->fetchPointer(Object_Indices::ActiveProcessIndex);
-    proc.as_object()->add_process_to_scheduler_list(); // unlike squeak rvm keeps running procs in lists
+    add_process_to_scheduler_list(proc.as_object()); // unlike squeak rvm keeps running procs in lists
     set_running_process(proc, "loadInitialContext");
-    set_activeContext(proc.as_object()->get_suspended_context_of_process_and_mark_running());
+    set_activeContext(get_suspended_context_of_process_and_mark_running(proc.as_object()));
     // (activeContext < youngStart) ifTrue: [ self beRootIfOld: activeContext ].
     fetchContextRegisters(activeContext(), activeContext_obj());
   }
@@ -305,7 +305,7 @@ void Squeak_Interpreter::interpret() {
     assert(get_running_process() != roots.nilObj);
 
     assert_stored_if_no_proc();
-    assert(get_running_process().as_object()->is_process_running(roots.nilObj));
+    assert(is_process_running(get_running_process().as_object()));
 
     assert_method_is_correct(false, "right before dispatch");
 
@@ -341,7 +341,7 @@ void Squeak_Interpreter::interpret() {
     }
 # endif
 
-    assert(!do_I_hold_baton() || get_running_process().as_object()->is_process_running(roots.nilObj));
+    assert(!do_I_hold_baton() || is_process_running(get_running_process().as_object()));
 
     assert_stored_if_no_proc();
 
@@ -1226,7 +1226,7 @@ void Squeak_Interpreter::checkForInterrupts(bool is_safe_to_process_events) {
 
     Oop sema = splObj(Special_Indices::TheFinalizationSemaphore);
     if (sema.fetchClass() == splObj(Special_Indices::ClassSemaphore)) {
-      sema.as_object()->synchronousSignal("checkForInterrupts 674");
+      synchronousSignal(sema.as_object(), "checkForInterrupts 674");
     }
     set_pendingFinalizationSignals(0);
   }
@@ -1287,13 +1287,13 @@ void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
   if (newProc == roots.nilObj)
     return;
 
-  if (check_many_assertions)  assert(!newProc.as_object()->is_process_running(roots.nilObj));
+  if (check_many_assertions)  assert(!is_process_running(newProc.as_object()));
 
   if (Print_Scheduler) {
     debug_printer->printf("on %d: in transfer_to_highest_priority %s: ", my_rank(), why);
     print_process_lists(debug_printer);
     debug_printer->printf("  found:  ");
-    newProc.print_process_or_nil(debug_printer);
+    print_process_or_nil(newProc.as_object(), debug_printer);
     debug_printer->nl();
   }
   transferTo(newProc, why);
@@ -1310,7 +1310,7 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
    */
   if (Print_Scheduler) {
     debug_printer->printf("on %d: resume: ", my_rank());
-    aProcess.print_process_or_nil(debug_printer);
+    print_process_or_nil(aProcess.as_object(), debug_printer);
     debug_printer->printf(" because %s\n", why);
     print_process_lists(debug_printer);
   }
@@ -1319,7 +1319,7 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
     Scheduler_Mutex sm("resume");
     Object_p aProcess_obj = aProcess.as_object();
     assert(aProcess_obj->my_list_of_process() == roots.nilObj);
-    aProcess_obj->add_process_to_scheduler_list();
+    add_process_to_scheduler_list(aProcess_obj);
   }
   assert(!Scheduler_Mutex::is_held());
 
@@ -1350,7 +1350,7 @@ void Squeak_Interpreter::signalExternalSemaphores(const char* why) {
         Oop sema = xArray->fetchPointer(index - 1);
         // sema indices 1-based
         if (sema.fetchClass() == splObj(Special_Indices::ClassSemaphore)) {
-          sema.as_object()->synchronousSignal(why);
+          synchronousSignal(sema.as_object(), why);
         }
       }
     }
@@ -1364,7 +1364,7 @@ void Squeak_Interpreter::signalExternalSemaphores(const char* why) {
         Oop sema = xArray->fetchPointer(index - 1);
         // sema indices 1-based
         if (sema.fetchClass() == splObj(Special_Indices::ClassSemaphore))
-          sema.as_object()->synchronousSignal(why);
+          synchronousSignal(sema.as_object(), why);
       }
     }
     set_semaphoresToSignalCountA(0);
@@ -1381,7 +1381,7 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
   }
   if (Print_Scheduler) {
     debug_printer->printf("scheduler: on %d, put_running_process_to_sleep: ", my_rank());
-    aProcess.print_process_or_nil(debug_printer);
+    print_process_or_nil(aProcess.as_object(), debug_printer);
     debug_printer->printf(", %s\n", why);
   }
 
@@ -1389,11 +1389,11 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
   assert_eq(activeContext_obj(), (void*)activeContext().as_object(), "active context is messed up");
   if (Check_Prefetch)  assert_always(have_executed_currentBytecode);
   storeContextRegisters(activeContext_obj()); // xxxxxx redundant maybe with newActiveContext call in start_running
-  aProcess.as_object()->set_suspended_context_of_process(activeContext());
+  set_suspended_context_of_process(aProcess.as_object(), activeContext());
   release_baton();
   if (Print_Scheduler) {
     debug_printer->printf("scheduler: on %d, AFTER put_running_process_to_sleep: ", my_rank());
-    aProcess.print_process_or_nil(debug_printer);
+    print_process_or_nil(aProcess.as_object(), debug_printer);
     debug_printer->nl();
     // print_process_lists(debug_printer);
   }
@@ -1406,7 +1406,7 @@ void Squeak_Interpreter::yield(const char* why) {
     assert_external();
   if (Print_Scheduler) {
     debug_printer->printf("scheduler on %d: pre yield because %s ", my_rank(), why);
-    get_running_process().as_object()->print_process_or_nil(debug_printer);
+    print_process_or_nil(get_running_process().as_object(), debug_printer);
     debug_printer->nl();
     print_stack_trace(dittoing_stdout_printer);
   }
@@ -1417,7 +1417,7 @@ void Squeak_Interpreter::yield(const char* why) {
   if (Check_Prefetch && do_I_hold_baton()) assert_always(have_executed_currentBytecode);
   if (Print_Scheduler) {
     debug_printer->printf("scheduler on %d: post yield because %s ", my_rank(), why);
-    get_running_process().as_object()->print_process_or_nil(debug_printer);
+    print_process_or_nil(get_running_process().as_object(), debug_printer);
     debug_printer->nl();
     print_stack_trace(dittoing_stdout_printer);
   }
@@ -1431,7 +1431,7 @@ Oop Squeak_Interpreter::get_running_process() {
 void Squeak_Interpreter::set_running_process(Oop proc, const char* why) {
   if (Print_Scheduler) {
     debug_printer->printf( "scheduler: on %d: set_running_process: ", my_rank());
-    proc.print_process_or_nil(debug_printer);
+    print_process_or_nil(proc.as_object(), debug_printer);
     debug_printer->printf(", %s prim: 0x%x\n", why, Message_Statics::remote_prim_fn);
   }
   assert_stored_if_no_proc();
@@ -1626,7 +1626,7 @@ void Squeak_Interpreter::print_all_instances_of_class_process(Printer* pr, bool 
             instance != roots.nilObj;
             instance  = The_Memory_System()->nextInstanceAfter(instance) ) {
     
-    instance.as_object()->print_process_or_nil(pr, print_stacks);
+    print_process_or_nil(instance.as_object(), pr, print_stacks);
     pr->nl();
   }
 }
@@ -1639,7 +1639,7 @@ void Squeak_Interpreter::print_all_processes_in_scheduler_or_on_a_list(Printer* 
        instance  = The_Memory_System()->nextInstanceAfter(instance) ) {
     if (   instance.as_object()->my_list_of_process() != roots.nilObj
         || is_process_on_a_scheduler_list(instance)) {
-      instance.as_object()->print_process_or_nil(pr, print_stacks);
+      print_process_or_nil(instance.as_object(), pr, print_stacks);
       pr->nl();
     }
   }
@@ -1678,7 +1678,7 @@ void Squeak_Interpreter::print_all_processes_in_scheduler(Printer* pr, bool prin
     for ( Object_p ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
          ll != roots.nilObj.as_object();
          ll = ll->fetchPointer(Object_Indices::NextLinkIndex).as_object()) {
-      ll->print_process_or_nil(pr, print_stacks); 
+      print_process_or_nil(ll, pr, print_stacks); 
       if (!print_stacks) pr->nl();
     }
   }
@@ -1996,7 +1996,7 @@ void Squeak_Interpreter::snapshot(bool embedded) {
     {
       Scheduler_Mutex sm("snapshot recovery");
 
-      activeProc.as_object()->add_process_to_scheduler_list(); // unlike Squeak, we keep running proc in list
+      add_process_to_scheduler_list(activeProc.as_object()); // unlike Squeak, we keep running proc in list
       transferTo(activeProc, "snapshot");
       if (Check_Prefetch) assert_always(have_executed_currentBytecode); // will return from prim and prefetch
     }
@@ -2079,7 +2079,7 @@ Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_proces
   bool found_a_proc = false;
   FOR_EACH_READY_PROCESS_LIST(slo, p, processList, this)  {
 
-    if (processList->isEmptyList())
+    if (isEmptyList(processList))
       continue;
     found_a_proc = true;
     if (verbose)
@@ -2094,24 +2094,24 @@ Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_proces
       if (verbose) {
         debug_printer->printf("on %d: find_and_move_to_end_highest_priority_non_running_process proc: ",
                               my_rank());
-        proc_obj->print_process_or_nil(debug_printer);
+        print_process_or_nil(proc_obj, debug_printer);
         debug_printer->nl();
       }
       OS_Interface::mem_fence(); // xxxxxx Is this fence needed? -- dmu 4/09
       assert(proc_obj->as_oop() == proc  &&  proc.as_object() == proc_obj);
-      if (proc_obj->is_process_running(roots.nilObj)  ||  !proc_obj->is_process_allowed_to_run_on_this_core())
+      if (is_process_running(proc_obj)  ||  !is_process_allowed_to_run_on_this_core(proc_obj))
         ;
       else if (last_proc == proc) {
          return proc;
       }
       else if (first_proc == proc) {
-        processList->removeFirstLinkOfList();
-        processList->addLastLinkToList(proc);
+        removeFirstLinkOfList(processList);
+        addLastLinkToList(processList, proc);
         return proc;
       }
       else {
-        processList->removeMiddleLinkOfList(prior_proc_obj, proc_obj);
-        processList->addLastLinkToList(proc);
+        removeMiddleLinkOfList(/*processList, */ prior_proc_obj, proc_obj);
+        addLastLinkToList(processList, proc);
         return proc;
       }
       if  (last_proc == proc)
@@ -2139,7 +2139,7 @@ int Squeak_Interpreter::count_processes_in_scheduler() {
   
   FOR_EACH_READY_PROCESS_LIST(slo, p, processList, this)  {
     
-    if (processList->isEmptyList())
+    if (isEmptyList(processList))
       continue;
     Oop  first_proc = processList->fetchPointer(Object_Indices::FirstLinkIndex);
     Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
@@ -2399,7 +2399,7 @@ void Squeak_Interpreter::multicore_interrupt() {
       Safepoint_Ability sa(false);
 
       if (roots.emergency_semaphore.fetchClass() == The_Squeak_Interpreter()->splObj(Special_Indices::ClassSemaphore))
-        roots.emergency_semaphore.as_object()->synchronousSignal("emergency signal request");
+        synchronousSignal(roots.emergency_semaphore.as_object(), "emergency signal request");
       emergency_semaphore_signal_requested = false;
     }
 
@@ -2586,19 +2586,19 @@ void Squeak_Interpreter::booleanCheat(bool cond) {
 }
 
 void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running(roots.nilObj));
+  if (check_many_assertions) assert(!is_process_running(newProc.as_object()));
 
   Scheduler_Mutex sm("transferTo"); // in case another cpu starts running this
   if (Print_Scheduler) {
     debug_printer->printf("scheduler: on %d: ", my_rank());
-    get_running_process().print_process_or_nil(debug_printer);
+    print_process_or_nil(get_running_process().as_object(), debug_printer);
     debug_printer->printf( " transferTo ");
-    newProc.print_process_or_nil(debug_printer);
+    print_process_or_nil(newProc.as_object(), debug_printer);
     debug_printer->printf(", %s\n", why);
   }
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running(roots.nilObj));
+  if (check_many_assertions) assert(!is_process_running(newProc.as_object()));
   put_running_process_to_sleep(why);
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running(roots.nilObj));
+  if (check_many_assertions) assert(!is_process_running(newProc.as_object()));
   OS_Interface::mem_fence();
   start_running(newProc, why);
 }
@@ -2613,7 +2613,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
     return;
   }
   Object_p newProc_obj = newProc.as_object();
-  if (newProc_obj->is_process_running(roots.nilObj)) {
+  if (is_process_running(newProc_obj)) {
     lprintf("releasing baton in start_running\n");
     release_baton();
     multicore_interrupt_check = true; // so we stop running
@@ -2621,7 +2621,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
   }
 
   set_running_process(newProc, why);
-  Oop nac = newProc_obj->get_suspended_context_of_process_and_mark_running();
+  Oop nac = get_suspended_context_of_process_and_mark_running(newProc_obj);
   Object_p naco = nac.as_object();
   nac.beRootIfOld();
   assert(nac != roots.nilObj); // looking for bug with nil ctx, nonnil proc
@@ -2974,7 +2974,7 @@ void Squeak_Interpreter::release_baton() {
   set_activeContext(roots.nilObj);
   multicore_interrupt_check = true; // must go into multicore_interrupt to wait for baton
   assert(    roots.running_process_or_nil == roots.nilObj
-         || !roots.running_process_or_nil.as_object()->is_process_running(roots.nilObj));
+         || !is_process_running(roots.running_process_or_nil.as_object()));
   roots.running_process_or_nil = roots.nilObj;
   if (Track_Processes)
     running_process_by_core[my_rank()] = roots.running_process_or_nil;
@@ -3141,7 +3141,7 @@ void Squeak_Interpreter::postGCAction_here(bool fullGC) {
 Oop Squeak_Interpreter::remove_running_process_from_scheduler_lists_and_put_it_to_sleep(const char* why) {
   Oop activeProc = get_running_process();
   // Don't need mutex at this level because we remove it first
-  activeProc.as_object()->remove_process_from_scheduler_list(why);
+  remove_process_from_scheduler_list(activeProc.as_object(), why);
   put_running_process_to_sleep(why);
   return activeProc;
 }
@@ -3252,3 +3252,247 @@ bool Squeak_Interpreter::roomToPushNArgs(int n) {
   int cntxSize = (( method_obj()->methodHeader() & Object::LargeContextBit ) ? lcs : scs) / bytesPerWord  -  Object_Indices::ReceiverIndex;
   return stackPointerIndex() + n  <=  cntxSize;
 }
+
+
+/** The following methods have been moved here from Object as an optimization. 
+    They require interpreter state and are only called from the interpreter. **/
+
+int Squeak_Interpreter::core_where_process_is_running(Object_p process) {
+  if (!Track_Processes)
+    fatal("Track_Processes must be set");
+
+  Oop my_oop = process->as_oop();
+  int running_where = -1;
+  
+  FOR_ALL_RANKS(i) {
+    if (my_oop == running_process_by_core[i]) {
+      if (running_where != -1) {
+        error_printer->printf("ERROR: process pri %d running on two cores: %d and %d: ",
+                              priority_of_process_or_nil(process), running_where, i);
+        
+      }
+      else
+        running_where = i;
+    }
+  }
+  return running_where;
+}
+
+int Squeak_Interpreter::priority_of_process_or_nil(Object_p process) {
+  return (process == roots.nilObj.as_object()) ? -1 : process->priority_of_process();
+}
+
+void Squeak_Interpreter::print_process_or_nil(Object_p process, Printer* p, bool print_stack) {
+  const Oop process_oop = process->as_oop();
+  const Oop nilObj = roots.nilObj;
+  if (process_oop == nilObj) {
+    p->printf("nil");
+    return;
+  }
+  process->print(p);
+  p->printf("(0x%x, pri %d, %s, ", process_oop.bits(), 
+                                   process->priority_of_process(), 
+                                   is_process_running(process) ? "running" : "not running");
+  p->printf("myList: ");    process->my_list_of_process().print(p);  p->printf(", ");
+  p->printf("nextLink: ");  process->fetchPointer(Object_Indices::NextLinkIndex).print(p);  p->printf(", ");
+  
+  int core = core_where_process_is_running(process);
+  
+  if (core != -1)  p->printf("running on %d, ", core);
+  p->printf(")");
+  
+  if (print_stack) {
+    p->nl();
+    print_stack_trace(p, process);
+    p->nl();
+  }
+}
+
+bool Squeak_Interpreter::is_process_running(Object_p process) {
+  return process->fetchPointer(Object_Indices::SuspendedContextIndex) == roots.nilObj;
+}
+
+Oop Squeak_Interpreter::get_suspended_context_of_process_and_mark_running(Object_p process) {
+  assert(Scheduler_Mutex::is_held());
+  assert_registers_stored();
+  Oop ctx = process->fetchPointer(Object_Indices::SuspendedContextIndex);
+  assert(ctx != roots.nilObj);
+  if (Print_Scheduler) {
+    debug_printer->printf("scheduler: on %d get_suspended_context_of_process_and_mark_running ", Logical_Core::my_rank());
+    print_process_or_nil(process, debug_printer);
+    debug_printer->printf(" to nil");
+    debug_printer->nl();
+  }
+  
+  process->storePointer(Object_Indices::SuspendedContextIndex, roots.nilObj);
+  process->store_host_core_of_process(Logical_Core::my_rank());
+  return ctx;
+}
+
+void Squeak_Interpreter::set_suspended_context_of_process(Object_p process, Oop ctx) {
+  assert(Scheduler_Mutex::is_held());
+  assert(ctx != process->fetchPointer(Object_Indices::SuspendedContextIndex));
+  assert(is_process_running(process));
+  assert_registers_stored();
+  if (Print_Scheduler) {
+    debug_printer->printf("scheduler: on %d set_suspended_context_of_process ", Logical_Core::my_rank());
+    print_process_or_nil(process, debug_printer);
+    debug_printer->printf(" to ");
+    ctx.print(debug_printer);
+    debug_printer->nl();
+  }
+  process->storePointer(Object_Indices::SuspendedContextIndex, ctx);
+  process->store_host_core_of_process(-1);
+}
+
+
+
+bool Squeak_Interpreter::is_process_allowed_to_run_on_this_core(Object_p process) {
+  int acm = The_Process_Field_Locator.index_of_process_inst_var(Process_Field_Locator::coreMask);
+  if (acm < 0) return true;
+  
+  successFlag = true;
+  u_int64 mask = positive64BitValueOf(process->fetchPointer(acm));
+  if (!successFlag) {
+    successFlag = true;
+    return true;
+  }
+  
+  bool r =  ((1LL << Logical_Core::my_rank()) & mask) ? true : false;
+  return r;
+}
+
+
+Object_p Squeak_Interpreter::process_list_for_priority(int priority) {
+  Object_p processLists = process_lists_of_scheduler();
+  assert(priority - 1  <=  processLists->fetchWordLength());
+  return processLists->fetchPointer(priority - 1).as_object();
+}
+
+// Save on given list for priority
+void Squeak_Interpreter::add_process_to_scheduler_list(Object_p process) {
+  addLastLinkToList(process_list_for_priority(process->priority_of_process()), process->as_oop());
+}
+
+void Squeak_Interpreter::kvetch_nil_list_of_process(Object_p process, const char* why) {
+  if (process->my_list_of_process() == roots.nilObj ) {
+    static int kvetch_count = 10;
+    if (kvetch_count) {
+      lprintf("WARNING: image has not been modified to allow dynamic priority changes; cannot nil out myList before calling remove_process_from_scheduler_list(%s)\n", why);
+      --kvetch_count;
+    }
+  }
+}
+
+// Returns list if any process was on
+
+Oop Squeak_Interpreter::remove_process_from_scheduler_list(Object_p thisProcess, const char* why) {
+  Scheduler_Mutex sm("remove_process_from_scheduler_list");
+  
+  Oop processListOop = thisProcess->my_list_of_process();
+  Object_p processList = (processListOop == roots.nilObj)
+                          ? process_list_for_priority(thisProcess->priority_of_process()) 
+                          : processListOop.as_object();
+  
+  if (isEmptyList(processList)) {
+    static const bool tolerate_stock_images = true; // Running process not in scheduler list
+    if (tolerate_stock_images  &&  Logical_Core::group_size == 1  &&  !primitiveThisProcess_was_called())
+      return roots.nilObj;
+    // Next statement may fail if halfway through converting image for RVM -- dmu 6/10
+    // if (check_assertions) { lprintf("not in empty list: %s\n", why); fatal("not in list"); }
+    return roots.nilObj;
+  }
+  Oop  first_proc = processList->fetchPointer(Object_Indices::FirstLinkIndex);
+  Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
+  
+  Oop      proc            = first_proc;
+  Object_p proc_obj        = proc.as_object();
+  Object_p prior_proc_obj  = (Object_p)NULL;
+  
+  for (; proc_obj != thisProcess;)  {
+    prior_proc_obj = proc_obj;
+    proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
+    if (proc == roots.nilObj) {
+      kvetch_nil_list_of_process(thisProcess, why);
+      // normal with suspend change lprintf( "WARNING: process not found in list");
+      nil_out_my_list_and_next_link_fields_of_process(thisProcess);
+      return roots.nilObj;
+    }
+    proc_obj = proc.as_object();
+  }
+  
+  kvetch_nil_list_of_process(thisProcess, why);
+  
+  if (first_proc == proc)
+    removeFirstLinkOfList(processList);
+  
+  else if (last_proc == proc)
+    removeLastLinkOfList(processList, prior_proc_obj);
+  
+  else
+    removeMiddleLinkOfList(/* processList, */ prior_proc_obj, proc_obj);
+  
+  return processList->as_oop();
+}
+
+Oop Squeak_Interpreter::removeFirstLinkOfList(Object_p list) {
+  // rm first process
+  const int fl = Object_Indices::FirstLinkIndex;
+  const int ll = Object_Indices:: LastLinkIndex;
+  const int nl = Object_Indices:: NextLinkIndex;
+  Oop nil = roots.nilObj;
+  
+  Oop first = list->fetchPointer(fl);  Oop last  = list->fetchPointer(ll);
+  Object_p fo = first.as_object();
+  if (first == last) {
+    list->storePointer(fl, nil);
+    list->storePointer(ll, nil);
+  }
+  else
+    list->storePointer(fl, fo->fetchPointer(nl));
+  nil_out_my_list_and_next_link_fields_of_process(fo);
+  return first;
+}
+
+Oop  Squeak_Interpreter::removeLastLinkOfList(Object_p list, Object_p penultimate) {
+  const int nl = Object_Indices::NextLinkIndex;
+  Oop nil = roots.nilObj;
+  Oop last = list->fetchPointer(Object_Indices::LastLinkIndex);
+  list->storePointer(Object_Indices::LastLinkIndex, penultimate->as_oop());
+  penultimate->storePointer(nl, nil);
+  assert(last.as_object()->fetchPointer(nl) == nil);
+  nil_out_my_list_and_next_link_fields_of_process(last.as_object());
+  return last;
+}
+
+Oop Squeak_Interpreter::removeMiddleLinkOfList(Object_p prior, Object_p mid) {
+  const int nl = Object_Indices::NextLinkIndex;
+  prior->storePointer(nl, mid->fetchPointer(nl));
+  nil_out_my_list_and_next_link_fields_of_process(mid);
+  return mid->as_oop();
+}
+
+void Squeak_Interpreter::addLastLinkToList(Object_p list, Oop aProcess) {
+  // Add given proc to linked list receiver, set backpointer
+  if (isEmptyList(list))
+    list->storePointer(Object_Indices::FirstLinkIndex, aProcess);
+  else
+    list->fetchPointer(Object_Indices::LastLinkIndex).as_object()->storePointer(Object_Indices::NextLinkIndex, aProcess);
+  
+  list->storePointer(Object_Indices::LastLinkIndex, aProcess);
+  aProcess.as_object()->storePointer(Object_Indices::MyListIndex, list->as_oop());
+}
+
+
+void Squeak_Interpreter::nil_out_my_list_and_next_link_fields_of_process(Object_p list) {
+  list->storePointer(Object_Indices::  MyListIndex, roots.nilObj);
+  list->storePointer(Object_Indices::NextLinkIndex, roots.nilObj);
+}
+
+bool Squeak_Interpreter::isEmptyList(Object_p list) {
+  Oop first = list->fetchPointer(Object_Indices::FirstLinkIndex);
+  assert(first.bits() != 0);
+  return first == roots.nilObj;
+}
+
+
