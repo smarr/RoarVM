@@ -91,7 +91,7 @@ private:
 
 
   void print(Printer* p = dittoing_stdout_printer);
-
+  void print_process_or_nil(Printer* p);
   void print_briefly(Printer*); // used for slot contents
   void dp();
 

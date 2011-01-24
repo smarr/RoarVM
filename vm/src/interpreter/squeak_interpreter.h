@@ -1108,7 +1108,7 @@ public:
     Oop sema = splObj(index);
     Safepoint_Ability sa(false);
     if (sema != roots.nilObj)
-      synchronousSignal(sema.as_object(), why);
+      sema.as_object()->synchronousSignal(why);
   }
 
   void signalSemaphoreWithIndex(int index);
@@ -1486,56 +1486,6 @@ private:
   void broadcast_datum(int size, void* p, u_int64 d);
   
 
-public:
-  /** Processes related functionality that requires interpreter state. **/
-  bool is_process_running           (Object_p process);
-  int  core_where_process_is_running(Object_p process);
-  int  priority_of_process_or_nil   (Object_p process);
-  void print_process_or_nil         (Object_p process, Printer*, bool print_stack = false);
-  void kvetch_nil_list_of_process   (Object_p process, const char*);
-  
-  bool is_process_allowed_to_run_on_this_core(Object_p process);
-  
-  Oop  get_suspended_context_of_process_and_mark_running(Object_p process);
-  void set_suspended_context_of_process(Object_p process, Oop ctx);
-
-  Object_p process_list_for_priority(int priority);
-  void add_process_to_scheduler_list(Object_p process);
-  Oop  remove_process_from_scheduler_list(Object_p process, const char*);
-  
-  Oop removeFirstLinkOfList (Object_p list);
-  Oop removeLastLinkOfList  (Object_p list, Object_p);
-  Oop removeMiddleLinkOfList(               Object_p, Object_p);
-  void addLastLinkToList    (Object_p list, Oop);
-  void nil_out_my_list_and_next_link_fields_of_process(Object_p list);
-  bool isEmptyList          (Object_p list);
-  
-  inline void synchronousSignal(Object_p semaphore, const char* why) {
-    assert(safepoint_ability->is_unable());
-    
-    bool added = false;
-    Oop proc_to_resume;
-    bool will_resume = false;
-    {
-      Semaphore_Mutex sm("synchronousSignal");
-      if (isEmptyList(semaphore)) {
-        // no proc waiting
-        int excessSignals = semaphore->fetchInteger(Object_Indices::ExcessSignalsIndex);
-        semaphore->storeInteger(Object_Indices::ExcessSignalsIndex, excessSignals + 1);
-      }
-      else {
-        // must surrender sema before resuming to avoid deadlock
-        // inside resume, could spin on safepoint
-        added = true;
-        will_resume = true;
-        proc_to_resume = removeFirstLinkOfList(semaphore);
-      }
-    }
-    if (will_resume)
-      resume(proc_to_resume, why);
-    if (added)
-      addedScheduledProcessMessage_class().send_to_other_cores(); // must be outside the semaphore to avoid deadlock
-  }
 
 public:
   Safepoint_Ability *safepoint_ability;
