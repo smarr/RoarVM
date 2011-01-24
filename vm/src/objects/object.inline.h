@@ -479,35 +479,6 @@ inline Oop Object::superclass() {
 }
 
 
-inline void Object::synchronousSignal(const char* why) {
-  assert(The_Squeak_Interpreter()->safepoint_ability->is_unable());
-
-  bool added = false;
-  Oop proc_to_resume;
-  bool will_resume = false;
-  {
-    Semaphore_Mutex sm("synchronousSignal");
-    if (isEmptyList()) {
-      // no proc waiting
-      int excessSignals = fetchInteger(Object_Indices::ExcessSignalsIndex);
-      storeInteger(Object_Indices::ExcessSignalsIndex, excessSignals + 1);
-    }
-    else {
-      // must surrender sema before resuming to avoid deadlock
-      // inside resume, could spin on safepoint
-      added = true;
-      will_resume = true;
-      proc_to_resume = removeFirstLinkOfList();
-    }
-  }
-  if (will_resume)
-      The_Squeak_Interpreter()->resume(proc_to_resume, why);
-  if (added)
-    addedScheduledProcessMessage_class().send_to_other_cores(); // must be outside the semaphore to avoid deadlock
-}
-
-
-
 inline bool Object::isUnwindMarked() {
   // is this a methodcontext whose method has prim 198?
   return isMethodContext()

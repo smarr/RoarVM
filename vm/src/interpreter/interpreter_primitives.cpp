@@ -1900,7 +1900,7 @@ void Squeak_Interpreter::primitiveSignal() {
   assertClass(sema, splObj(Special_Indices::ClassSemaphore));
   if (successFlag) {
     Safepoint_Ability sa(false);
-    sema.as_object()->synchronousSignal("primitiveSignal");
+    synchronousSignal(sema.as_object(), "primitiveSignal");
   }
 }
 
@@ -2082,7 +2082,7 @@ void Squeak_Interpreter::primitiveSuspend() {
   {
     Scheduler_Mutex sm("primitiveSuspend");
     Object_p proc = procToSuspend.as_object();
-    old_list = proc->remove_process_from_scheduler_list("primitiveSuspend");
+    old_list = remove_process_from_scheduler_list(proc, "primitiveSuspend");
     pop(1);
     push(old_list);
     if (get_running_process() == procToSuspend)  {
@@ -2409,7 +2409,7 @@ void Squeak_Interpreter::primitiveWait() {
     else {
       Scheduler_Mutex sm("primitiveWait");
       Oop activeProc = remove_running_process_from_scheduler_lists_and_put_it_to_sleep("primitiveWait");
-      so->addLastLinkToList(activeProc);
+      addLastLinkToList(so, activeProc);
       transfer_to_highest_priority("primitiveWait");
       if (Check_Prefetch) assert_always(have_executed_currentBytecode);
     }

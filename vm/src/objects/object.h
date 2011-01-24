@@ -498,30 +498,11 @@ public:
 
 
 
-  inline void synchronousSignal(const char*);
   inline int priority_of_process();
   inline Oop my_list_of_process();
-  int core_where_process_is_running();
-  int priority_of_process_or_nil();
-  Object_p process_list_for_priority_of_process();
-  Oop get_suspended_context_of_process_and_mark_running();
-  bool is_process_running(Oop nilObj /* passed in as optimization */);
-  bool is_process_allowed_to_run_on_this_core();
   void store_host_core_of_process(int);
   void store_allowable_cores_of_process(u_int64 bitMask);
-  void add_process_to_scheduler_list();
-  void set_suspended_context_of_process(Oop ctx);
-  Oop removeFirstLinkOfList();
-  Oop removeLastLinkOfList(Object_p);
-  Oop removeMiddleLinkOfList(Object_p, Object_p);
-  Oop remove_process_from_scheduler_list(const char*);
-  void kvetch_nil_list_of_process(const char*);
-  void addLastLinkToList(Oop);
-  void nil_out_my_list_and_next_link_fields_of_process();
 
-
-
-  bool isEmptyList();
   inline static Oop floatObject(double);
   inline void storeFloat(double);
   void storeStackPointerValue(oop_int_t v) {
@@ -538,7 +519,6 @@ public:
   void print_bytes_in_array(Printer*);
   void print_compiled_method(Printer*);
   void print_frame(Printer*);
-  void print_process_or_nil(Printer*, bool print_stack = false);
   bool verify_process();
   bool selector_and_class_of_method_in_me_or_ancestors(Oop, Oop*, Oop*);
 
