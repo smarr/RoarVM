@@ -28,25 +28,24 @@ void Interpreter_Subset_For_Control_Transfer::set_from_interpreter() {
 
 void Interpreter_Subset_For_Control_Transfer::fill_in_interpreter() {
   Safepoint_Ability sa(false); // no hanky-panky while we fill
-  Squeak_Interpreter* const interp = The_Squeak_Interpreter();
   
-# define FILL_FROM(type, my_var, in_var) interp->in_var = my_var;
+# define FILL_FROM(type, my_var, in_var) The_Squeak_Interpreter()->in_var = my_var;
   FOR_ALL_VARS_IN_SUBSET(FILL_FROM)
 # undef FILL_FROM
-  interp->postGCAction_here(false); // resync Object*'s and ip and sp with Oops in case GC happened on main while doing the primitive
+  The_Squeak_Interpreter()->postGCAction_here(false); // resync Object*'s and ip and sp with Oops in case GC happened on main while doing the primitive
 
   if (Track_Processes)
-    interp->running_process_by_core[Logical_Core::my_rank()] = running_process_or_nil;
+    The_Squeak_Interpreter()->running_process_by_core[Logical_Core::my_rank()] = running_process_or_nil;
 
   if (Print_Scheduler) {
     debug_printer->printf("scheduler: on %d receive_for_control_transfer set_running_process: ", Logical_Core::my_rank());
-    interp->print_process_or_nil(running_process_or_nil.as_object(), debug_printer);
+    running_process_or_nil.as_object()->print_process_or_nil(debug_printer);
     debug_printer->nl();
   }
-  interp->assert_stored_if_no_proc();
-  if (Trace_Execution && interp->execution_tracer() != NULL)
-    interp->execution_tracer()->received_current_bytecode();
-  assert_eq(interp->activeContext_obj(), (void*)interp->activeContext().as_object(), "activeContext");
+  The_Squeak_Interpreter()->assert_stored_if_no_proc();
+  if (Trace_Execution && The_Squeak_Interpreter()->execution_tracer() != NULL)
+    The_Squeak_Interpreter()->execution_tracer()->received_current_bytecode();
+  assert_eq(The_Squeak_Interpreter()->activeContext_obj(), (void*)The_Squeak_Interpreter()->activeContext().as_object(), "activeContext");
 }
 
 
