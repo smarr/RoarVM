@@ -58,7 +58,7 @@ private:
   Oop() { _bits = Illegals::uninitialized & ~Tag_Mask  |  Mem_Tag; } // illegal
 
 
-  inline oop_int_t bits() { return _bits; }
+  inline oop_int_t bits() const { return _bits; }
   oop_int_t bits_for_hash() { return u_oop_int_t(bits()) >> ShiftForWord;   } // for method cache
   oop_int_t integerValue() { assert(is_int());  return _bits >> Tag_Size; }
   static bool isIntegerValue(oop_int_t i) { return ((i << Tag_Size) >> Tag_Size) == i; }
@@ -67,8 +67,8 @@ private:
 
   inline oop_int_t checkedIntegerValue();
 
-  bool operator == (Oop x) {  return bits() == x.bits(); }
-  bool operator != (Oop x) {  return bits() != x.bits(); }
+  bool operator == (Oop x) const {  return bits() == x.bits(); }
+  bool operator != (Oop x) const {  return bits() != x.bits(); }
 
   bool is_mem() { return (bits() & Tag_Mask) == Mem_Tag; }
   bool is_int() { return (bits() & Tag_Mask) == Int_Tag; }
