@@ -25,5 +25,5 @@ union cacheline_aligned {
                  ? CACHELINE_SIZE * 3
                  : CACHELINE_SIZE * 4];
 #warning STEFAN: do not have a better idea how to do that here... \
-                 but clearly that is not fit arbitrary data types
+                 but clearly that is not fit for arbitrary data types
 };

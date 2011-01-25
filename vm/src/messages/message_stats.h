@@ -17,11 +17,11 @@ class Message_Stats {
 
 public:
 
-  static int     send_tallies[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages];    // threadsafe
-  static int     receive_tallies[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages]; // threadsafe
-  static u_int64 receive_cycles[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages];  // threadsafe
-  static u_int64 buf_msg_check_cyc[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];                          // threadsafe
-  static int     buf_msg_check_count[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];                        // threadsafe
+  static cacheline_aligned<int>     send_tallies[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages];    // threadsafe
+  static cacheline_aligned<int>     receive_tallies[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages]; // threadsafe
+  static cacheline_aligned<u_int64> receive_cycles[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages];  // threadsafe
+  static cacheline_aligned<u_int64> buf_msg_check_cyc[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];                          // threadsafe
+  static cacheline_aligned<int>     buf_msg_check_count[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];                        // threadsafe
 
   static Oop get_stats(int);
   static Oop get_message_names();
@@ -39,12 +39,12 @@ public:
           
         default: lprintf( "->%d sending %d %s\n", cpu_core_my_rank(), m, Message_Statics::message_names[m]); break;
       }
-    ++Message_Stats::send_tallies[rank_on_threads_or_zero_on_processes()][m];
+    ++Message_Stats::send_tallies[rank_on_threads_or_zero_on_processes()][m].value;
   };
   
 # if  Check_Reliable_At_Most_Once_Message_Delivery
-  static int next_transmission_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];
-  static int next_receive_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];
+  static cacheline_aligned<int> next_transmission_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];
+  static cacheline_aligned<int> next_receive_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];
   static void check_received_transmission_sequence_number(Message_Statics::messages, int, int);
 # endif
   
