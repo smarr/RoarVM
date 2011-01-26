@@ -86,3 +86,6 @@ class StartupTest(unittest.TestCase):
                 subprocess.call(cmd, stdout=devnull, stderr=devnull),
                 "Failed reliability test at iteration %d: %s" %(i, " ".join(cmd)))
 
+    # disable this test, we have the benchmarks now in place,
+    # they should be much better indicators
+    test_reliability.skip = "Replaced by usage of benchmarks"

@@ -108,6 +108,7 @@
 		0A97FB40128FEAF7003A1C74 /* buffered_channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278458128DBF7300336BDE /* buffered_channel.cpp */; };
 		0A97FBB512900371003A1C74 /* tracked_ptr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A97FBB412900371003A1C74 /* tracked_ptr.cpp */; };
 		0ACF551912E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */; };
+		0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
 /* End PBXBuildFile section */
 
@@ -375,6 +376,8 @@
 		0A97FEF112909D58003A1C74 /* tracked_ptr_registry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracked_ptr_registry.h; sourceTree = "<group>"; };
 		0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shared_memory_message_queue_per_sender.cpp; sourceTree = "<group>"; };
 		0ACF551812E07E7F0010386A /* shared_memory_message_queue_per_sender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shared_memory_message_queue_per_sender.h; sourceTree = "<group>"; };
+		0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cacheline_alignment.cpp; sourceTree = "<group>"; };
+		0ADA271212EF66EC009404B0 /* cacheline_aligned.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cacheline_aligned.h; sourceTree = "<group>"; };
 		0AEC1184128DF02F00EFF6D1 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -920,6 +923,7 @@
 				0A2784D2128DBF7400336BDE /* thread_memory_semantics.h */,
 				0A2784D3128DBF7400336BDE /* tile_cpu_coordinate.cpp */,
 				0A2784D4128DBF7400336BDE /* tile_cpu_coordinate.h */,
+				0ADA271212EF66EC009404B0 /* cacheline_aligned.h */,
 			);
 			name = platform;
 			path = src/platform;
@@ -1010,6 +1014,7 @@
 				0A278514128DBF7400336BDE /* synced_queue_threaded.cpp */,
 				0A97FBB412900371003A1C74 /* tracked_ptr.cpp */,
 				0A97FEE412909C92003A1C74 /* test_os_interface.h */,
+				0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */,
 			);
 			name = tests;
 			path = src/tests;
@@ -1025,6 +1030,23 @@
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		0AC76D9212EC5FCD00C86B11 /* make */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 0AC76D9812EC5FF200C86B11 /* Build configuration list for PBXLegacyTarget "make" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = /Users/smarr/Projects/PhD/IBM/github/vm/build;
+			dependencies = (
+			);
+			name = make;
+			passBuildSettingsInEnvironment = 1;
+			productName = make;
+		};
+/* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
 		0A2783EA128DBF1000336BDE /* RoarVM */ = {
@@ -1081,6 +1103,7 @@
 			targets = (
 				0A2783EA128DBF1000336BDE /* RoarVM */,
 				0A97FB25128FE95A003A1C74 /* UnitTests */,
+				0AC76D9212EC5FCD00C86B11 /* make */,
 			);
 		};
 /* End PBXProject section */
@@ -1195,6 +1218,7 @@
 				0A97FB39128FEA77003A1C74 /* synced_queue.cpp in Sources */,
 				0A97FB3A128FEA77003A1C74 /* synced_queue_threaded.cpp in Sources */,
 				0A97FBB512900371003A1C74 /* tracked_ptr.cpp in Sources */,
+				0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1341,6 +1365,27 @@
 			};
 			name = Release;
 		};
+		0AC76D9312EC5FCD00C86B11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = make;
+			};
+			name = Debug;
+		};
+		0AC76D9412EC5FCD00C86B11 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = make;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1367,6 +1412,15 @@
 			buildConfigurations = (
 				0A97FB28128FE95A003A1C74 /* Debug */,
 				0A97FB29128FE95A003A1C74 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0AC76D9812EC5FF200C86B11 /* Build configuration list for PBXLegacyTarget "make" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0AC76D9312EC5FCD00C86B11 /* Debug */,
+				0AC76D9412EC5FCD00C86B11 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

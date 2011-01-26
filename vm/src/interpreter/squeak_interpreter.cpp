@@ -305,7 +305,7 @@ void Squeak_Interpreter::interpret() {
     assert(get_running_process() != roots.nilObj);
 
     assert_stored_if_no_proc();
-    assert(get_running_process().as_object()->is_process_running(roots.nilObj));
+    assert(get_running_process().as_object()->is_process_running());
 
     assert_method_is_correct(false, "right before dispatch");
 
@@ -341,7 +341,7 @@ void Squeak_Interpreter::interpret() {
     }
 # endif
 
-    assert(!do_I_hold_baton() || get_running_process().as_object()->is_process_running(roots.nilObj));
+    assert(!do_I_hold_baton() || get_running_process().as_object()->is_process_running());
 
     assert_stored_if_no_proc();
 
@@ -1287,7 +1287,7 @@ void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
   if (newProc == roots.nilObj)
     return;
 
-  if (check_many_assertions)  assert(!newProc.as_object()->is_process_running(roots.nilObj));
+  if (check_many_assertions)  assert(!newProc.as_object()->is_process_running());
 
   if (Print_Scheduler) {
     debug_printer->printf("on %d: in transfer_to_highest_priority %s: ", my_rank(), why);
@@ -1386,7 +1386,7 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
   }
 
   assert(activeContext() != roots.nilObj);
-  assert_eq(activeContext_obj(), activeContext().as_object(), "active context is messed up");
+  assert_eq(activeContext_obj(), (void*)activeContext().as_object(), "active context is messed up");
   if (Check_Prefetch)  assert_always(have_executed_currentBytecode);
   storeContextRegisters(activeContext_obj()); // xxxxxx redundant maybe with newActiveContext call in start_running
   aProcess.as_object()->set_suspended_context_of_process(activeContext());
@@ -2099,7 +2099,7 @@ Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_proces
       }
       OS_Interface::mem_fence(); // xxxxxx Is this fence needed? -- dmu 4/09
       assert(proc_obj->as_oop() == proc  &&  proc.as_object() == proc_obj);
-      if (proc_obj->is_process_running(roots.nilObj)  ||  !proc_obj->is_process_allowed_to_run_on_this_core())
+      if (proc_obj->is_process_running()  ||  !proc_obj->is_process_allowed_to_run_on_this_core())
         ;
       else if (last_proc == proc) {
          return proc;
@@ -2586,7 +2586,7 @@ void Squeak_Interpreter::booleanCheat(bool cond) {
 }
 
 void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running(roots.nilObj));
+  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
 
   Scheduler_Mutex sm("transferTo"); // in case another cpu starts running this
   if (Print_Scheduler) {
@@ -2596,9 +2596,9 @@ void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
     newProc.print_process_or_nil(debug_printer);
     debug_printer->printf(", %s\n", why);
   }
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running(roots.nilObj));
+  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
   put_running_process_to_sleep(why);
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running(roots.nilObj));
+  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
   OS_Interface::mem_fence();
   start_running(newProc, why);
 }
@@ -2613,7 +2613,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
     return;
   }
   Object_p newProc_obj = newProc.as_object();
-  if (newProc_obj->is_process_running(roots.nilObj)) {
+  if (newProc_obj->is_process_running()) {
     lprintf("releasing baton in start_running\n");
     release_baton();
     multicore_interrupt_check = true; // so we stop running
@@ -2974,7 +2974,7 @@ void Squeak_Interpreter::release_baton() {
   set_activeContext(roots.nilObj);
   multicore_interrupt_check = true; // must go into multicore_interrupt to wait for baton
   assert(    roots.running_process_or_nil == roots.nilObj
-         || !roots.running_process_or_nil.as_object()->is_process_running(roots.nilObj));
+         || !roots.running_process_or_nil.as_object()->is_process_running());
   roots.running_process_or_nil = roots.nilObj;
   if (Track_Processes)
     running_process_by_core[my_rank()] = roots.running_process_or_nil;
@@ -3033,9 +3033,9 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
   error_printer->nl();
 
   assert_always_eq(activeContext().bits(), activeContext_obj()->as_oop().bits());
-  assert_always_eq(activeContext_obj(), activeContext().as_object());
+  assert_always_eq(activeContext_obj(), (void*)activeContext().as_object());
   assert_always_eq(method().bits(), activeContext_obj()->fetchPointer(Object_Indices::MethodIndex).bits());
-  assert_always_eq(method().as_object(), method_obj());
+  assert_always_eq(method().as_object(), (void*)method_obj());
   assert_always_eq(method_obj()->as_oop().bits(), method().bits());
   fatal("check_method_is_correct");
 

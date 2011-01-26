@@ -65,6 +65,8 @@
 
 // # include "rvm_config.h" // makefile (or Prefix Header setting in Xcode language settings) includes this before EVERY .c or .cpp file
 
+# include "cacheline_aligned.h"
+
 # include "my_rank.h"
 
 # include "tags.h"

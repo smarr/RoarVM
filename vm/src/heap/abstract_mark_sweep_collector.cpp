@@ -37,10 +37,10 @@ void Abstract_Mark_Sweep_Collector::gc() {
   Safepoint_Ability sa(false);
   
   // Relies on implicit init to false below:
-  static bool recursing[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes]; // threadsafe, GC are started concurrently on multiple cores as far as I can see, Stefan 2009-09-05
+  static cacheline_aligned<bool> recursing[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes]; // threadsafe, GC are started concurrently on multiple cores as far as I can see, Stefan 2009-09-05
 
-  if (recursing[rank_on_threads_or_zero_on_processes] == true) fatal("recursing in fullGC");
-  recursing[rank_on_threads_or_zero_on_processes] = true;
+  if (recursing[rank_on_threads_or_zero_on_processes].value == true) fatal("recursing in fullGC");
+  recursing[rank_on_threads_or_zero_on_processes].value = true;
 
   assert(The_Squeak_Interpreter()->safepoint_tracker->have_acquired_safepoint());
   flushFreeContextsMessage_class().send_to_all_cores();
@@ -48,7 +48,7 @@ void Abstract_Mark_Sweep_Collector::gc() {
   do_it();
   finish();
 
-  recursing[rank_on_threads_or_zero_on_processes] = false;
+  recursing[rank_on_threads_or_zero_on_processes].value = false;
 }
 
 void Abstract_Mark_Sweep_Collector::mark_only_for_debugging() {
