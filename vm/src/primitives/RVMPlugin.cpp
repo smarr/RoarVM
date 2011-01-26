@@ -124,8 +124,8 @@ void* primitiveSampleRVM() {
 Oop sample_one_core(int what_to_sample) {
   const int rank_on_threads_or_zero_on_processes = Memory_Semantics::rank_on_threads_or_zero_on_processes();
 
-  static int ms_buf[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes] = { 0 };                                   // threadsafe
-  int* const ms = &ms_buf[rank_on_threads_or_zero_on_processes];
+  static cacheline_aligned<int> ms_buf[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes] = { 0 };                                   // threadsafe
+  int* const ms = &(ms_buf[rank_on_threads_or_zero_on_processes].value);
 
   int millisecs = ioMSecs() - (*ms);  (*ms) = (*ms) + millisecs;
   u_int64 cycles = OS_Interface::get_cycle_count() - cc; cc += cycles;
@@ -513,7 +513,7 @@ static int primitivePrintStats() {
 
   bool did_one = false;
   for (int i = 0;  i < Message_Statics::end_of_messages;  ++i) {
-    if (Message_Stats::receive_tallies[rank_on_threads_or_zero_on_processes][i]) {
+    if (Message_Stats::receive_tallies[rank_on_threads_or_zero_on_processes][i].value) {
       lprintf("\n%s: %d %lld", Message_Statics::message_names[i], Message_Stats::receive_tallies[rank_on_threads_or_zero_on_processes][i], Message_Stats::receive_cycles[rank_on_threads_or_zero_on_processes][i]);
       did_one = true;
     }

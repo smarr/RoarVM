@@ -12,12 +12,18 @@
  ******************************************************************************/
 
 
-void dp(Oop x); // print Oop
-void dp(int x); // print Oop
-void dp(Object* x); // print Object
+static const size_t CACHELINE_SIZE = 64;
 
-void pat(); // print all stack traces
-void pet(); // print execution trace
-void pst(); // print stack trace
-
-extern "C" { int printCallStack(); }
+template <typename T>
+union cacheline_aligned {                                     
+  T value;
+  char alignment[(CACHELINE_SIZE > sizeof(T))
+                 ? CACHELINE_SIZE
+                 : (CACHELINE_SIZE * 2 > sizeof(T))
+                 ? CACHELINE_SIZE * 2
+                 : (CACHELINE_SIZE * 3 > sizeof(T))
+                 ? CACHELINE_SIZE * 3
+                 : CACHELINE_SIZE * 4];
+#warning STEFAN: do not have a better idea how to do that here... \
+                 but clearly that is not fit for arbitrary data types
+};

@@ -241,6 +241,8 @@ RVM_HEADERS = \
   \
   debug_store_checks.h \
   debug_helper.h \
+  tracked_ptr.h \
+  tracked_ptr_registry.h \
   
 
 ifeq "$(PLATFORM)" "Intel"

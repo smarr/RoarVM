@@ -10,6 +10,8 @@
  ******************************************************************************/
 
 
+#define Track_OnStackPointer 1  /* Enforce this here for the tests */
+
 #include "test_os_interface.h"
 #include "tracked_ptr_registry.h"
 #include "tracked_ptr.h"

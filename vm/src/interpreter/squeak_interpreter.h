@@ -279,14 +279,14 @@ public:
 # define SWR(oopname,objname) if (oopname == x) objname = get_addr_to_cache(oopname);
     DO_ALL_CACHED_OBJS(SWR)
 # undef SWR
-    assert_eq(activeContext_obj(), activeContext().as_object(), "activeContext messed up");
+    assert_eq(activeContext_obj(), (void*)activeContext().as_object(), "activeContext messed up");
   }
 
   void sync_with_roots() {
 # define SWRS(oopname,objname) objname = get_addr_to_cache(oopname);
     DO_ALL_CACHED_OBJS(SWRS)
 # undef SWRS
-    assert_eq(activeContext_obj(), activeContext().as_object(), "activeContext messed up");
+    assert_eq(activeContext_obj(), (void*)activeContext().as_object(), "activeContext messed up");
   }
 
 
