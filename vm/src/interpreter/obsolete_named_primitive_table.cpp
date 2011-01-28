@@ -107,33 +107,44 @@ Obsolete_Named_Primitive_Table::entry Obsolete_Named_Primitive_Table::contents[]
   // added by me to get these to run locally -- dmu
   // also must add line in rvm_callInitializersInAllModules
 
-  {"primitiveThisProcess", "RVMPlugin", "primitiveThisProcess", false},
-  {"primitivePrint", "RVMPlugin", "primitivePrint", false},
-  {"primitivePrintStats", "RVMPlugin", "primitivePrintStats", false},
+  { "primitiveThisProcess",              "RVMPlugin", "primitiveThisProcess",              false },
+  { "primitivePrint",                    "RVMPlugin", "primitivePrint",                    false },
+  { "primitivePrintStats",               "RVMPlugin", "primitivePrintStats",               false },
 
 
-  { "primitiveAllObjectsInHeap", "RVMPlugin", "primitiveAllObjectsInHeap", false },
-  { "primitiveBreakpoint", "RVMPlugin", "primitiveBreakpoint", false },
-  { "primitiveCoreCount", "RVMPlugin", "primitiveCoreCount", false },
-  { "primitiveForceYields", "RVMPlugin", "primitiveForceYields", false },
-  { "primitiveGetCore", "RVMPlugin", "primitiveGetCore", false },
-  { "primitiveGetCoreIAmRunningOn", "RVMPlugin", "primitiveGetCoreIAmRunningOn", false},
-  { "primitiveGetMutability", "RVMPlugin", "primitiveGetMutability", false },
+  { "primitiveAllObjectsInHeap",         "RVMPlugin", "primitiveAllObjectsInHeap",         false },
+  { "primitiveBreakpoint",               "RVMPlugin", "primitiveBreakpoint",               false },
+  { "primitiveCoreCount",                "RVMPlugin", "primitiveCoreCount",                false },
+  { "primitiveForceYields",              "RVMPlugin", "primitiveForceYields",              false },
+  { "primitiveGetCore",                  "RVMPlugin", "primitiveGetCore",                  false },
+  { "primitiveGetCoreIAmRunningOn",      "RVMPlugin", "primitiveGetCoreIAmRunningOn",      false },
+  { "primitiveGetMutability",            "RVMPlugin", "primitiveGetMutability",            false },
   { "primitiveMoveAllToReadMostlyHeaps", "RVMPlugin", "primitiveMoveAllToReadMostlyHeaps", false },
-  { "primitivePrintExecutionTrace", "RVMPlugin", "primitivePrintExecutionTrace", false },
+  { "primitivePrintExecutionTrace",      "RVMPlugin", "primitivePrintExecutionTrace",      false },
 
   { "primitivePrintReadWriteReadMostlyBytesUsed", "RVMPlugin", "primitivePrintReadWriteReadMostlyBytesUsed", false },
-  { "primitivePrintStack", "RVMPlugin", "primitivePrintStack", false },
-  { "primitiveRunMask", "RVMPlugin", "primitiveRunMask", false },
-  { "primitiveRunningProcessByCore", "RVMPlugin", "primitiveRunningProcessByCore", false },
-  { "primitiveSampleRVM", "RVMPlugin", "primitiveSampleRVM", false },
-  { "primitiveSetCoordinatesFor", "RVMPlugin", "primitiveSetCoordinatesFor", false },
-  { "primitiveShuffle", "RVMPlugin", "primitiveShuffle", false },
-  { "primitiveSpread", "RVMPlugin", "primitiveSpread", false },
-  { "primitiveTraceCores", "RVMPlugin", "primitiveTraceCores", false },
+  { "primitivePrintStack",               "RVMPlugin", "primitivePrintStack",               false },
+  { "primitiveRunMask",                  "RVMPlugin", "primitiveRunMask",                  false },
+  { "primitiveRunningProcessByCore",     "RVMPlugin", "primitiveRunningProcessByCore",     false },
+  { "primitiveSampleRVM",                "RVMPlugin", "primitiveSampleRVM",                false },
+  { "primitiveSetCoordinatesFor",        "RVMPlugin", "primitiveSetCoordinatesFor",        false },
+  { "primitiveShuffle",                  "RVMPlugin", "primitiveShuffle",                  false },
+  { "primitiveSpread",                   "RVMPlugin", "primitiveSpread",                   false },
+  { "primitiveTraceCores",               "RVMPlugin", "primitiveTraceCores",               false },
   { "primitiveTraceMutatedReplicatedObjects", "RVMPlugin", "primitiveTraceMutatedReplicatedObjects", false },
 
+  { "primitiveDebugSampleRVM",            "RVMPlugin", "primitiveDebugSampleRVM",            false },
+  { "primitivePrintObjectForVMDebugging", "RVMPlugin", "primitivePrintObjectForVMDebugging", false },
+  { "primitiveGetExtraPreheaderWord",     "RVMPlugin", "primitiveGetExtraPreheaderWord",     false },
+  { "primitiveSetExtraPreheaderWord",     "RVMPlugin", "primitiveSetExtraPreheaderWord",     false },
+  { "primitiveSetExtraWordSelector",      "RVMPlugin", "primitiveSetExtraWordSelector",      false },
+  { "primitiveEmergencySemaphore",        "RVMPlugin", "primitiveEmergencySemaphore",        true  },
+  { "primitiveWriteSnapshot",             "RVMPlugin", "primitiveWriteSnapshot",             true  },
+  { "primitiveMicrosecondClock",          "RVMPlugin", "primitiveMicrosecondClock",          false },
+  { "primitiveCycleCounter",              "RVMPlugin", "primitiveCycleCounter",              false },
 
+  
+  
 
   // Local versions of bitBlt primitives; don't use when blitting to the screen
   {"primitiveDrawLoopLocally", "BitBltPlugin", "primitiveDrawLoop",           On_Intel_Linux || On_Apple || false},
