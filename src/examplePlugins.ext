@@ -43,4 +43,5 @@ SoundGenerationPlugin \
 SoundPlugin \
 StarSqueakPlugin \
 SurfacePlugin \
-UUIDPlugin
+UUIDPlugin \
+UnixOSProcessPlugin

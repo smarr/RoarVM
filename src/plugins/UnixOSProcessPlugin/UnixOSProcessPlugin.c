@@ -46,7 +46,7 @@ static char __buildInfo[] = "Generated on #(16 January 2010 4:48:23 pm). Compile
 #include "config.h"
 #define FILEHANDLETYPE FILE *  /* the type of low level stream to be used in a struct SQFile */
 #ifndef SQAIO_H
-# define SQAIO_H "aio.h"          /* aio.h has been renamed to sqaio.h */
+# define SQAIO_H "sqaio.h"          /* aio.h has been renamed to sqaio.h */
 #endif
 #include SQAIO_H
 #include "FilePlugin.h"
