@@ -26,7 +26,7 @@ public:
   } statistics;
   
   
-  static cacheline_aligned<statistics> stats[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];    // threadsafe
+  static statistics stats[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];    // threadsafe
 
   static Oop get_stats(int);
   static Oop get_message_names();
@@ -44,16 +44,16 @@ public:
           
         default: lprintf( "->%d sending %d %s\n", cpu_core_my_rank(), m, Message_Statics::message_names[m]); break;
       }
-    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes()].value.send_tallies[m];
+    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes()].send_tallies[m];
   };
   
   static void collect_receive_msg_stats(int m) {
-    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes()].value.receive_tallies[m];
+    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes()].receive_tallies[m];
   };
   
 # if  Check_Reliable_At_Most_Once_Message_Delivery
-  static cacheline_aligned<int> next_transmission_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];
-  static cacheline_aligned<int> next_receive_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];
+  static int next_transmission_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];
+  static int next_receive_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];
   static void check_received_transmission_sequence_number(Message_Statics::messages, int, int);
 # endif
   
