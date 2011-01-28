@@ -160,8 +160,10 @@ bool Message_Statics::receive_and_handle_one_message(bool wait) {
       Message_Stats::check_received_transmission_sequence_number(msg_type, buffered_msg->transmission_serial_number, buffered_msg->sender);
 # endif
     
-    if (msg_type_or_encoded_acking_type != noMessage)
+    if (msg_type_or_encoded_acking_type != noMessage) {
+      Message_Stats::collect_receive_msg_stats(msg_type_or_encoded_acking_type);
       break;
+    }
     
     Timeout_Timer::check_all();
     
