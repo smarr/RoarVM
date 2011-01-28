@@ -148,8 +148,8 @@ bool Message_Statics::receive_and_handle_one_message(bool wait) {
     const bool do_timeout_checks = true; //  tried false but no speedup loading image -- dmu 6/10
     u_int64 start = OS_Interface::get_cycle_count();
     buffered_msg = (abstractMessage_class*)Message_Queue::buffered_receive_from_anywhere(wait && !do_timeout_checks, &buffer_owner, interp->my_core());
-    Message_Stats::buf_msg_check_cyc[rank_on_threads_or_zero_on_processes].value += OS_Interface::get_cycle_count() - start;
-    ++Message_Stats::buf_msg_check_count[rank_on_threads_or_zero_on_processes].value;
+    Message_Stats::stats[rank_on_threads_or_zero_on_processes].value.buf_msg_check_cyc += OS_Interface::get_cycle_count() - start;
+    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes].value.buf_msg_check_count;
     
     msg_type_or_encoded_acking_type = buffered_msg == NULL  ?  noMessage  :  buffered_msg->header;
     

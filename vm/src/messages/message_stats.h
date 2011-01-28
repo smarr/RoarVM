@@ -17,11 +17,16 @@ class Message_Stats {
 
 public:
 
-  static cacheline_aligned<int>     send_tallies[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages];    // threadsafe
-  static cacheline_aligned<int>     receive_tallies[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages]; // threadsafe
-  static cacheline_aligned<u_int64> receive_cycles[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages];  // threadsafe
-  static cacheline_aligned<u_int64> buf_msg_check_cyc[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];                          // threadsafe
-  static cacheline_aligned<int>     buf_msg_check_count[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];                        // threadsafe
+  typedef struct statistics {
+    int     send_tallies   [Message_Statics::end_of_messages];
+    int     receive_tallies[Message_Statics::end_of_messages];
+    u_int64 receive_cycles [Message_Statics::end_of_messages];
+    u_int64 buf_msg_check_cyc;
+    int     buf_msg_check_count;
+  } statistics;
+  
+  
+  static cacheline_aligned<statistics> stats[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];    // threadsafe
 
   static Oop get_stats(int);
   static Oop get_message_names();
@@ -39,11 +44,11 @@ public:
           
         default: lprintf( "->%d sending %d %s\n", cpu_core_my_rank(), m, Message_Statics::message_names[m]); break;
       }
-    ++Message_Stats::send_tallies[rank_on_threads_or_zero_on_processes()][m].value;
+    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes()].value.send_tallies[m];
   };
   
   static void collect_receive_msg_stats(int m) {
-    ++Message_Stats::receive_tallies[rank_on_threads_or_zero_on_processes()][m].value;
+    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes()].value.receive_tallies[m];
   };
   
 # if  Check_Reliable_At_Most_Once_Message_Delivery

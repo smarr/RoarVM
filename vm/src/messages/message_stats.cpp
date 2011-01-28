@@ -14,13 +14,7 @@
 
 #include "headers.h"
 
-
-cacheline_aligned<int>     Message_Stats::send_tallies[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages];
-cacheline_aligned<int>     Message_Stats::receive_tallies[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages];
-cacheline_aligned<u_int64> Message_Stats::receive_cycles[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes][Message_Statics::end_of_messages];
-cacheline_aligned<u_int64> Message_Stats::buf_msg_check_cyc[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes] = { 0LL };
-cacheline_aligned<int>     Message_Stats::buf_msg_check_count[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes] = { 0 };
-
+cacheline_aligned<Message_Stats::statistics> Message_Stats::stats[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes] = { 0 };
 
 Oop Message_Stats::get_stats(int what_to_sample) {
   int rank_on_threads_or_zero_on_processes = Memory_Semantics::rank_on_threads_or_zero_on_processes();
@@ -42,28 +36,34 @@ Oop Message_Stats::get_stats(int what_to_sample) {
   if (what_to_sample & (1 << SampleValues::sendTallies)) {
     int r = The_Squeak_Interpreter()->makeArrayStart();
     for (int j = 0;  j < Message_Statics::end_of_messages;  ++j)
-      PUSH_POSITIVE_32_BIT_INT_FOR_MAKE_ARRAY(send_tallies[rank_on_threads_or_zero_on_processes][j].value);
-    bzero(send_tallies[rank_on_threads_or_zero_on_processes], sizeof(send_tallies[rank_on_threads_or_zero_on_processes]));
+      PUSH_POSITIVE_32_BIT_INT_FOR_MAKE_ARRAY(stats[rank_on_threads_or_zero_on_processes].value.send_tallies[j]);
+
+    bzero(stats[rank_on_threads_or_zero_on_processes].value.send_tallies, sizeof(stats[rank_on_threads_or_zero_on_processes].value.send_tallies));
     Oop sendTallies = The_Squeak_Interpreter()->makeArray(r);
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(sendTallies);
   }
   if (what_to_sample & (1 << SampleValues::receiveTallies)) {
     int r = The_Squeak_Interpreter()->makeArrayStart();
     for (int j = 0;  j < Message_Statics::end_of_messages;  ++j)
-      PUSH_POSITIVE_32_BIT_INT_FOR_MAKE_ARRAY(receive_tallies[rank_on_threads_or_zero_on_processes][j].value);
-    bzero(receive_tallies[rank_on_threads_or_zero_on_processes], sizeof(receive_tallies[rank_on_threads_or_zero_on_processes]));
+      PUSH_POSITIVE_32_BIT_INT_FOR_MAKE_ARRAY(stats[rank_on_threads_or_zero_on_processes].value.receive_tallies[j]);
+
+    bzero(stats[rank_on_threads_or_zero_on_processes].value.receive_tallies, 
+          sizeof(stats[rank_on_threads_or_zero_on_processes].value.receive_tallies));
     Oop receiveTallies = The_Squeak_Interpreter()->makeArray(r);
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(receiveTallies);
   }
   if (what_to_sample & (1 << SampleValues::bufferedMessageStats)) {
-    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(buf_msg_check_cyc[rank_on_threads_or_zero_on_processes].value); buf_msg_check_cyc[rank_on_threads_or_zero_on_processes].value = 0LL;
-    PUSH_POSITIVE_32_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(buf_msg_check_count[rank_on_threads_or_zero_on_processes].value); buf_msg_check_count[rank_on_threads_or_zero_on_processes].value = 0;
+    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(stats[rank_on_threads_or_zero_on_processes].value.buf_msg_check_cyc);
+    stats[rank_on_threads_or_zero_on_processes].value.buf_msg_check_cyc = 0LL;
+    PUSH_POSITIVE_32_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(stats[rank_on_threads_or_zero_on_processes].value.buf_msg_check_count);
+    stats[rank_on_threads_or_zero_on_processes].value.buf_msg_check_count = 0;
   }
   if (what_to_sample & (1 << SampleValues::receiveCycles)) {
     int r = The_Squeak_Interpreter()->makeArrayStart();
     for (int j = 0;  j < Message_Statics::end_of_messages;  ++j)
-      PUSH_POSITIVE_64_BIT_INT_FOR_MAKE_ARRAY(receive_cycles[rank_on_threads_or_zero_on_processes][j].value);
-    bzero(receive_cycles[rank_on_threads_or_zero_on_processes], sizeof(receive_cycles[rank_on_threads_or_zero_on_processes]));
+      PUSH_POSITIVE_64_BIT_INT_FOR_MAKE_ARRAY(stats[rank_on_threads_or_zero_on_processes].value.receive_cycles[j]);
+    bzero(stats[rank_on_threads_or_zero_on_processes].value.receive_cycles, 
+          sizeof(stats[rank_on_threads_or_zero_on_processes].value.receive_cycles));
     Oop receiveCycles = The_Squeak_Interpreter()->makeArray(r);
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(receiveCycles);
   }
