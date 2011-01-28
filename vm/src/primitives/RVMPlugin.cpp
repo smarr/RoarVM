@@ -508,13 +508,15 @@ static int primitivePrintStats() {
   int rank_on_threads_or_zero_on_processes = Memory_Semantics::rank_on_threads_or_zero_on_processes();
 
   lprintf("buf_msg_check_count = %d, buf_msg_check_cyc = %lld\n", 
-          Message_Stats::buf_msg_check_count[rank_on_threads_or_zero_on_processes], 
-          Message_Stats::buf_msg_check_cyc[rank_on_threads_or_zero_on_processes]);
+          Message_Stats::buf_msg_check_count[rank_on_threads_or_zero_on_processes].value, 
+          Message_Stats::buf_msg_check_cyc[rank_on_threads_or_zero_on_processes].value);
 
   bool did_one = false;
   for (int i = 0;  i < Message_Statics::end_of_messages;  ++i) {
     if (Message_Stats::receive_tallies[rank_on_threads_or_zero_on_processes][i].value) {
-      lprintf("\n%s: %d %lld", Message_Statics::message_names[i], Message_Stats::receive_tallies[rank_on_threads_or_zero_on_processes][i], Message_Stats::receive_cycles[rank_on_threads_or_zero_on_processes][i]);
+      lprintf("\n%s: %d %lld", Message_Statics::message_names[i], 
+              Message_Stats::receive_tallies[rank_on_threads_or_zero_on_processes][i].value,
+              Message_Stats::receive_cycles[rank_on_threads_or_zero_on_processes][i].value);
       did_one = true;
     }
   }
