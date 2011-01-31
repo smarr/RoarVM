@@ -19,11 +19,17 @@ union cacheline_aligned {
   T value;
   char alignment[(CACHELINE_SIZE > sizeof(T))
                  ? CACHELINE_SIZE
+                 
                  : (CACHELINE_SIZE * 2 > sizeof(T))
                  ? CACHELINE_SIZE * 2
+                 
                  : (CACHELINE_SIZE * 3 > sizeof(T))
                  ? CACHELINE_SIZE * 3
-                 : CACHELINE_SIZE * 4];
+                 
+                 : (CACHELINE_SIZE * 13 > sizeof(T))
+                 ? CACHELINE_SIZE * 13
+                 
+                 : CACHELINE_SIZE * 0];
 #warning STEFAN: do not have a better idea how to do that here... \
                  but clearly that is not fit for arbitrary data types
 };
