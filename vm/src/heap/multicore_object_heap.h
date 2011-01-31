@@ -34,6 +34,8 @@ class Multicore_Object_Heap: public Abstract_Object_Heap {
                           oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize, bool doFill = false,
                           bool fillWithNill = false);
   inline Chunk* allocateChunk_for_a_new_object(oop_int_t total_bytes);
+  inline Chunk* allocateChunk_for_a_new_object_and_safepoint_if_needed(int total_bytes);
+
   void add_object_from_snapshot(Oop, Object*, Object*);
   void flushExternalPrimitives();
   void handle_low_space_signal();
