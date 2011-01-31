@@ -51,28 +51,37 @@ inline Object_p Multicore_Object_Heap::allocate(oop_int_t byteSize, oop_int_t hd
   oop_int_t hdrSize_with_preheader = hdrSize + preheader_oop_size ;
   int total_bytes = byteSize  +  (hdrSize_with_preheader - 1) * bytesPerWord;
   
-  Safepoint_for_moving_objects* sp = NULL;
-  if (The_Memory_System()->rank_for_address(_next) != Logical_Core::my_rank()) 
-    sp = new Safepoint_for_moving_objects("inter-core allocate");
-  
-  Object* chunk = (Object*)allocateChunk_for_a_new_object(total_bytes);
+  Object* chunk = (Object*)allocateChunk_for_a_new_object_and_safepoint_if_needed(total_bytes);
   
   Safepoint_Ability sa(false); // from here on, no GCs!
+  
   Oop remappedClassOop = hdrSize > 1  ?  The_Squeak_Interpreter()->popRemappableOop() : Oop::from_int(0);
   Chunk* saved_next = !check_assertions ? NULL : (Chunk*) chunk->my_heap()->end_objects();
   Object_p newObj = chunk->fill_in_after_allocate(byteSize, hdrSize, baseHeader,
                                                  remappedClassOop, extendedSize, doFill, fillWithNil);
   assert_eq(newObj->nextChunk(), saved_next, "allocate bug: did not set header of new oop correctly");
   
-  if (sp != NULL) 
-    delete sp;
 
   return newObj;
 }
 
 
+inline Chunk* Multicore_Object_Heap::allocateChunk_for_a_new_object_and_safepoint_if_needed(int total_bytes) {
+  Safepoint_for_moving_objects* sp = NULL;
+  if (The_Memory_System()->rank_for_address(_next) != Logical_Core::my_rank()) 
+    sp = new Safepoint_for_moving_objects("inter-core allocate");
+
+  Chunk* chunk = allocateChunk_for_a_new_object(total_bytes);
+  
+  if (sp != NULL) 
+    delete sp;
+
+  return chunk;
+}
+
+
 inline Chunk* Multicore_Object_Heap::allocateChunk_for_a_new_object(oop_int_t total_bytes) {
-  // Since interpreter EXPECTS GC at this point,
+  // Since interpreter EXPECTS GC at this point (only if the SafepointAbility is able),
   // can flush objects from local to global heap,
   // or even resort to allocation in global heap.
   return allocateChunk(total_bytes);

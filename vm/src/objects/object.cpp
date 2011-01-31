@@ -472,15 +472,12 @@ Oop Object::clone() {
   }
   Multicore_Object_Heap* h = The_Memory_System()->heaps[c->rank()][Memory_System::read_write];
   
-  // this safepoint might be a bottleneck
-  // it is here since newChunk, remappedObject, and newObj
-  // are pointers on the stack
-  // and store_bytes_enforcing_coherence/the store_enforcing_coherence
-  // could pass messages which could enable, there could be a gc
-  // -- dmu&sm 2010-12-19
-  Safepoint_for_moving_objects sp("clone");
+  // Follow the pattern in Multicore_Object_Heap::allocate -- dmu & sm:
   
-  Oop* newChunk = (Oop*)h->allocateChunk_for_a_new_object(bytes);
+  Oop* newChunk = (Oop*)h->allocateChunk_for_a_new_object_and_safepoint_if_needed(bytes);
+  Safepoint_Ability sa(false); // from here on, no GCs!
+
+
   Oop remappedOop = The_Squeak_Interpreter()->popRemappableOop();
   Object_p remappedObject = remappedOop.as_object(); // GC may have moved it; cannot use THIS in rest of method
   Object_p newObj = (Object_p)(Object*) ((char*)newChunk + extraHdrBytes);
@@ -511,6 +508,7 @@ Oop Object::clone() {
   
   return newObj->as_oop();
 }
+
 
 Object_p Object::process_list_for_priority_of_process() {
   int priority = priority_of_process();
