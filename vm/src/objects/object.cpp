@@ -466,30 +466,18 @@ Oop Object::clone() {
   The_Squeak_Interpreter()->pushRemappableOop(as_oop());
   // is it safe?
   Logical_Core* c = The_Memory_System()->coreWithSufficientSpaceToAllocate( 2500 + bytes, Memory_System::read_write);
-  if ( c == NULL) {
-    The_Squeak_Interpreter()->popRemappableOop();
+  if ( c == NULL)
     return Oop::from_int(0);
-  }
   Multicore_Object_Heap* h = The_Memory_System()->heaps[c->rank()][Memory_System::read_write];
-  
-  // this safepoint might be a bottleneck
-  // it is here since newChunk, remappedObject, and newObj
-  // are pointers on the stack
-  // and store_bytes_enforcing_coherence/the store_enforcing_coherence
-  // could pass messages which could enable, there could be a gc
-  // -- dmu&sm 2010-12-19
-  Safepoint_for_moving_objects sp("clone");
-  
   Oop* newChunk = (Oop*)h->allocateChunk_for_a_new_object(bytes);
   Oop remappedOop = The_Squeak_Interpreter()->popRemappableOop();
-  Object_p remappedObject = remappedOop.as_object(); // GC may have moved it; cannot use THIS in rest of method
   Object_p newObj = (Object_p)(Object*) ((char*)newChunk + extraHdrBytes);
 
-  // copy old to new incl all header words, fix backpointer later, might include extra header words
+  // copy old to new incl all header words, except backpoiner
   The_Memory_System()->store_bytes_enforcing_coherence(
-                               newChunk, // dst
-                               remappedObject->my_chunk(), // src
-                               bytes,
+                               newChunk + preheader_oop_size, // dst
+                               remappedOop.as_object()->my_chunk_without_preheader(), // src
+                               bytes - preheader_byte_size,
                                newObj); // n bytes
 
   // fix base header: compute new hash and clear Mark and Root bits
@@ -502,13 +490,12 @@ Oop Object::clone() {
   The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, Logical_Core::my_rank()  COMMA_TRUE_OR_NOTHING);
   
 # if Extra_Preheader_Word_Experiment
-  oop_int_t ew = remappedObject->get_extra_preheader_word();
-  assert_always(ew && (!Oop::from_bits(ew).is_int()  ||  ew == Oop::from_int(0).bits())); // bug hunt
+  oop_int_t ew = get_extra_preheader_word();
+  assert_always(ew); // bug hunt
   newObj->set_extra_preheader_word(ew);
 # endif
   
   // newObj->beRootIfOld();
-  
   return newObj->as_oop();
 }
 
