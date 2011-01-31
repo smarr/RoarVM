@@ -62,7 +62,7 @@ void abstractMessage_class::send_to(int r) {
 # endif
 # if  Check_Reliable_At_Most_Once_Message_Delivery
   // must use get_message_type() cause ackMessage encodes orig type in header -- dmu 5/10
-  transmission_serial_number = Message_Stats::next_transmission_serial_number[get_message_type()][r][rank_on_threads_or_zero_on_processes()].value++;
+  transmission_serial_number = Message_Stats::next_transmission_serial_number[get_message_type()][r][rank_on_threads_or_zero_on_processes()]++;
 # endif
   
   assert(r < Max_Number_Of_Cores);
@@ -120,7 +120,7 @@ void abstractMessage_class::handle_me_or_maybe_delay() {
   else  { 
     u_int64 start = OS_Interface::get_cycle_count(); 
     handle_me(); 
-    Message_Stats::receive_cycles[rank_on_threads_or_zero_on_processes()][get_message_type()].value += OS_Interface::get_cycle_count() - start; 
+    Message_Stats::stats[rank_on_threads_or_zero_on_processes()].receive_cycles[get_message_type()] += OS_Interface::get_cycle_count() - start; 
   } 
 }
 
