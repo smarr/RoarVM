@@ -45,6 +45,7 @@
   template(Measure) \
   template(DoBalanceChecks) \
   template(PrintFetchedContextRegisters) \
+  template(Collect_Receive_Message_Statistics) \
   template(CountByteCodesAndStopAt) \
   template(CheckByteCodeTrace) \
   template(MakeByteCodeTrace) \
@@ -171,6 +172,12 @@
 
 # ifndef PrintFetchedContextRegisters
 #  define PrintFetchedContextRegisters 0
+# endif
+
+// Keeping a tally of the received messages seems to have an impact on performance.
+// Thus, it is only enabled when assertions are checked currently. STEFAN 2011-01-28
+# ifndef Collect_Receive_Message_Statistics
+# define Collect_Receive_Message_Statistics check_assertions
 # endif
 
 # ifndef CountByteCodesAndStopAt
