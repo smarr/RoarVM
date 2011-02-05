@@ -98,7 +98,8 @@ public:
 
 
 # define FOR_ALL_FORMERLY_BROADCAST(template) /* just private now */ \
-  template(int,int,interruptCheckCounterFeedBackReset,1000)
+  template(int,int,interruptCheckCounterFeedBackReset,1000) \
+  template(int32,int32,lastTick, 0) /* was shared, but that breaks Delay causes inter-thread skew causes false wrap in checkForInterrupts -- dmu */
 
 
 # define FOR_ALL_HELD_IN_SHARED_MEMORY(template) \
@@ -107,7 +108,6 @@ public:
   \
   template(int32,int32,nextWakeupTick, 0) \
   template(int32,int32,nextPollTick, 0) \
-  template(int32,int32,lastTick, 0) \
   template(int32,int32,pendingFinalizationSignals, 0) \
   template(bool,bool,signalLowSpace, false) \
   template(bool,bool,deferDisplayUpdates, false) \
