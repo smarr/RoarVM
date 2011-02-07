@@ -1924,6 +1924,7 @@ void Squeak_Interpreter::primitiveSignalAtMilliseconds() {
     storePointer(Special_Indices::TheTimerSemaphore,
                  b  ?  sema : roots.nilObj);
   set_nextWakeupTick(b ? tick : 0);
+  // lprintf("set nextwakeuptick tick %d, now %d\n", tick, ioMSecs() & MillisecondClockMask);
 }
 
 

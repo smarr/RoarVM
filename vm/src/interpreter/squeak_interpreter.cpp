@@ -1211,11 +1211,14 @@ void Squeak_Interpreter::checkForInterrupts(bool is_safe_to_process_events) {
        possibly result in 0. Since this is used as a flag
        value for 'no timer' we do the 0 check above"
        */
+      // lprintf("WRAPPED now %d, lastTick %d, nextWakeupTick %d, new nextWakeupTick %d\n",
+      //   now, lastTick(), nextWakeupTick(), nextWakeupTick() - MillisecondClockMask - 1);
      set_nextWakeupTick(nextWakeupTick() - MillisecondClockMask - 1);
     }
     if (now >= nextWakeupTick()) {
       set_nextWakeupTick(0);
       // set timer interrupt to 0 for no timer
+      // lprintf("signalling next\n");
       signalSema(Special_Indices::TheTimerSemaphore, "checkForInterrupts 664");
     }
   }
