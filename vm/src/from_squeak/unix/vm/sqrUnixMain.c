@@ -469,7 +469,8 @@ sqInt ioFormPrint(sqInt bitsAddr, sqInt width, sqInt height, sqInt depth, double
 
 sqInt ioRelinquishProcessorForMicroseconds(sqInt us)
 {
-  int nwt= getNextWakeupTick();
+  // was: int nwt= getNextWakeupTick();
+  int nwt = 0;  // original squeak version would hang all threads if there was an active Delay -- dmu
   int ms=  0;
 
   if (nwt)
