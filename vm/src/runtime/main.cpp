@@ -116,9 +116,40 @@ template("-print_moves_to_read_write",  The_Squeak_Interpreter()->set_print_move
 template("-replicate_methods",  Memory_System::replicate_methods = true, "replicating methods") \
 template("-use_checkpoint",     The_Squeak_Interpreter()->set_use_checkpoint(true), "using checkpoint") \
 template("-replicate_OT",       Multicore_Object_Table::replicate = true, "let hardware replicate the object table") \
-template("-print_gc",           Abstract_Mark_Sweep_Collector::print_gc = true, "Print GC")
+template("-print_gc",           Abstract_Mark_Sweep_Collector::print_gc = true, "Print GC") \
+template("-version",            print_version_info(), "Print full version information")
 
 
+static void print_version_info() {
+  // compiling machine
+#define stringify(s) expstr(s)
+#define expstr(s) #s
+  
+  printf("Compiled code:\t\t%s\n", __FILE__);
+#if defined(GIT_REVISION_ID)
+  printf("Git Revision Id:\t%s\n", stringify(GIT_REVISION_ID));
+#endif  
+  printf("Compilation date:\t%s %s\n", __DATE__, __TIME__);
+   
+#if defined(COMPILATION_HOSTNAME)
+  printf("Compiled on:\t\t%s\n", stringify(COMPILATION_HOSTNAME));
+#endif
+    
+  printf("Used compiler:\t\t");
+#if defined(__tile__)
+  printf("tile-cc version %d.%d.%d\n", __TILECC__, __TILECC_MINOR__, __TILECC_PATCHLEVEL__);
+#else
+  printf("%s\n", __VERSION__);
+#endif
+  
+#if defined(__OPTIMIZE__)
+  printf("Optimization on\n");
+#endif
+  
+  printf("\n\n");
+  print_config();
+  exit(0);
+}
 
 static void usage(char** argv) {
   fprintf(stderr, "Usage: %s", argv[0]);
