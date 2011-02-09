@@ -500,6 +500,7 @@ public:
 
   inline void synchronousSignal(const char*);
   inline int priority_of_process();
+  inline Oop name_of_process();
   inline Oop my_list_of_process();
   int core_where_process_is_running();
   int priority_of_process_or_nil();

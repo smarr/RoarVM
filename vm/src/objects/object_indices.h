@@ -139,6 +139,7 @@ public:
   static const int SuspendedContextIndex = 1;
   static const int PriorityIndex = 2;
   static const int MyListIndex = 3;
+  static const int ProcessName = 5;
 
 
 };
