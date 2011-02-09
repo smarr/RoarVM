@@ -3229,7 +3229,7 @@ void Squeak_Interpreter::preGCAction_everywhere(bool fullGC) {
 
 void Squeak_Interpreter::postGCAction_everywhere(bool fullGC) {
   // STEFAN: this looks like a good place to invalidate our tracked_ptr's
-# if Include_Debugging_Code
+# if Track_OnStackPointer
   tracked_ptr<Object>::invalidate_all_pointer();
 # endif
   
