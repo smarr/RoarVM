@@ -630,7 +630,7 @@ Oop Object::remove_process_from_scheduler_list(const char* why) {
   Object_p proc_obj = proc.as_object();
   Object_p prior_proc_obj  = (Object_p)NULL;
 
-  for (; proc_obj != this;)  {
+  while (proc_obj != this) {
     prior_proc_obj = proc_obj;
     proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
     if (proc == The_Squeak_Interpreter()->roots.nilObj) {
