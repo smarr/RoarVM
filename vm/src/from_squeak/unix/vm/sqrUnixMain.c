@@ -1079,12 +1079,12 @@ static void vm_printUsage(void)
   printf("  -vm-<sys>-<dev>       use the <dev> driver for <sys> (see below)\n");
 #if 1
   printf("Deprecated:\n");
-  printf("  -display <dpy>        quivalent to '-vm-display-X11 -display <dpy>'\n");
-  printf("  -headless             quivalent to '-vm-display-X11 -headless'\n");
-  printf("  -nodisplay            quivalent to '-vm-display-null'\n");
+  printf("  -display <dpy>        equivalent to '-vm-display-X11 -display <dpy>'\n");
+  printf("  -headless             equivalent to '-vm-display-X11 -headless'\n");
+  printf("  -nodisplay            equivalent to '-vm-display-null'\n");
   printf("  -nomixer              disable modification of mixer settings\n");
-  printf("  -nosound              quivalent to '-vm-sound-null'\n");
-  printf("  -quartz               quivalent to '-vm-display-Quartz'\n");
+  printf("  -nosound              equivalent to '-vm-sound-null'\n");
+  printf("  -quartz               equivalent to '-vm-display-Quartz'\n");
 #endif
 }
 
