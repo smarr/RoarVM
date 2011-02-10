@@ -272,6 +272,14 @@ void* primitiveGetMutability() {
   return 0;
 }
 
+extern int headless;
+
+void* primitiveRunsHeadless() {
+  if (The_Squeak_Interpreter()->get_argumentCount() != 0) { The_Squeak_Interpreter()->primitiveFail(); return 0; }
+  The_Squeak_Interpreter()->pop(1);
+  The_Squeak_Interpreter()->pushBool(headless);
+  return 0;
+}
 
 
 // args for the primitive are first core, last core, move_read_write_to_read_mostly, move_read_mostly_to_read_write
@@ -750,6 +758,8 @@ void* RVMPlugin_exports[][3] = {
   {(void*) "RVMPlugin", (void*)"primitiveCycleCounter", (void*)primitiveCycleCounter},
  
   {(void*) "RVMPlugin", (void*)"setInterpreter", (void*)setInterpreter},
+  
+  {(void*) "RVMPlugin", (void*)"primitiveRunsHeadless", (void*)primitiveRunsHeadless},
 
   {NULL, NULL, NULL}
 };
