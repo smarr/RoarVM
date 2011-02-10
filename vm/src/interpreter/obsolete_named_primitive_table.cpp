@@ -142,9 +142,9 @@ Obsolete_Named_Primitive_Table::entry Obsolete_Named_Primitive_Table::contents[]
   { "primitiveWriteSnapshot",             "RVMPlugin", "primitiveWriteSnapshot",             true  },
   { "primitiveMicrosecondClock",          "RVMPlugin", "primitiveMicrosecondClock",          false },
   { "primitiveCycleCounter",              "RVMPlugin", "primitiveCycleCounter",              false },
+  
+  { "primitiveRunsHeadless",              "RVMPlugin", "primitiveRunsHeadless",              false },
 
-  
-  
 
   // Local versions of bitBlt primitives; don't use when blitting to the screen
   {"primitiveDrawLoopLocally", "BitBltPlugin", "primitiveDrawLoop",           On_Intel_Linux || On_Apple || false},
