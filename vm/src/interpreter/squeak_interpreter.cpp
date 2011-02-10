@@ -1281,7 +1281,7 @@ void Squeak_Interpreter::createActualMessageTo(Oop aClass) {
 
 void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
   Scheduler_Mutex sm("transfer_to_highest_priority");  // protect selection and xfer
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("on %d: about to transfer_to_highest_priority %s: ", my_rank(), why);
     print_process_lists(debug_printer);
     debug_printer->nl();
@@ -1294,7 +1294,7 @@ void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
 
   if (Print_Scheduler) {
     debug_printer->printf("on %d: in transfer_to_highest_priority %s: ", my_rank(), why);
-    print_process_lists(debug_printer);
+    if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
     debug_printer->printf("  found:  ");
     newProc.print_process_or_nil(debug_printer);
     debug_printer->nl();
@@ -1315,7 +1315,7 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
     debug_printer->printf("on %d: resume: ", my_rank());
     aProcess.print_process_or_nil(debug_printer);
     debug_printer->printf(" because %s\n", why);
-    print_process_lists(debug_printer);
+    if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
 
   {
@@ -1328,12 +1328,12 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
 
   if (Print_Scheduler) {
     debug_printer->printf("on %d: mid-resume:\n", my_rank());
-    print_process_lists(debug_printer);
+    if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
   set_yield_requested(true);
   if (Print_Scheduler) {
     debug_printer->printf("on %d: post-resume:\n", my_rank());
-    print_process_lists(debug_printer);
+    if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
 }
 
@@ -1382,7 +1382,7 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
     assert_registers_stored();
     return;
   }
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d, put_running_process_to_sleep: ", my_rank());
     aProcess.print_process_or_nil(debug_printer);
     debug_printer->printf(", %s\n", why);
@@ -1394,11 +1394,11 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
   storeContextRegisters(activeContext_obj()); // xxxxxx redundant maybe with newActiveContext call in start_running
   aProcess.as_object()->set_suspended_context_of_process(activeContext());
   release_baton();
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d, AFTER put_running_process_to_sleep: ", my_rank());
     aProcess.print_process_or_nil(debug_printer);
     debug_printer->nl();
-    // print_process_lists(debug_printer);
+    print_process_lists(debug_printer);
   }
   assert_registers_stored();
 }
@@ -1411,14 +1411,14 @@ void Squeak_Interpreter::yield(const char* why) {
     debug_printer->printf("scheduler on %d: pre yield because %s ", my_rank(), why);
     get_running_process().as_object()->print_process_or_nil(debug_printer);
     debug_printer->nl();
-    print_stack_trace(dittoing_stdout_printer);
+    if (Print_Scheduler_Verbose) print_stack_trace(dittoing_stdout_printer);
   }
   assert(get_running_process() == roots.nilObj  ||  activeContext() != roots.nilObj );
   put_running_process_to_sleep(why);
   assert_registers_stored();
   transfer_to_highest_priority(why);
   if (Check_Prefetch && do_I_hold_baton()) assert_always(have_executed_currentBytecode);
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler on %d: post yield because %s ", my_rank(), why);
     get_running_process().as_object()->print_process_or_nil(debug_printer);
     debug_printer->nl();

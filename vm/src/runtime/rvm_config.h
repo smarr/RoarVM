@@ -66,6 +66,7 @@
   template(Compile_Debug_Store_Checks) \
   template(Profile_Image) \
   template(Print_Scheduler) \
+  template(Print_Scheduler_Verbose) \
   template(Checksum_Messages) \
   template(Always_Check_Method_Is_Correct) \
   template(Check_Prefetch) \
@@ -267,6 +268,11 @@
 # ifndef Print_Scheduler
 #  define Print_Scheduler 0
 # endif
+
+# ifndef Print_Scheduler_Verbose
+#  define Print_Scheduler_Verbose 0
+# endif
+
 
 # ifndef Extra_OTE_Words_for_Debugging_Block_Context_Method_Change_Bug // for debugging
 #  define Extra_OTE_Words_for_Debugging_Block_Context_Method_Change_Bug 0
