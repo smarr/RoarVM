@@ -55,16 +55,9 @@ void ILib_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]
     params.binary_name = NULL;
     params.argv = argv;
     
-    params.tiles.x = params.tiles.y = 0;
-    
-    if (CPU_Coordinate::width * CPU_Coordinate::height == Logical_Core::num_cores) {
-      params.tiles.width  = CPU_Coordinate::width;
-      params.tiles.height = CPU_Coordinate::height;
-    }
-    else {
-      params.tiles.width  = 0;
-      params.tiles.height = 0;
-    }
+    params.tiles.x      = params.tiles.y = 0;
+    params.tiles.width  = CPU_Coordinate::width;
+    params.tiles.height = CPU_Coordinate::height;
     
     // skip params.init_block/size
 
@@ -85,6 +78,18 @@ void ILib_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]
   
   if (Measure_Communication)
     Logical_Core::my_core()->message_queue.measure_communication();
+  
+  // lprintf("is_center: %s, center_rank: %d, main_rank: %d, my_rank: %d\n",
+  //         CPU_Coordinate::is_center() ? "true" : "false",
+  //         CPU_Coordinate::center_rank,
+  //         Logical_Core::main_rank,
+  //         Logical_Core::my_rank());
+  //
+  // lprintf("center_x: %d, center_y: %d, my_x: %d, my_y: %d\n",
+  //         Tile_CPU_Coordinate::center_x,
+  //         Tile_CPU_Coordinate::center_y,
+  //         Tile_CPU_Coordinate::_my_x,
+  //         Tile_CPU_Coordinate::_my_y);
   
   if (CPU_Coordinate::is_center() != (CPU_Coordinate::center_rank == Logical_Core::my_rank()))
     fatal("center_rank is wrong\n");
