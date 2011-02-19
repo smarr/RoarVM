@@ -842,7 +842,11 @@ Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
     const int enough_already = 7;
     if (dnu_kvetch_count() < enough_already) {
       print_time();
-      dittoing_stdout_printer->printf("%d: sending doesNotUnderstand: ", my_rank()); roots.messageSelector.print(dittoing_stdout_printer); dittoing_stdout_printer->nl(); // xxx_dmu
+      dittoing_stdout_printer->printf("%d: sending doesNotUnderstand: ", my_rank());
+      roots.messageSelector.print(dittoing_stdout_printer);
+      dittoing_stdout_printer->printf(" for object of ");
+      currentClass_obj->className().as_object()->print_bytes(dittoing_stdout_printer);
+      dittoing_stdout_printer->nl(); // xxx_dmu
       set_dnu_kvetch_count(dnu_kvetch_count() + 1);
       if (dnu_kvetch_count() >= enough_already) lprintf("Enough already! No more kvetching!");
       breakpoint();
