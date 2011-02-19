@@ -15,7 +15,7 @@
 #include "headers.h"
 
 bool     Memory_System::use_huge_pages = On_Tilera;
-bool     Memory_System::replicate_methods = false; // if true methods are put on read-mostly heap
+bool     Memory_System::replicate_methods = true; // if true methods are put on read-mostly heap
 bool     Memory_System::replicate_all = true; // if true, all (non-contexts) are allowed in read-mostly heap
 bool     Memory_System::OS_mmaps_up = On_Apple;
 u_int32  Memory_System::memory_per_read_write_heap = 0;
