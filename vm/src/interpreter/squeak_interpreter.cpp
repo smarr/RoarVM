@@ -1113,7 +1113,7 @@ void Squeak_Interpreter::activateNewClosureMethod(Object_p blockClosure_obj, Obj
     for (int i = 1;  i <= get_argumentCount();  ++i) {
         DEBUG_STORE_CHECK( &where[Object_Indices::ReceiverIndex + i], stackValue(get_argumentCount() - i));
         where[Object_Indices::ReceiverIndex + i] = stackValue(get_argumentCount() - i);
-  }
+    }
   }
   else
     transferFromIndexOfObjectToIndexOfObject(argumentArray_obj_or_null->fetchWordLength(),
@@ -1137,6 +1137,7 @@ void Squeak_Interpreter::activateNewClosureMethod(Object_p blockClosure_obj, Obj
 
 void Squeak_Interpreter::signalSemaphoreWithIndex(int index) {
   if (index < 0) return;
+  
   oop_int_t& count = semaphoresUseBufferA() ? _semaphoresToSignalCountA : _semaphoresToSignalCountB;
   oop_int_t* semas = semaphoresUseBufferA() ? _semaphoresToSignalA : _semaphoresToSignalB;
 
