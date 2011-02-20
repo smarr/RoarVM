@@ -71,11 +71,8 @@ public:
   oop_int_t reclaimableContextCount;
   bool successFlag;
 
-
-# define FOR_ALL_BROADCAST(template) \
-  template(int32,int32,semaphoresToSignalCountA, 0) \
-  template(int32,int32,semaphoresToSignalCountB, 0) \
-  \
+  
+# define BROADCAST_ON_TILERA_USE_SHARED_MEMORY_ELSE(template) \
   template(u_int64,u_int64,run_mask, all_cores_mask) \
   template(int32,int32,profile_after, -1) \
   template(int32,int32,quit_after, -1) \
@@ -89,21 +86,45 @@ public:
   template(Execution_Tracer*,int32,execution_tracer, NULL) \
   template(Debugging_Tracer*,int32,debugging_tracer, NULL) \
   \
-  template(bool,bool,am_receiving_objects_from_snapshot, true) \
-  \
   template(bool,bool,yield_requested, false) \
   template(int32,int32,process_object_layout_timestamp, 1) \
   template(int32,int32,num_chips, 1) \
   template(bool,bool,use_cpu_ms, false)
 
 
+# if On_Tilera
+  # define FOR_ALL_BROADCAST(template) \
+    BROADCAST_ON_TILERA_USE_SHARED_MEMORY_ELSE(template) \
+    template(int32,int32,semaphoresToSignalCountA, 0) \
+    template(int32,int32,semaphoresToSignalCountB, 0)  \
+    \
+    template(bool,bool,am_receiving_objects_from_snapshot, true)
 
+
+  # define IN_SHARED_MEMORY_ON_INTEL(template)
+  
+  # define ACCESS_RAW_DATUM(name) _ ## name
+# else
+  # define FOR_ALL_BROADCAST(template) \
+    template(int32,int32,semaphoresToSignalCountA, 0) \
+    template(int32,int32,semaphoresToSignalCountB, 0) \
+    \
+    template(bool,bool,am_receiving_objects_from_snapshot, true)
+
+  
+  # define IN_SHARED_MEMORY_ON_INTEL(template) \
+    BROADCAST_ON_TILERA_USE_SHARED_MEMORY_ELSE(template)
+  
+  # define ACCESS_RAW_DATUM(name) shared_memory_fields->_ ## name
+# endif
+
+  
 # define FOR_ALL_FORMERLY_BROADCAST(template) /* just private now */ \
   template(int,int,interruptCheckCounterFeedBackReset,1000) \
   template(int32,int32,lastTick, 0) /* was shared, but that breaks Delay causes inter-thread skew causes false wrap in checkForInterrupts -- dmu */
 
-
 # define FOR_ALL_HELD_IN_SHARED_MEMORY(template) \
+  IN_SHARED_MEMORY_ON_INTEL(template) \
   template(int32,int32,gcSemaphoreIndex, 0) \
   template(int32,int32,interruptKeycode, 2094) /*cmd-.*/ \
   \
@@ -127,9 +148,10 @@ public:
   private:
   FOR_ALL_BROADCAST(DECL)
   FOR_ALL_FORMERLY_BROADCAST(DECL)
-
+# undef DECL
 
   struct Shared_memory_fields {
+# define DECL(REAL_T,BROADCAST_T,name,x) volatile REAL_T _ ## name;
     FOR_ALL_HELD_IN_SHARED_MEMORY(DECL)
 # undef DECL
   } *shared_memory_fields;

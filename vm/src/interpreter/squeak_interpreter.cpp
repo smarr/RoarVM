@@ -2357,17 +2357,17 @@ void Squeak_Interpreter::save_to_checkpoint(FILE* f) {
 void Squeak_Interpreter::restore_from_checkpoint(FILE* f) {
   read_mark(f, check_mark);
 
-  u_int64 rm = _run_mask;
+  u_int64 rm = ACCESS_RAW_DATUM(run_mask);
 
-  int32 pa = _profile_after, qa = _quit_after;
-  bool mc = _make_checkpoint, uc = _use_checkpoint, fe = _fence;
+  int32 pa = ACCESS_RAW_DATUM(profile_after), qa = ACCESS_RAW_DATUM(quit_after);
+  bool mc = ACCESS_RAW_DATUM(make_checkpoint), uc = ACCESS_RAW_DATUM(use_checkpoint), fe = ACCESS_RAW_DATUM(fence);
 
   xfread(this, sizeof(*this), 1, f);
   initialize(roots.specialObjectsOop, true);
 
-  _run_mask = rm;
-  _profile_after = pa;  _quit_after = qa;
-  _make_checkpoint = mc;  _use_checkpoint = uc;  _fence = fe;
+  ACCESS_RAW_DATUM(run_mask) = rm;
+  ACCESS_RAW_DATUM(profile_after) = pa;  ACCESS_RAW_DATUM(quit_after) = qa;
+  ACCESS_RAW_DATUM(make_checkpoint) = mc;  ACCESS_RAW_DATUM(use_checkpoint) = uc;  ACCESS_RAW_DATUM(fence) = fe;
 }
 
 
@@ -2416,7 +2416,7 @@ void Squeak_Interpreter::multicore_interrupt() {
     }
 
     if (yield_requested()) {
-      _yield_requested = false;
+      ACCESS_RAW_DATUM(yield_requested) = false;
       yield("yield_requested");
       assert_method_is_correct_internalizing(true, "after fixup_localIP_after_being_transferred_to");
     }
