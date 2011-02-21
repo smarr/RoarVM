@@ -1149,14 +1149,18 @@ void Squeak_Interpreter::signalSemaphoreWithIndex(int index) {
 void Squeak_Interpreter::checkForInterrupts(bool is_safe_to_process_events) {
   if (doing_primitiveClosureValueNoContextSwitch)
     return;
+  static bool last_use_cpu_ms = use_cpu_ms();
+  bool use_cpu_ms_changed = last_use_cpu_ms != use_cpu_ms();
+  last_use_cpu_ms = use_cpu_ms();
+
   multicore_interrupt_check = true;
   Safepoint_Ability sa(true);
   
   // Mask so same wrapping as primitiveMillisecondClock
   assert_method_is_correct_internalizing(true, "start of checkForInterrupts");
   ++interruptCheckCount;
-  int now = ioMSecs() & MillisecondClockMask;
-  if (!interruptCheckForced()) {
+  int now = ioWhicheverMSecs() & MillisecondClockMask;
+  if (!interruptCheckForced()  &&  !use_cpu_ms_changed) {
     ++unforcedInterruptCheckCount;
     // "don't play with the feedback if we forced a check. It only makes life difficult"
     if (now - lastTick()  <  interruptChecksEveryNms)  {
@@ -1182,7 +1186,7 @@ void Squeak_Interpreter::checkForInterrupts(bool is_safe_to_process_events) {
 
   The_Memory_System()->handle_low_space_signals();
 
-  if (now < lastTick()) {
+  if (now < lastTick() ||  use_cpu_ms_changed) {
     // ms clock wrapped so correct the nextPollTick
     set_nextPollTick(nextPollTick() - MillisecondClockMask - 1);
   }
@@ -1213,7 +1217,7 @@ void Squeak_Interpreter::checkForInterrupts(bool is_safe_to_process_events) {
        */
       // lprintf("WRAPPED now %d, lastTick %d, nextWakeupTick %d, new nextWakeupTick %d\n",
       //   now, lastTick(), nextWakeupTick(), nextWakeupTick() - MillisecondClockMask - 1);
-     set_nextWakeupTick(nextWakeupTick() - MillisecondClockMask - 1);
+      set_nextWakeupTick(nextWakeupTick() - MillisecondClockMask - 1);
     }
     if (now >= nextWakeupTick()) {
       set_nextWakeupTick(0);

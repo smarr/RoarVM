@@ -64,6 +64,7 @@ extern "C" {
   sqInt fullGC(void);
   sqInt getInterruptKeycode();
   sqInt getNextWakeupTick();
+  sqInt ioWhicheverMSecs();
   sqInt getSavedWindowSize();
   sqInt getThisSessionID();
   sqInt incrementalGC(void);
@@ -263,6 +264,8 @@ sqInt fullGC() { The_Memory_System()->fullGC("fullGC from original Squeak code")
 sqInt getInterruptKeycode() { return The_Squeak_Interpreter()->interruptKeycode(); }
 
 sqInt getNextWakeupTick() { return The_Squeak_Interpreter()->nextWakeupTick(); }
+
+sqInt ioWhicheverMSecs() { return The_Squeak_Interpreter()->ioWhicheverMSecs(); }
 
 sqInt getSavedWindowSize() { return The_Memory_System()->snapshot_window_size.savedWindowSize(); }
 
