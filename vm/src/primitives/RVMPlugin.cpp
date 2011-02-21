@@ -127,7 +127,7 @@ Oop sample_one_core(int what_to_sample) {
   static int ms_buf[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes] = { 0 };                                   // threadsafe
   int* const ms = &(ms_buf[rank_on_threads_or_zero_on_processes]);
 
-  int millisecs = ioMSecs() - (*ms);  (*ms) = (*ms) + millisecs;
+  int millisecs = The_Squeak_Interpreter()->ioWhicheverMSecs() - (*ms);  (*ms) = (*ms) + millisecs;
   u_int64 cycles = OS_Interface::get_cycle_count() - cc; cc += cycles;
 
   int s = The_Squeak_Interpreter()->makeArrayStart();
@@ -712,6 +712,33 @@ static int primitiveCycleCounter() {
 }
   
 
+void* primitiveUseCPUTime() {
+  bool use_cpu_ms;
+  switch (The_Squeak_Interpreter()->get_argumentCount()) {
+     case 1:
+      use_cpu_ms = The_Squeak_Interpreter()->booleanValueOf(The_Squeak_Interpreter()->stackValue(0));
+      if (!The_Squeak_Interpreter()->successFlag) { return 0; }
+      break;
+      
+    default: The_Squeak_Interpreter()->primitiveFail();  return 0;
+  }
+  
+  // There's a bit of a race in the code below; it's clunky, too. -- dmu
+  bool fix_wakeup_time = false;
+  int delta = 0;
+  if (use_cpu_ms != The_Squeak_Interpreter()->use_cpu_ms()  &&  The_Squeak_Interpreter()->nextWakeupTick() != 0) {
+    delta = The_Squeak_Interpreter()->nextWakeupTick() - The_Squeak_Interpreter()->ioWhicheverMSecs();
+    fix_wakeup_time = true;
+  }
+  The_Squeak_Interpreter()->forceInterruptCheck();
+  The_Squeak_Interpreter()->set_use_cpu_ms(use_cpu_ms);
+  if (fix_wakeup_time)
+    The_Squeak_Interpreter()->set_nextWakeupTick( The_Squeak_Interpreter()->ioWhicheverMSecs() + delta);
+  The_Squeak_Interpreter()->pop(The_Squeak_Interpreter()->get_argumentCount());
+  return 0;
+}
+
+
 
 void* RVMPlugin_exports[][3] = {
   {(void*) "RVMPlugin", (void*)"primitiveDebugSampleRVM", (void*)primitiveDebugSampleRVM},
@@ -748,6 +775,9 @@ void* RVMPlugin_exports[][3] = {
   {(void*) "RVMPlugin", (void*)"primitiveEmergencySemaphore", (void*)primitiveEmergencySemaphore},
   {(void*) "RVMPlugin", (void*)"primitiveMicrosecondClock", (void*)primitiveMicrosecondClock},
   {(void*) "RVMPlugin", (void*)"primitiveCycleCounter", (void*)primitiveCycleCounter},
+  
+  {(void*) "RVMPlugin", (void*)"primitiveUseCPUTime", (void*)primitiveUseCPUTime},
+
  
   {(void*) "RVMPlugin", (void*)"setInterpreter", (void*)setInterpreter},
 

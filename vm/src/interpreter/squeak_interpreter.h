@@ -119,7 +119,8 @@ public:
   \
   template(External_Primitive_Table*, void*,externalPrimitiveTable, new External_Primitive_Table()) \
   \
-  template(int, int,dnu_kvetch_count, 0)
+  template(int, int,dnu_kvetch_count, 0) \
+  template(bool,bool,use_cpu_ms, false)
   
 
 # define DECL(REAL_T,BROADCAST_T,name,x) REAL_T _ ## name;
@@ -1504,6 +1505,13 @@ public:
   u_char* prev_bc_addr_for_debugging;
   u_char* bc_addr_for_debugging;  
 # endif
+  
+  
+public:
+  inline int ioWhicheverMSecs() {
+    return use_cpu_ms() ? ioCPUMSecs() : ioMSecs();
+  }
+  static int ioCPUMSecs();
 };
 
 

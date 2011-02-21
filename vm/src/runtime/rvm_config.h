@@ -76,7 +76,6 @@
   template(Multiple_Tileras) \
   \
   /* The following are all used to analyze the unicore performance regression in porting to phthreads -- dmu 1/10 */ \
-  template(CPU_Milliseconds_To_Run) \
   template(Force_Direct_Squeak_Interpreter_Access) \
   template(Dont_Trace_Bytecode_Fetching) \
   template(Force_Direct_Timeout_Timer_List_Head_Access) \
@@ -274,10 +273,6 @@
 
 # ifndef Check_Reliable_At_Most_Once_Message_Delivery // for debugging
 #  define Check_Reliable_At_Most_Once_Message_Delivery check_assertions
-# endif
-
-# ifndef CPU_Milliseconds_To_Run // for benchmarking with Time millisecondsToRun:
-# define CPU_Milliseconds_To_Run 0 // yyyyyy
 # endif
 
 # ifndef Force_Direct_Squeak_Interpreter_Access

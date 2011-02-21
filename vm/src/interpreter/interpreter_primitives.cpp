@@ -1346,7 +1346,7 @@ void Squeak_Interpreter::primitiveMarkUnwindMethod() {
 }
 
 
-static int ioCPUMSecs() {
+int Squeak_Interpreter::ioCPUMSecs() {
   struct rusage ru;
   getrusage(RUSAGE_SELF, &ru);
   return (ru.ru_utime.tv_sec + ru.ru_stime.tv_sec) * 1000  +  (ru.ru_utime.tv_usec + ru.ru_stime.tv_usec) / 1000;
@@ -1361,7 +1361,7 @@ void Squeak_Interpreter::primitiveMillisecondClock() {
    daily. The range is limited to SmallInteger maxVal / 2 to allow delays of
    up to that length without overflowing a SmallInteger.
    */
-  popThenPush(1, Oop::from_int((CPU_Milliseconds_To_Run ? ioCPUMSecs() : ioMSecs()) & MillisecondClockMask));
+  popThenPush(1, Oop::from_int(ioWhicheverMSecs() & MillisecondClockMask));
 }
 void Squeak_Interpreter::primitiveMod() {
   pop2AndPushIntegerIfOK(doPrimitiveMod( stackValue(1), stackTop()));
@@ -1924,7 +1924,7 @@ void Squeak_Interpreter::primitiveSignalAtMilliseconds() {
     storePointer(Special_Indices::TheTimerSemaphore,
                  b  ?  sema : roots.nilObj);
   set_nextWakeupTick(b ? tick : 0);
-  // lprintf("set nextwakeuptick tick %d, now %d\n", tick, ioMSecs() & MillisecondClockMask);
+  // lprintf("set nextwakeuptick tick %d, now %d\n", tick, ioWhicheverMSecs() & MillisecondClockMask);
 }
 
 
