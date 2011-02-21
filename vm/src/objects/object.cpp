@@ -630,7 +630,7 @@ Oop Object::remove_process_from_scheduler_list(const char* why) {
   Object_p proc_obj = proc.as_object();
   Object_p prior_proc_obj  = (Object_p)NULL;
 
-  for (; proc_obj != this;)  {
+  while (proc_obj != this) {
     prior_proc_obj = proc_obj;
     proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
     if (proc == The_Squeak_Interpreter()->roots.nilObj) {
@@ -726,9 +726,17 @@ void Object::print_process_or_nil(Printer* p, bool print_stack) {
     return;
   }
   print(p);
-  p->printf("(0x%x, pri %d, %s, ", as_oop().bits(), priority_of_process(), is_process_running() ? "running" : "not running");
+  p->printf("(0x%x, hash %d, pri %d, %s, ", as_oop().bits(), hashBits(), priority_of_process(), is_process_running() ? "running" : "not running");
   p->printf("myList: ");    my_list_of_process().print(p);  p->printf(", ");
   p->printf("nextLink: ");  fetchPointer(Object_Indices::NextLinkIndex).print(p);  p->printf(", ");
+  
+  Oop name = name_of_process();
+  if (name != The_Squeak_Interpreter()->roots.nilObj) {
+    p->printf("name: "); name.as_object()->print_bytes(p); p->printf("0x%x  ", name.as_object()->first_byte_address());
+    //if (strncasecmp(name.as_object()->first_byte_address(), "ScreenController", 16) == 0) {
+    //  print_stack = true;
+    //}    
+  }
 
   int core = Object::core_where_process_is_running();
 
