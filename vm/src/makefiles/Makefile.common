@@ -10,6 +10,10 @@ GTEST   ?= $(SRC_DIR)/../googletest
 LOW_OPTIMIZE_LEVEL  ?= -O3
 HIGH_OPTIMIZE_LEVEL ?= -O3
 
+# add some tracking information to identify binaries later
+CONFIG_FLAGS += -DGIT_REVISION_ID=$(shell git rev-parse HEAD)
+CONFIG_FLAGS += -DCOMPILATION_HOSTNAME=$(shell hostname)
+
 ifndef PLATFORM
   # fall back to Tilera as standard platform
   PLATFORM = Tilera

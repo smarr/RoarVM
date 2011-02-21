@@ -662,6 +662,10 @@ inline int Object::priority_of_process() {
   return quickFetchInteger(Object_Indices::PriorityIndex);
 }
 
+inline Oop Object::name_of_process() {
+  assert(fetchPointer(Object_Indices::ProcessName).is_mem());
+  return fetchPointer(Object_Indices::ProcessName);
+}
 
 inline Oop Object::my_list_of_process() {
   assert(fetchPointer(Object_Indices::MyListIndex).is_mem());

@@ -19,7 +19,7 @@ protected:
   #if Use_BufferedChannelDebug
   struct {
     BufferedChannelDebug channel;
-    // STEFAN: this is ad-hoc but does the job for the moment, should be changed
+    // TODO: STEFAN: this is ad-hoc but does the job for the moment, should be changed
     # define INTEL_CACHELINE_SIZE 64
     # define SIZE_TO_FIT_IN_CHANNEL (INTEL_CACHELINE_SIZE * 2)
     char cacheline_alignment[SIZE_TO_FIT_IN_CHANNEL - sizeof(BufferedChannelDebug)];
