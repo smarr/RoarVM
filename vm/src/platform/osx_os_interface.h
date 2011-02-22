@@ -25,6 +25,8 @@ public:
   
   static Power_Source get_power_source();
   
+  static void pin_thread_to_core(int32_t rank);
+  
 };
 
 # endif // On_Apple
