@@ -16,7 +16,7 @@ class Squeak_Interpreter {
 public:
   Squeak_Interpreter();
   
-#if On_Tilera
+#if Using_Processes
 public:
   inline int           my_rank() const { return Logical_Core::my_rank(); }
   inline Logical_Core* my_core() const { return Logical_Core::my_core(); }

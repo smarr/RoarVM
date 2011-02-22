@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-# if !On_Tilera
+# if Using_Threads
 
 class Timeout_Timer_List_Head;
 
@@ -195,5 +195,5 @@ class Timeout_Timer_List_Head;
   # endif // ! On_Intel_Linux
 # endif
 
-# endif // !On_Tilera
+# endif // Using_Threads
 

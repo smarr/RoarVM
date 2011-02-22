@@ -21,7 +21,7 @@
 
 
 Squeak_Interpreter::Squeak_Interpreter() 
-#if !On_Tilera
+#if Using_Threads
 : _my_rank(Logical_Core::my_rank()), _my_core(Logical_Core::my_core()) 
 #endif
 {
@@ -70,7 +70,7 @@ Squeak_Interpreter::Squeak_Interpreter()
 
 
 void Squeak_Interpreter::init_rank() {
-#if !On_Tilera && false
+#if Using_Threads && false
   _my_rank = Logical_Core::my_rank();
   _my_core = Logical_Core::my_core();
 #endif  
@@ -3124,7 +3124,7 @@ void Squeak_Interpreter::receive_initial_interpreter_from_main(Squeak_Interprete
   
 /* The following hack is needed to get away with the const members in the
    interpreter. The potential optimization should be worth it. */
-#if On_Tilera
+#if Using_Processes
   *this = *sq;
 #else
   const int           my_rank = this->_my_rank;

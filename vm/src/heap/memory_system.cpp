@@ -767,7 +767,7 @@ void Memory_System::initialize_main(init_buf* ib) {
   if (check_many_assertions)
     lprintf("finished creating all heaps\n");
 
-  if (Replicate_PThread_Memory_System || On_Tilera) {
+  if (Replicate_PThread_Memory_System || Using_Processes) {
     // Now, send the addresses of these.
     FOR_ALL_OTHER_RANKS(i)
       logical_cores[i].message_queue.buffered_send_buffer(&heaps[0][0],  sizeof(heaps));
@@ -788,10 +788,10 @@ void Memory_System::initialize_helper() {
   Logical_Core* sender;
   init_buf* ib = (init_buf*)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
   
-  if (Replicate_PThread_Memory_System  ||  On_Tilera)
+  if (Replicate_PThread_Memory_System  ||  Using_Processes)
     init_values_from_buffer(ib); // not needed with common structure
 
-  if (On_Tilera)
+  if (Using_Processes)
     map_read_write_and_read_mostly_memory(ib->main_pid, ib->total_read_write_memory_size, ib->total_read_mostly_memory_size);
   
   create_my_heaps(ib);
@@ -802,7 +802,7 @@ void Memory_System::initialize_helper() {
   Logical_Core::main_core()->message_queue.buffered_send_buffer(&heaps[Logical_Core::my_rank()][read_write ], sizeof(Multicore_Object_Heap*));
   if (check_many_assertions) lprintf("finished sending my heaps\n");
 
-  if (!Replicate_PThread_Memory_System && !On_Tilera)
+  if (!Replicate_PThread_Memory_System && Using_Threads)
     return;
   
   void* heaps_buf = Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
@@ -1282,7 +1282,7 @@ char* Memory_System::map_heap_memory(size_t total_size,
   assert_always(Max_Number_Of_Cores >= Logical_Core::group_size);
   
   assert( Memory_Semantics::cores_are_initialized());
-  assert( On_Tilera || Logical_Core::running_on_main());
+  assert( Using_Processes || Logical_Core::running_on_main());
   
    
   const bool print = false;
