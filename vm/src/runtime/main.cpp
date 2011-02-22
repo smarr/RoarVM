@@ -42,6 +42,8 @@ static void set_geom(char* sizes) {
   }
   else
     OS_Interface::die("bad argument syntax: needs to be `-geom <digit>,<digit>'\n");
+#else
+  OS_Interface::die("bad argument: -geom only supported on Tilera, use -num_cores instead.'\n");
 #endif
 }
 
