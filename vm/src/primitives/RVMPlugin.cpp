@@ -712,7 +712,7 @@ static int primitiveCycleCounter() {
   cycles = (u_int64(microTickCount.hi) << 32LL) |  u_int64(microTickCount.lo);
   
 # else
-  # warning STEFAN: we should make sure that we have here something which is accurate also between cores. We can not pin the interpreter on specific cores on OSX
+  // this value is specifc to a core, it does not reflect a 'global' time.
   asm volatile("rdtsc" : "=A" (cycles));
 # endif
   
