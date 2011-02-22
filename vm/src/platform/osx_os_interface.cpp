@@ -75,3 +75,11 @@ Abstract_OS_Interface::Power_Source OSX_OS_Interface::get_power_source() {
   CFRelease(powerSources);
   return ac_count ? AC :  battery_count ? battery : AC;
 }
+
+void OSX_OS_Interface::pin_thread_to_core(int32_t rank) {
+  // Mac OS X does not support setting explicit affinity to a PU
+  // It only supports expressing cache affinity
+  // and this is only for one process i.e. threads in a process
+  // http://developer.apple.com/ReleaseNotes/Performance/RN-AffinityAPI/index.html
+}
+

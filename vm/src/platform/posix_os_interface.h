@@ -161,14 +161,13 @@ public:
   
   static inline void yield_or_spin_a_bit() { assert_always(/*Memory_Semantics::is_using_threads()*/ !On_Tilera); pthread_yield_np(); }
 
-
+  static void pin_thread_to_core(int32_t rank);
 
 private:
   static void* pthread_thread_main(void* param);
   static int32_t       last_rank;  // needs to be accessed atomically (__sync_fetch_and_add)
   static pthread_key_t rank_key;
   static pthread_t     threads[Max_Number_Of_Cores];
-  static void pin_thread_to_core(int32_t rank);
   static void create_threads(const size_t num_of_threads, void (*helper_core_main)());
   
 };

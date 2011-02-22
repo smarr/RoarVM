@@ -25,33 +25,23 @@ pthread_key_t POSIX_OS_Interface::rank_key = 0;
  * threads.
  */
 void POSIX_OS_Interface::pin_thread_to_core(int32_t rank) {
-  if ( On_Apple ) {
-    // NOP
-    // Mac OS X does not support setting explicit affinity to a PU
-    // It only supports expressing cache affinity
-    // and this is only for one process i.e. threads in a process
-    // http://developer.apple.com/ReleaseNotes/Performance/RN-AffinityAPI/index.html
-  }
-  else {
 # if On_Intel_Linux
-    // On Linux, it looks pretty easy:
-    // http://www.linuxjournal.com/article/6799
-    // http://www.ibm.com/developerworks/linux/library/l-affinity.html
-    cpu_set_t affinity_mask;
-    CPU_ZERO(&affinity_mask);
-    CPU_SET(rank, &affinity_mask);
-    
-    #include <sys/syscall.h>
-    pid_t tid = (pid_t) syscall (SYS_gettid);
-    
-    if (sched_setaffinity(tid, sizeof(affinity_mask), &affinity_mask) < 0) {
-      perror("Failed to set affinity");
-      abort();
-    }
-# endif
-  }
+  // On Linux, it looks pretty easy:
+  // http://www.linuxjournal.com/article/6799
+  // http://www.ibm.com/developerworks/linux/library/l-affinity.html
+  cpu_set_t affinity_mask;
+  CPU_ZERO(&affinity_mask);
+  CPU_SET(rank, &affinity_mask);
   
+  #include <sys/syscall.h>
+  pid_t tid = (pid_t) syscall (SYS_gettid);
+  
+  if (sched_setaffinity(tid, sizeof(affinity_mask), &affinity_mask) < 0) {
+    perror("Failed to set affinity");
+    abort();
+  }
   sleep(0); // make sure the OS schedule has a chance to do as we told him
+# endif
 }
 
 
@@ -64,7 +54,7 @@ void* POSIX_OS_Interface::pthread_thread_main(void* param) {
 
   pthread_setspecific(rank_key, (const void*)my_rank);
 
-  pin_thread_to_core(my_rank);
+  OS_Interface::pin_thread_to_core(my_rank);
   
   routine();
   
@@ -111,7 +101,7 @@ void POSIX_OS_Interface::start_threads(void (*helper_core_main)(), char* argv[])
   }
   
   fprintf(stdout, "spawned %d helpers\n", Logical_Core::group_size - 1);
-  pin_thread_to_core(0);
+  OS_Interface::pin_thread_to_core(0);
 }
 
 
