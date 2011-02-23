@@ -6,6 +6,8 @@ echo_usage () {
     echo "Creates a configured Makefile"
     echo
     echo "Basic configuration values:"
+    echo "    --for-distribution  The resulting binaries will use portable optimizations only"
+    echo
     echo "    --use-tilera        Enable usage of Tilera libraries"
     echo "    --opt-workaround    Reduce optimization level for problematic files"
     echo
@@ -28,6 +30,7 @@ echo_usage () {
 
 OPERATING_SYSTEM=`uname`
 USE_TILERA=0
+FOR_DISTRIBUTION=0
 OPT_WORKAROUND=0
 DEBUG=0
 ENFORCE_OPT=0
@@ -44,6 +47,10 @@ SRC_DIR=`dirname $PWD`/src
 while [ $# -gt 0 ]
 do
   case $1 in
+    --for-distribution)
+      FOR_DISTRIBUTION=1
+      shift 1
+    ;;
     --use-tilera)
       USE_TILERA=1
       shift 1
@@ -82,6 +89,11 @@ do
     ;;
   esac
 done
+
+if [ $FOR_DISTRIBUTION -eq 0 ]
+then
+    CONFIG_FLAGS="$CONFIG_FLAGS -march=native -mtune=native"
+fi
 
 if [ $OPT_WORKAROUND -eq 0 ]
 then
