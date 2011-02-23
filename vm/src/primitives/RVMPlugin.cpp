@@ -26,7 +26,7 @@ static const char *moduleName =
 #endif
 ;
 
-static u_int64 cc = OS_Interface::get_cycle_count();             // is threadsafe as long as the sampling primitive is executed on the main core only
+static u_int64 cycle_count_at_last_sample[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes] = { 0 };  // threadsafe
 
 void* primitiveDebugSampleRVM() {
   static int n = 0;
@@ -128,7 +128,10 @@ Oop sample_one_core(int what_to_sample) {
   int* const ms = &(ms_buf[rank_on_threads_or_zero_on_processes]);
 
   int millisecs = The_Squeak_Interpreter()->ioWhicheverMSecs() - (*ms);  (*ms) = (*ms) + millisecs;
-  u_int64 cycles = OS_Interface::get_cycle_count() - cc; cc += cycles;
+
+  const u_int64 current_cycles = OS_Interface::get_cycle_count();
+  const u_int64 cycles = current_cycles - cycle_count_at_last_sample[rank_on_threads_or_zero_on_processes];
+  cycle_count_at_last_sample[rank_on_threads_or_zero_on_processes] = current_cycles;
 
   int s = The_Squeak_Interpreter()->makeArrayStart();
   if (what_to_sample & (1 << SampleValues::millisecs))
@@ -709,7 +712,7 @@ static int primitiveCycleCounter() {
   cycles = (u_int64(microTickCount.hi) << 32LL) |  u_int64(microTickCount.lo);
   
 # else
-  # warning STEFAN: we should make sure that we have here something which is accurate also between cores. We can not pin the interpreter on specific cores on OSX
+  // this value is specifc to a core, it does not reflect a 'global' time.
   asm volatile("rdtsc" : "=A" (cycles));
 # endif
   
