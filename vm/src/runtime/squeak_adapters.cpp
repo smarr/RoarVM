@@ -293,7 +293,7 @@ sqInt includesBehaviorThatOf(sqInt aClass, sqInt aSuperClass) { unimpExt(); retu
 sqInt isArray(sqInt oop) { return Oop::from_bits(oop).isArray(); }
 sqInt isIndexable(sqInt oop) { return Oop::from_bits(oop).isIndexable(); }
 sqInt isIntegerObject(sqInt objectPointer) { return Oop::from_bits(objectPointer).is_int(); }
-sqInt isIntegerValue(sqInt intValue) { return Oop::isIntegerValue(intValue); }
+sqInt isIntegerValue(sqInt intValue) { return Oop::isIntegerValue((oop_int_t)intValue); }
 sqInt isMemberOf(sqInt oop, char *aString) { return Oop::from_bits(oop).isMemberOf(aString); }
 sqInt isPointers(sqInt oop) { return Oop::from_bits(oop).isPointers(); }
 sqInt isWeak(sqInt oop) { return Oop::from_bits(oop).isWeak(); }

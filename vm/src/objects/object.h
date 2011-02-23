@@ -434,9 +434,9 @@ public:
   }
 
 
-  static Oop positive32BitIntegerFor(int32 integerValue);
+  static Oop positive32BitIntegerFor(u_int32 integerValue);
   static Oop   signed32BitIntegerFor(int32 integerValue);
-  static Oop positive64BitIntegerFor(int64 integerValue);
+  static Oop positive64BitIntegerFor(u_int64 integerValue);
   static Oop   signed64BitIntegerFor(int64 integerValue);
 
 

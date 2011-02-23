@@ -48,7 +48,7 @@ public:
   # define GET_CYCLE_COUNT_QUICKLY  OS_Interface::dummy_get_cycle_count
   # define GET_CYCLE_COUNT_QUICKLY_FMT "%ld"
   static inline int dummy_get_cycle_count() { return 0; }
-  static inline int64 get_cycle_count() {
+  static inline u_int64 get_cycle_count() {
     uint64_t result;
     
     if (Dont_Count_Cycles)

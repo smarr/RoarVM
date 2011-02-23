@@ -164,7 +164,7 @@ Oop Object::name_of_class_or_metaclass(bool* is_meta) {
     : cn;
 }
 
-Oop Object::positive32BitIntegerFor(int32 integerValue) {
+Oop Object::positive32BitIntegerFor(u_int32 integerValue) {
   // "Note - integerValue is interpreted as POSITIVE, eg, as the result of Bitmap>at:, or integer>bitAnd:."
   if (integerValue >= 0  &&  Oop::isIntegerValue(integerValue))
     return Oop::from_int(integerValue);
@@ -204,8 +204,9 @@ Oop Object::signed32BitIntegerFor(int32 integerValue) {
 }
 
 
-Oop Object::positive64BitIntegerFor(int64 integerValue) {
+Oop Object::positive64BitIntegerFor(u_int64 integerValue) {
   // "Note - integerValue is interpreted as POSITIVE, eg, as the result of Bitmap>at:, or integer>bitAnd:."
+  if (Oop::isIntegerValue(integerValue))
     return Object::positive32BitIntegerFor(int32(integerValue));
 
   Object_p clpi = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargePositiveInteger);

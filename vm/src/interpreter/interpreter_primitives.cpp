@@ -1013,7 +1013,7 @@ void Squeak_Interpreter::primitiveGetNextEvent() {
   if (!successFlag) return;
 
   for (u_int32 i = 2;  i < sizeof(evtBuf)/sizeof(evtBuf[0]);  ++i) {
-    int v = evtBuf[i];
+    oop_int_t v = evtBuf[i];
     if (Oop::isIntegerValue(v))
       ao->storeInteger(i, v);
     else {
