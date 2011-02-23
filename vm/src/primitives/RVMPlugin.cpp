@@ -716,9 +716,7 @@ static int primitiveCycleCounter() {
   asm volatile("rdtsc" : "=A" (cycles));
 # endif
   
-  int mask = u_int32(~Tag_Mask) >> u_int32(Tag_Size + 1) /*must be positive*/;
-  int short_cycles = (int) cycles & mask; // avoid weird time overheads for big ints
-  The_Squeak_Interpreter()->popThenPush(1, Oop::from_int(short_cycles)); 
+  The_Squeak_Interpreter()->popThenPush(1, Object::positive64BitIntegerFor(cycles)); 
   return 0;
 }
   

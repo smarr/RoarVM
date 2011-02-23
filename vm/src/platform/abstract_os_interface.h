@@ -31,7 +31,7 @@ public:
   static inline void sim_end_tracing()  { fatal(); }
   
   typedef int  get_cycle_count_quickly_t;
-  static inline int64 get_cycle_count() { fatal(); return 0; }
+  static inline u_int64 get_cycle_count() { fatal(); return 0; }
   
   typedef int Mutex;
   static inline void mutex_init(Mutex*, void*) { fatal(); }

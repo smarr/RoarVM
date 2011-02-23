@@ -49,7 +49,7 @@ public:
     # define GET_CYCLE_COUNT_QUICKLY  get_cycle_count_low
     # define GET_CYCLE_COUNT_QUICKLY_FMT "%ld"
   # endif
-  static inline int64 get_cycle_count() { return ::get_cycle_count(); }
+  static inline u_int64 get_cycle_count() { return ::get_cycle_count(); }
 
   
   typedef ilibMutex Mutex;
