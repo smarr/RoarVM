@@ -93,7 +93,8 @@ public:
   \
   template(bool,bool,yield_requested, false) \
   template(int32,int32,process_object_layout_timestamp, 1) \
-  template(int32,int32,num_chips, 1)
+  template(int32,int32,num_chips, 1) \
+  template(bool,bool,use_cpu_ms, false)
 
 
 
@@ -119,8 +120,7 @@ public:
   \
   template(External_Primitive_Table*, void*,externalPrimitiveTable, new External_Primitive_Table()) \
   \
-  template(int, int,dnu_kvetch_count, 0) \
-  template(bool,bool,use_cpu_ms, false)
+  template(int, int,dnu_kvetch_count, 0)
   
 
 # define DECL(REAL_T,BROADCAST_T,name,x) REAL_T _ ## name;

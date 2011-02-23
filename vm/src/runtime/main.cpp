@@ -117,7 +117,8 @@ template("-replicate_methods",  Memory_System::replicate_methods = true, "replic
 template("-use_checkpoint",     The_Squeak_Interpreter()->set_use_checkpoint(true), "using checkpoint") \
 template("-replicate_OT",       Multicore_Object_Table::replicate = true, "let hardware replicate the object table") \
 template("-print_gc",           Abstract_Mark_Sweep_Collector::print_gc = true, "Print GC") \
-template("-version",            print_version_info(), "Print full version information")
+template("-version",            print_version_info(), "Print full version information") \
+template("-use_cpu_ms",         The_Squeak_Interpreter()->set_use_cpu_ms(true), "use CPU time instead of elapsed time")
 
 
 static void print_version_info() {
