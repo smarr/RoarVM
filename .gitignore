@@ -70,3 +70,12 @@ Compiled/
 /stacksrc/vm/gcc3x-interp.c
 /stacksrc/vm/interp.c
 /stacksrc/vm/interp.h
+/image/BaseExtensionsForVMMaker.1.cs
+/image/NecessaryImageChangesForCogToWork.1.cs
+/image/sanity-check
+/image/Translated Primitives.st
+/image/VM Simulation Workspace.text
+/image/VMMaker-Squeak4.1.changes
+/image/VMMaker-Squeak4.1.image
+/image/Workspace.text
+/image/Workspace2.text

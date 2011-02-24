@@ -44,7 +44,7 @@ static unsigned long heartbeats;
 
 #define microToMilliseconds(usecs) ((((usecs) - utcStartMicroseconds) \
 									/ MicrosecondsPerMillisecond) \
-									& 0x3FFFFFFF)
+									& MillisecondClockMask)
 
 #define LOG_CLOCK 1
 
@@ -301,6 +301,8 @@ ioInitTime(void)
 static void
 heartbeat()
 {
+	int saved_errno = errno;
+
 	updateMicrosecondClock();
 	if (get64(frequencyMeasureStart) == 0) {
 		set64(frequencyMeasureStart,utcMicrosecondClock);
@@ -324,6 +326,8 @@ heartbeat()
 	checkHighPriorityTickees(utcMicrosecondClock);
 #endif
 	forceInterruptCheckFromHeartbeat();
+
+	errno = saved_errno;
 }
 
 #if ITIMER_HEARTBEAT
@@ -469,8 +473,8 @@ static int handling_heartbeat = 0;
 static void
 heartbeat_handler(int sig, struct siginfo *sig_info, void *context)
 {
-	if (!ioOSThreadsEqual(ioCurrentOSThread(),getVMThread())) {
-		pthread_kill(getVMThread(),sig);
+	if (!ioOSThreadsEqual(ioCurrentOSThread(),getVMOSThread())) {
+		pthread_kill(getVMOSThread(),sig);
 		return;
 	}
 
@@ -510,10 +514,13 @@ static stack_t signal_stack;
 void
 ioInitHeartbeat()
 {
+extern sqInt suppressHeartbeatFlag;
 	int er;
 	struct timespec halfAMo;
 	struct sigaction heartbeat_handler_action, ticker_handler_action;
 	struct itimerval pulse;
+
+	if (suppressHeartbeatFlag) return;
 
 #if NEED_SIGALTSTACK
 	signal_stack.ss_flags = 0;
@@ -553,14 +560,10 @@ ioInitHeartbeat()
 
 	heartbeat_handler_action.sa_sigaction = heartbeat_handler;
 	/* N.B. We _do not_ include SA_NODEFER to specifically prevent reentrancy
-	 * during the heartbeat.
+	 * during the heartbeat.  We *must* include SA_RESTART to avoid breaking
+	 * lots of external code (e.g. the mysql odbc connect).
 	 */
-#if 0
 	heartbeat_handler_action.sa_flags = SA_RESTART | SA_ONSTACK;
-#else
-	/* restarting increases the chance of deadlock? */
-	heartbeat_handler_action.sa_flags = SA_ONSTACK;
-#endif
 	sigemptyset(&heartbeat_handler_action.sa_mask);
 	if (sigaction(ITIMER_SIGNAL, &heartbeat_handler_action, 0)) {
 		perror("ioInitHeartbeat sigaction");
