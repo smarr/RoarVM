@@ -79,7 +79,7 @@ error(char *msg)
 	
 	printf("\n%s\n\n", msg);
 	
-	if (ioOSThreadsEqual(ioCurrentOSThread(),getVMThread())) {
+	if (ioOSThreadsEqual(ioCurrentOSThread(),getVMOSThread())) {
 		if (!printingStack) {
 			printingStack = true;
 			printf("\n\nSmalltalk stack dump:\n");
