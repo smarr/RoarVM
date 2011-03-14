@@ -1,0 +1,113 @@
+#!/bin/sh
+
+# Last edited: 2010-04-10 19:38:50 by piumarta on ubuntu
+
+RELEASE_TAG=""
+
+help() {
+    cat <<EOF
+Usage: $0 [options...]
+Options include:
+  --help                print this message and then exit
+  --src=<directory>     look for generated interpreter sources in <directory>
+  --prefix=<directory>  install into <prefix>/{bin,lib,man}
+  --CFLAGS=<flags>      override default compiler flags
+  --without-<plugin>    do not build the named plugin
+  --without-gl          disable everything that depends on OpenGL
+  --without-SUGAR       disable support for SUGAR environment
+Notes:
+1. By default the CFLAGS will be set to create optimised binaries.  If you are
+   debugging the VM you probably want to use '--CFLAGS=-g' when invoking this
+   script.
+2. --CFLAGS and -without-* settings will be preserved in subsequent invocations
+   of CMake, including those driven implicitly by changed dependencies.  If you
+   need to turn off a seting (to re-enable a plugin or restore the default
+   CFLAGS) just give the relevant options with empty arguments, like this:
+     $0 --CFLAGS= --without-UUIDPlugin=
+3. Wizards can set any CMake variable from the command line with the option:
+     --<CMakeVariableName>=<value>
+4. In case it isn't already obvious, this is NOT the autotools 'configure'
+   script.  It is named so that 'configure; make' works in the expected way.
+5. Bug reports, bug fixes and suggestions for improvement should be sent to the
+   author (Ian Piumarta) at: <firstName> (at) <lastName> (dot) com
+EOF
+    stop=true
+}
+
+config="`dirname \"$0\"`"
+unix="`dirname \"${config}\"`"
+guess=`"${config}"/config.guess`
+host=`"${config}"/config.sub ${guess}`
+src="${unix}/src"
+
+stop=false
+cflags=""
+
+error () {
+    echo "$*" >&2
+}
+
+dump () {
+    echo "VM_VERSION = ${VM_VERSION}"
+    echo "unix       = ${unix}"
+    echo "config     = ${config}"
+    echo "host       = ${host}"
+    echo "src        = ${src}"
+    echo "args       = ${args}"
+    stop=true
+}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+	--help)			help; exit 0;;
+	--debug-configure)	dump;;
+	--src=*)		rel="`echo \"$1\" | sed 's/\-\-src=//'`"
+				if test -d "${rel}"; then
+				    src="`(cd \"${rel}\";  pwd)`"
+				else
+				    src="${rel}"
+				fi
+				args="${args} -DOPT--src=${src}";;
+	--CFLAGS=*)		cflags="`echo \"$1\" | sed 's/\-\-CFLAGS=//'`";;
+	-CFLAGS=*)		cflags="`echo \"$1\" | sed 's/\-CFLAGS=//'`";;
+	--*=*)			args="${args} -DOPT${1}";;
+	--*)			args="${args} -DOPT${1}=1";;
+	-*)			args="${args} ${1}";;
+	*)			error "unknown option: $1";;
+    esac
+    shift
+done
+
+interp_h="${src}/vm/interp.h"
+
+if test ! -f "${interp_h}"; then
+    echo "problem locating generated source file: ${interp_h}"
+    echo "use --src=<directory> to locate sources relative to ${unix}"
+    echo "current value is: --src=\"${src}\""
+    exit 1
+fi
+
+vmmversion="`tr '\015 ' '\012\012' < \"${interp_h}\" | sed '1,/VMMaker/d;q'`"
+
+if test -d "${unix}/.svn"; then
+    svnversion=`svn info "${unix}/ChangeLog" | fgrep Revision: | awk '{print $2}'`
+    echo "${svnversion}" > "${unix}/svnversion"
+else
+    svnversion=`cat "${unix}/svnversion"`
+fi
+
+VM_VERSION="${vmmversion}-${svnversion}${RELEASE_TAG}"
+PLATFORM_SOURCE_VERSION="${svnversion}"
+
+if ${stop}; then
+    exit 1
+fi
+
+echo "-- Configuring squeak ${VM_VERSION} for ${host}"
+echo "-- Using source directory ${src}"
+
+if test -n "${cflags}"; then
+    cmake "${unix}" -DVM_HOST="${host}" -DVM_VERSION="${VM_VERSION}" -DPLATFORM_SOURCE_VERSION="${PLATFORM_SOURCE_VERSION}" -DOPT--CMAKE_C_FLAGS="${cflags}" ${args}
+else
+    cmake "${unix}" -DVM_HOST="${host}" -DVM_VERSION="${VM_VERSION}" -DPLATFORM_SOURCE_VERSION="${PLATFORM_SOURCE_VERSION}"                                  ${args}
+fi

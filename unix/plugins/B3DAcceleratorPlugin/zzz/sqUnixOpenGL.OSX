@@ -1,0 +1,237 @@
+/* sqUnixOpenGLOSX.c -- accelerated 3D rendering on Mac OS X using CoreGL -*- C -*-
+ *
+ * Author: Ian.Piumarta@inria.fr
+ * 
+ *   Copyright (C) 1996-2002 Ian Piumarta and other authors/contributors
+ *     as listed elsewhere in this file.
+ *   All rights reserved.
+ *   
+ *     You are NOT ALLOWED to distribute modified versions of this file
+ *     under its original name.  If you want to modify it and then make
+ *     your modifications available publicly, rename the file first.
+ * 
+ *   This file is part of Unix Squeak.
+ * 
+ *   Permission is hereby granted, free of charge, to any person obtaining a copy
+ *   of this software and associated documentation files (the "Software"), to deal
+ *   in the Software without restriction, including without limitation the rights
+ *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *   copies of the Software, and to permit persons to whom the Software is
+ *   furnished to do so, subject to the following conditions:
+ * 
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
+ * 
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *   SOFTWARE.
+ * 
+ * Last edited: 2009-08-19 04:40:14 by piumarta on emilia-2.local
+ */
+
+#include <sys/types.h>
+#include "sqVirtualMachine.h"
+#include "sqPlatformSpecific.h"
+#include "B3DAcceleratorPlugin.h"
+
+#if defined (B3DX_GL)
+
+#include "sqUnixOpenGL.h"
+#include "sqOpenGLRenderer.h"
+
+#include <stdio.h>
+
+extern void *ioGLcreateView(int x, int y, int w, int h, int flags);
+extern void *ioGLcreateContext(void *drawable);
+extern int   ioGLsetCurrentContext(void *ctx);
+extern int   ioGLdestroyContext(void *ctx);
+extern int   ioGLdestroyView(void *drawable);
+extern int   ioGLflushBuffer(void *drawable, void *ctx);
+
+int verboseLevel= 1;
+
+extern struct VirtualMachine *interpreterProxy;
+
+static glRenderer *current= 0;
+static glRenderer  renderers[MAX_RENDERER];
+
+static float blackLight[4]= { 0.0f, 0.0f, 0.0f, 0.0f };
+
+
+#define TRACE() fprintf(stderr, "--- %s\n", __PRETTY_FUNCTION__)
+
+int glInitialize(void)
+{
+  int i;
+  TRACE();
+  for (i= 0;  i < MAX_RENDERER;  ++i)
+    renderers[i].used= 0;
+  return 1;
+}
+
+
+int glShutdown(void) { TRACE(); }
+
+
+int glMakeCurrentRenderer(glRenderer *renderer)
+{
+  GLboolean ok;
+  GLint err;
+
+  //debugf("glMakeCurrentRenderer(%p)\n", renderer);
+
+  if (current == renderer)
+    return 1;
+  if (renderer && ((!renderer->used) || (!renderer->context)))
+    return 0;
+  ok= ioGLsetCurrentContext(renderer ? renderer->context : 0);
+  if ((err= glGetError()) != GL_NO_ERROR)
+    fprintf(stderr, "glMakeCurrentRenderer: %s\n", CGLErrorString(err));
+  if (!ok)
+    {
+      fprintf(stderr, "glMakeCurrentRenderer: glSetCurrentContext failed\n");
+      return 0;
+    }
+  current= renderer;
+  return 1;
+}
+
+
+int glCreateRendererFlags(int x, int y, int w, int h, int flags)
+{
+  void       *drawable= 0;
+  void       *context= 0;
+  glRenderer *renderer= 0;
+  int i;
+
+  //printf("glCreateRendererFlags(%d, %d, %d, %d, 0x%x)\n", x, y, w, h, flags);
+  for (i= 0;  i < MAX_RENDERER;  ++i)
+    if (!renderers[i].used)
+      break;
+  if (i == MAX_RENDERER)
+    {
+      fprintf(stderr, "glCreateRenderer: too many renderers\n");
+      return -1;
+    }
+  renderer= renderers+i;
+  //printf("  renderer = %p handle %d\n", renderer, i);
+  
+  drawable= ioGLcreateView(x, y, w, h, flags);
+  //printf("  drawable = %p\n", drawable);
+  if (!drawable)
+    return -1;
+  context= ioGLcreateContext(drawable);
+  //printf("  context = %p\n", context);
+  if (!context)
+    {
+      ioGLdestroyView(drawable);
+      return -1;
+    }
+  renderer->context= context;
+  renderer->drawable= drawable;
+  renderer->used= 1;
+#if 0
+  renderer->finished = 0;
+#endif
+  renderer->bufferRect[0] = x;
+  renderer->bufferRect[1] = y;
+  renderer->bufferRect[2] = w;
+  renderer->bufferRect[3] = h;
+  glMakeCurrentRenderer(renderer);
+  //debugf("    vendor:     %s\n", glGetString(GL_VENDOR));
+  //debugf("    renderer:   %s\n", glGetString(GL_RENDERER));
+  //debugf("    version:    %s\n", glGetString(GL_VERSION));
+  //debugf("    extensions: %s\n", glGetString(GL_EXTENSIONS));
+  ERROR_CHECK;
+  //debugf("   renderer created, handle = %d\n", i);
+  /* setup user context */
+  glDisable(GL_LIGHTING);
+  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_BLEND);
+  glDisable(GL_ALPHA_TEST);
+  glEnable(GL_DITHER);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_NORMALIZE);
+  glDepthFunc(GL_LEQUAL);
+  glClearDepth(1.0);
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+  glShadeModel(GL_SMOOTH);
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, blackLight);
+  ERROR_CHECK;
+  return i;
+}
+
+
+glRenderer *glRendererFromHandle(int handle)
+{
+  if ((handle < 0) || (handle >= MAX_RENDERER))
+    {
+      fprintf(stderr, "GL: illegal handle: %d\n", handle);
+      return 0;
+    }
+  return renderers+0;
+}
+
+
+int glDestroyRenderer(int handle)
+{
+  glRenderer *renderer= glRendererFromHandle(handle);
+  TRACE();
+  if (!renderer)
+    return 1; /* already destroyed */
+  if (!glMakeCurrentRenderer(0))
+    return 0;
+  ioGLdestroyContext(renderer->context);
+  ioGLdestroyView(renderer->drawable);
+  renderer->context= 0;
+  renderer->used= 0;
+  return 1;
+}
+
+
+int glIsOverlayRenderer(int handle)
+{
+  TRACE();
+  return 1;
+}
+
+
+int glSwapBuffers(glRenderer *renderer)
+{
+  ioGLflushBuffer(renderer->drawable, renderer->context);
+}
+
+
+int glSetBufferRect(int handle, int x, int y, int w, int h)
+{
+  glRenderer *renderer= 0;
+  printf("glSetBufferRect(%d, %d, %d, %d, %d)\n", handle, x, y, w, h);
+  renderer= glRendererFromHandle(handle);
+
+  if (!renderer || !glMakeCurrentRenderer(renderer))
+    return 0;
+  if (w < 1 || h < 1)
+    return 0;
+  renderer->bufferRect[0]= x;
+  renderer->bufferRect[1]= y;
+  renderer->bufferRect[2]= w;
+  renderer->bufferRect[3]= h;
+
+  ioGLsetBufferRect(renderer->context);
+
+  return 1;
+}
+
+
+int glSetVerboseLevel(int level) { TRACE(); /*exit(1);*/ }
+
+int glGetIntPropertyOS(int handle, int prop) { TRACE(); exit(1); }
+
+int glSetIntPropertyOS(int handle, int prop, int value) { TRACE(); exit(1); }
+
+
+#endif /* defined(B3DX_GL) */

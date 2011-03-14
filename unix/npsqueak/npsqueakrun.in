@@ -1,0 +1,93 @@
+#! /bin/bash
+
+# File:        npsqueakrun
+# Author:      Bert Freudenberg
+# Description: Script to start the Squeak VM binary 
+#              from the Browser Plugin (npsqueak.so)
+#              If necessary, sets up $HOME/.npsqueak first.
+# Arguments:
+#              $0    = @prefix@/@imgdir@/npsqueakrun
+#              $1,$2 = -display :0.0
+#              $3-$5 = -browserPipes 9 12
+#              $6    = /path/to/some.image
+#              $7    = ''
+#              $8,$9 = key1 value1    (tags as given in the html page)
+#              etc.  = key2 value2
+
+VM=@prefix@/@bindir@/squeak
+VMOPTIONS=
+LOGFILE=/tmp/npsqueak.log
+
+realpath () {
+    path="$1"
+    while test -L "${path}"; do
+	dir=`dirname "${path}"`
+	dir=`cd "${dir}" && pwd -P`
+	path=`basename "${path}"`
+	path=`ls -l "${dir}/${path}" | sed 's,.* -> ,,'`
+	if test `expr "${path}" : "/"` -eq 0; then
+	    path="${dir}/${path}"
+	fi
+    done
+    if test -d "${path}"; then
+	(cd "${path}" && pwd -P)
+    else
+	dir=`dirname "${path}"`
+	base=`basename "${path}"`
+	(cd "${dir}" && echo "`pwd -P`/${base}")
+    fi
+}
+
+pdebug()
+{
+    if [ ! -z $NPSQUEAK_DEBUG ]; then 
+	echo -e "npsqueak: $@" >> $LOGFILE 
+    fi
+}
+
+perror()
+{
+    if [ ! -z $NPSQUEAK_DEBUG ]; then 
+	echo -e "npsqueak error: $@" | tee -a $LOGFILE >&2 
+    else
+	echo -e "npsqueak error: $@"  >&2 
+    fi
+}
+
+ensuredir()
+{
+    if [ ! -d "${1}" ] ; then
+	if mkdir "${1}" ; then
+	    pdebug "Created ${1}"
+	    if [ -n "${2}" ] ; then
+		chmod "${2}" "${1}"
+	    fi
+	else
+	    perror "Could not create ${1}!"
+	fi
+    fi
+}
+
+parameter_to_array()
+{
+    i=0
+    for p in "$@"; do
+	i=$(( $i + 1 ))
+	parameter[i]=$p
+    done
+}
+
+
+[ -z "$SQUEAK_USERDIR" ] && export SQUEAK_USERDIR="$HOME/Squeak"
+[ -z "$SQUEAK_SECUREDIR" ] && export SQUEAK_SECUREDIR="$HOME/.npsqueak/secure"
+
+ensuredir "$SQUEAK_USERDIR" 
+ensuredir "$SQUEAK_SECUREDIR" 700
+
+# resolve image symlink so Smalltalk imagePath is correct
+IMAGE="${6}"
+parameter_to_array "$@"
+parameter[6]=`realpath "$IMAGE"`
+
+$VM $VMOPTIONS "${parameter[@]}"
+

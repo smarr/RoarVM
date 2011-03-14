@@ -1,0 +1,1 @@
+Please see docs/compiling.html for a detailed description of the build process.

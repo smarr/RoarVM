@@ -1,0 +1,2268 @@
+2011-03-14  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/SerialPlugin/sqUnixSerial.c (portOpenFailed): Ensure
+	descriptor closed properly if failure during port initialisation.
+	Never allow more than MAX_SERIAL_PORTS to be open at once.
+
+2011-02-16  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/UUIDPlugin/sqUnixUUID.c (sqUUIDInit): Fail plugin
+	initialisation if using uuid_generate() causes SIGSEGV.
+
+2011-01-29  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/UUIDPlugin/sqUnixUUID.c (MakeUUID): NetBSD and FreeBSD
+	use uuidgen(), others use uuid_generate().
+
+2011-01-27  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* cmake/Plugins.cmake: Append ${plugin}_extra_sources to
+	automatically-generated plugin source list.
+
+	* plugins/Mpeg3Plugin/config.cmake: Disable pthreads unconditionally.
+	Add mpeg library files to plugin_extra_sources.
+
+2011-01-24  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/sqUnixMain.c (sqGetFilenameFromString): Handle relative symlinks properly.
+
+2011-01-23  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/UUIDPlugin/sqUnixUUID.c (MakeUUID): NetBSD has
+	uuidgen() not uuid_generate().
+
+	* vm-display-X11/config.cmake: Use configured variable
+	X11_Xrender_LIB in link libraries list.
+
+	* plugins/FloatMathPlugin/config.cmake: Set LIBM_CFLAGS to disable GNUCC optimisation.
+
+	* plugins/FloatMathPlugin/build.cmake: Set CFLAGS to LIBM_CFLAGS for this target only.
+
+2010-12-31  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/FloatMathPlugin/config.cmake: Set little-endian flag
+	explicitly.  Disable GCC optimisations.
+
+2010-08-06  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/config.cmake: Manually check for Xrender library.
+	Set HAVE_LIBXRENDER instead of HAVE_LIB_XRENDER.
+
+2010-05-13  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/CameraPlugin/sqCamera.c: Added.
+
+	* npsqueak/npsqueakrun.in (realpath): prepend dir to link target
+	iff target is relative.
+
+	* cmake/squeak.in (wrapper): Don't echo the environment.
+
+	* CMakeLists.txt: Add subdir npsqueak.
+
+	* npsqueak.c: Cosmetic improvements to error messages.
+
+	* npsqueak/README.npsqueak: Updated for CMake.
+
+	* npsqueak/npsqueakrun.in: New version from Bert.
+
+	* npsqueak/npsqueakregister.in (NPSQUEAK_SO): Construct from
+	substituted cmake variables.
+
+	* cmake/squeak.in (realpath): prepend dir to link target iff
+	target is relative.  Only echo environment if SQUEAK_DEBUG is
+	nonzero.
+
+2010-05-11  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/sqUnixX11.c: Add option -closequit and
+	environment variable SQUEAK_CLOSEQUIT.
+
+2010-04-13  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* doc/RELEASE_NOTES_4.0.3.2202: Release 4.0.3.2202.
+
+	* vm-sound-pulse/sqUnixSoundPulseAudio.c: New version from Derek
+	O'Connell as used in Scratch.  Fixes bad behaviour on Karmic.
+
+2010-04-12  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* src: UUIDPlugin is now internal.
+
+	* Makefile: Use cmake/configure.
+
+2010-04-11  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* doc/RELEASE_NOTES_4.0.3.2196: Release 4.0.3.2196.
+
+	* plugins/MIDIPlugin/config.cmake: Enable ALSA MIDI support if
+	alsa/asoundlib.h and linasound are available.
+
+	* plugins/MIDIPlugin/sqUnixMIDI.c: Include "debug.h".
+
+	* plugins/MIDIPlugin/sqUnixMIDIALSA.inc: Change invocations of
+	debugf(x) to pass a single argument.
+
+	* plugins/SqueakFFIPrims/config.cmake: Add sqManualSurface.c to
+	plugin sources list.
+
+2010-04-10  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* CMakeLists.txt: Change VM_HOST_CPU from x86_64 to i386 if
+	CMAKE_ARCH_FLAGS is -m32.
+
+	* cmake/squeak.sh.in (PATH): Find path to binary using pwd -p if
+	it appears to be available.
+
+	* cmake/squeak.in: Attempt to fix broken locales by copying LANG
+	to LC_ALL if the latter is unset.
+
+	* cmake/configure: Pass SVN revision of ChangeLog to cmake as
+	PLATFORM_SOURCE_VERSION.
+
+	* vm/config.cmake: Define PLATFORM_SOURCE_VERSION in config.h.
+
+2010-04-09  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/sqUnixX11.c (getSelectionChunk): Don't beep when
+	the selection owner refuses to transfer data.
+
+	* vm/sqUnixExternalPrims.c (ioLoadModule): Try loading a plugin
+	from the name without additional prefix/suffix to permit
+	fully-specified names or paths.
+
+2010-04-06  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/SqueakFFIPrims/config.cmake: Use correct asm for -m32 on x86_64.
+
+2010-04-02  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/FT2Plugin/config.cmake: Look for package freetype2
+	headers & libs, or for [freetype2]/freetype.h and libs freetype &
+	z.
+
+2010-04-01  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/build.cmake: Always generate local interp.c with CR
+	translated to LF.  Gnuify from local interp.c.
+
+	* plugins/SqueakFFIPrims/config.cmake: Copy CMAKE_C_COMPILER and
+	CMAKE_C_FLAGS to CMAKE_ASM_COMPILER and CMAKE_ASM_FLAGS when using
+	gcc.
+
+	* plugins/HostWindowPlugin/sqUnixHostWindowPlugin.c (ioShowDisplayOnWindow): Updated
+	to new HostWindowPlugin.h for 64-bit cleanliness.
+
+	* vm/SqSound.h (struct SqSound): Updated to new sqSound.h for 64-bit cleanliness.
+	* plugins/SoundPlugin/sqUnixSound.c: idem.
+	* vm-sound-Sun/sqUnixSoundSun.c: idem.
+	* vm-sound-OSS/sqUnixSoundOSS.c: idem.
+	* vm-sound-MacOSX/sqUnixSoundMacOSX.c: idem.
+	* vm-sound-NAS/sqUnixSoundNAS.c: idem.
+	* vm-sound-ALSA/sqUnixSoundALSA.c: idem.
+	* vm-sound-null/sqUnixSoundNull.c: idem.
+	* vm-sound-custom/sqUnixCustomSound.c: idem.
+
+	* vm/sqUnixMain.c (ioMicroSeconds, sqUnixUtcWithOffset): Added.
+
+	* CMakeLists.txt: Prepend CMAKE_ARCH_FLAGS to CMAKE_C_FLAGS if defined.
+	Define ioMicroSecondClock and ioUtcWithOffset.
+
+2009-12-17  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-sound-ALSA/sqUnixSoundALSA.c (sound_AvailableSpace): Update
+	available space info before reading state.
+
+	* cmake/squeak.sh.in (vm): Fix typo: xkdialog -> kdialog.
+
+2009-10-26  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/build.cmake: gnu-interp.c depends on generated interp.c.
+
+2009-10-20  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/sqUnixMemory.c (uxGrowMemoryBy): Reject request to increase
+	memory by ludicrous amounts.
+
+2009-09-27  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* cmake/configure (cflags): Change '--DOPT--src=' to '-DOPT--src='.
+
+2009-09-18  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/SerialPlugin/sqUnixSerial.c (serialPortCloseByName):
+	Invalidate serial port name after closing.
+
+2009-09-18    <piumarta@ubuntu.piumarta.com>
+
+	* cmake/squeak.in: Resolve symlinks in bindir.  Fix missing
+	'error' function.
+
+2009-09-17    <piumarta@ubuntu.piumarta.com>
+
+	* cmake/Plugins.cmake: Set ${plugin}_disabled for each plugin,
+	recording whether the plugin is to be built.
+
+	* vm/build.cmake: Set useoss according to vm-sound-OSS_disabled.
+
+	* cmake/config.in: Substitute [useoss] when configuring.
+
+	* cmake/squeak.in: Communicate with the VM via environment.  Don't
+	attempt to user padsp wrapper unless vm-sound-OSS was built.
+
+	* vm/config.cmake: Configure interp as "gnu-interp" if compiler is
+	GCC, otherwise "interp".
+
+	* vm/build.cmake: squeakvm depends on bld/${interp}.c.  Implicitly
+	build bld/gnu-interp.c from src/vm/interp.c using gnuify.
+	Implicitly build bld/interp.c by copying src/vm/interp.c.
+
+	* cmake/gnuify: Try gnuify.awk with gawk then awk then cp.
+
+	* cmake/gnuify.awk: Copied from old config/gnuify.
+
+	* cmake/configure (svnversion): Quote unix/.svn to permit spaces
+	in pathnames.
+
+2009-09-16  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* doc/RELEASE_NOTES_3.11.3.2135: Release 3.11.3.2135.
+
+2009-09-16    <piumarta@ubuntu.piumarta.com>
+
+	* cmake/configure: Read svnversion from unix/svnversion if not
+	building from a repo, otherwise generate via svn info and update
+	unix/svnversion.
+
+	* src/vm/interp.h: Defines VMMAKER_VERSION as per VMM-138.
+
+2009-09-16  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* cmake/configure: Properly convey --src --CFLAGS values to cmake.
+
+2009-09-14    <piumarta@ubuntu.piumarta.com>
+
+	* vm-sound-pulse: Pulse Audio driver added, thanks to Derek
+	O'Connell.
+
+	* vm-sound-pulse/sqUnixSoundPulseAudio.c: Driver interface
+	structure is called "pulse".
+
+	* vm-sound-pulse/config.cmake: Require libpulse-simple rather than
+	libpulse.
+
+	* vm/sqUnixMain.c (moduleDescriptions): Add vm-sound-pulse to list
+	of auto-loaded sound drivers.
+
+2009-09-10    <piumarta@ubuntu.piumarta.com>
+
+	* plugins/SqueakFFIPrims/x86-sysv-asm.S (ffiCallAddressOf): Pop a
+	float return value off the FPU stack, even though we don't know
+	there's anything there to pop nor whether we own it if there is.
+
+2009-09-08  <piumarta@ubuntu.piumarta.com>
+
+	* plugins/ClipboardExtendedPlugin/config.cmake: Added: disable
+	plugin if X11 not found.
+
+2009-09-02    <piumarta@ubuntu.piumarta.com>
+
+	* plugins/FileCopyPlugin/sqUnixFileCopyPlugin.c (copy): Repeat
+	read()/write() as required by EINTR or partial transfer.
+
+	* plugins/SecurityPlugin/sqUnixSecurity.c (isAccessiblePathName):
+	Explicitly ignore the result of realpath();
+
+	* vm-display-X11/sqUnixX11.c (xError): Reconile format conversions
+	and argument types in printf().
+
+	* vm-display-X11/sqUnixX11.c (openXDisplay): Explicitly ignore the
+	result of write().
+
+	* vm/sqUnixMain.c (pathCopyAbs): Explicitly ignore the result of
+	getcwd().
+
+2009-08-31    <piumarta@ubuntu.piumarta.com>
+
+	* plugins/B3DAcceleratorPlugin/config.cmake: Don't look for gl.h
+	unless some kind of GL was already found.
+
+2009-08-31  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/SqueakFFIPrims/config.cmake: Compile .S using gcc if
+	possible.
+
+	* vm/sqUnixExternalPrims.c: Include limits.h instead of
+	sys/param.h to get PATH_MAX.
+
+2009-08-31    <piumarta@ubuntu.piumarta.com>
+
+	* vm/config.cmake: Disable OpenGL and AGL if --without-gl.
+
+	* plugins/B3DAcceleratorPlugin/config.cmake: Disable plugin if
+	neither OPENGL nor AGL are available.
+
+	* cmake/configure (Usage): Document --without-gl and
+	--without-SUGAR in help message.
+
+	* vm/config.cmake: Configure SUGAR as 1 unless --without-SUGAR.
+
+	* plugins/SqueakFFIPrims/config.cmake: Correctly detect arch and
+	abi.  Enable ASM language.
+
+2009-08-31  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* src/plugins/UnixOSProcessPlugin: Updated to version 20.
+
+2009-08-30    <piumarta@ubuntu.piumarta.com>
+
+	* vm/sqUnixMain.c (main): squeakPlugin path defaults to VM
+	executable directory.
+
+	* plugins/SqueakFFIPrims/config.cmake: Explicitly include
+	generated source in plugin_sources.
+
+	* vm/sqUnixExternalPrims.c (ioLoadModule): squeakPlugins can
+	contain ':'-separated paths.  Distinguish module and library
+	prefix and suffix.  Try to load a module from each squeakPlugins
+	path with module prefix/suffix, then try dlopen() with no explicit
+	path and platoform's library prefix/suffix.
+
+	* vm/config.cmake: Configure {MODULE,LIBRARY}_{PREFIX,SUFFIX}.
+	Change default module prefix to "so.", suffix to "".
+
+	* vm/sqUnixMain.c (main): Default plugin location is VM directory.
+
+2009-08-27  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* cmake/squeak.in: Path and text encodings are UTF-8 unless
+	overridden by command-line options.
+
+	* cmake/configure (VM_VERSION): Generate automatically from
+	VMMaker version and SVN revision.  Remove SQ_VERSION.
+
+	* vm/config.cmake: Extract major.minor.patch-release from
+	version.
+
+	* CMakeLists.txt: Remove references to SQ_VERSION.
+
+2009-08-27    <piumarta@ubuntu.piumarta.com>
+
+	* vm/build.cmake: Install squeak.sh.
+
+	* cmake/squeak.in: Deal with plugin path and pulseaudio; move menu
+	cruft elsewhere.
+
+	* cmake/squeak.sh.in: Added for launching from somewhere that
+	doesn't have a prompt.
+
+2009-08-26  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/Mpeg3Plugin/config.cmake: Added.
+
+	* CMakeLists.txt: Print C flags while configuring.
+
+	* cmake/Plugins.cmake: Recognise --without-PluginName for all
+	plugins.
+
+	* src: Regenerate from Balloon3D-Plugins-ar.4.mcz
+	DBus-Plugin-bf.32.mcz GStreamer-Plugins-JMM.16.mcz
+	Kedama-Plugins-yo.1.mcz Rome-Plugin-yo.39.mcz
+	OSProcessPlugin-dtl.16.mcz
+	VMConstruction-Plugins-AioPlugin-dtl.9.mcz
+	VMConstruction-Plugins-XDisplayControlPlugin-dtl.7.mcz
+	VMMaker-dtl.137.mcz
+
+2009-08-26    <piumarta@ubuntu.piumarta.com>
+
+	* vm-display-X11/sqUnixX11.c (x2sqModifier): Do not map Caps Lock
+	to shift modifier.
+
+2009-08-26  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/OggPlugin/config.cmake: Do not build OggPlugin on MacOS
+	X due to broken headers in the framework.
+
+	* plugins/SqueakFFIPrims/config.cmake: Add missing argument when
+	requiring libffi.
+
+2009-08-26    <piumarta@netbsd.piumarta.com>
+
+	* vm-sound-Sun/config.cmake: Require stropts.h and Solaris OS.
+
+	* plugins/UUIDPlugin/config.cmake: Find libuuid but don't require it.
+
+2009-08-26    <piumarta@solaris.piumarta.com>
+
+	* plugins/PseudoTTYPlugin/config.cmake: Check for libutil and
+	unix98 ptys independently.
+
+	* vm-sound-Sun/config.cmake: Fail if head missing in both
+	potential locations.
+
+2009-08-27  Ian Piumarta  <piumarta@freebsd.piumarta.com>
+
+	* plugins/GStreamerPlugin/config.cmake: Configure gstreamer via pkg-config.
+
+2009-08-26  Ian Piumarta  <piumarta@freebsd.piumarta.com>
+
+	* plugins/PseudoTTYPlugin/config.cmake: Disambiguate whether openpty found
+	in libc and in libutil.
+
+2009-08-26    <piumarta@ubuntu.piumarta.com>
+
+	* plugins/SqueakFFIPrims/any-libffi.c: Include ffi.h unless
+	HAVE_FFI_FFI_H is defined.
+
+	* plugins/RomePlugin/config.cmake, plugins/UUIDPlugin/config.cmake,
+	plugins/SqueakFFIPrims/config.cmake, plugins/OggPlugin/config.cmake,
+	plugins/UnixOSProcessPlugin/config.cmake,
+	plugins/GStreamerPlugin/config.cmake, plugins/DBusPlugin/config.cmake,
+	plugins/SocketPlugin/config.cmake, vm-sound-ALSA/config.cmake,
+	vm-sound-NAS/config.cmake, vm-display-fbdev/config.cmake,
+	vm-sound-OSS/config.cmake: Use PLUGIN_FIND and PLUGIN_REQUIRE macros
+	wheverver possible.  Remove explicit manipulation of include and library
+	lists.
+
+	* plugins/UUIDPlugin/sqUnixUUID.c: Assume include path set in
+	config.cmake as required.
+
+	* vm/config.cmake: Remove explicit test for /usr/pkg.
+	* vm/build.cmake: Search vm_include_directories and
+	vm_link_directories.  Link against vm_link_libraries.
+
+	* cmake/PluginInternal.cmake, cmake/PluginExternal.cmake: Remove
+	CMAKE_REQUIRE_INCLUDES from include paths.
+
+	* cmake/Plugins.cmake: Add PLUGIN_FIND and PLUGIN_REQUIRE macros.
+	* cmake/Utils.cmake: Add macro LIST_APPEND.
+
+2009-08-25    <piumarta@netbsd.piumarta.com>
+
+	* plugins/SqueakFFIPrims/config.cmake: Check for libffi via
+	pkf-config before eplicit search.
+
+	* vm/config.cmake: Add includes and libraries from /usr/pkg if present.
+
+	* cmake/PluginInternal.cmake, cmake/PluginExternal.cmake: Add
+	CMAKE_REQUIRED_INCLUDES to plugin INCLUDE_DIRECTORIES.
+
+	* cmake/Plugins.cmake: Add macros PLUGIN_DISABLE, PLUGIN_SOURCES,
+	PLUGIN_DEFINITIONS, PLUGIN_INCLUDE_DIRECTORIES,
+	PLUGIN_LINK_DIRECTORIES, PLUGIN_LINK_LIBRARIES.
+
+	* cmake/PluginExternal.cmake, cmake/PluginInternal.cmake: Set
+	definitions, include dirs and link dirs from configured values.
+	Add link directories before defining target.
+
+	* cmake/PluginExternal.cmake, cmake/Plugins.cmake,
+	cmake/PluginInternal.cmake, plugins/PseudoTTYPlugin/config.cmake,
+	plugins/PseudoTTYPlugin/build.cmake,
+	plugins/RomePlugin/config.cmake,
+	plugins/HostWindowPlugin/config.cmake,
+	plugins/UUIDPlugin/config.cmake, plugins/AioPlugin/build.cmake,
+	plugins/SqueakFFIPrims/config.cmake,
+	plugins/SqueakFFIPrims/build.cmake,
+	plugins/ImmX11Plugin/config.cmake, plugins/OggPlugin/config.cmake,
+	plugins/B3DAcceleratorPlugin/config.cmake,
+	plugins/B3DAcceleratorPlugin/build.cmake,
+	plugins/UnixOSProcessPlugin/config.cmake,
+	plugins/UnixOSProcessPlugin/build.cmake,
+	plugins/GStreamerPlugin/config.cmake,
+	plugins/DBusPlugin/config.cmake,
+	plugins/XDisplayControlPlugin/config.cmake,
+	plugins/XDisplayControlPlugin/build.cmake,
+	vm-sound-ALSA/config.cmake, vm-sound-NAS/config.cmake,
+	vm-display-X11/config.cmake, vm-display-X11/build.cmake,
+	vm-sound-MacOSX/config.cmake, vm-display-fbdev/config.cmake,
+	vm-display-Quartz/config.cmake, vm-display-Quartz/build.cmake,
+	vm-sound-OSS/config.cmake, vm-sound-Sun/config.cmake: Configure
+	build variables using new macros.
+
+	* plugins/DropPlugin/config.cmake, plugins/AioPlugin/config.cmake,
+	plugins/FloatMathPlugin/config.cmake: Configure build variables.
+
+	* plugins/RomePlugin/build.cmake, plugins/DropPlugin/build.cmake,
+	plugins/UUIDPlugin/build.cmake,
+	plugins/FloatMathPlugin/build.cmake, vm-display-fbdev/build.cmake:
+	Remove redundant build scripts.
+
+2009-08-24    <piumarta@netbsd.piumarta.com>
+
+	* CMakeLists.txt: Set RPATH options appropriately for build and install.
+
+	* vm/config.cmake: Configure HAVE_DLOPEN instead of HAVE_LIBDL.
+
+	* vm/sqUnixMain.c, vm/dlfcn-dyld.c, vm/sqUnixExternalPrims.c: Test
+	HAVE_DLOPEN for dlopen() instead of HAVE_LIBDL.
+
+	* vm-display-X11/sqUnixX11.c: Test HAVE_DLFCN_H instead of
+	HAVE_LIBDL for presence of dlfcn.h.
+
+2009-08-22    <piumarta@ubuntu.piumarta.com>
+
+	* plugins/SerialPlugin/sqUnixSerial.c: Pointers are passed as 'void *'
+	conforming to new SerialPlugin.h.  Remove redundant casts.
+
+2009-08-21    <piumarta@ubuntu.piumarta.com>
+
+	* CMakeLists.txt, cmake/Plugins.cmake,
+	plugins/SqueakFFIPrims/config.cmake, vm/config.cmake: Remove uses
+	of UNSET and REALPATH; reduce CMake required version to 2.6.2.
+	
+2009-08-19    <piumarta@ubuntu.piumarta.com>
+
+	* plugins/SerialPlugin/sqUnixSerial.c: Add support for named ports.
+
+	* plugins/RomePlugin/build.cmake: Add cross/plugins/SurfacePlugin
+	to include search path.
+
+2009-08-19  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/sqUnixXdnd.c: dprintf -> fdebugf.
+	* vm/dlfcn-dyld.c: dprintf -> fdebugf.
+	* vm/sqUnixExternalPrims.c: dprintf -> fdebugf.
+
+	* vm-sound-NAS/sqUnixSoundNAS.c: dprintf -> debugf.
+	* plugins/SqueakFFIPrims/x86-sysv.c: dprintf -> debugf.
+	* plugins/SqueakFFIPrims/ppc-sysv.c: dprintf -> debugf.
+	* plugins/SqueakFFIPrims/ppc-darwin.c: dprintf -> debugf.
+	* plugins/SqueakFFIPrims/ffi-test.c: dprintf -> debugf.
+	* plugins/SqueakFFIPrims/ffi-test-main.c: dprintf -> debugf.
+	* plugins/PseudoTTYPlugin/sqUnixPseudoTTYPlugin.c: dprintf -> debugf.
+
+	* vm/debug.c: __sq_dprintf -> __sq_debugf.  Include stdlib.h for abort().
+	* vm/debug.h: dprintf -> debugf.
+	* plugins/MIDIPlugin/sqUnixMIDIALSA.inc: dprintf -> debugf.
+	* vm-display-Quartz/sqUnixQuartz.m: dprintf -> debugf.
+	* vm-display-fbdev/sqUnixFBDevFramebuffer.c: dprintf -> debugf.
+	* vm-display-fbdev/sqUnixFBDevKeyboard.c: dprintf -> debugf.
+	* vm-display-fbdev/sqUnixFBDevKeymap.c: dprintf -> debugf.
+	* vm-display-fbdev/sqUnixFBDevMouse.c: dprintf -> debugf.
+	* vm-display-fbdev/sqUnixFBDevMouseADB.c: dprintf -> debugf.
+	* vm-display-fbdev/sqUnixFBDevMousePS2.c: dprintf -> debugf.
+	* vm-sound-MacOSX/sqUnixSoundMacOSX.c: dprintf -> debugf.
+	* vm/sqUnixMemory.c: dprintf -> debugf.
+
+2009-08-18  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/config.h.in: Add HAVE_UUID_H, HAVE_UUID_UUID_H.
+
+	* plugins/OggPlugin/config.cmake: Fix typo.
+	* plugins/RomePlugin/build.cmake: Fix typo.
+
+	* plugins/RomePlugin/config.cmake: Properly detect pangocairo and freetype2.
+
+2009-08-17    <piumarta@solaris.piumarta.com>
+
+	* vm/sqUnixCharConv.c: Print a useful error message from
+	iconv_open once, then disable further noise.
+
+2009-08-17  Ian Piumarta  <piumarta@freebsd.piumarta.com>
+
+	* vm-display-X11/config.cmake: Search X11_INCLUDE_DIR when looking
+	for X11/extentions/Xrender.h.
+
+	* vm-display-X11/build.cmake: Search X11_INCLUDE_DIR.
+
+	* plugins/B3DAcceleratorPlugin/build.cmake: Search
+	OPENGL_INCLUDE_DIR for headers.
+
+	* plugins/UUIDPlugin/sqUnixUUID.c: Look for both uuid.h and
+	uuid/uuid.h.
+
+	* plugins/PseudoTTYPlugin/build.cmake: Add
+	unix/plugins/AsynchFilePlugin to include search path.
+
+	* plugins/PseudoTTYPlugin/config.cmake: Check manually for
+	/usr/include/libutil.h because FreeBSD cannot #include it alone.
+
+2009-08-16  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/config.cmake: Always set OPENGL_* to X11 values; on MacOSX
+	set AGL_FOUND, AGL_INCLUDE_DIR and AGL_LIBRARIES to Quartz values.
+
+	* plugins/B3DAcceleratorPlugin/config.cmake: Set USE_X11_GLX, and
+	USE_QUARTZ_CGL based on OPENGL_FOUND and AGL_FOUND.
+
+	* vm-display-Quartz/build.cmake: Link against -framework Cocoa.
+
+	* vm-display-X11/build.cmake: Link against X11_LIBS and
+	OPENGL_LIBS.
+
+2009-08-16    <piumarta@solaris.piumarta.com>
+
+	* plugins/SocketPlugin/config.cmake: Check for -lsocket and -lnsl.
+
+2009-08-16  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/config.cmake: Check for -liconv on Solaris.
+
+	* plugins/SocketPlugin/config.cmake: Check for -lsocket on
+	Solaris.
+
+	* CMakeLists.txt: CMake variables can be set via 'configure'.
+
+	* vm/sqUnixExternalPrims.c (tryLoading): ignore directories
+	silently but always report the error when dlopen cannot open an
+	existing file.
+
+	* vm/sqUnixEvent.c (recordKeyboardEvent): ensure keycode is
+	non-negative.
+
+	* vm/sqUnixCharConv.c (setNEncoding): Add setNEncoding function
+	on MacOSX to allow XImmPlugin to load without errors.
+
+	* vm/sqUnixMain.c (moduleDescriptions): reorder driver table
+	entries to restore correct default sound driver.
+
+	* doc/squeak.1: Update documentation URLs.
+
+	* plugins/B3DAcceleratorPlugin/sqUnixOpenGL.h (GL_RENDERER_DEFINED):
+	Define GL_RENDERER_DEFINED at point of structure definition.
+
+	* plugins/SqueakFFIPrims/any-libffi.c: Include ffi.h or ffi/ffi.h
+	according to HAVE_FFI[_FFI]_H.
+
+	* config/config.h.in: Configure HAVE_FFI_H and HAVE_FFI_FFI_H.
+
+	* vm-sound-MacOSX/sqUnixSoundMacOSX.c (Stream_setFormat): Don't
+	set big-endian flag in sound format on little-endian machines.
+
+	* vm-sound-MacOSX/sqUnixSoundDebug.h: Turn off debugging.
+
+2009-08-04    <piumarta@ubuntu.piumarta.com>
+
+	* vm/sqUnixMain.c (initTimers): 
+	* vm-display-fbdev/sqUnixFBDevKeyboard.c (kb_initGraphics): Do not
+	set sa_restorer on Alpha.
+
+2009-08-04  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/acinclude.m4, config/aclocal.m4 (AC_64BIT_ARCH): Check
+	for DEC Alpha by looking for a host matching alpha*-*-osf*.
+
+	* vm/sqUnixMain.c: Check for __alpha__ and __osf__ before trying
+	to turn off unaligned access warnings on Digital Unix.
+
+2009-08-02    <piumarta@solaris>
+
+	* vm-sound-Sun/sqUnixSoundSun.c: Use asynchronous i/o.
+
+	* plugins/SocketPlugin/sqUnixSocket.c (union sockaddr_any): Rename
+	sun to saun to avoid conflict with preprocessor symbol on Solaris.
+	Rename AF_LOCAL to AF_UNIX for portability.
+
+2009-07-30    <piumarta@ubuntu.piumarta.com>
+
+	* config/acinclude.m4 (ac_optflags): Use a more
+	optimisation-resistant strategy to detect validity of access to
+	unaligned doubles.
+
+2009-07-29    <piumarta@ubuntu.piumarta.com>
+
+	* config/configure.ac: Version is 3.10-6.
+
+	* src/vm/interp.c: Regenerate from VMM-126.
+
+	* vm-display-X11/sqUnixX11.c (x2sqModifier): Differentiate between
+	shift pressed and caps lock engaged.
+
+2009-05-26  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac: Version is 3.10-5
+
+	* plugins/SecurityPlugin/sqUnixSecurity.c: Add support for
+	read-only resource directory.  Add writeFlag to functions
+	associated with resource directories.
+
+	* plugins/HostWindowPlugin/sqUnixHostWindowPlugin.c: Added.
+
+	* vm-display-Quartz/sqUnixQuartz.m,
+	vm-display-fbdev/sqUnixFBDev.c,
+	vm-display-custom/sqUnixCustomWindow.c,
+	vm-display-null/sqUnixDisplayNull.c: Add host window stubs.
+
+	* vm-display-X11/sqUnixX11.c: Add windowIndex arg to recWinEvt().
+	Add host window stubs.  Warn (don't fail) if unconfigured options
+	-xshm/-xasync are used.
+
+	* vm/sqUnixEvent.c: Add windowIndex arg to recWinEvt() and evt
+	struct.
+
+	* vm/SqDisplay.h: Conditionally include sqUxOGL.h.  Add host
+	window members.  Bump minor version number.
+
+2009-02-19  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/sqUnixX11.c (display_ioSetCursorARGB): Convert
+	cursorBitsIndex from oop to pointer using pointerForOop.
+
+2009-02-03  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-fbdev/sqUnixFBDevMousePS2.c (ms_ps2_disable): Check
+	success of write()s to mouse.
+
+2008-11-24  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-fbdev/sqUnixFBDevMousePS2.c (ms_ps2_send,
+	ms_ps2_disable): Explicitly ignore return value from write().
+
+2008-11-10  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac: Version is 3.10-4
+
+	* vm-display-X11/sqUnixXdnd.c (dndOutMotion, updateCursor): Handle
+	cursor changes during drag and drop.
+
+	* vm-display-X11/sqUnixX11.c (debugVisual): Make conditional on
+	DEBUG_VISUAL.
+	(sendSelection): Ignore request if it came from drag and drop.
+	(getSelectionFrom): Translate LF -> CR in incoming text
+	selections.
+	(xkeysym2ucs4): OLPC 'view source' key generates 'Cmd-,'.
+	(x2sqModifier): LOCK reverses the meaning of SHIFT.
+	(initWindow): Try 24- and 16-bit visuals before 32-bit visuals to
+	avoid compositing problems.  Accept default visual immediately if
+	it is 24- or 16-bit.
+	(display_ioSetCursorWithMaskBig, display_ioSetCursorARGB): Add big
+	cursor support.
+
+	* plugins/LocalePlugin/sqUnixLocale.c: Fix handling of daylight
+	savings time and offset from UTC.
+
+	* plugins/DropPlugin/sqUnixDragDrop.c: Declare prototypes up
+	front, and other cosmetic changes.
+
+2008-11-03  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* src/plugins/OggPlugin: added sqOgg.c, OggPlugin.h
+	* src/plugins/GStreamerPlugin: added squeakAudioVideoPipeline
+	  SignalInterface.[ch]
+
+2008-05-09  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac: Version is 3.10-3.
+
+	* platforms/unix/src: Regenerate all with 32-/64-bit clean patches
+	from Dave Lewis.
+
+2008-04-29  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac (CFLAGS): Add --hash-style option to
+	configure.
+
+	* vm-display-X11/sqUnixX11.c (xkeysym2ucs4): Translate
+	XF86XK_Start to 'ALT-,'.
+
+2008-04-21  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac: Version is 3.10-2.
+
+	* vm-sound-ALSA/sqUnixSoundALSA.c: Add snd_GetSwitch, snd_SetSwitch,
+	snd_SetDevice.
+
+	* vm-display-X11/sqUnixXdnd.c (display_dndOutAcceptedType): Add
+	support for display_dndOutSend, display_dndOutAcceptedType.
+
+	* vm-display-X11/sqUnixX11.c (display_parseArgument): Add SUGAR
+	support.
+
+	* vm-display-null/sqUnixDisplayNull.c: Add display_dndOutSend,
+	display_dndOutAcceptedType.
+
+	* vm-display-fbdev/sqUnixFBDev.c: Add display_dndOutSend,
+	display_dndOutAcceptedType.
+
+	vm-display-custom/sqUnixCustomWindow.c (display_dndOutAcceptedType):
+	Add display_dndOutSend, display_dndOutAcceptedType.
+
+	* vm/sqUnixMain.c: Add dndOutAcceptedType, dndOutSend.
+
+	* vm/SqSound.h (struct SqSound): Add snd_GetSwitch, snd_SetSwitch,
+	snd_SetDevice.
+
+	* vm/SqDisplay.h (struct SqDisplay): add dndOutAcceptedType,
+	dndOutSend.
+
+	* plugins/SoundPlugin/sqUnixSound.c: Add mixer support.
+
+	* plugins/DropPlugin/sqUnixDragDrop.c (sqDndOutAcceptedType): Add
+	sqDndOutAcceptedType and sqDndOutSend to support drag data request
+	from other app.
+
+	* Cross/vm/sq.h: Define DragRequest to support data request from
+	other app.
+
+	* Cross/plugins/DropPlugin/DropPlugin.h: add sqDragTriggerData to
+	support drag request from external app.
+
+	* Cross/plugins/SoundPlugin/SoundPlugin.h: add mixer interface.
+	Convert C++ comments to C comments.
+
+2008-04-14  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac: Version is 3.10-2 adds Aio, ImmX, Kedama
+	and Kedama2 plugins.
+
+	* vm-display-X11/sqUnixX11.c (xkeysym2ucs4,
+	x2sqKeyCompositionInput): Move declaration from middle of
+	statement to start.
+
+	* plugins/ImmX11Plugin/acinclude.m4: Added.
+
+2008-04-10  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac: Version is 3.10-1 generated from 3.10-7159.
+
+	* doc/squeak.1: Update with current options and environment
+	variables.
+
+	* vm-display-X11/sqUnixX11.c: Repair cursor keys.  Add
+	-compositioninput and SQUEAK_COMPOSITIONINPUT option to enable
+	overlay window for composed characters.
+
+	* vm/Makefile.in: Convert CR to LF in interp.c before
+	gnuification.
+
+2008-03-22  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-Quartz/sqUnixQuartz.m (setUpWindow): call
+	setUpDisplay() early if fullscreen, to keep window on correct
+	screen of multi-head machines.
+
+2008-03-20  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/sqUnixCharConv.c, vm/sqUnixCharConv.h: Support locale
+	encoding.
+
+	* vm/sqUnixMain.c: Set locale encoding from LC_CTYPE.
+
+	* vm-display-X11/sqUnixX11.c: Support locale, dead keys, multikey
+	characters and input context overlay window.  Add -xicfont option.
+
+2008-01-22  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-sound-ALSA/sqUnixSoundALSA.c (sound_parseEnvironment):
+	SQUEAK_PLAYBACK and SQUEAK_CAPTURE set sound_playback and
+	sound_capture.
+
+2007-10-12  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-Quartz/sqUnixQuartz.m ([Squeak -interpret:]): Squash unused
+	warning for recordWindowEvent().
+
+	* vm-display-fbdev/sqUnixFBDev.c (display_winInit): Squash unused
+	warning for recordWindowEvent().
+
+	* npsqueak/Makefile: Remove duplicate 'LDFLAGS ='.
+
+2007-10-11  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/sqUnixX11.c (handleEvent): Record key events when
+	ucs4 is valid even if keyCode is not.
+
+2007-09-14  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/sqUnixX11.c (xkeysym2ucs4): Added.
+	(handleEvent): Mouse wheel pseudokeys pass ASCII value as ucs4 to
+	recordKeyboardEvent().  Keyboard events send UCS4 code to
+	recordKeyboardEvent().
+
+	* vm-display-fbdev/sqUnixFBDev.c (enqueueKeyboardEvent): Pass
+	ASCII value ucs4 to recordKeyboardEvent().
+
+	* vm/sqUnixEvent.c (recordKeyboardEvent): Initialise utf32code
+	from ucs4 argument.
+
+2007-09-07  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/config.h.in: Remove include of "glibc.h".
+
+	* vm/sqUnixEvent.c (recordWindowEvent): Accept arguments for
+	WindowEvent members.
+
+	* npsqueak/npsqueakregister.in: Pass '-H' (follow links) to 'find'.
+
+	* vm-display-X11/sqUnixMozilla.c (display_primitivePluginPostURL):
+	Restored for OLPC.
+
+	* vm-display-X11/sqUnixX11.c: Add support for dragging out of
+	Sqeuak.
+
+	* vm-display-X11/acinclude.m4: Test for GLX before enabling GL.
+	Test for XRender extension.
+
+	* vm-display-X11/sqUnixXdnd.c: Added support for dragging out of
+	Squeak.
+
+	* config/config.h.in: HAVE_LIBXRENDER added.
+
+	* vm/SqDisplay.h:
+	* vm-display-X11/sqUnixX11.c:
+	* vm-display-Quartz/sqUnixQuartz.m:
+	* vm-display-null/sqUnixDisplayNull.c:
+	* vm-display-custom/sqUnixCustomWindow.c:
+	* vm/sqUnixMain.c: Added: clipboardGetTypeNames,
+	clipboardSizeWithType, clipboardWriteWithType, dndOutStart,
+	setCursorARGB.
+	
+	* vm/sqUnixMain.c (sqGetFilenameFromString): Translate path name
+	from sq to ux.
+
+2007-08-31  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/sqUnixX11.c (initWindow): Add WM_DELETE_WINDOW to
+	main window WM_PROTOCOLS.
+	(handleEvent): ClientMessage with WM_DELETE_WINDOW sends
+	WindowEvent(action=Close) to image.
+
+	* vm/sqUnixEvent.c (allocateWindowEvent): Added.
+	(recordWindowEvent): Added.
+
+2007-07-16  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/LocalePlugin/sqUnixLocale.c: Added.
+
+2007-07-13  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac: Version is 3.9-12.
+
+	* src: Negative oop comparison patches from Dave Lewis
+	incorporated.
+
+2007-06-07  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac: Version is 3.9-11.
+
+	* plugins/SocketPlugin/sqUnixSocket.c: Implemented IPv6
+	primitives.
+
+2007-03-25  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/MIDIPlugin/Makefile.inc (XLDFLAGS): MIDIPlugin.so
+	depends on libasound.
+
+2007-03-11  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/MIDIPlugin/acinclude.m4: Check for MIDI support via
+	ALSA.
+
+	* plugins/MIDIPlugin/sqUnixMIDI.c: Determine available MIDI
+	support and include appropriate source file.
+
+	* plugins/MIDIPlugin/sqUnixMIDINone.c: Created from sqUnixMIDI.c.
+
+	* plugins/MIDIPlugin/sqUnixMIDIALSA.c: ALSA-based support added.
+
+	* config/config.h.in: Add USE_MIDI_ALSA.
+
+2007-03-07  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/SerialPlugin/sqUnixSerial.c: Speeds >2500k are
+	conditional on symbolic name being defined.
+
+2007-02-19  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/sqUnixX11.c (display_ioGLcreateRenderer):
+	Explicitly set border pixel.
+	(xError): Print error message, request opcode and serial number.
+
+2006-12-11  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-sound-ALSA/sqUnixSoundALSA.c: Attempt to reduce output
+	latency by searching on buffer size that just avoids underrun.
+
+	* plugins/VideoForLinuxPlugin/palettes.c: Add YUYV format
+	conversion.
+
+	* plugins/VideoForLinuxPlugin/acinclude.m4: Include stdlib before
+	videodev to work around GNU/Linux header bug.
+
+2006-12-04  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/UnixOSProcessPlugin/acinclude.m4: Require pthreads.
+
+2006-12-01  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/VideoForLinuxPlugin: update palette.c, videolib.[ch].
+
+2006-11-30  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* config/configure.ac: Version is 3.9-10.
+
+	* config/configure.ac (ext_plugins): add VideoForLinuxPlugin.
+
+	* plugins/VideoForLinuxPlugin: Added.
+
+	* vm-sound-ALSA/sqUnixSoundALSA.c: Save and restore SIGIO
+	handler (since ALSA doesn't bother to restore it correctly).
+
+	* vm/sqGnu.h: Don't assign register vars on Darwin-i386.
+
+2006-10-13  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-sound-ALSA/sqUnixSoundALSA.c: Prepare output_handle after
+	snd_pcm_avail_update failure.
+
+	* vm-display-Quartz/sqUnixQuartz.m: Disable spin lock on non-PPC
+	arch.
+
+2006-10-10  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/sqUnixMain.c: Linux sounds defaults to ALSA.
+
+	* vm/sqUnixCharConv.c: Solaris uses "iso5" external charset.
+
+	* vm-sound-ALSA/sqUnixSoundALSA.c: Implement mixer functions.
+
+	* vm/sqUnixMain.c: -nomixer is no longer deprecated.
+
+	* vm/sqUnixMain.c: PATH_MAX -> MAXPATHLEN.
+
+	* vm/aio.c: If O_ASYNC missing try on FASYNC followed by FIOASYNC.
+
+2006-09-21  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-sound-ALSA/sqUnixSoundALSA.c (sound_Start): EPIPE is not a
+	fatal error suring sound startup.
+
+2006-09-19  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/SecurityPlugin/sqUnixSecurity.c (ioInitSecurity): Set
+	secure directory from SQUEAK_SECUREDIR if set, otherwise
+	implicitly from image path.
+
+2006-09-18  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* npsqueak/Makefile (npsqueak.so): Delete target before making
+	hard link to libtool output file.
+
+	* config/Makefile.install (install-doc): Ignore errors when
+	compressing documentation.
+
+2006-09-17  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-sound-ALSA: Add support for ALSA sound output.
+
+	* vm-display-X11/sqUnixX11.c: Only refer to completions and
+	useXshm when USE_XSHM defined.
+
+2006-09-15  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm-display-X11/sqUnixX11.c (handleEvent): Redraw display when
+	visibility changes to a less obscured state.  (Disabled by
+	default.)
+
+	* vm/sqGnu.h: Don't assign %ebx to CB_REG on Darwin-i386.
+
+	* npsqueak/Makefile: Use libtool to build browser plugin.
+
+2006-06-05  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/FilePlugin/sqUnixFile.c (dir_Delete): Invalidate cached
+	info when deleting lastPath.
+
+2006-04-24  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/acinclude.m4: Add CoreServices framework to link libs on
+	Darwin.
+
+	* vm/sqUnixMain.c (sqGetFilenameFromString): Resolve links and
+	aliases if resolveAliases is nonzero.
+
+	* vm/mac-alias.c: Added.
+
+	* plugins/AioPlugin/Makefile.inc (XCPPFLAGS): XCPPFLAGS defines
+	SQAIO_H="sqaio.h".
+
+	* vm/sqUnixMain.c (ioRelinquishProcessorForMicroseconds): Reset
+	interruptCheckCounter iff > 1/25 sec has elapsed.
+
+----------------------------------------------------------------
+	
+2006-04-23  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* 3.9-6 released.
+
+	* vm/sqUnixMain.c (ioRelinquishProcessorForMicroseconds): Reset
+	interrupt check counter at end of sleep.
+
+	* config/config.h.in: Add HAVE_NANOSLEEP.
+
+	* vm/acinclude.m4: Define HAVE_NANOSLEEP if nanosleep() available.
+
+	* vm/aio.c (aioSleep): For small timeouts always nanosleep() if
+	available.
+
+	* vm/sqUnixMain.c (ioRelinquishProcessorForMicroseconds): Obey the
+	requested timeout without testing for overdue wakeup ticks.
+
+----------------------------------------------------------------
+	
+2006-04-19  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* 3.9-4 released.
+
+	* doc/3.9-4.RELEASE_NOTES: Created.
+
+2006-04-18  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* plugins/FloatMathPlugin/Makefile.inc (CFLAGS): Define NO_ISNAN=1.
+
+	* vm-display-X11/sqUnixX11.c (handleEvent): Suppress reporting key
+	up when KeyRelease event is from autorepeat.
+
+2006-04-17  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/aio.c (aioSleep): Sleep in aioPoll (i.e, select) or
+	nanosleep, for timeouts < 1 timeslice.
+
+	* vm/sqUnixMain.c (ioRelinquishProcessorForMicroseconds):
+	Nanosecond sleep moved to aioSleep().
+
+	* vm-display-X11/sqUnixX11.c (display_ioRelinquishProcessorForMicroseconds): 
+	* vm-display-Quartz/sqUnixQuartz.m (display_ioRelinquishProcessorForMicroseconds):
+	* vm-display-null/sqUnixDisplayNull.c (display_ioRelinquishProcessorForMicroseconds): 
+	* vm-display-fbdev/sqUnixFBDev.c (display_ioRelinquishProcessorForMicroseconds): 
+	* vm-display-custom/sqUnixCustomWindow.c (display_ioRelinquishProcessorForMicroseconds): 
+	Call aioSleep() instead of aioPoll().
+
+2006-04-14  Ian Piumarta  <com -dot- gmail -at- piumarta (backwards)>
+
+	* vm/aio.c (aioInit): SIGIO handled by forceInterruptCheck().
+
+	* vm/aio.c (aioEnable): Set ASYNC on internal descriptors.
+
+	* vm/sqUnixMain.c (ioRelinquishProcessorForMicroseconds): Don't
+	nanosleep if events can be processed.
+
+	* vm/aio.c (FPRINTF): Absolute and relative timestamps on debug
+	messages.
+
+	* plugins/SocketPlugin/sqUnixSocket.c (FPRINTF): Absolute and
+	relative timestamps on debug messages.
+
+	* plugins/SocketPlugin/sqUnixSocket.c (socketOptions): Enable
+	SO_REUSEPORT.
+
+2006-04-10  Ian Piumarta  <ian.piumarta@squeakland.org>
+
+	* src: Regeneratated.
+
+2006-04-06  Ian Piumarta  <ian.piumarta@squeakland.org>
+
+	* config/acinclude.m4: Define VM_BUILD_STRING.
+
+	* config/config.h.in: Declare VM_BUILD_STRING.
+
+	* vm/sqUnixMain.c (getAttribute): Answer VM_BUILD_STRING for
+	attribute 1006.
+
+	* sqMemoryAccess.h: Clean up recent edits.  Rename
+	INLINING_WORKS_FOR_SMALL_ACCESSORS -> USE_INLINE_MEMORY_ACCESSORS.
+
+	* plugins/UUIDPlugin/acinclude.m4: Require <uuid/uuid.h>.  Link
+	against libuuid, if present.
+
+	* plugins/UUIDPlugin/sqUnixUUID.c: Implemented.
+
+2006-04-05  Ian Piumarta  <ian.piumarta@squeakland.org>
+
+	* UnixOSProcessPlugin.c (SQAIO_H): Rename aio.h -> sqaio.h.
+
+	* vm-display-Quartz/sqUnixQuartz.m (noteKeyboardEvent): Set
+	utf32code to 0, for now.
+
+	* vm/sqUnixMain.c (ioGatherEntropy): Implemented.
+
+	* plugins/SocketPlugin/sqUnixSocket.c (sqSocketBindToPort)
+	(sqSocketSetReusable): Implemented.
+
+	* vm/sqUnixMain.c (sqGetFilenameFromString): Copy input to
+	output.
+
+----------------------------------------------------------------
+
+2005-03-31  Ian Piumarta  <ian.piumarta@squeakland.org>
+
+	* 3.8a-2 released.
+
+2005-03-31  Ian Piumarta  <ian.piumarta@squeakland.org>
+
+	* platforms/Cross/plugins/SocketPlugin/SocketPlugin.h: 64-bit clean.
+	* plugins/SocketPlugin/sqUnixSocket.c: 64-bit clean.
+
+----------------------------------------------------------------
+
+2005-03-29  Ian Piumarta  <ian.piumarta@squeakland.org>
+
+	* Initial 64-bit merge complete.
+
+2005-03-29  Ian Piumarta  <ian.piumarta@squeakland.org>
+
+	* platforms/Cross/plugins/Mpeg3Plugin/libmpeg/video/motion.c (mpeg3video_calc_dmv):
+	Don't inline on Solaris.
+
+	* platforms/Cross/plugins/FilePlugin/sqFilePluginBasicPrims.c: Fix
+	unaligned accesses to 64-bit members of SQFile.
+
+	* platforms/Cross/vm/sqVirtualMachine.c: 64-bit cleaned.
+
+	* platforms/Cross/vm/sqMemoryAccess.h: Conditionally include
+	"interp.h"; warn obnoxiously if missing.
+
+	* platforms/Cross/vm/sq.h: Thorough cleanup.
+
+	* plugins/SecurityPlugin/sqUnixSecurity.c (ioInitSecurity):
+	Obey SQUEAK_USERDIR if set.
+
+	* vm/sqUnixMemory.c (sqAllocateMemory): Answer an oop (not a
+	pointer).
+
+	* vm/sqPlatformSpecific.h: Allocation anwsers an oop (not a
+	pointer); undefine prim dispatch nonsense left over from sq.h;
+	declare alloca().
+
+	* vm/sqUnixExternalPrims.c: Fix uses of sprintf() when snprintf()
+	missing.  Cosmetic improvements.
+
+	* vm-sound-OSS/sqUnixSoundOSS.c: 64-bit cleaned.
+
+	* config/Makefile.install (install-doc): Deal with compressed
+	manpages.
+
+	* config/acinclude.m4 (ac_optflags): Compiler flags default to
+	'-O'.
+
+	* config/config.h.in: Set HAVE_ALLOCA, HAVE_ALLOCA_H, and
+	HAVE_UNSETENV.
+
+	* config/configure.ac: Detect alloca() and interp.h; add src/vm to
+	INCLUDES.
+
+	* config/gnuify: Use 64-bit types.
+
+	* Cross/plugins/Mpeg3Plugin/libmpeg/video (mpeg3video_calc_dmv):
+	don't inline on Solaris.
+
+----------------------------------------------------------------
+
+2005-03-19  Ian Piumarta  <ian.piumarta@squeakland.org>
+
+	* 3.7-7 Released.
+
+2005-03-19  Ian Piumarta  <ian.piumarta@squeakland.org>
+
+	* config/configure.ac (INCLUDES): Version is 3.7-7.
+
+	* config/acinclude.m4 (ac_optflags): Default optimisation flags are '-O'.
+
+	* config/configure.ac (INCLUDES): Check for alloca().
+
+	* plugins/UnixOSProcessPlugin/acinclude.m4: Check for libc::unsetenv().
+
+	* plugins/AioPlugin/Makefile.inc (XCPPFLAGS): Search FilePlugin
+	and SocketPlugin for includes.
+
+2005-03-17  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* src: Imported from generated sources.
+	* README, README.SVN: Updated.
+	* Makefile: Added for 'easy build'.
+	* doc/HowToBuildFromSource.*: Updated URIs and revised for 'easy build' instructions.
+	* doc/README.Sound,
+	  npsqueak/npsqueak.c,
+	  plugins/SqueakFFIPrims/00README,
+	  vm-display-Quartz/Resources/SqueakHelp/SqueakHelp.html,
+	  vm-display-fbdev/00_README.fbdev: E-mail and URL contact details updated.
+	* config/configure.ac: Version is 3.7g-6.
+
+2005-03-16  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* README.SVN (added): Brief instructions for SVN source builds.
+	* doc/squeak.1: Update URLs and email addresses.
+
+2005-03-15  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* vm/sqUnixMain.c (getImageName): Getter for global variable,
+	FWIW.
+
+2005-03-09  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* vm/sqUnixEvent.c (recordMouseEvent): Clear windowIndex field in
+	events.
+
+	* vm-display-Quartz/sqUnixQuartz.m (noteMouseEvent): Clear
+	windowIndex field in events.
+
+2005-03-09  Bert Freudenberg <bert@squeakland.de>
+
+	* platforms/unix/npsqueak: Check for image file in system and home
+	dir.  Modifications to npsqueakrun, runs with bash, other shells
+	untested.  Make sure Squeak really gets killed.  Fixed browser
+	crash when closing plugin page.
+
+	* platforms/unix/plugins/SecurityPlugin/sqUnixSecurity.c: Check
+	for SQUEAK_USERDIR, otherwise untrusted dir is 'My Squeak'.
+
+2005-03-09  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* platforms/unix/config/Makefile.install: NPSqueak (un)install
+	changes as suggested by Bert.
+
+	* platforms/unix/config/configure.ac: Version 3.7b-6.
+
+2004-05-26  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c (findOption):
+	Nul-terminate the converted option name before looking it up.
+
+2004-04-17  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* platforms/unix/vm/sqPlatformSpecific.h: Include <unistd.h>.
+	Define sqFTruncate().
+
+2004-04-12  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* platforms/unix/config/gnuify: Insert #error into output file if
+	processing failed.
+
+	* platforms/unix/vm-display-fbdev/Makefile.in ($(TARGET)): Remove
+	$(X_LIBS) from the link command.
+
+2004-04-11  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* platforms/unix/config/gnuify: Escape all occurences of '{'
+	within regular expressions.
+
+2004-04-10  Ian Piumarta  <ian.piumarta@hp.com>
+
+	* platforms/unix/config/gnuify: Remove gnu specifics.
+
+2004-04-06  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/config/configure.ac: Version is 3.7b-5.
+
+	* platforms/unix/npsqueak/npsqueak.c: Add failureUrl to SqueakPlugin struct.
+	(NPP_New): Check for and use explicit imageName.  
+	(NPP_New): Check for explicit failureUrl.  
+	(NPP_New): Check for access on imageName, set failureUrl if missing.
+	(NPP_NewStream): Redirect to failureUrl if set.
+	(Run): Do not start VM if failureUrl set.
+
+2004-04-04  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/vm-display-X11/sqUnixXdnd.c: New file.
+	XDND-based drag-and-drop support.
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c: New option "-noxdnd"
+	with attendant flag, command-line option, env var, and help entry.
+	Include "sqUnixXdnd.c" appropriately.
+	(handleEvent): Pass SelectionNotify to dnd if enabled.
+	(handleEvent): Pass ClientMessage to dnd if enabled.
+	(initWindow): Add EnterWindowMask to stParent event_mask if dnd
+	enabled.
+	(initWindow): Call dndInitialise() if dnd enabled.
+
+2004-04-03  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/vm/dlfcn-dyld.c (dlsym): Don't automatically
+	return on error from NSIsSymbolNameDefinedInImage().
+	(dlinit): Install error handlers for multiply-defined symbols to
+	choose definition from most recently loaded plugin.
+
+2004-04-02  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/vm-sound-NAS/Makefile.inc (PLIBS): Add -laudio to
+	the link command.
+
+	* platforms/unix/config/acinclude.m4: Quote all macro names in
+	AC_DEFUN()s.
+
+	* platforms/unix/vm/sqGnu.h: Use __asm__() instead of asm().
+
+	* platforms/unix/vm-display-fbdev/sqUnixFBDev.c (DEBUG): Only
+	define if not already defined.
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c: Remove unused globals
+	'current' and 'allRenderer'.
+	(sendSelection): Clean up targets[] initialisation.
+	(sendSelection): Clean up list[] initialisation.
+	(getSelectionFrom): Remove unused variable 'xreturn'.
+	(display_ioGLcreateRenderer): Remove unused variable 'index'.
+	(printVisual): Reset gl error flag at end.
+	(display_winOpen): Get saved window size only if debugging.
+	(display_printUsage): Add new flag '-glxdebug'.
+	(display_parseArgument): Add new flag '-glxdebug'.
+
+	* platforms/unix/vm/sqUnixMain.c (ioRelinquishProcessorForMicroseconds):
+	Calculate relinquish time only if a delay is pending.
+
+	* platforms/unix/vm/sqUnixExternalPrims.c (ioFindExternalFunctionIn):
+	Squash error messages for shutdownModule when sqIgnorePluginErrors
+	is set.
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c: Additional
+	checks for null privateSocketStruct.
+
+----------------------------------------------------------------
+
+2004-04-02  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* 3.6-3 Released.
+
+2004-04-02  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* vm-sound-MacOSX/sqUnixSoundMacOSX.c: Substantial rewrite for OS
+	10.3.
+
+	* vm-display-fbdev/sqUnixFBDevMousePS2.c: Increase all timeouts to
+	100ms.
+
+	* vm-display-fbdev/sqUnixFBDevKeyboard.c: Add diagnostic code.
+
+	* vm-display-fbdev/sqUnixFBDevFramebuffer.c: Use accessors for all
+	struct members.  Fix problems when xres * bytesPerPix != bytes per
+	line.
+
+	* vm-display-fbdev/sqUnixFBDev.c: Add diagnostic code.
+
+	* vm-display-X11/sqUnixX11.c (initCharmap): Fix prototype.
+	(x2sqKeyInput): Print more useful diagnostic on setlocale()
+	failure.
+
+	* vm-display-X11/Makefile.in (XINCLUDES): Include
+	/usr/X11R6/include explicitly.
+
+	* vm/sqUnixMain.c: Add runInterpreter (for display modules to
+	inhibit entry to interpreter loop).  Reinstate -nomixer as a
+	global option.
+
+	* vm/sqUnixCharConv.c: Use Solaris encoding names on Sparc.
+
+	* vm/glibc.h: Force all ctype operations to functions.  Alias
+	realpath() to glibc version 2.0.
+	
+	* plugins/SocketPlugin/sqUnixSocket.c (sqSocketConnectionStatus):
+	Don't check for connection closed by peer.
+
+2003-10-28  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/plugins/FilePlugin/sqUnixFile.c: Use ctime for
+	creationDate and mtime for modificationDate (consistent with 'ls
+	-l').
+
+2003-09-16  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/doc/squeak.1: Updated for '-nointl',
+	SQUEAK_NOINTL, and LC_CTYPE/LC_ALL.
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c: Make x2sqKey a
+	function pointer.
+	(x2sqKeyInput): Add support for international keyboards and
+	diacritical marks via dead keys.
+	(display_parseEnvironment): Enable international support if either
+	LC_CTYPE or LC_ALL is set in the environment.
+	(display_parseEnvironment): SQUEAK_NOINTL disables international
+	support.
+	(display_parseArgument): '-nointl' disables international support.
+	(display_printUsage): Add help for '-nointl' option.
+
+2003-09-05  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c
+	(display_parseArgument): Fix browserPipes argv indices.
+	(display_parseArgument): Add missing comma in debug printf().
+
+2003-09-03  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/vm-display-Quartz/sqUnixQuartz.m (setUpDock):
+	Remove warning for CPSEnableForegroundOperation, which always
+	fails -- even when it succeeds.
+
+	* platforms/unix/config/configure.ac: Version 3.6-beta11 3.6b-5411.
+
+	* platforms/unix/vm/sqGnu.h (PRIM_DISPATCH): Changes for global struct.
+	(GP_REG): Enable for PowerPC.
+
+	* platforms/unix/plugins/PseudoTTYPlugin/sqUnixPseudoTTYPlugin.c
+	(ptyForkAndExec): Add diagnostic dprintf().
+
+	* platforms/unix/config/gnuify: Insert GP_REG for global struct in
+	interpret().  Recognise optional 'foo->' before primitiveIndex for
+	prim dispatch rewrite.
+
+	* platforms/unix/config/config.h.in: Add HAVE_LIBUTIL_H for pty
+	plugin on FreeBSD.
+
+	* platforms/unix/vm/sqUnixExternalPrims.c
+	(ioFindExternalFunctionIn): Suppress warning for missing
+	"setInterpreter" or "getModuleName".
+
+2003-09-02  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/Cross/plugins/B3DAcceleratorPlugin/sqOpenGLRenderer.c:
+	Fix ARGB vs. RGBA problem and adhere to glColorMaterial
+	recommendations.
+
+	* platforms/unix/vm/sqUnixMain.c: Emergency dump conditional on
+	IMAGE_DUMP (default is disasbled at compiled time).
+
+	* platforms/unix/vm/sqUnixMain.c (ioProcessEvents): Create a
+	synchronous emergency image dump after SIGHUP received.
+	(sigquit): Create an asynchronous emergency image dump when
+	SIGQUIT received.  (Disabled at compile time by default.)
+
+	* platforms/unix/vm-display-Quartz/sqUnixQuartz.m
+	([Squeak -sendEvent:]): Add inverted CtrlKeyBit to modifiers for
+	mouse wheel events.
+
+2003-09-01  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/config/configure.ac: Version 3.6-beta9.
+
+	* platforms/Cross/plugins/SocketPlugin/SocketPlugin.h
+	(sqSocketListenOnPortBacklogSizeInterface): Added.
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c
+	(sqSocketListenOnPortBacklogSizeInterface): Add i/f address
+	argument.
+	(sqSocketListenOnPortBacklogSize): Punt to above with INADDR_ANY.
+
+2003-08-31  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/config/configure.ac: Version 3.6-beta8 3.6b-5402.
+
+	* platforms/unix/config/Makefile.install (install-squeak) 
+	(uninstall-squeak): (Un)install app icons on Darwin.
+
+	* platforms/unix/config/make.cfg.in (VM_APP_ICONS): Define
+	VM_APP_ICONS.
+
+	* platforms/unix/config/configure.ac: Define and export
+	VM_APP_ICONS for Darwin.
+
+	* platforms/unix/vm-display-Quartz/sqUnixQuartz.m: Remove explicit
+	init of dock icon.  Only setIcon if !fromFinder.
+	([SqueakWindow -setIcon]): Try to find icon file in cwd, vmlibdir
+	and resourcePath.
+
+	* platforms/unix/config/inisqueak.in: Run the VM if Squeak is
+	already installed.
+
+2003-08-30  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* util/Squeak-vm.spec, util/Squeak-image.spec,
+	util/Squeak-sources.spec (%install): Install everything as
+	'root.bin'.
+
+	* platforms/unix/config/make.cfg.in (INSTALL_PROG, INSTALL_DATA):
+	Pass $(INSTALL_ARGS) to install program.
+
+	* platforms/unix/config/configure.ac: Version 3.6-beta7.
+
+	* platforms/unix/vm-display-Quartz/Info.plist.in: Modify icon
+	associations.
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c (_renderContext)
+	(_renderWindow): Lvalue companions to render{Window,Context}().
+
+	* platforms/unix/vm/sqUnixMain.c (jitArgs): Change // comments to
+	/* */.
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c (_PSP):
+	Lvalue companion to PSP().
+
+2003-08-23  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/config/Makefile.in ($(squeak)): Reduce verbiage.
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c (handleEvents): Don't
+	reset interrupt check counter.
+
+	* platforms/unix/vm-display-Quartz/Resources/SqueakHelp/SqueakHelp.html:
+	Explain where to put image/sources files.
+
+	* platforms/unix/vm/aio.c (aioPoll): Bound total interrupted
+	select() waiting time by the original timeout.
+
+	* platforms/unix/vm-display-Quartz/sqUnixQuartz.m
+	([Squeak -applicationDidFinishLaunching:]): Don't reset the vmPath
+	when starting up.
+
+	* platforms/unix/vm/sqUnixMain.c (recordFullPathForVmName): stat()
+	the result of readlink() to avoid embarassement on early linux
+	kernels.
+	(ioRelinquishProcessorForMicroseconds): Really sleep for < 1
+	timeslice then poll for i/o on Mach.
+
+	* util/Makefile.rpm (%.spec): Unconditional rebuild.
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c
+	(handleEvents): Return true if there are events waiting in the
+	squeak queue.
+	(display_ioRelinquishProcessorForMicroseconds): Don't block if
+	handleEvents returns true.
+
+	* platforms/unix/vm-display-Quartz/sqUnixQuartz.m (qz2sqButton):
+	Enable button mapping for 3-button mice.
+
+	* platforms/unix/vm/sqUnixMain.c (recordFullPathForVmName): Read
+	absolute path of executable out of /proc on Linux.
+
+	* platforms/unix/vm/sqUnixExternalPrims.c: vmLibDir moved to sqUnixMain.
+
+2003-08-22  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/vm/sqUnixMain.c (ioRelinquishProcessorForMicroseconds):
+	Cap the sleep time if it's larger than the time to next wakeup tick.
+	(ioMSecs): Resync lowResMSecs on every call.
+
+2003-08-21  Ian Piumarta  <piumarta@felina.inria.fr>
+
+	* platforms/unix/doc/squeak.1: Add entries for -vtlock/-vtswitch
+	and equivalent environment variables.
+
+	* platforms/unix/vm-display-fbdev/sqUnixFBDev.c:
+	* platforms/unix/vm-display-fbdev/sqUnixFBDevKeyboard.c: Add
+	support for vt switching.
+
+	* platforms/unix/doc/squeak.1: Update '-kbmap' for changed keymap
+	behaviour.
+
+	* platforms/unix/vm-display-fbdev/sqUnixFBDev.c
+	(display_printUsage): Update printUsage() for changed keymap
+	behaviour.
+
+	* platforms/unix/vm-display-fbdev/sqUnixFBDevKeymap.c (kb_initKeyMap):
+	Load default keymap from kernel rather than from fixed data.
+
+2003-08-20  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/vm/glibc.h: Eliminate glibc2.3 dependencies on
+	toupper() and realpath().
+
+	* platforms/unix/config/config.h.in: Include "glibc.h" if
+	HAVE_FEATURES_H.
+
+	* platforms/unix/config/configure.ac: Check for <features.h>.
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c: Set socket
+	fd to -1 on close.  Don't attempt to re-close sockets with fd < 0.
+
+	* platforms/unix/vm/aio.c (aioEnable, aioHandle, aioSuspend,
+	aioDisable): Ignore descriptors < 0.
+
+	* platforms/unix/vm-display-fbdev: Framebuffer display driver added.
+
+2003-08-14  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* src/plugins/XDisplayControlPlugin/XDisplayControlPlugin.c:
+	Generate new plugin source.
+
+	* src/plugins/UnixOSProcessPlugin/UnixOSProcessPlugin.c:
+	Regenerate source from version 3.1.1.
+
+	* platforms/unix/plugins/XDisplayControlPlugin/acinclude.m4:
+	Disable plugin when X is not available.
+
+	* platforms/unix/plugins/XDisplayControlPlugin/Makefile.inc (XCPPFLAGS):
+	Add X includes and libs to compile/link command.
+ 
+	* platforms/unix/plugins/UnixOSProcessPlugin/acinclude.m4:
+	Deleted.
+
+	* platforms/unix/plugins/UnixOSProcessPlugin/Makefile.inc (XCPPFLAGS):
+	Remove X includes and libs.
+
+	* platforms/unix/vm/sqUnixExternalPrims.c (tryLoading): Don't skip
+	non-existent files (for default search).  Only print dlerror
+	message when file exists.
+
+2003-08-14  Ian Piumarta  <piumarta@ina.inria.fr>
+
+	* platforms/unix/doc/squeak.1: Update for new options and module
+	system.
+
+	* platforms/unix/npsqueak/Makefile (npsqueak.so, npsqueakrun,
+	npsqueakregister): Use explicit first dependency rather than $<
+	(for BSD make).
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c: Provide PRIMARY
+	rather than CLIPBOARD for Squeak selection when requestor clears
+	CUT_BUFFER0.
+
+	* platforms/unix/vm/sqUnixExternalPrims.c (ioLoadModule): Search X11
+	library path for plugins.
+	(ioLoadModule): Search build location for plugins.
+
+2003-08-08  Ian Piumarta  <piumarta@cartman.inria.fr>
+
+	* platforms/unix/plugins/B3DAcceleratorPlugin/Makefile.inc
+	(XLDFLAGS): Pass location of X libs to link command.
+
+	* platforms/unix/vm-display-Quartz/Info.plist.in
+	(CFBundleExecutable): Fix capitalization to avoid confusing the
+	Finder on case-sensitive filesystems.
+
+2003-08-08  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/plugins/UnixOSProcessPlugin/Makefile.inc
+	(XCPPFLAGS): Pass location of X includes to compile command.
+	(XLDFLAGS): Pass location of X libraries to link command.
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c (sendSelection): Use
+	precomputed value of targetProperty in call to XChangeProperty().
+
+	* platforms/unix/vm/sqUnixMain.c: Add support for '-vm' option and
+	SQUEAK_VM environment variable.  Add support for default module
+	detection and loading.
+
+2003-08-07  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/config/make.ext.in (LINK): Use -rpath $(plgdir)
+	instead of $(libdir) to get correct install_name on OSX.
+
+	* platforms/unix/vm/acinclude.m4 (AC_ICONV): Disable check for
+	libiconv on Mac OS X to avoid pollution from /usr/local/lib.
+
+	* platforms/unix/config/configure.ac (AC_CHECK_FUN(dlopen)): Check
+	for _dyld_present before dlopen to avoid unwanted import of
+	dlcompat on Mac OS X.
+
+	* platforms/unix/config/acinclude.m4 (AC_C_DOUBLE_ORDER): Fix
+	"improved" test so that it _really_ works and identifies
+	big-endian machines correctly.  (Never, _ever_ trust an
+	endian-sensitive function contributed by an Intel user! ;)
+
+2003-08-07  Ian Piumarta  <piumarta@cartman.inria.fr>
+
+	* platforms/unix/config/acinclude.m4 (AC_C_DOUBLE_ORDER): Use
+	improved test that isn't fooled by over-zealous compiler
+	optimisations.
+
+	* platforms/unix/vm-display-X11/sqUnixX11.c: Numerous changes from
+	Ned Konz to add support for COMPOUND_TEXT and fix some problems
+	with UTF8_STRING.
+
+	* platforms/unix/vm/sqUnixCharConv.c: Numerous changes from Ned
+	Konz to improve UTF-8 handling.
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c
+	(socketValid): Fail validation if thisNetSession is zero.
+
+	* platforms/unix/vm/sqUnixMain.c (sigsegv): Call abort() after
+	segv, to leave a core for debugging.
+
+----------------------------------------------------------------
+
+2003-03-04  Ian Piumarta  <ian.piumarta@inria.fr>
+
+	* 3.4-1 Released.
+
+2002-12-01--2003-08-07  piumarta  <piumarta@emilia.inria.fr>
+	
+	* platforms/unix/*/*: First pass at refactoring sound and display
+	code into runtime-loadable modules.
+
+2002-12-01  piumarta  <piumarta@calvin.inria.fr>
+
+	* platforms/unix/config/mkacinc: Add `-dlopen lib' to library
+	list.
+
+2002-12-01  Ian Piumarta  <piumarta@calvin.inria.fr>
+
+	* platforms/unix/vm/dlfcn-dyld.c: Added.
+
+	* platforms/unix/config/config.h.in: Add HAVE_DYLD, DARWIN.
+
+	* platforms/unix/config/configure.ac: Remove check for dlfcn.h.
+	Check for _dyld_present in libc and define HAVE_DYLD.  Checking
+	for dlfcn.h and -ldl only if !HAVE_DYLD.  Define DARWIN if
+	compiling on Darwin.
+
+	* platforms/unix/config/make.cfg.in (SOFLAGS): Substituted by
+	configure.
+
+	* platforms/unix/vm/sqUnixExternalPrims.c: Include dlopen wrappers
+	for dyld on Mach.  Fix prototype for dlsym().  Provide definition
+	for RTLD_GLOBAL if missing.
+	(tryLoading): Check for dir before calling dlopen().
+	(tryLoading): Make prefix/suffix selection be table driven.
+	(ioLoadModule): Logic simplified (prefix/suffix now handled by
+	tryLoading).
+
+	* platforms/unix/vm/sqXWindow.c (imageNotFound): Fix multi-line
+	string literals.
+
+2002-11-25  Ian Piumarta  <piumarta@dilbert.inria.fr>
+
+	* platforms/unix/plugins/DropPlugin/sqUnixDragDrop.c:
+	Added missing stubs for sqSec*().
+
+2002-11-25  Bert Freudenberg  <bert@isg.cs.uni-magdeburg.de>
+
+	* platforms/unix/plugins/B3DAcceleratorPlugin/sqUnixOpenGL.c:
+	New version, updated for Croquet.
+
+2002-10-27  piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/config/verstamp: Remove Apple-specific garbage
+	from gcc version string on Darwin.
+
+2002-10-26  piumarta  <ian.piumarta@inria.fr>
+
+	* platforms/unix/vm/sqUnixMozilla.c (browserProcessCommand): Fix
+	signature to avoid link errors on BSD.
+
+	* util/Makefile.dist (BINREL): Use `-nox' suffix on tarball if
+	configured --without-x.
+
+	* platforms/unix/config/configure.ac: Define and substitute `NOX'
+	as `-nox' when building --without-x, empty otherwise.
+	(disabled_plugins): Disable UnixOSProcessPlugin when building
+	--without-x.
+
+	* platforms/unix/config/make.cfg.in (NOX): Import definition of
+	NOX from configure.
+
+	* platforms/unix/config/Makefile.in: Define `squeak' as `squeak'
+	or `squeak-nox'.  Use `$(squeak)' instead of `squeak' throughout.
+
+	* platforms/unix/config/Makefile.install: Use $(squeak) instead of
+	`squeak'.
+
+2002-10-26  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/plugins/SoundPlugin/sqUnixSoundSun.c:
+	* platforms/unix/plugins/SoundPlugin/sqUnixSoundNAS.c:
+	* platforms/unix/plugins/SoundPlugin/sqUnixSound.c:
+	* platforms/unix/plugins/SerialPlugin/sqUnixSerial.c:
+	* platforms/unix/plugins/SecurityPlugin/sqUnixSecurity.c:
+	* platforms/unix/plugins/MIDIPlugin/sqUnixMIDI.c:
+	* plugins/JoystickTabletPlugin/sqUnixJoystickTablet.c:
+	* platforms/unix/plugins/FileCopyPlugin/sqUnixFileCopyPlugin.c:
+	* platforms/unix/plugins/FilePlugin/sqUnixFile.c:
+		Systematically include generated plugin header.
+	
+	* platforms/unix/plugins/FilePlugin/sqUnixFile.c (dir_Lookup):
+	Type of sizeIfFile is squeakFileOffsetType not int.  (Many thanks
+	to Alain Fischer for finding this.)
+
+2002-10-24  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/sqUnixExternalPrims.c: Fix several dprintf()s
+	that failed to specify the stream.
+	(ioFindExternalFunctionIn): If set, prepend VM_DLSYM_PREFIX to
+	lookupName.
+
+	* platforms/unix/config/configure.ac: On Darwin add
+	`-no-cpp-precomp' to CFLAGS, disable npsqueak, and define
+	VM_DLSYM_PREFIX to "_".
+
+	* platforms/unix/config/config.h.in: Add VM_DLYSM_PREFIX for
+	targets that require `_' before dlsym names (i.e., Darwin).
+
+	* platforms/unix/config/config.guess,
+	  platforms/unix/config/config.sub: updated to autoconf-2.54.
+
+2002-10-24  root  <piumarta@emilia.inria.fr>
+
+	* /usr/share/aclocal/libtool.m4 (archive_cmds for darwin): Remove
+	double quotes around "x$module" (allowing libtool to recognise
+	`-module' flag when building loadable modules on Darwin).
+
+2002-10-23  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/sqXWindow.c: Remove spurious `#' from front of
+	__snprintf extern declaration.
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c
+	(MAXHOSTNAMELEN): If not defined after including netdb.h (nasty,
+	wicked, evil Solaris) then define it as 256.
+
+2002-10-20  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* util/Squeak-vm.spec:
+	(AutoReqProv): Inhibit automatic dependency generation (too much
+	noise from plugins).
+	(Requires): Add (lib{X11,Xext,m}) as explicit dependencies.
+
+	* src/plugins/UnixOSProcessPlugin/UnixOSProcessPlugin.c: Updated
+	to 3.0.2.
+
+2002-10-17  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/config/Makefile.install (install-npsqueak): Add
+	npsqueak dependency to force build if required.
+
+2002-10-16  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/npsqueak/npsqueakrun.in: Add version directory to
+	`File' comment.
+
+	* platforms/unix/vm/sqXWindow.c: Remove `secure' and the
+	corresponding option and env var.
+
+	* platforms/unix/doc/squeak.1: Remove `-secure'.
+
+----------------------------------------------------------------
+
+2002-10-16  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* 3.2-5 Released.
+
+2002-10-16  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/sqXWindow.c:
+	Add useItimer (enabled by default, -notimer disables) and iconified.
+	(SetUpWindow): Set wmHint IconicState if iconified.
+	(ioLowResMSecs): Check useItimer.
+	(SetUpTimers): Check useItimer.
+	(usage): Add -iconic, -notimer.
+	(ParseEnvironment): Add SQUEAK_ICONIC, SQUEAK_NOTIMER.
+	(ParseArguments): Add -iconic, -notimer.
+
+	* platforms/unix/doc/squeak.1: Add -iconic and -notimer.
+
+	* platforms/unix/plugins/SqueakFFIPrims/sqUnixFFI.c
+	(FFI_TYPE_STRUCT): Define if neccessary.  (Value is not exported
+	from ffi.h in libffi-2.)
+
+	* platforms/unix/plugins/SqueakFFIPrims/acinclude.m4: Added.
+
+2002-09-29  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/sqXWindow.c (ioSetFullScreen): Resize stWindow
+	(not sqParent) for browser's benefit.
+
+2002-09-27  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/config/Makefile.install (install-npsqueak): new
+	target.
+
+	* platforms/unix/config/Makefile.in (npsqueak): new target.
+
+	* platforms/unix/config/configure.ac: add `--with-browser' setting
+	NPSQUEAK_SO appropriately.
+
+	* platforms/unix/config/configure.ac: renamed from configure.in to
+	keep debian's autoconf happy.
+
+	* platforms/unix/config/acinclude.m4 (AC_GNU_INTERP): force
+	AWK=gawk if --with-gnu-awk.
+
+	* platforms/unix/config/config.h.in: additional undefines for
+	HAVE_[__]SNPRINTF.
+
+	* platforms/unix/vm/sqXWindow.c (SetUpWindow): Create initial
+	window with extent = screen extent when -fullscreen specified.
+
+2002-09-26  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/sqXWindow.c (SetUpWindow): `-iconic' option
+	sets initial_state WM hint to Iconic.
+
+2002-09-16  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/aio.c (aioSuspend,aioDisable): remove check
+	for null descriptor (it's a valid fd).
+
+2002-08-21  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/plugins/SoundPlugin/sqUnixSoundOSS.c (output):
+	Loop until write() completes (for broken alsa drivers).
+	(Suggested by Lex Spoon.)
+
+2002-08-03  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/sqXWindow.c (forgetXDisplay): aioDisable the X
+	fd before closing it.  (From Dave Lewis.)
+
+2002-07-17  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/sqGnu.h: Define all undefined XX_REGs to be
+	empty to prevent build errors on unsupported platforms.  (Thanks
+	to Tommy Thorn for spotting the problem.)
+
+	* platforms/unix/config/*: Many diverse changes for autoconf 2.53
+	and libtool 1.4.2.
+	
+2002-07-12  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/plugins/PseudoTTYPlugin/sqUnixPseudoTTYPlugin.c
+	(validate): Fail primitive if f->state is 0.
+	
+	* platforms/unix/plugins/AsynchFilePlugin/sqUnixAsynchFile.c
+	(validate): Fail primitive if f->state is 0.
+
+----------------------------------------------------------------
+
+2002-07-11  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* 3.2-4 Released.
+
+2002-07-11  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/plugins/PseudoTTYPlugin/openpty.h: Include
+	libutil.h if present (FreeBSD's name for util.h).
+
+	* platforms/unix/plugins/PseudoTTYPlugin/acinclude.m4: Use test -r
+	on /dev/ptmx.  Check for `libutil.h'.  (Thanks to Eric Dorman.)
+
+2002-07-10  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/plugins/AsynchFilePlugin/sqUnixAsynchFile.c
+	(asyncFileAttach): Broken out from asyncFileOpen() for use by
+	PtyPlugin.
+
+	* platforms/unix/plugins/AsynchFilePlugin/sqUnixAsynchFile.h:
+	Export asyncFileAttach().
+
+	* platforms/unix/plugins/PseudoTTYPlugin/openpty.h: Provide local
+	implementations of openpty() and login_tty() if not supported by
+	libc.
+
+	* platforms/unix/plugins/PseudoTTYPlugin/sqUnixPseudoTTYPlugin.c:
+	Various portability fixes.  Use openpty() if available.  Avoid use
+	of nanosleep.  ptyFork() and ptyClose() perform all the work of
+	AsyncFile creation and destruction.
+
+----------------------------------------------------------------
+
+2002-07-09  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* 3.2-3 Released.
+
+2002-07-09  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/sqXWindow.c: Various stubs to allow OSProcess
+	to (mostly) work when compiled -DHEADLESS.
+	
+	* platforms/unix/vm/sqXWindow.c (ioGetWindow, ioGetDisplay):
+	implemented.
+
+	* platforms/unix/plugins/B3DAcceleratorPlugin/sqUnixOpenGL.c
+	(glInitialize): Retrieve stDisplay and stWindow via ioGet
+	functions.
+
+2002-07-08  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c
+	(acceptHandler, sqSocketCreate...): Remove OOBINLINE hack.
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c
+	(sqSocketSetOptions...): Interpret option as a string and convert
+	it to an int before setsockopt().
+
+	* platforms/unix/config/Makefile.in (squeak.1): Avoid $< in rule
+	for squeak.1.
+
+	* platforms/unix/vm/sqUnixMozilla.c (primitivePluginBrowserReady):
+	Fail primitive if not running in browser.  (Eliminates infuriating
+	three second pause on return from snapshot.)
+
+	* platforms/unix/vm/sqXWindow.c: Fix conditional compilation in
+	various places -DHEADLESS.  (Many thanks to Colin Putney.)
+
+	* platforms/unix/vm/osExports.c (os_exports): Don't export browser
+	functions if compiling -DHEADLESS.
+
+	* platforms/unix/config/make.int.in: Run RANLIB on final archive.
+
+2002-07-06  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/plugins/PseudoTTYPlugin/sqUnixPseudoTTYPlugin.c:
+	Implemented.
+
+	* platforms/unix/plugins/AsynchFilePlugin/sqUnixAsynchFile.c:
+	Implemented.
+
+2002-07-01  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/plugins/SocketPlugin/sqUnixSocket.c (acceptHandler,
+	sqSocketCreateNetTypeSocketTypeRecvBytesSendBytesSemaIDReadSemaIDWriteSemaID):
+	Set option SO_OOBINLINE on new sockets (for the benefit of telnet,
+	which needs to pick up IAC as urgent-mode data).
+	(dataHandler): Read (and discard) out-of-band data on exception,
+	leaving the socket status alone.
+
+----------------------------------------------------------------
+
+2002-06-10  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* 3.2-2 Released.
+
+2002-06-10  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/vm/sqXWindow.c (handleEvent): Add missing break
+	in SelectionClear case.  (Thanks to Ned Konz.)
+	(getAttribute): Return full path of VM for sysAttr(0).  [Thanks
+	also to Ned Konz for spotting this.]
+
+	* platforms/unix/vm/sqXWindow.c (recordKeyboardEvent): modifiers
+	to use passed as argument (for mouse wheel).
+	(handleEvent): Mouse wheel uses inverted ctrl key modifier.
+
+2002-06-08  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/config/Makefile.install (install-image): install
+	compressed image/changes files.
+	image/changes and inisqueak installed in imgdir.
+
+	* platforms/unix/config/inisqueak.in: use compressed image/changes
+	files.
+	image/changes installed in imgdir.
+
+	* platforms/unix/vm/sqPlatformSpecific.h: include <sys/types.h> to
+	pick up off_t.
+
+----------------------------------------------------------------
+
+2002-06-07  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* 3.2-1 Released.
+
+2002-06-06  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* platforms/unix/doc/squeak.1: image/changes files in version
+	independent libdir.
+
+	* platforms/unix/config/verstamp: Use abbreviated date in ISO 8601
+	format.  (Requires the local plarform have a POSIX-compliant `date'
+	command.)
+
+2002-06-03    <piumarta@emilia.inria.fr>
+
+	* platforms/unix/doc/squeak.1: Add `-plugins' option.
+
+	* platforms/unix/vm/sqUnixExternalPrims.c (ioLoadModule): If set, try
+	loading plugins through `squeakPlugins' before the default locations.
+
+	* platforms/unix/vm/sqXWindow.c: Add option `-plugins'.
+
+2002-05-31    <piumarta@emilia.inria.fr>
+
+	* sqXWindow.c (x2sqModifier): Ignore mod[345] to avoid possible
+	numLock problems.
+
+2002-05-27    <piumarta@emilia.inria.fr>
+
+	* squeak.1: Add `-noevents' (missing) and `-nomixer' (new).
+
+	* sqUnixSoundNAS.c (snd_Start): Select sound format based on byte
+	order of the local machine.
+
+2002-05-26    <piumarta@emilia.inria.fr>
+
+	* acinclude.m4:
+	Clean up checks for audio support.
+	Check for native support (oss, sun) before network support (nas).
+
+2002-05-25  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* sqGnu.h: CB_REG defined for intel when gcc >= 2.95.
+
+2002-05-22  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* sqUnixSoundOSS.c (outHandler): Defined only when playSema
+	enabled.
+	(snd_Start): Fail primitive when semaIndex > 0 and play semaphore
+	disabled.  Do not call aioEnable() when playSema disabled.
+	(snd_AvailableSpace): Only call aioHandle() when playSema enabled.
+
+2002-05-21  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* sqUnixSocket.c (sqSocketReceiveDataAvailable): Change socket
+	state to OtherEndClosed on EOF.
+	(dataHandler): Change socket state to OtherEndClosed on EOF.
+
+2002-05-17  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* sqUnixSoundOSS.c: Rewritten from scratch.
+
+	* sqUnixSound.c: Broken into separate files:
+	`sqUnixSound{OSS,NAS,Sun,None}.c'.
+
+2002-05-12  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* sqXWindow.c (ioShowDisplay): Clamp affected{R,B} at
+	{width,height} instead of {width,height} - 1.
+
+2002-05-09  Ian Piumarta  <piumarta@felina.inria.fr>
+
+	* sqXWindow.c (ioBeep): Check for server connection before trying
+	to ring the bell.
+
+	* sqUnixSound.c: New NAS/OSS recording code from Lex Spoon.
+	(Modified for aio compatiblity.)
+
+	* sqUnixExternalPrims.c (tryLoading): Fail silently when
+	attempting to load a plugin that names a directory. [sf]
+
+	* squeak.1: Remove `-swapmod'.
+
+	* sqXWindow.c: Remove `-swapmod'.
+	(x2sqModifier): All modifiers map to Command.
+
+	* sqXWindow.c (ioGetButtonState, recordMouseEvent): Honour
+	`-swapbtn' for Ctrl/Command-RedButton clicks.
+
+	* squeak.1: Default image name is `squeak.image'.
+
+	* sqXWindow.c (ParseEnvironment, usage): Default image name is
+	`squeak.image'. [sf]
+
+	* sqXWindow.c (ioFormPrint): Print form to PostScript printer
+	using pnmtops. [sf]
+
+2002-05-08  Ian Piumarta  <piumarta@emilia.inria.fr>
+
+	* sqXWindow.c: Total rewrite of window resizing to fix
+	incorrect assumptions about the behaviour of the image.
+
+	* sqXWindow.c (SetUpWindow): Calculate initial window geometry
+	based on parent window if running in a browser.  (Avoids X
+	protocol errors.)
+
+	* sqUnixSecurity.c (ioGetSecureUserDirectory): Fail primitive if
+	security not initialised.
+
+	* sqXWindow.c (ioScreenSize): Answer size of saved
+	window when not connected to a display. [sf]
+
+2002-05-07  Ian Piumarta   <piumarta@emilia.inria.fr>
+
+	* sqXWindow.c (handleEvent): Fixed possible infinite recursion
+	(observed by Lex Spoon) in completion event handling.
+
+	* sqXWindow.c: Increase default heap size to 48MB.
+
+	* sqUnixMozilla.c (browserPostURLRequest): Comment out unused
+	function to avoid compilation errors.
+
+	* sqUnixAsynchFile.c: Remove stale security code.
+	* sqUnixSocket.c: Remove stale security code.
+	* sqUnixFile.c: Remove stale security functions.
+	* sqUnixSecurity.c: New version from Bert Freudenberg. [sf]
+
+	* sqUnixFile.c:	Remove stale browser support code.
+	* sqXWindow.c: Support for new browser plugin. [sf]
+
+	* sqUnixFile.c: Include <errno.h> and <string.h>. [sf]
+
+	* sqUnixFile.c (dir_Lookup): Retry readdir() on interrupted system
+	call. [sf]
+
+	* sqXWindow.c: Handle the CLIPBOARD selection. [sf]
+
+	* sqXWindow.c (SetUpWindow): Extra bit in valuemask for parent
+	window to avoid errors on Sun. [sf]
+
+2002-05-07  Ian Piumarta   <piumarta@emilia.inria.fr>
+
+	* sqUnixSocket.c: Immediate detection of remote reset on
+	connection.
+	
+	* sqUnixSocket.c (dataHandler): Don't signal the connection
+	semaphore on error.
