@@ -106,9 +106,6 @@
 		0ABFFB361330F4CE00151AE3 /* SurfacePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFFA281330F4CE00151AE3 /* SurfacePlugin.c */; };
 		0ABFFB371330F4CE00151AE3 /* sqNamedPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFFA2F1330F4CE00151AE3 /* sqNamedPrims.c */; };
 		0ABFFB381330F4CE00151AE3 /* sqVirtualMachine.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFFA301330F4CE00151AE3 /* sqVirtualMachine.c */; };
-		0AEBA95B13313AB3003A04DF /* Info-FT2Plugin.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0AEBA93213313AB3003A04DF /* Info-FT2Plugin.plist */; };
-		0AEBA95C13313AB3003A04DF /* macFileNameBits.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AEBA93313313AB3003A04DF /* macFileNameBits.c */; };
-		0AEBA95D13313AB3003A04DF /* PkgInfo in Resources */ = {isa = PBXBuildFile; fileRef = 0AEBA93413313AB3003A04DF /* PkgInfo */; };
 		0AEBA95F13313AB3003A04DF /* sqMacSecurity.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AEBA93A13313AB3003A04DF /* sqMacSecurity.c */; };
 		0AEBA96013313AB3003A04DF /* sqSqueakSoundCoreAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AEBA93D13313AB3003A04DF /* sqSqueakSoundCoreAudio.m */; };
 		0AEBA96113313AB3003A04DF /* sqSqueakSoundCoreAudioAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AEBA93F13313AB3003A04DF /* sqSqueakSoundCoreAudioAPI.m */; };
@@ -185,16 +182,6 @@
 		94BCE78C0DDDF61200F38F31 /* sqUnixUUID.c in Sources */ = {isa = PBXBuildFile; fileRef = 94BCE7870DDDF61200F38F31 /* sqUnixUUID.c */; };
 		94D2A24C112B8ED000B6E459 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C208F810AF7262002F4160 /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		0AEBA96C13313AB4003A04DF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0AEBA92F13313AB3003A04DF /* FT2Plugin.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 4CF9AFE9092E090000DBD378;
-			remoteInfo = FT2Plugin;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0A0830AC1331370300D70204 /* sqUnixAsynchFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixAsynchFile.c; sourceTree = "<group>"; };
@@ -337,56 +324,6 @@
 		0ABFFA2F1330F4CE00151AE3 /* sqNamedPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqNamedPrims.c; sourceTree = "<group>"; };
 		0ABFFA301330F4CE00151AE3 /* sqVirtualMachine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqVirtualMachine.c; sourceTree = "<group>"; };
 		0ABFFA311330F4CE00151AE3 /* sqVirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqVirtualMachine.h; sourceTree = "<group>"; };
-		0AEBA90113313AB3003A04DF /* ftconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftconfig.h; sourceTree = "<group>"; };
-		0AEBA90213313AB3003A04DF /* ftheader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftheader.h; sourceTree = "<group>"; };
-		0AEBA90313313AB3003A04DF /* ftmodule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftmodule.h; sourceTree = "<group>"; };
-		0AEBA90413313AB3003A04DF /* ftoption.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftoption.h; sourceTree = "<group>"; };
-		0AEBA90513313AB3003A04DF /* ftstdlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftstdlib.h; sourceTree = "<group>"; };
-		0AEBA90613313AB3003A04DF /* freetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = freetype.h; sourceTree = "<group>"; };
-		0AEBA90713313AB3003A04DF /* ftadvanc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftadvanc.h; sourceTree = "<group>"; };
-		0AEBA90813313AB3003A04DF /* ftbbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftbbox.h; sourceTree = "<group>"; };
-		0AEBA90913313AB3003A04DF /* ftbdf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftbdf.h; sourceTree = "<group>"; };
-		0AEBA90A13313AB3003A04DF /* ftbitmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftbitmap.h; sourceTree = "<group>"; };
-		0AEBA90B13313AB3003A04DF /* ftcache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftcache.h; sourceTree = "<group>"; };
-		0AEBA90C13313AB3003A04DF /* ftchapters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftchapters.h; sourceTree = "<group>"; };
-		0AEBA90D13313AB3003A04DF /* ftcid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftcid.h; sourceTree = "<group>"; };
-		0AEBA90E13313AB3003A04DF /* fterrdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fterrdef.h; sourceTree = "<group>"; };
-		0AEBA90F13313AB3003A04DF /* fterrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fterrors.h; sourceTree = "<group>"; };
-		0AEBA91013313AB3003A04DF /* ftgasp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftgasp.h; sourceTree = "<group>"; };
-		0AEBA91113313AB3003A04DF /* ftglyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftglyph.h; sourceTree = "<group>"; };
-		0AEBA91213313AB3003A04DF /* ftgxval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftgxval.h; sourceTree = "<group>"; };
-		0AEBA91313313AB3003A04DF /* ftgzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftgzip.h; sourceTree = "<group>"; };
-		0AEBA91413313AB3003A04DF /* ftimage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftimage.h; sourceTree = "<group>"; };
-		0AEBA91513313AB3003A04DF /* ftincrem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftincrem.h; sourceTree = "<group>"; };
-		0AEBA91613313AB3003A04DF /* ftlcdfil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftlcdfil.h; sourceTree = "<group>"; };
-		0AEBA91713313AB3003A04DF /* ftlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftlist.h; sourceTree = "<group>"; };
-		0AEBA91813313AB3003A04DF /* ftlzw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftlzw.h; sourceTree = "<group>"; };
-		0AEBA91913313AB3003A04DF /* ftmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftmac.h; sourceTree = "<group>"; };
-		0AEBA91A13313AB3003A04DF /* ftmm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftmm.h; sourceTree = "<group>"; };
-		0AEBA91B13313AB3003A04DF /* ftmodapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftmodapi.h; sourceTree = "<group>"; };
-		0AEBA91C13313AB3003A04DF /* ftmoderr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftmoderr.h; sourceTree = "<group>"; };
-		0AEBA91D13313AB3003A04DF /* ftotval.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftotval.h; sourceTree = "<group>"; };
-		0AEBA91E13313AB3003A04DF /* ftoutln.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftoutln.h; sourceTree = "<group>"; };
-		0AEBA91F13313AB3003A04DF /* ftpfr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftpfr.h; sourceTree = "<group>"; };
-		0AEBA92013313AB3003A04DF /* ftrender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftrender.h; sourceTree = "<group>"; };
-		0AEBA92113313AB3003A04DF /* ftsizes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftsizes.h; sourceTree = "<group>"; };
-		0AEBA92213313AB3003A04DF /* ftsnames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftsnames.h; sourceTree = "<group>"; };
-		0AEBA92313313AB3003A04DF /* ftstroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftstroke.h; sourceTree = "<group>"; };
-		0AEBA92413313AB3003A04DF /* ftsynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftsynth.h; sourceTree = "<group>"; };
-		0AEBA92513313AB3003A04DF /* ftsystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftsystem.h; sourceTree = "<group>"; };
-		0AEBA92613313AB3003A04DF /* fttrigon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fttrigon.h; sourceTree = "<group>"; };
-		0AEBA92713313AB3003A04DF /* fttypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fttypes.h; sourceTree = "<group>"; };
-		0AEBA92813313AB3003A04DF /* ftwinfnt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftwinfnt.h; sourceTree = "<group>"; };
-		0AEBA92913313AB3003A04DF /* ftxf86.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftxf86.h; sourceTree = "<group>"; };
-		0AEBA92A13313AB3003A04DF /* t1tables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = t1tables.h; sourceTree = "<group>"; };
-		0AEBA92B13313AB3003A04DF /* ttnameid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ttnameid.h; sourceTree = "<group>"; };
-		0AEBA92C13313AB3003A04DF /* tttables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tttables.h; sourceTree = "<group>"; };
-		0AEBA92D13313AB3003A04DF /* tttags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tttags.h; sourceTree = "<group>"; };
-		0AEBA92E13313AB3003A04DF /* ttunpat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ttunpat.h; sourceTree = "<group>"; };
-		0AEBA92F13313AB3003A04DF /* FT2Plugin.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = FT2Plugin.xcodeproj; sourceTree = "<group>"; };
-		0AEBA93213313AB3003A04DF /* Info-FT2Plugin.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-FT2Plugin.plist"; sourceTree = "<group>"; };
-		0AEBA93313313AB3003A04DF /* macFileNameBits.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = macFileNameBits.c; sourceTree = "<group>"; };
-		0AEBA93413313AB3003A04DF /* PkgInfo */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PkgInfo; sourceTree = "<group>"; };
 		0AEBA93A13313AB3003A04DF /* sqMacSecurity.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqMacSecurity.c; sourceTree = "<group>"; };
 		0AEBA93C13313AB3003A04DF /* sqSqueakSoundCoreAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqSqueakSoundCoreAudio.h; sourceTree = "<group>"; };
 		0AEBA93D13313AB3003A04DF /* sqSqueakSoundCoreAudio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = sqSqueakSoundCoreAudio.m; sourceTree = "<group>"; };
@@ -650,7 +587,6 @@
 		0A0830AA1331370300D70204 /* plugins */ = {
 			isa = PBXGroup;
 			children = (
-				0AEBA8FD13313AB3003A04DF /* FT2Plugin */,
 				0AEBA93913313AB3003A04DF /* SecurityPlugin */,
 				0AEBA93B13313AB3003A04DF /* SoundPlugin */,
 				0AEBA94013313AB3003A04DF /* SqueakFFIPrims */,
@@ -1255,95 +1191,6 @@
 			path = vm;
 			sourceTree = "<group>";
 		};
-		0AEBA8FD13313AB3003A04DF /* FT2Plugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AEBA8FE13313AB3003A04DF /* freetype2 */,
-				0AEBA92F13313AB3003A04DF /* FT2Plugin.xcodeproj */,
-				0AEBA93213313AB3003A04DF /* Info-FT2Plugin.plist */,
-				0AEBA93313313AB3003A04DF /* macFileNameBits.c */,
-				0AEBA93413313AB3003A04DF /* PkgInfo */,
-			);
-			path = FT2Plugin;
-			sourceTree = "<group>";
-		};
-		0AEBA8FE13313AB3003A04DF /* freetype2 */ = {
-			isa = PBXGroup;
-			children = (
-				0AEBA8FF13313AB3003A04DF /* freetype */,
-			);
-			path = freetype2;
-			sourceTree = "<group>";
-		};
-		0AEBA8FF13313AB3003A04DF /* freetype */ = {
-			isa = PBXGroup;
-			children = (
-				0AEBA90013313AB3003A04DF /* config */,
-				0AEBA90613313AB3003A04DF /* freetype.h */,
-				0AEBA90713313AB3003A04DF /* ftadvanc.h */,
-				0AEBA90813313AB3003A04DF /* ftbbox.h */,
-				0AEBA90913313AB3003A04DF /* ftbdf.h */,
-				0AEBA90A13313AB3003A04DF /* ftbitmap.h */,
-				0AEBA90B13313AB3003A04DF /* ftcache.h */,
-				0AEBA90C13313AB3003A04DF /* ftchapters.h */,
-				0AEBA90D13313AB3003A04DF /* ftcid.h */,
-				0AEBA90E13313AB3003A04DF /* fterrdef.h */,
-				0AEBA90F13313AB3003A04DF /* fterrors.h */,
-				0AEBA91013313AB3003A04DF /* ftgasp.h */,
-				0AEBA91113313AB3003A04DF /* ftglyph.h */,
-				0AEBA91213313AB3003A04DF /* ftgxval.h */,
-				0AEBA91313313AB3003A04DF /* ftgzip.h */,
-				0AEBA91413313AB3003A04DF /* ftimage.h */,
-				0AEBA91513313AB3003A04DF /* ftincrem.h */,
-				0AEBA91613313AB3003A04DF /* ftlcdfil.h */,
-				0AEBA91713313AB3003A04DF /* ftlist.h */,
-				0AEBA91813313AB3003A04DF /* ftlzw.h */,
-				0AEBA91913313AB3003A04DF /* ftmac.h */,
-				0AEBA91A13313AB3003A04DF /* ftmm.h */,
-				0AEBA91B13313AB3003A04DF /* ftmodapi.h */,
-				0AEBA91C13313AB3003A04DF /* ftmoderr.h */,
-				0AEBA91D13313AB3003A04DF /* ftotval.h */,
-				0AEBA91E13313AB3003A04DF /* ftoutln.h */,
-				0AEBA91F13313AB3003A04DF /* ftpfr.h */,
-				0AEBA92013313AB3003A04DF /* ftrender.h */,
-				0AEBA92113313AB3003A04DF /* ftsizes.h */,
-				0AEBA92213313AB3003A04DF /* ftsnames.h */,
-				0AEBA92313313AB3003A04DF /* ftstroke.h */,
-				0AEBA92413313AB3003A04DF /* ftsynth.h */,
-				0AEBA92513313AB3003A04DF /* ftsystem.h */,
-				0AEBA92613313AB3003A04DF /* fttrigon.h */,
-				0AEBA92713313AB3003A04DF /* fttypes.h */,
-				0AEBA92813313AB3003A04DF /* ftwinfnt.h */,
-				0AEBA92913313AB3003A04DF /* ftxf86.h */,
-				0AEBA92A13313AB3003A04DF /* t1tables.h */,
-				0AEBA92B13313AB3003A04DF /* ttnameid.h */,
-				0AEBA92C13313AB3003A04DF /* tttables.h */,
-				0AEBA92D13313AB3003A04DF /* tttags.h */,
-				0AEBA92E13313AB3003A04DF /* ttunpat.h */,
-			);
-			path = freetype;
-			sourceTree = "<group>";
-		};
-		0AEBA90013313AB3003A04DF /* config */ = {
-			isa = PBXGroup;
-			children = (
-				0AEBA90113313AB3003A04DF /* ftconfig.h */,
-				0AEBA90213313AB3003A04DF /* ftheader.h */,
-				0AEBA90313313AB3003A04DF /* ftmodule.h */,
-				0AEBA90413313AB3003A04DF /* ftoption.h */,
-				0AEBA90513313AB3003A04DF /* ftstdlib.h */,
-			);
-			path = config;
-			sourceTree = "<group>";
-		};
-		0AEBA93013313AB3003A04DF /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				0AEBA96D13313AB4003A04DF /* FT2Plugin.bundle */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		0AEBA93913313AB3003A04DF /* SecurityPlugin */ = {
 			isa = PBXGroup;
 			children = (
@@ -1788,28 +1635,12 @@
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 0AEBA93013313AB3003A04DF /* Products */;
-					ProjectRef = 0AEBA92F13313AB3003A04DF /* FT2Plugin.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				1D6058900D05DD3D006BFB54 /* SqueakNoOGLIPhone */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		0AEBA96D13313AB4003A04DF /* FT2Plugin.bundle */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = FT2Plugin.bundle;
-			remoteRef = 0AEBA96C13313AB4003A04DF /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1D60588D0D05DD3D006BFB54 /* Resources */ = {
@@ -1832,8 +1663,6 @@
 				0ABFFB2A1330F4CE00151AE3 /* RePlugin3-Fixes2.1.cs in Resources */,
 				0ABFFB2B1330F4CE00151AE3 /* RePlugin3.3.1.cs in Resources */,
 				0ABFFB2D1330F4CE00151AE3 /* SocketPrims.pdf in Resources */,
-				0AEBA95B13313AB3003A04DF /* Info-FT2Plugin.plist in Resources */,
-				0AEBA95D13313AB3003A04DF /* PkgInfo in Resources */,
 				0AEBA96613313AB3003A04DF /* Info.plist in Resources */,
 				0AEBA96813313AB3003A04DF /* SqueakObjectiveC.xcodeproj.zip in Resources */,
 			);
@@ -1985,7 +1814,6 @@
 				0ABFFB371330F4CE00151AE3 /* sqNamedPrims.c in Sources */,
 				0ABFFB381330F4CE00151AE3 /* sqVirtualMachine.c in Sources */,
 				0A0830AE1331370300D70204 /* sqUnixAsynchFile.c in Sources */,
-				0AEBA95C13313AB3003A04DF /* macFileNameBits.c in Sources */,
 				0AEBA95F13313AB3003A04DF /* sqMacSecurity.c in Sources */,
 				0AEBA96013313AB3003A04DF /* sqSqueakSoundCoreAudio.m in Sources */,
 				0AEBA96113313AB3003A04DF /* sqSqueakSoundCoreAudioAPI.m in Sources */,
