@@ -73,8 +73,6 @@ sqInt isWords(sqInt oop);
 sqInt isWordsOrBytes(sqInt oop);
 sqInt includesBehaviorThatOf(sqInt aClass, sqInt aSuperClass);
 sqInt isArray(sqInt oop);
-sqInt internalIsMutable(sqInt oop);
-sqInt internalIsImmutable(sqInt oop);
 
 /* InterpreterProxy methodsFor: 'converting' */
 sqInt  booleanValueOf(sqInt obj);
@@ -115,7 +113,7 @@ sqInt classString(void);
 
 
 /* InterpreterProxy methodsFor: 'instance creation' */
-sqInt clone(sqInt oop);
+sqInt sqr_clone(sqInt oop);
 sqInt instantiateClassindexableSize(sqInt classPointer, sqInt size);
 sqInt makePointwithxValueyValue(sqInt xValue, sqInt yValue);
 sqInt popRemappableOop(void);
@@ -130,7 +128,6 @@ sqInt fullDisplayUpdate(void);
 sqInt fullGC(void);
 sqInt incrementalGC(void);
 sqInt primitiveFail(void);
-sqInt primitiveFailFor(sqInt reasonCode);
 sqInt showDisplayBitsLeftTopRightBottom(sqInt aForm, sqInt l, sqInt t, sqInt r, sqInt b);
 sqInt signalSemaphoreWithIndex(sqInt semaIndex);
 sqInt success(sqInt aBoolean);
@@ -152,23 +149,12 @@ sqInt classExternalData(void);
 sqInt classExternalFunction(void);
 sqInt classExternalLibrary(void);
 sqInt classExternalStructure(void);
-sqInt classAlien(void); /* Newsqueak FFI */
-sqInt classUnsafeAlien(void); /* Newsqueak FFI */
-sqInt getStackPointer(void);  /* Newsqueak FFI */
-sqInt sendInvokeCallbackStackRegistersJmpbuf(sqInt thunkPtrAsInt, sqInt stackPtrAsInt, sqInt regsPtrAsInt, sqInt jmpBufPtrAsInt); /* Newsqueak FFI */
-sqInt reestablishContextPriorToCallback(sqInt callbackContext); /* Newsqueak FFI */
 sqInt ioLoadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength);
 sqInt ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNameLength, sqInt moduleHandle);
 sqInt isInMemory(sqInt address);
 
-void *ioLoadFunctionFrom(char *fnName, char *modName);
+void *ioLoadFunctionFrom(const char *fnName, const char *modName);
 
-
-/* Proxy declarations for v1.8 */
-sqInt callbackEnter(sqInt *callbackID);
-sqInt callbackLeave(sqInt  callbackID);
-sqInt addGCRoot(sqInt *varLoc);
-sqInt removeGCRoot(sqInt *varLoc);
 
 struct VirtualMachine *VM = NULL;
 
@@ -274,7 +260,7 @@ struct VirtualMachine* sqGetInterpreterProxy(void)
 	VM->classString = classString;
 	
 	/* InterpreterProxy methodsFor: 'instance creation' */
-	VM->clone = clone;
+	VM->clone = sqr_clone;
 	VM->instantiateClassindexableSize = instantiateClassindexableSize;
 	VM->makePointwithxValueyValue = makePointwithxValueyValue;
 	VM->popRemappableOop = popRemappableOop;
@@ -355,21 +341,5 @@ struct VirtualMachine* sqGetInterpreterProxy(void)
 
 #endif
 
-#if VM_PROXY_MINOR > 7
-
-	VM->internalIsImmutable = internalIsImmutable;
-	VM->internalIsMutable   = internalIsMutable;
-	VM->primitiveFailFor    = primitiveFailFor;
-	VM->classAlien          = classAlien;
-	VM->getStackPointer     = (sqInt *(*)(void))getStackPointer;
-	VM->sendInvokeCallbackStackRegistersJmpbuf = sendInvokeCallbackStackRegistersJmpbuf;
-	VM->reestablishContextPriorToCallback = reestablishContextPriorToCallback;
-	VM->classUnsafeAlien    = classUnsafeAlien;
-	VM->callbackEnter = callbackEnter;
-	VM->callbackLeave = callbackLeave;
-	VM->addGCRoot = addGCRoot;
-	VM->removeGCRoot = removeGCRoot;
-
-#endif
 	return VM;
 }

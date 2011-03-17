@@ -22,6 +22,9 @@ extern "C" {
 
 
 extern "C" {
+  void setFullScreenFlag(int32 value);
+  int32 getFullScreenFlag(void);
+  
   int sqr_main(int, char**, char**);
 
 
@@ -45,10 +48,10 @@ extern "C" {
   void    ioRelinquishProcessorForMicroseconds(int);
   u_int32 ioScreenSize();
   void    ioSetCursor(char*, int, int);
-  void    ioSetCursorWithMask(char*, char*, int, int);
+  int     ioSetCursorWithMask(char*, char*, int, int);
   void    ioSetInputSemaphore(int);
   int32   ioSeconds();
-  bool    ioSetDisplayMode(int, int, int, bool);
+  int    ioSetDisplayMode(int, int, int, int);
   void    ioSetFullScreen(bool);
   void    ioShowDisplay(char*, int, int, int,   int, int, int, int);
 
@@ -70,6 +73,13 @@ extern "C" {
   int setCompilerInitialized(int flagValue);
 
   void sigint();
+  
+  
+ void basic_init();
+ void set_num_cores(char* num_cores_str);
+ void go_parallel();
+  void interpret_rvm(char* image_path);
+
 }
 
 extern   int (*compilerHooks[])();

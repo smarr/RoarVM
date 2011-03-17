@@ -146,7 +146,7 @@ static void *tryLoading(NSString *dirNameString, char *moduleName)
 /*  Find and load the named module.  Answer 0 if not found (do NOT fail
  *  the primitive!).
  */
-void *ioLoadModule(char *pluginName) {
+void *ioLoadModule(const char *pluginName) {
 	NSAutoreleasePool * pool = [NSAutoreleasePool new];
 	void* result = ioLoadModuleRaw(pluginName);
 	[pool drain];
@@ -275,7 +275,7 @@ void *ioLoadModuleRaw(char *pluginName)
 /*  Find a function in a loaded module.  Answer 0 if not found (do NOT
  *  fail the primitive!).
  */
-void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle)
+void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle)
 {
   char buf[NAME_MAX+1];
  
@@ -299,7 +299,7 @@ void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle)
 /*  Free the module with the associated handle.  Answer 0 on error (do
  *  NOT fail the primitive!).
 */
-sqInt ioFreeModule(void *moduleHandle)
+int ioFreeModule(void *moduleHandle)
 {
   int results = dlclose(moduleHandle);
 	

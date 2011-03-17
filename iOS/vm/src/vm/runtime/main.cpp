@@ -17,7 +17,7 @@
 # include <math.h>
 
 FILE* BytecodeTraceFile;
-extern char* displayName;
+/*extern*/ char* displayName;
 
 static void consume_argument(int& argc, char**& argv, int n) {
   argv[n] = argv[0];
@@ -47,7 +47,7 @@ static void set_geom(char* sizes) {
 #endif
 }
 
-static void set_num_cores(char* num_cores_str) {
+void set_num_cores(char* num_cores_str) {
   /* parses strings with 1 or 2 digits <digit{1,2}> */
   int num_cores;
   if (isdigit(num_cores = num_cores_str[0])  &&  num_cores_str[1] == '\0' ) {
@@ -90,7 +90,7 @@ static void set_trace_file(char* f) {
   }
 }
 
-extern int headless;
+int headless = false;
 
 
 
@@ -240,10 +240,68 @@ void helper_core_main() {
   }
 }
 
+void basic_init() {
+  OS_Interface::profiler_disable();
+  OS_Interface::profiler_clear();
+  
+  OS_Interface::initialize();
+  
+  Timeout_Timer::initialize();
+  Memory_Semantics::initialize_memory_system();
+  
+  Printer::init_globals();
+}
 
 
+void go_parallel() {
+  Memory_Semantics::go_parallel(helper_core_main, NULL);
+  
+  char buf[BUFSIZ];
+  Logical_Core::my_print_string(buf, sizeof(buf));
+  fprintf(stdout, "main running: %s\n", buf);
+  print_time(); fprintf(stderr, "\n");
+  
+  
+  print_config();
+  
+  Runtime_Tester::test();
+  
+  
+  
+  extern void initip();
+  initip();
+  
+}
 
-int main (int argc, char *argv[]) {
+void interpret_rvm(char* image_path) {
+  Squeak_Image_Reader::read(image_path, The_Memory_System(), The_Squeak_Interpreter());
+  
+  
+  //  extern char** environ;
+  //  sqr_main(argc, argv, environ);
+  
+  if (The_Squeak_Interpreter()->make_checkpoint())
+    The_Squeak_Interpreter()->save_all_to_checkpoint();
+  
+  assert_always(The_Squeak_Interpreter()->safepoint_ability == NULL);
+  The_Squeak_Interpreter()->distribute_initial_interpreter();
+  Message_Statics::run_timer = true;
+  {
+    Safepoint_Ability sa(true);
+    The_Memory_System()->verify_if(check_assertions);
+    if (check_assertions)
+      The_Squeak_Interpreter()->verify_all_processes_in_scheduler();
+    if (Trace_Execution) The_Squeak_Interpreter()->trace_execution();
+    if (Trace_For_Debugging) The_Squeak_Interpreter()->trace_for_debugging();
+    startInterpretingMessage_class().send_to_other_cores();
+  }
+  
+  // Doesn't work yet:  The_Memory_System()->moveAllToRead_MostlyHeaps();
+  The_Squeak_Interpreter()->interpret();
+  ioExit();
+}
+
+int rvm_main(int argc, char *argv[]) {
   struct rlimit rl = {100000000, 100000000}; //{ RLIM_INFINITY, RLIM_INFINITY };
   // The rlimit was an attempt to get core dumps for a MDE version that broke them.
   // It didn't work, but we might need it someday. -- dmu 4/09
@@ -303,8 +361,8 @@ int main (int argc, char *argv[]) {
     Squeak_Image_Reader::read(image_path, The_Memory_System(), The_Squeak_Interpreter());
 
 
-  extern char** environ;
-  sqr_main(argc, argv, environ);
+//  extern char** environ;
+//  sqr_main(argc, argv, environ);
 
   if (The_Squeak_Interpreter()->make_checkpoint())
     The_Squeak_Interpreter()->save_all_to_checkpoint();

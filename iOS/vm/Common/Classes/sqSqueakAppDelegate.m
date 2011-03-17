@@ -69,7 +69,7 @@ such third-party acknowledgments.
 	setSavedWindowSize( (width << 16) |(height & 0xFFFF));
 	windowBlock->width = width;
 	windowBlock->height = height; 	
-	extern sqInt getFullScreenFlag(void);
+	extern int32 getFullScreenFlag(void);
 	ioSetFullScreen(getFullScreenFlag());
 
 }

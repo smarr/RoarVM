@@ -65,7 +65,8 @@ extern sqSqueakAppDelegate *gDelegateApp;
 @synthesize soundInterfaceLogic;
 @synthesize argsArguments;
 
-extern sqInt interpret(void);  //This is a VM Callback
+//STEFAN: todo
+//extern sqInt interpret(void);  //This is a VM Callback
 
 - (void) setupFloat {
 }
@@ -125,7 +126,14 @@ extern sqInt interpret(void);  //This is a VM Callback
 	return [sqSqueakFileDirectoryInterface new];
 }
 
+void basic_init();
+void set_num_cores(char* num_cores_str);
+void go_parallel();
+void interpret_rvm(char* image_name);
+
 - (void) runSqueak {
+  //STEFAN: here is were we need to hack into
+  
 	NSAutoreleasePool * pool = [NSAutoreleasePool new]; //Needed since this is a worker thread, see comments in NSAutoreleasePool Class Reference about Threads
 	
 	[self setupFloat];  //JMM We have code for intel and powerpc float, but arm? 
@@ -157,10 +165,13 @@ extern sqInt interpret(void);  //This is a VM Callback
 		return;
 	}
 	
-	if (![self readImageIntoMemory]) {
+	/*if (![self readImageIntoMemory]) {
 		[pool drain];
 		return;
-	}
+	}*/
+  
+  char * characterPathForImage = (char *) [[NSFileManager defaultManager] fileSystemRepresentationWithPath: [self.imageNameURL path]];
+
 	
 	[self setupMenus];
 	[self setupTimers];
@@ -169,7 +180,14 @@ extern sqInt interpret(void);  //This is a VM Callback
 	[self setupSoundLogic];
 	[gDelegateApp makeMainWindow];
 	
-	interpret();
+  
+  basic_init();
+  set_num_cores("1"); //STEFAN TODO try 2
+  
+  go_parallel();
+  
+  interpret_rvm(characterPathForImage);
+  
 	[pool drain];  //may not return here, could call exit() via quit image
 	[self release];
 }
@@ -177,7 +195,7 @@ extern sqInt interpret(void);  //This is a VM Callback
 - (void) MenuBarRestore {
 }
 
-void sqMacMemoryFree(void);
+//void sqMacMemoryFree(void);
 
 - (void) ioExit {
 	[self ioExitWithErrorCode: 0];
@@ -196,7 +214,7 @@ void sqMacMemoryFree(void);
 	[imageNameURL release];
 	[fileDirectoryLogic release];
 	[eventQueue release];
-	sqMacMemoryFree();
+	//sqMacMemoryFree();
 	[super dealloc];
 }
 

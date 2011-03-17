@@ -1211,9 +1211,9 @@ void Squeak_Interpreter::primitiveKbdNext() {
 
 void Squeak_Interpreter::primitiveKbdPeek() {
   pop(1);
-  int keystrokeWord = ioPeekKeystroke();
+  /*int keystrokeWord = ioPeekKeystroke();
   if (keystrokeWord >= 0)  pushInteger(keystrokeWord);
-  else                     push(roots.nilObj);
+  else*/                     push(roots.nilObj);
 }
 
 void Squeak_Interpreter::primitiveLessOrEqual() {

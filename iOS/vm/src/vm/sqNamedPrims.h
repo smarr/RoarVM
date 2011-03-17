@@ -3,9 +3,10 @@ by VMMaker 3.8b6
  */
 /* This is an automatically generated table of all builtin modules in the VM */
 
-extern sqExport vm_exports[];
+
+//extern sqExport vm_exports[];
 extern sqExport os_exports[];
-extern sqExport ADPCMCodecPlugin_exports[];
+//extern sqExport ADPCMCodecPlugin_exports[];
 extern sqExport Squeak3D_exports[];
 extern sqExport B2DPlugin_exports[];
 extern sqExport BitBltPlugin_exports[];
@@ -36,9 +37,9 @@ extern sqExport SurfacePlugin_exports[];
 extern sqExport UUIDPlugin_exports[];
 
 sqExport *pluginExports[] = {
-	vm_exports,
+//	vm_exports,
 	os_exports,
-	ADPCMCodecPlugin_exports,
+//	ADPCMCodecPlugin_exports,
 	Squeak3D_exports,
 	B2DPlugin_exports,
 	BitBltPlugin_exports,
@@ -71,3 +72,4 @@ sqExport *pluginExports[] = {
 	UUIDPlugin_exports,
 	NULL
 };
+

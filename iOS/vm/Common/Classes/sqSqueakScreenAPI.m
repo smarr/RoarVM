@@ -85,7 +85,7 @@ sqInt ioForceDisplayUpdate(void){
 sqInt ioSetFullScreen(sqInt fullScreen) {
 	//API Documented
 	[getMainWindowDelegate() ioSetFullScreen: fullScreen];
-	extern sqInt setFullScreenFlag(sqInt fullScreen);
+	extern void setFullScreenFlag(int32 fullScreen);
 	setFullScreenFlag(fullScreen);
 	return 0;
 }

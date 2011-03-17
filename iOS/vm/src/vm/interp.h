@@ -2,7 +2,7 @@
    by VMMaker 4.2.6
  */
 
-#define VMMAKER_VERSION "4.2.6"
+//#define VMMAKER_VERSION "4.2.6"
 
 /*
  * define SQ_VI_BYTES_PER_WORD 8 for a 64-bit word size VM
@@ -13,6 +13,12 @@
 #endif
 
 #define BYTES_PER_WORD SQ_VI_BYTES_PER_WORD
+#define BASE_HEADER_SIZE sizeof(long int)
+//Object::BaseHeaderSize
+
+
+
+/*
 #define BASE_HEADER_SIZE SQ_VI_BYTES_PER_WORD
 #if (BYTES_PER_WORD == 4) // 32-bit object memory
 # define WORD_MASK 0xffffffff
@@ -45,4 +51,5 @@
 # define ALL_BUT_MARK_BIT_AND_TYPE_MASK 0x7ffffffffffffffc
 # define ALL_BUT_HASH_BITS 0xffffffffe001ffff
 #endif //  (BYTES_PER_WORD == 4)
+*/
 

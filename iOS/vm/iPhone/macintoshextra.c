@@ -30,7 +30,7 @@ sqInt ioGetKeystroke() {return -1;}
 sqInt ioMousePoint() {return 0;}
 sqInt ioPeekKeystroke() {return 0;}
 
-sqInt ioSetCursor( sqInt cursorBitsIndex, sqInt offsetX, sqInt offsetY) {return 0;}
+sqInt ioSetCursor( char* cursorBitsIndex, int offsetX, int offsetY) {return 0;}
 sqInt ioSetCursorWithMask( sqInt cursorBitsIndex, sqInt cursorMaskIndex, sqInt offsetX, sqInt offsetY) {return 0;}
 sqInt ioSetCursorARGB(sqInt cursorBitsIndex, sqInt extentX, sqInt extentY, sqInt offsetX, sqInt offsetY);
 sqInt ioSetCursorARGB(sqInt cursorBitsIndex, sqInt extentX, sqInt extentY, sqInt offsetX, sqInt offsetY) {return 0;}	

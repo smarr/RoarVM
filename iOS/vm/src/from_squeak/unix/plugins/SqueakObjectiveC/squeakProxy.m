@@ -81,7 +81,7 @@
 }
 
 #include <dlfcn.h>
-- (void) forwardInvocation: (NSInvocation*) anInvocation
+/*- (void) forwardInvocation: (NSInvocation*) anInvocation
 {
 	NSDate *timeout;
 	//	NSLog(@"forwardInvocation: %@", anInvocation);
@@ -129,7 +129,7 @@
 		[timeout release];
 		//NSLog(@"failed lock 0");
 	}
-}
+}*/
 
 - (NSMethodSignature *) methodSignatureForSelector: (SEL) selector
 {

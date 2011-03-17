@@ -15,6 +15,19 @@
 #include <string.h>
 #include <time.h>
 
+typedef long int      int32;
+typedef long long int int64;
+typedef short int     int16;
+
+typedef unsigned int           u_int1;   // used for 1-bit fields, Tilera compiler complains if its not unsigned
+typedef unsigned long int      u_int32;
+typedef unsigned long long int u_int64;
+
+typedef unsigned char u_char;
+
+typedef   int32   oop_int_t;
+typedef u_int32 u_oop_int_t;
+
 #include "sqConfig.h"
 #include "sqMemoryAccess.h"
 #include "sqVirtualMachine.h"
@@ -175,12 +188,12 @@ sqInt ioRelinquishProcessorForMicroseconds(sqInt microSeconds);
 sqInt ioScreenSize(void);
 sqInt ioScreenDepth(void);
 sqInt ioSeconds(void);
-sqInt ioSetCursor(sqInt cursorBitsIndex, sqInt offsetX, sqInt offsetY);
-sqInt ioSetCursorWithMask(sqInt cursorBitsIndex, sqInt cursorMaskIndex, sqInt offsetX, sqInt offsetY);
+sqInt ioSetCursor(char* cursorBitsIndex, int offsetX, int offsetY);
+int ioSetCursorWithMask(char* cursorBitsIndex, char* cursorMaskIndex, int offsetX, int offsetY);
 sqInt ioShowDisplay(sqInt dispBitsIndex, sqInt width, sqInt height, sqInt depth,
 		    sqInt affectedL, sqInt affectedR, sqInt affectedT, sqInt affectedB);
 sqInt ioHasDisplayDepth(sqInt depth);
-sqInt ioSetDisplayMode(sqInt width, sqInt height, sqInt depth, sqInt fullscreenFlag);
+int ioSetDisplayMode(int width, int height, int depth, int fullscreenFlag);
 
 /* Power management. */
 
@@ -194,10 +207,10 @@ sqInt ioDisablePowerManager(sqInt disableIfNonZero);
    without event support.
 */
 
-sqInt ioGetButtonState(void);
-sqInt ioGetKeystroke(void);
-sqInt ioMousePoint(void);
-sqInt ioPeekKeystroke(void);
+int ioGetButtonState(void);
+int ioGetKeystroke(void);
+int32 ioMousePoint(void);
+int ioPeekKeystroke(void);
 /* Note: In an event driven architecture, ioProcessEvents is obsolete.
    It can be implemented as a no-op since the image will check for
    events in regular intervals. */
@@ -370,11 +383,6 @@ sqInt ioCanRenameImage(void);
 sqInt ioCanWriteImage(void);
 sqInt ioDisableImageWrite(void);
 
-/* Save/restore. */
-/* Read the image from the given file starting at the given image offset */
-sqInt readImageFromFileHeapSizeStartingAt(sqImageFile f, usqInt desiredHeapSize, squeakFileOffsetType imageOffset);
-/* NOTE: The following is obsolete - it is only provided for compatibility */
-#define readImageFromFileHeapSize(f, s) readImageFromFileHeapSizeStartingAt(f,s,0)
 
 /* Clipboard (cut/copy/paste). */
 sqInt clipboardSize(void);
@@ -410,9 +418,9 @@ sqInt getAttributeIntoLength(sqInt indexNumber, sqInt byteArrayIndex, sqInt leng
 void *ioLoadExternalFunctionOfLengthFromModuleOfLength(sqInt functionNameIndex, sqInt functionNameLength,
 						       sqInt moduleNameIndex, sqInt moduleNameLength);
 sqInt  ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength);
-void  *ioLoadFunctionFrom(char *functionName, char *pluginName);
+void  *ioLoadFunctionFrom(const char *functionName, const char *pluginName);
 sqInt  ioShutdownAllModules(void);
-sqInt  ioUnloadModule(char *moduleName);
+sqInt  ioUnloadModule(const char *moduleName);
 sqInt  ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength);
 char  *ioListBuiltinModule(sqInt moduleIndex);
 char  *ioListLoadedModule(sqInt moduleIndex);
@@ -427,19 +435,19 @@ void  *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNam
 	a loaded one.
 	WARNING: never primitiveFail() within, just return 0
 */
-void *ioLoadModule(char *pluginName);
+void *ioLoadModule(const char *pluginName);
 
 /* ioFindExternalFunctionIn:
 	Find the function with the given name in the moduleHandle.
 	WARNING: never primitiveFail() within, just return 0.
 */
-void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle);
+void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle);
 
 /* ioFreeModule:
 	Free the module with the associated handle.
 	WARNING: never primitiveFail() within, just return 0.
 */
-sqInt ioFreeModule(void *moduleHandle);
+int ioFreeModule(void *moduleHandle);
 
 /* The Squeak version from which this interpreter was generated. */
 extern const char *interpreterVersion;

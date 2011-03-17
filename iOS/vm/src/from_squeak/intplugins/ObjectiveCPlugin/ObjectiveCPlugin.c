@@ -161,7 +161,7 @@ EXPORT(sqInt) primitiveCallbackLeave(void) {
 		interpreterProxy->pop(1);
 		return null;
 	}
-	interpreterProxy->callbackLeave(aNumber);
+	//interpreterProxy->callbackLeave(aNumber);
 	if (interpreterProxy->failed()) {
 		return null;
 	}

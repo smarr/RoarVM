@@ -62,7 +62,7 @@ int				gSqueakUseFileMappedMMAP=0;
 char            gSqueakUntrustedDirectoryName[PATH_MAX];
 char            gSqueakTrustedDirectoryName[PATH_MAX];
 
-sqInt printAllStacks(void);
+//sqInt printAllStacks(void);
 sqInt printCallStack(void);
 extern void dumpPrimTraceLog(void);
 extern BOOL NSApplicationLoad(void);
@@ -112,7 +112,7 @@ void sigsegv(int ignore)
 	if (!printingStack)
 	{
 		printingStack= 1;
-		printAllStacks();
+		//printAllStacks();
 	}
 	abort();
 }

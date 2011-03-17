@@ -404,7 +404,7 @@
 	<key>SqueakExplicitWindowOpenNeeded</key>
 	<false/>
 	<key>SqueakImageName</key>
-	<string>Squeak.image</string>
+	<string>rvm-base.image</string>
 	<key>SqueakMaxHeapSize</key>
 	<integer>536870912</integer>
 	<key>SqueakMouseCmdButton1</key>
@@ -439,14 +439,14 @@
 	<string></string>
 	<key>SqueakTrustedDirectory</key>
 	<string>/foobar/tooBar/forSqueak/bogus/</string>
+	<key>SqueakUIFadeForFullScreenInSeconds</key>
+	<real>0.5</real>
 	<key>SqueakUIFlushPrimaryDeferNMilliseconds</key>
 	<integer>20</integer>
 	<key>SqueakUnTrustedDirectory</key>
 	<string>~/Library/Preferences/Squeak/Internet/My Squeak/</string>
 	<key>SqueakUseFileMappedMMAP</key>
 	<false/>
-	<key>SqueakUIFadeForFullScreenInSeconds</key>
-	<real>0.5</real>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
