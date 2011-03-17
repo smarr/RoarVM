@@ -241,6 +241,8 @@ void helper_core_main() {
 }
 
 void basic_init() {
+  Memory_System::min_heap_MB = 32;
+  
   OS_Interface::profiler_disable();
   OS_Interface::profiler_clear();
   
@@ -250,10 +252,14 @@ void basic_init() {
   Memory_Semantics::initialize_memory_system();
   
   Printer::init_globals();
+  
+  Memory_System::min_heap_MB = 32;
 }
 
 
 void go_parallel() {
+  Memory_System::min_heap_MB = 32;
+  
   Memory_Semantics::go_parallel(helper_core_main, NULL);
   
   char buf[BUFSIZ];

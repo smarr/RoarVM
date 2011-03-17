@@ -31,7 +31,6 @@
 		0ABFF89C1330F41800151AE3 /* ObjectiveCPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFF8691330F41800151AE3 /* ObjectiveCPlugin.c */; };
 		0ABFF89D1330F41800151AE3 /* RePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFF86B1330F41800151AE3 /* RePlugin.c */; };
 		0ABFF89E1330F41800151AE3 /* SecurityPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFF86D1330F41800151AE3 /* SecurityPlugin.c */; };
-		0ABFF8A01330F41800151AE3 /* SocketPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFF8711330F41800151AE3 /* SocketPlugin.c */; };
 		0ABFF8A11330F41800151AE3 /* SoundCodecPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFF8731330F41800151AE3 /* SoundCodecPrims.c */; };
 		0ABFF8A21330F41800151AE3 /* SoundGenerationPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFF8751330F41800151AE3 /* SoundGenerationPlugin.c */; };
 		0ABFF8A31330F41800151AE3 /* SoundPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ABFF8771330F41800151AE3 /* SoundPlugin.c */; };
@@ -236,7 +235,6 @@
 		9484F8EF10B0E1580038BDC0 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 945550910DF2041100FB176B /* Default.png */; };
 		9484F99010B13D470038BDC0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D3623EB0D0F72F000981E51 /* CoreGraphics.framework */; };
 		9484F9AF10B13DA50038BDC0 /* sqMacHostWindow.c in Sources */ = {isa = PBXBuildFile; fileRef = 94BCEA2B0DDE0C1600F38F31 /* sqMacHostWindow.c */; };
-		94883B410E0C2B9C005A4738 /* sqUnixSocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 94883B400E0C2B9C005A4738 /* sqUnixSocket.c */; };
 		948EC3901155312600B08A4F /* MainWindow-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 948EC38F1155312600B08A4F /* MainWindow-iPad.xib */; };
 		94A0E8850DE5EF430071C8B9 /* sqSqueakMainApplication+imageReadWrite.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A0E8840DE5EF430071C8B9 /* sqSqueakMainApplication+imageReadWrite.m */; };
 		94A0E9840DE5F1FE0071C8B9 /* sqSqueakMainApplication+screen.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A0E9830DE5F1FE0071C8B9 /* sqSqueakMainApplication+screen.m */; };
@@ -2191,7 +2189,6 @@
 				9471D2E10E04743F00703D45 /* sqSqueakAppDelegate.m in Sources */,
 				942F75D30E0B67AD00848BF2 /* sqSqueakVmAndImagePathAPI.m in Sources */,
 				942F76320E0B6C7600848BF2 /* sqSqueakMainApplication+attributes.m in Sources */,
-				94883B410E0C2B9C005A4738 /* sqUnixSocket.c in Sources */,
 				94A1B0070E0DBE2400EB5EFC /* sqSqueakMainApplication+events.m in Sources */,
 				94A1B02D0E0DC10D00EB5EFC /* sqSqueakSoundAPI.m in Sources */,
 				94A1B0320E0DC19300EB5EFC /* sqSqueakMainApplication+sound.m in Sources */,
@@ -2233,7 +2230,6 @@
 				0ABFF89C1330F41800151AE3 /* ObjectiveCPlugin.c in Sources */,
 				0ABFF89D1330F41800151AE3 /* RePlugin.c in Sources */,
 				0ABFF89E1330F41800151AE3 /* SecurityPlugin.c in Sources */,
-				0ABFF8A01330F41800151AE3 /* SocketPlugin.c in Sources */,
 				0ABFF8A11330F41800151AE3 /* SoundCodecPrims.c in Sources */,
 				0ABFF8A21330F41800151AE3 /* SoundGenerationPlugin.c in Sources */,
 				0ABFF8A31330F41800151AE3 /* SoundPlugin.c in Sources */,
@@ -2418,6 +2414,7 @@
 				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				CODE_SIGN_IDENTITY = "iPhone Developer: Engineer Bainomugisha (882W55QM4Q)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Engineer Bainomugisha (882W55QM4Q)";
+				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = "-DSQUEAK_BUILTIN_PLUGIN";
 				GCC_VERSION = 4.2;
@@ -2428,7 +2425,7 @@
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "9A3C6CEC-E313-4BB0-B855-DBFA91037171";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9A3C6CEC-E313-4BB0-B855-DBFA91037171";
-				SDKROOT = iphoneos4.3;
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -2475,6 +2472,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Corporate Smalltalk Consulting Ltd";
+				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = SQUEAK_BUILTIN_PLUGIN;
 				GCC_VERSION = 4.2;
@@ -2484,7 +2482,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4D1323CE-3998-4FF8-AB83-49838083E965";
-				SDKROOT = iphoneos4.3;
+				SDKROOT = iphoneos;
 			};
 			name = Distribution;
 		};

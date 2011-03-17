@@ -1265,9 +1265,14 @@ char* Memory_System::map_heap_memory(size_t total_size,
   assert( Memory_Semantics::cores_are_initialized());
   assert( On_Tilera || Logical_Core::running_on_main());
   
+  return (char*)malloc(total_size);
+  
+  /*
+   
   const bool print = false;
   
-  snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/rvm-%d", main_pid);
+  tmpnam(mmap_filename);
+  //snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/rvm-%d", main_pid);
   int open_flags = (where == NULL  ?  O_CREAT  :  0) | O_RDWR;
   
   int mmap_fd = open(mmap_filename, open_flags, 0600);
@@ -1285,6 +1290,8 @@ char* Memory_System::map_heap_memory(size_t total_size,
     unlink(mmap_filename);
     fatal("ftruncate");
   }
+
+  
   
   // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
   void* mmap_result = mmap(where, bytes_to_map, PROT_READ | PROT_WRITE,  flags, mmap_fd, offset);
@@ -1314,6 +1321,6 @@ char* Memory_System::map_heap_memory(size_t total_size,
   close(mmap_fd);
   
   assert_always( mem != NULL );
-  return mem;
+  return mem; */
 }
 
