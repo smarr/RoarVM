@@ -2416,6 +2416,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Engineer Bainomugisha (882W55QM4Q)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Engineer Bainomugisha (882W55QM4Q)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = "-DSQUEAK_BUILTIN_PLUGIN";
 				GCC_VERSION = 4.2;
@@ -2424,6 +2426,8 @@
 				HEADER_SEARCH_PATHS = /usr/include/uuid;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
+				PROVISIONING_PROFILE = "9A3C6CEC-E313-4BB0-B855-DBFA91037171";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9A3C6CEC-E313-4BB0-B855-DBFA91037171";
 				SDKROOT = iphoneos4.3;
 			};
 			name = Debug;
@@ -2433,8 +2437,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = "";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Engineer Bainomugisha (882W55QM4Q)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Engineer Bainomugisha (882W55QM4Q)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2456,11 +2460,11 @@
 					src/vm/runtime,
 				);
 				INFOPLIST_FILE = "Info-iPhone.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = Squeak;
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE = "9A3C6CEC-E313-4BB0-B855-DBFA91037171";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9A3C6CEC-E313-4BB0-B855-DBFA91037171";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
 			};
@@ -2511,7 +2515,7 @@
 					src/vm/runtime,
 				);
 				INFOPLIST_FILE = "Info-iPhone.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fno-cse-follow-jumps",

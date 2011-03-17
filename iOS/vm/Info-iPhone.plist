@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Squeak72x72.png</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.smalltalkconsulting.squeakbase</string>
+	<string>soft.roarvm.poc</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -23,15 +23,15 @@
 	<key>CFBundleSignature</key>
 	<string>FAST</string>
 	<key>CFBundleVersion</key>
-	<string>3.0</string>
-	<key>UIFileSharingEnabled</key>
-	<true/>
+	<string>0.1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMainNibFile</key>
 	<string>MainWindow</string>
 	<key>NSMainNibFile~ipad</key>
 	<string>MainWindow-iPad</string>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UIInterfaceOrientation</key>
 	<string>UIInterfaceOrientationPortrait</string>
 	<key>UIPrerenderedIcon</key>
