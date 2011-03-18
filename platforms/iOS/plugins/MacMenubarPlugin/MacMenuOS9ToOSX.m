@@ -8,7 +8,6 @@
 
 #import "MacMenuOS9ToOSX.h"
 
-
 Boolean ioCheckMenuHandle(MenuHandle menuHandle) {
 	int menuID;
 	if (menuHandle == 0) return true;
