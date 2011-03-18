@@ -94,7 +94,7 @@ usqInt	    sqAllocateMemoryMac(sqInt minHeapSize, sqInt *desiredHeapSize);
 #endif
 
 /* macro to return from interpret() loop in browser plugin VM */
-#define ReturnFromInterpret() return
+#define ReturnFromInterpret() return 0
 
 // CARBON
 
