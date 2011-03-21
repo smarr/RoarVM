@@ -1,0 +1,115 @@
+// !$*UTF8*$!
+{
+	040F1C6312CD1CDD008BA0CB /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = "";
+			};
+		};
+	};
+	040F1C6412CD1CDD008BA0CB /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	040F1E7F12CD278E008BA0CB /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = 4CA7E530092CC16B0044FE85 /* Info-FT2Plugin.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+			CFBundleShortVersionString,
+		);
+		name = "/Users/MAC/Desktop/Dev/VM/cog-osx/platforms/iOS/plugins/FT2Plugin/Info-FT2Plugin.plist";
+		rLen = 0;
+		rLoc = 9223372036854775807;
+	};
+	040F1E8012CD278E008BA0CB /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 66C6C8E501DB1EC300A80109 /* SqueakPlugin.icns */;
+	};
+	040F1E8112CD278E008BA0CB /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4C2DFB1309335838008B95AB /* PkgInfo */;
+		name = "PkgInfo: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 8;
+		vrLoc = 0;
+	};
+	040F1E8212CD278E008BA0CB /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 940E416E09A448AA004715E5 /* macFileNameBits.c */;
+	};
+	040F1E8312CD278E008BA0CB /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 940E416E09A448AA004715E5 /* macFileNameBits.c */;
+		name = "macFileNameBits.c: 47";
+		rLen = 0;
+		rLoc = 1203;
+		rType = 0;
+		vrLen = 645;
+		vrLoc = 639;
+	};
+	4C2DFB1309335838008B95AB /* PkgInfo */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {519, 237}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 8}";
+		};
+	};
+	66DF6BFD01D7DCEA00A80119 /* Project object */ = {
+		activeBuildConfigurationName = Development;
+		activeTarget = 942103F2084F50DF006A0FD2 /* FT2Plugin */;
+		codeSenseManager = 040F1C6412CD1CDD008BA0CB /* Code sense */;
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					341,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 315434769;
+			PBXWorkspaceStateSaveDate = 315434769;
+		};
+		perUserProjectItems = {
+			040F1E7F12CD278E008BA0CB /* PlistBookmark */ = 040F1E7F12CD278E008BA0CB /* PlistBookmark */;
+			040F1E8012CD278E008BA0CB /* PBXBookmark */ = 040F1E8012CD278E008BA0CB /* PBXBookmark */;
+			040F1E8112CD278E008BA0CB /* PBXTextBookmark */ = 040F1E8112CD278E008BA0CB /* PBXTextBookmark */;
+			040F1E8212CD278E008BA0CB /* PBXBookmark */ = 040F1E8212CD278E008BA0CB /* PBXBookmark */;
+			040F1E8312CD278E008BA0CB /* PBXTextBookmark */ = 040F1E8312CD278E008BA0CB /* PBXTextBookmark */;
+		};
+		sourceControlManager = 040F1C6312CD1CDD008BA0CB /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	940E416E09A448AA004715E5 /* macFileNameBits.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {698, 650}}";
+			sepNavSelRange = "{1203, 0}";
+			sepNavVisRange = "{639, 645}";
+		};
+	};
+	942103F2084F50DF006A0FD2 /* FT2Plugin */ = {
+		activeExec = 0;
+	};
+}

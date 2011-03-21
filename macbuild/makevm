@@ -109,5 +109,12 @@ xcodebuild -configuration $XCD_BUILD_CONFIGURATION -project UnixOSProcessPlugin/
 rm -rf "$DEST/Contents/Resources/UnixOSProcessPlugin.bundle"
 cp -R UnixOSProcessPlugin/build/$XCD_BUILD_CONFIGURATION/UnixOSProcessPlugin.bundle "$DEST/Contents/Resources"
 
+# Build the FT2Plugin
+echo FT2Plugin xcodebuild -configuration $XCD_BUILD_CONFIGURATION -project FT2Plugin/FT2Plugin.xcodeproj
+xcodebuild -configuration $XCD_BUILD_CONFIGURATION -project FT2Plugin/FT2Plugin.xcodeproj
+rm -rf "$DEST/Contents/Resources/FT2Plugin.bundle"
+cp -R FT2Plugin/build/$XCD_BUILD_CONFIGURATION/FT2Plugin.bundle "$DEST/Contents/Resources"
+
+
 # Clean out any .svn directories (result of copying) in the VM
 find "$DEST" -name .svn -exec rm -rf {} \;
