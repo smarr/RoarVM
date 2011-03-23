@@ -227,11 +227,21 @@ static sqInt callInitializersIn(ModuleEntry *module)
 	If anything goes wrong make sure the module is unloaded
 	(WITHOUT calling shutdownModule()) and return NULL.
 */
+
+static int moduleLoadingEnabled = 1;
+
+/* Disable module loading mechanism for the rest of current session. This operation should be not reversable! */
+void ioDisableModuleLoading() {
+	moduleLoadingEnabled = 0;
+}
+
 static ModuleEntry *findAndLoadModule(char *pluginName, sqInt ffiLoad)
 {
 	void *handle;
 	ModuleEntry *module;
 
+	if (!moduleLoadingEnabled)
+		return NULL;
 	DPRINTF(("Looking for plugin %s\n", (pluginName ? pluginName : "<intrinsic>")));
 	/* Try to load the module externally */
 	handle = ioLoadModule(pluginName);
@@ -372,7 +382,6 @@ void *ioLoadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 	if(module) return module->handle;
 	return 0;
 }
-
 
 /* shutdownModule:
 	Call the shutdown mechanism from the specified module.
