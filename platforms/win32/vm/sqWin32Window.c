@@ -1091,6 +1091,10 @@ sqInputEvent *sqNextEventPut(void) {
     printf("WARNING: event buffer overflow\n");
     eventBufferGet = (eventBufferGet + 1) % MAX_EVENT_BUFFER;
   }
+
+  if(inputSemaphoreIndex)
+    signalSemaphoreWithIndex(inputSemaphoreIndex);
+
   return evt;
 }
 
