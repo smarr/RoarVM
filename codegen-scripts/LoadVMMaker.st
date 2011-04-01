@@ -1,4 +1,4 @@
-Gofer new	squeaksource: 'MetacelloRepository';	package: 'ConfigurationOfCog';	load.	((Smalltalk at: #ConfigurationOfCog) project version: '1.4') load.((MCHttpRepository 	
+Gofer new	squeaksource: 'MetacelloRepository';	package: 'ConfigurationOfCog';	load.	((Smalltalk at: #ConfigurationOfCog) project version: '1.5') load.((MCHttpRepository 	
 	location: 'http://www.squeaksource.com/VMMaker' 
 		user: '' 
 		password: '')	versionFromFileNamed: 'CMakeVMMaker-EstebanLorenzano.59.mcz') 
