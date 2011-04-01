@@ -3267,7 +3267,7 @@ bool Squeak_Interpreter::roomToPushNArgs(int n) {
 
 int Squeak_Interpreter::getNextEvent_any_platform(void* p) {
   int r = ioGetNextEvent(p);
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
     r = The_Squeak_Interpreter()->successFlag;
 # endif
   return r;

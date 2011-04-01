@@ -18,7 +18,7 @@
 
 FILE* BytecodeTraceFile;
 extern char* displayName;
-# if TARGET_OS_IS_IPHONE
+# if On_iOS
   char* displayName;
 # endif
 
@@ -94,7 +94,7 @@ static void set_trace_file(char* f) {
 }
 
 extern int headless;
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
 int headless = false;
 # endif
 
@@ -247,7 +247,7 @@ void helper_core_main() {
 }
 
 
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
 
 void basic_init() {
   Memory_System::min_heap_MB = 32;
@@ -381,7 +381,7 @@ int MAIN(int argc, char *argv[]) {
   else
     Squeak_Image_Reader::read(image_path, The_Memory_System(), The_Squeak_Interpreter());
 
-  # ifndef TARGET_OS_IS_IPHONE
+  # if !On_iOS
   extern char** environ;
   sqr_main(argc, argv, environ);
   # endif

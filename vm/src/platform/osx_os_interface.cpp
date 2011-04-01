@@ -14,7 +14,7 @@
 
 # include "headers.h"
 
-# ifndef TARGET_OS_IS_IPHONE
+# if !On_iOS
 # include <CoreServices/CoreServices.h>
 # include <CoreFoundation/CoreFoundation.h>
 # include <IOKit/ps/IOPowerSources.h>

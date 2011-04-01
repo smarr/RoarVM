@@ -56,7 +56,7 @@
 #  include "buffered_channel_debug.h"
 # endif
 
-# if TARGET_OS_IS_IPHONE
+# if On_iOS
 # elif On_Apple
 #  include <monitor.h>
 # else
@@ -77,7 +77,7 @@
 # include "os_interface.h"
 
 
-# ifndef TARGET_OS_IS_IPHONE
+# if !On_iOS
 # include "host_pci_info.h"
 
 # include "abstract_zero_copy_command_queue_endpoint.h"

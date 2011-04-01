@@ -22,7 +22,7 @@ extern "C" {
 
 
 extern "C" {
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
   void setFullScreenFlag(int32 value);
   int32 getFullScreenFlag(void);
  # endif
@@ -50,7 +50,7 @@ extern "C" {
   void    ioRelinquishProcessorForMicroseconds(int);
   u_int32 ioScreenSize();
   void    ioSetCursor(char*, int, int);
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
 # define T int
 # else
 # define T void
@@ -59,7 +59,7 @@ extern "C" {
 # undef T
   void    ioSetInputSemaphore(int);
   int32   ioSeconds();
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
 # define T int
 # else
 # define T bool
@@ -88,7 +88,7 @@ extern "C" {
 
   void sigint();
   
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
   
   void basic_init();
   void set_num_cores(char* num_cores_str);

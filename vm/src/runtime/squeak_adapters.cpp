@@ -449,7 +449,7 @@ typedef struct {
 // xxx_dmu include these in compilation?
 sqExport vm_exports[1];
 
-# ifndef TARGET_OS_IS_IPHONE
+# if !On_iOS
   sqExport os_exports[1];
   sqExport ADPCMCodecPlugin_exports[1];
   sqExport BMPReadWriterPlugin_exports[1];

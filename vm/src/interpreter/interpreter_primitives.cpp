@@ -1222,7 +1222,7 @@ void Squeak_Interpreter::primitiveKbdNext() {
 
 void Squeak_Interpreter::primitiveKbdPeek() {
   pop(1);
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
   int keystrokeWord = -1;
 # else
   int keystrokeWord = ioPeekKeystroke();
