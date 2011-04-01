@@ -11,6 +11,9 @@
  *    Stefan Marr, Vrije Universiteit Brussel - Port to x86 Multi-Core Systems
  ******************************************************************************/
 
+# ifdef TARGET_OS_IS_IPHONE
+# include "rvm_config.h"
+# endif
 
 /**
  * Naming conventions
@@ -56,7 +59,8 @@
 #  include "buffered_channel_debug.h"
 # endif
 
-# if On_Apple
+# if TARGET_OS_IS_IPHONE
+# elif On_Apple
 #  include <monitor.h>
 # else
 #  include <sys/resource.h>
@@ -76,6 +80,7 @@
 # include "os_interface.h"
 
 
+# ifndef TARGET_OS_IS_IPHONE
 # include "host_pci_info.h"
 
 # include "abstract_zero_copy_command_queue_endpoint.h"
@@ -89,6 +94,9 @@
 # include "chip_to_chip_zero_copy_command_receiver.h"
 
 # include "tilera_chip_to_chip_message_queue.h"
+# endif
+
+
 # include "message_queue.h"
 # include "cpu_coordinate.h"
 
