@@ -23,7 +23,7 @@ int (*compilerHooks[])() = {NULL};
 
 
 
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
 
   void setFullScreenFlag(int32 value) {
     The_Memory_System()->snapshot_window_size.fullScreenFlag(value);
@@ -69,7 +69,7 @@ void* dummy_fn(...) {unimplemented(); return 0;}
 
 int ioGetNextEvent(void*) { unimpExt(); }
 
-# ifndef TARGET_OS_IS_IPHONE
+# if !On_iOS
 int ioGetButtonState() {unimpExt(); return 0; }
 int32 ioMousePoint() {unimpExt(); return 0;}
   int ioSetDisplayMode(int, int, int, int) {unimpExt();  return true;}

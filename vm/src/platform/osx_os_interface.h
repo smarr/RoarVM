@@ -19,7 +19,7 @@ public:
 
   static void ensure_Time_Machine_backs_up_run_directory();
 
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
   static inline void moncontrol(int) {}
 # endif
 

@@ -1255,7 +1255,7 @@ int Memory_System::assign_rank_for_snapshot_object() {
 char  Memory_System::mmap_filename[BUFSIZ] = { 0 };
 
 
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
 
 char* Memory_System::map_heap_memory(size_t total_size,
                                      size_t bytes_to_map,
@@ -1335,4 +1335,4 @@ char* Memory_System::map_heap_memory(size_t total_size,
   assert_always( mem != NULL );
   return mem;
 }
-# endif // TARGET_OS_IS_IPHONE
+# endif // On_iOS
