@@ -284,11 +284,7 @@ void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle)
 
   dprintf((stderr, "ioFindExternalFunctionIn(%s, %ld)\n",lookupName, (long) moduleHandle));
 
-  if ((fn == NULL) && (((sqSqueakOSXInfoPlistInterface*) gDelegateApp.squeakApplication.infoPlistInterfaceLogic).SqueakDebug)
-      && strcmp(lookupName, "initialiseModule")
-      && strcmp(lookupName, "shutdownModule")
-      && strcmp(lookupName, "setInterpreter")
-      && strcmp(lookupName, "getModuleName")) {
+  if ((fn == NULL) && ((sqSqueakOSXInfoPlistInterface*) gDelegateApp.squeakApplication.infoPlistInterfaceLogic).SqueakDebug) {
 	char *why = dlerror();
     fprintf(stderr, "ioFindExternalFunctionIn(%s, %p):\n  %s\n",lookupName, moduleHandle, why);
 	}
