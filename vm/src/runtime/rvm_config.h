@@ -36,6 +36,17 @@
   # define On_Apple 0
 # endif
 
+# if On_Apple
+  # ifdef TARGET_OS_IS_FOR_IPHONE
+    # define On_iOS 1
+    # define On_OSX 0
+  # else
+    # define On_OSX 1
+    # define On_iOS 0
+  # endif
+# endif
+
+
 // This is necessary to allow large heaps on Linux
 # define _FILE_OFFSET_BITS 64
 
@@ -396,7 +407,7 @@ void print_config_for_spreadsheet();
 # endif
 
 // We modified Squeak's config.h but then have to change its name, so include ours here:
-# if !defined(__cplusplus) && !defined(__OBJC__) && !defined(TARGET_OS_IS_IPHONE)
+# if !defined(__cplusplus) && !defined(__OBJC__) && !On_iOS
 # include <sqr_config.h>
 # endif
 

@@ -691,7 +691,7 @@ static int primitiveMicrosecondClock() {
   return 0;
 }
 
-# if On_Apple && !defined(TARGET_OS_IS_IPHONE)
+# if On_OSX
 # include "/Developer/Headers/FlatCarbon/MacTypes.h" // Ugh! Why won't xCode supply UnsignedWide??? -- dmu
 # endif
 
@@ -703,7 +703,7 @@ static int primitiveCycleCounter() {
   }
   uint64_t cycles;
 
-# ifdef TARGET_OS_IS_IPHONE
+# if On_iOS
   The_Squeak_Interpreter()->primitiveFail();
   return 0;
   
