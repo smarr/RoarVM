@@ -20,6 +20,14 @@
   # define RVM_CODE_NOT_SQUEAK_CODE // for decls already in Squeak code that we need
 # endif
 
+// for IOS
+
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+#endif
+
+
 // can invoke with -notimer or setenv SQUEAK_NOTIMER for debugging
 
 # ifdef __APPLE__
@@ -388,7 +396,7 @@ void print_config_for_spreadsheet();
 # endif
 
 // We modified Squeak's config.h but then have to change its name, so include ours here:
-# ifndef __cplusplus
+# if !defined(__cplusplus) && !defined(__OBJC__) && !defined(TARGET_OS_IS_IPHONE)
 # include <sqr_config.h>
 # endif
 

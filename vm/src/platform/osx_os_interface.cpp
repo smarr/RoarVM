@@ -81,6 +81,7 @@ Abstract_OS_Interface::Power_Source OSX_OS_Interface::get_power_source() {
 # else
 
 void OSX_OS_Interface::ensure_Time_Machine_backs_up_run_directory() {}
+Abstract_OS_Interface::Power_Source OSX_OS_Interface::get_power_source() { return AC; }
 
 # endif
 

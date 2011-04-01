@@ -11,9 +11,6 @@
  *    Stefan Marr, Vrije Universiteit Brussel - Port to x86 Multi-Core Systems
  ******************************************************************************/
 
-# ifdef TARGET_OS_IS_IPHONE
-# include "rvm_config.h"
-# endif
 
 /**
  * Naming conventions
@@ -67,7 +64,7 @@
 # endif
 
 
-// # include "rvm_config.h" // makefile (or Prefix Header setting in Xcode language settings) includes this before EVERY .c or .cpp file
+// # include "rvm_config.h" // makefile (or Prefix Header setting in Xcode language settings) includes this before EVERY .c or .cpp or .m file
 
 # include "my_rank.h"
 
