@@ -691,9 +691,10 @@ static int primitiveMicrosecondClock() {
   return 0;
 }
 
-# if On_Apple
+# if On_Apple && !defined(TARGET_OS_IS_PHONE)
 # include "/Developer/Headers/FlatCarbon/MacTypes.h" // Ugh! Why won't xCode supply UnsignedWide??? -- dmu
 # endif
+
 
 static int primitiveCycleCounter() {
   if (The_Squeak_Interpreter()->get_argumentCount() != 0) {
@@ -701,9 +702,13 @@ static int primitiveCycleCounter() {
     return 0;
   }
   uint64_t cycles;
+
+# ifdef TARGET_OS_IS_PHONE
+  The_Squeak_Interpreter()->primitiveFail();
+  return 0;
   
   // burrow down below OS_Interface level to avoid effect of Dont_Count_Cycles
-# if On_Tilera
+# elif On_Tilera
   cycles = ::get_cycle_count();
   
 # elif On_Apple
@@ -719,6 +724,7 @@ static int primitiveCycleCounter() {
   The_Squeak_Interpreter()->popThenPush(1, Object::positive64BitIntegerFor(cycles)); 
   return 0;
 }
+
   
 
 void* primitiveUseCPUTime() {

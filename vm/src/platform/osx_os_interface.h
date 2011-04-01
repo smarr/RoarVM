@@ -19,6 +19,10 @@ public:
 
   static void ensure_Time_Machine_backs_up_run_directory();
 
+# ifdef TARGET_OS_IS_IPHONE
+  static inline void moncontrol(int) {}
+# endif
+
   static inline void profiler_enable()  { moncontrol(1); }
   static inline void profiler_disable() { moncontrol(0); }
   static inline void profiler_clear()   {}

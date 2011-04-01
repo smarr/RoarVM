@@ -366,7 +366,7 @@ void screenInfoResponse_class::handle_me() {}
 void getNextEventMessage_class::handle_me() {
   assert(Logical_Core::running_on_main());
   getNextEventResponse_class m;
-  m.got_one = ioGetNextEvent(m.evtBuf);
+  m.got_one = Squeak_Interpreter::getNextEvent_any_platform(m.evtBuf);
   m.send_to(sender);
 }
 

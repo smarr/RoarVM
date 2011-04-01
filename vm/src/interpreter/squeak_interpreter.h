@@ -1512,6 +1512,8 @@ public:
     return use_cpu_ms() ? ioCPUMSecs() : ioMSecs();
   }
   static int ioCPUMSecs();
+    
+  static int getNextEvent_any_platform(void*);
 };
 
 
