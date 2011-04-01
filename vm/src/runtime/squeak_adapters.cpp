@@ -448,17 +448,21 @@ typedef struct {
 
 // xxx_dmu include these in compilation?
 sqExport vm_exports[1];
-sqExport os_exports[1];
-sqExport ADPCMCodecPlugin_exports[1];
-sqExport BMPReadWriterPlugin_exports[1];
-sqExport DSAPrims_exports[1];
-sqExport ZipPlugin_exports[1];
-sqExport FFTPlugin_exports[1];
-sqExport GeniePlugin_exports[1];
-sqExport JPEGReaderPlugin_exports[1];
-sqExport Klatt_exports[1];
-sqExport StarSqueakPlugin_exports[1];
-sqExport XDisplayControlPlugin_exports[1];
+
+# ifndef TARGET_OS_IS_IPHONE
+  sqExport os_exports[1];
+  sqExport ADPCMCodecPlugin_exports[1];
+  sqExport BMPReadWriterPlugin_exports[1];
+  sqExport DSAPrims_exports[1];
+  sqExport ZipPlugin_exports[1];
+  sqExport FFTPlugin_exports[1];
+  sqExport GeniePlugin_exports[1];
+  sqExport JPEGReaderPlugin_exports[1];
+  sqExport Klatt_exports[1];
+  sqExport StarSqueakPlugin_exports[1];
+  sqExport XDisplayControlPlugin_exports[1];
+# endif
+
 # if Configure_Squeak_Code_for_Tilera
 sqExport UnixOSProcessPlugin_exports[1];
 # endif

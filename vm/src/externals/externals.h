@@ -22,6 +22,11 @@ extern "C" {
 
 
 extern "C" {
+# ifdef TARGET_OS_IS_IPHONE
+  void setFullScreenFlag(int32 value);
+  int32 getFullScreenFlag(void);
+ # endif
+
   int sqr_main(int, char**, char**);
 
 
@@ -45,10 +50,22 @@ extern "C" {
   void    ioRelinquishProcessorForMicroseconds(int);
   u_int32 ioScreenSize();
   void    ioSetCursor(char*, int, int);
-  void    ioSetCursorWithMask(char*, char*, int, int);
+# ifdef TARGET_OS_IS_IPHONE
+# define T int
+# else
+# define T void
+# endif
+  T    ioSetCursorWithMask(char*, char*, int, int);
+# undef T
   void    ioSetInputSemaphore(int);
   int32   ioSeconds();
-  bool    ioSetDisplayMode(int, int, int, bool);
+# ifdef TARGET_OS_IS_IPHONE
+# define T int
+# else
+# define T bool
+# endif
+  T    ioSetDisplayMode(int, int, int, int);
+# undef T
   void    ioSetFullScreen(bool);
   void    ioShowDisplay(char*, int, int, int,   int, int, int, int);
 
@@ -70,7 +87,21 @@ extern "C" {
   int setCompilerInitialized(int flagValue);
 
   void sigint();
+  
+# ifdef TARGET_OS_IS_IPHONE
+  
+  void basic_init();
+  void set_num_cores(char* num_cores_str);
+  void go_parallel();
+  void interpret_rvm(char* image_path);
+# endif
+
 }
 
 extern   int (*compilerHooks[])();
+
+
+
+int event_type_complex();
+
 

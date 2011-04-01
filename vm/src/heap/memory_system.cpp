@@ -1254,6 +1254,22 @@ int Memory_System::assign_rank_for_snapshot_object() {
 
 char  Memory_System::mmap_filename[BUFSIZ] = { 0 };
 
+
+# ifdef TARGET_OS_IS_IPHONE
+
+char* Memory_System::map_heap_memory(size_t total_size,
+                                     size_t bytes_to_map,
+                                     void*  where,
+                                     off_t  offset,
+                                     int    main_pid,
+                                     int    flags) {
+  return (char*)malloc(total_size);
+}
+
+
+
+# else
+
 char* Memory_System::map_heap_memory(size_t total_size,
                                      size_t bytes_to_map,
                                      void*  where,
@@ -1265,6 +1281,7 @@ char* Memory_System::map_heap_memory(size_t total_size,
   assert( Memory_Semantics::cores_are_initialized());
   assert( On_Tilera || Logical_Core::running_on_main());
   
+   
   const bool print = false;
   
   snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/rvm-%d", main_pid);
@@ -1285,6 +1302,8 @@ char* Memory_System::map_heap_memory(size_t total_size,
     unlink(mmap_filename);
     fatal("ftruncate");
   }
+  
+  
   
   // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
   void* mmap_result = mmap(where, bytes_to_map, PROT_READ | PROT_WRITE,  flags, mmap_fd, offset);
@@ -1316,4 +1335,4 @@ char* Memory_System::map_heap_memory(size_t total_size,
   assert_always( mem != NULL );
   return mem;
 }
-
+# endif // TARGET_OS_IS_IPHONE

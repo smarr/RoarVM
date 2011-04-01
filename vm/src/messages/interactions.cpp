@@ -58,7 +58,7 @@ void Interactions::get_screen_info(int* screenSize, int* fullScreenFlag) {
 
 bool Interactions::getNextEvent_on_main(int* evtBuf) {
   if (Logical_Core::running_on_main())
-    return ioGetNextEvent(evtBuf);
+      return Squeak_Interpreter::getNextEvent_any_platform(evtBuf);
 
   SEND_THEN_WAIT_AND_RETURN_MESSAGE(getNextEventMessage_class(), Logical_Core::main_rank, getNextEventResponse, r);
   if (!r.got_one) return false;
