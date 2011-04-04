@@ -160,7 +160,7 @@ void SetEnableF2Menu() {
 void SetEnableAltF4Quit() {
   CheckMenuItem(vmPrefsMenu, ID_ENABLEALTF4QUIT, MF_BYCOMMAND | 
 		(fEnableAltF4Quit ? MF_CHECKED : MF_UNCHECKED));
-  WritePrivateProfileString(U_GLOBAL,TEXT("EnableAltF4Quit"),
+	  WritePrivateProfileString(U_GLOBAL,TEXT("EnableAltF4Quit"),
 			    enableAltF4Quit ? U_ON : U_OFF,squeakIniName);
 }
 #endif
@@ -363,9 +363,11 @@ extern sqInt recordPrimTraceFunc();
 	       TEXT("Dump call stack"));
     AppendMenu(hMenu, MF_STRING | MF_UNCHECKED, ID_PRINTALLSTACKS,
 	       TEXT("Dump all processes"));
+#if defined(recordPrimTraceFunc)
     if (recordPrimTraceFunc())
       AppendMenu(hMenu, MF_STRING | MF_UNCHECKED, ID_DUMPPRIMLOG,
 	       TEXT("Dump recent primitives"));
+#endif
     AppendMenu(pMenu, MF_STRING | MF_POPUP, (int)hMenu,
 	       TEXT("Debug Options"));
   }
