@@ -60,7 +60,7 @@
 # include <execinfo.h>
 # define BACKTRACE_DEPTH 64
 #endif
-#if __FreeBSD__ 
+#if __FreeBSD__
 # include <sys/ucontext.h>
 #endif
 
