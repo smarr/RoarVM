@@ -118,11 +118,11 @@ public:
     return pthread_mutex_unlock(mutex);
   }
   
+# endif // Omit_PThread_Locks
+
   static inline int atomic_fetch_and_add(int* mem, int increment) {
     return __sync_fetch_and_add(mem, increment);
   }
-  
-# endif // Omit_PThread_Locks
   
   
 # ifdef __GNUC__
