@@ -13,6 +13,7 @@ src/
 stacksrc/
 Compiled/
 /build/
+/results
 /platforms/iOS/vm/build/Distribution/Squeak.app/Contents/MacOS/Squeak
 /platforms/iOS/vm/build/SqueakPureObjcCogVM.build/Distribution/SqueakPureObjc.build/build-state.dat
 /platforms/iOS/vm/build/SqueakPureObjcCogVM.build/Distribution/SqueakPureObjc.build/Objects-normal/i386/ADPCMCodecPlugin.o
