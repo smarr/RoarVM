@@ -124,6 +124,24 @@ public:
     return __sync_fetch_and_add(mem, increment);
   }
   
+  /**
+   * Atomically compare the memory location with the old value, and 
+   * if they are equal set the new value and return true, false otherwise.
+   */
+  static inline bool atomic_compare_and_swap(int* ptr, int old_value, int new_value) {
+    return __sync_bool_compare_and_swap(ptr, old_value, new_value);
+  }
+
+  /**
+   * Atomically compare the memory location with the old value, and 
+   * if they are equal set the new value, otherwise don't set anything.
+   * 
+   * Returns the initial value at ptr.
+   */
+  static inline bool atomic_compare_and_swap_val(int* ptr, int old_value, int new_value) {
+    return __sync_val_compare_and_swap(ptr, old_value, new_value);
+  }
+  
   
 # ifdef __GNUC__
   static inline uint32_t leading_zeros(uint32_t x)    { return __builtin_clz(x);      }

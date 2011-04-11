@@ -42,6 +42,22 @@ public:
   
   static inline int atomic_fetch_and_add(int*, int) { fatal(); return 0; }
   
+  /**
+   * Atomically compare the memory location with the old value, and 
+   * if they are equal set the new value and return true, false otherwise.
+   */
+  static inline bool atomic_compare_and_swap(int* ptr, int old_value, int new_value) { fatal(); return false; }
+  
+  /**
+   * Atomically compare the memory location with the old value, and 
+   * if they are equal set the new value, otherwise don't set anything.
+   * 
+   * Returns the initial value at ptr.
+   */
+  static inline int atomic_compare_and_swap_val(int* ptr, int old_value, int new_value) { fatal(); return *ptr; }
+  
+  
+  
   static inline uint32_t leading_zeros(uint32_t x)    { fatal(); return 0; }
   static inline uint32_t population_count(uint32_t x) { fatal(); return 0; }
   
