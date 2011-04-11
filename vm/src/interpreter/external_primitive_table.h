@@ -13,7 +13,7 @@
 
 
 class External_Primitive_Table: public Abstract_Primitive_Table {
- public:
+public:
 
 
   void* operator new(size_t size) {
@@ -22,12 +22,18 @@ class External_Primitive_Table: public Abstract_Primitive_Table {
 
   External_Primitive_Table() : Abstract_Primitive_Table(4096, true) { }
 
-   int add(fn_t addr, bool on_main) {
+  int add(fn_t addr, bool on_main) {
     for (int i = 0;  i < size;  ++i)
       if (contents[i] == NULL) {
-        contents[i] = addr;
-        execute_on_main[i] = on_main;
-        return i + 1;
+        // Entry is empty, lets try to set it
+        if (OS_Interface::atomic_compare_and_swap((int*)&contents[i], NULL, (int)addr)) {
+          execute_on_main[i] = on_main;
+          return i + 1;
+        }
+        else {
+          // Setting new address failed because of a concurrent modification
+          assert(contents[i] != NULL);
+        }
       }
     lprintf("External_Primitive_Table is too small!");
     return lookup_failed;
