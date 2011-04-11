@@ -31,6 +31,32 @@ public:
   
   static void pin_thread_to_core(int32_t rank);
   
+  
+# if Use_Spin_Locks
+  typedef OSSpinLock Mutex;
+  
+  static inline void mutex_init(Mutex* mutex, const void* _ = NULL) {
+    *mutex = 0;
+  }
+  
+  static inline void mutex_destruct(Mutex* mutex) {}
+  
+  static inline int mutex_lock(Mutex* mutex) {
+    OSSpinLockLock(mutex);
+    return 0;
+  }
+  
+  static inline int mutex_trylock(Mutex* mutex) {
+    return OSSpinLockTry(mutex);
+  }
+  
+  static inline int mutex_unlock(Mutex* mutex) {
+    OSSpinLockUnlock(mutex);
+    return 0;
+  }
+  
+# endif
+  
 };
 
 # endif // On_Apple

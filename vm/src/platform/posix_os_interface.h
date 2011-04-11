@@ -70,11 +70,11 @@ public:
   static inline int  mutex_trylock(Mutex*)     { return 0; }
   static inline int  mutex_unlock(Mutex*)      { return 0; }
   
-# elif Use_PThread_Spin_Lock
+# elif Use_Spin_Locks && !On_Apple 
   
   typedef pthread_spinlock_t Mutex;
   
-  static inline void mutex_init(Mutex* mutex, const void*) {
+  static inline void mutex_init(Mutex* mutex, const void* _ = NULL) {
     pthread_spin_init(mutex, 0);
   }
   
@@ -118,7 +118,7 @@ public:
     return pthread_mutex_unlock(mutex);
   }
   
-# endif // Omit_PThread_Locks
+# endif // Omit_PThread_Locks elif Use_Spin_Locks
 
   static inline int atomic_fetch_and_add(int* mem, int increment) {
     return __sync_fetch_and_add(mem, increment);

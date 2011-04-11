@@ -100,6 +100,7 @@
   template(Dont_Trace_Bytecode_Fetching) \
   template(Force_Direct_Timeout_Timer_List_Head_Access) \
   template(Omit_PThread_Locks) \
+  template(Use_Spin_Locks) \
   template(Dont_Count_Cycles) \
   \
   template(Extra_Preheader_Word_Experiment) \
@@ -314,6 +315,10 @@
 
 # ifndef Omit_PThread_Locks
 # define Omit_PThread_Locks 0
+# endif
+
+# ifndef Use_Spin_Locks
+# define Use_Spin_Locks 1
 # endif
 
 # ifndef Dump_Bytecode_Cycles
