@@ -124,7 +124,8 @@ sqInt	windowActive=1;
   int thisButton = [evt buttonBit];
   int thisTouches = evt.touches;
   
-  if (thisButton != lastButton) {
+  if (lastMouseLocation.x != thisMouseLocation.x  &&  lastMouseLocation.y != thisMouseLocation.y
+      && thisButton != lastButton) {
     RoarVMMouseMoveEvent *move = [RoarVMMouseMoveEvent new];
     move.location = thisMouseLocation;
     move.touches = lastTouches;

@@ -196,7 +196,6 @@
 		940BE5F91239F70D00674A11 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 940BE5F81239F70D00674A11 /* OpenGLES.framework */; };
 		9412CAB30E6C037B00DB8625 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 9412CAB20E6C037B00DB8625 /* Settings.bundle */; };
 		9412CAE60E6C05EC00DB8625 /* sqSqueakInfoPlistInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 9412CAE50E6C05EC00DB8625 /* sqSqueakInfoPlistInterface.m */; };
-		941D1C9B0E696FC7005B77B3 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = 941D1C9A0E696FC7005B77B3 /* Entitlements.plist */; };
 		9424FF760DDCB271009912BF /* osExports.c in Sources */ = {isa = PBXBuildFile; fileRef = 9424FF750DDCB271009912BF /* osExports.c */; };
 		942F75D30E0B67AD00848BF2 /* sqSqueakVmAndImagePathAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 942F75D20E0B67AD00848BF2 /* sqSqueakVmAndImagePathAPI.m */; };
 		942F76320E0B6C7600848BF2 /* sqSqueakMainApplication+attributes.m in Sources */ = {isa = PBXBuildFile; fileRef = 942F76310E0B6C7600848BF2 /* sqSqueakMainApplication+attributes.m */; };
@@ -245,6 +244,13 @@
 		94B6E9DD10BC777A00333E9E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 94B6E9DC10BC777A00333E9E /* Localizable.strings */; };
 		94BCE78C0DDDF61200F38F31 /* sqUnixUUID.c in Sources */ = {isa = PBXBuildFile; fileRef = 94BCE7870DDDF61200F38F31 /* sqUnixUUID.c */; };
 		94D2A24C112B8ED000B6E459 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C208F810AF7262002F4160 /* QuartzCore.framework */; };
+		BC6CC8DB134B031C00B9B2B0 /* RoarVMMouseDownEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8DA134B031C00B9B2B0 /* RoarVMMouseDownEvent.m */; };
+		BC6CC8DF134B034300B9B2B0 /* RoarVMMouseMoveEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8DE134B034300B9B2B0 /* RoarVMMouseMoveEvent.m */; };
+		BC6CC8E2134B036800B9B2B0 /* RoarVMMouseUpEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8E1134B036800B9B2B0 /* RoarVMMouseUpEvent.m */; };
+		BC6CC8E9134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8E8134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m */; };
+		BC6CC8ED134B138300B9B2B0 /* RoarVMSwipeEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8EC134B138300B9B2B0 /* RoarVMSwipeEvent.m */; };
+		BCAB989D134B0139004AB528 /* RoarVMAbstractEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BCAB989C134B0139004AB528 /* RoarVMAbstractEvent.m */; };
+		BCCC348E1349603100063417 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = BCCC348D1349603100063417 /* Entitlements.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -616,7 +622,6 @@
 		9414422310BC89440088F8AC /* SqueakProject.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = SqueakProject.icns; path = OSX/SqueakProject.icns; sourceTree = "<group>"; };
 		9414422410BC89440088F8AC /* SqueakScript.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = SqueakScript.icns; path = OSX/SqueakScript.icns; sourceTree = "<group>"; };
 		9414422510BC89440088F8AC /* SqueakSources.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = SqueakSources.icns; path = OSX/SqueakSources.icns; sourceTree = "<group>"; };
-		941D1C9A0E696FC7005B77B3 /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		9424FF5B0DDCB1C7009912BF /* sqGnu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqGnu.h; path = vm/sqGnu.h; sourceTree = "<group>"; };
 		9424FF640DDCB1EF009912BF /* sqPlatformSpecific.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqPlatformSpecific.h; sourceTree = "<group>"; };
 		9424FF650DDCB1EF009912BF /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
@@ -759,6 +764,19 @@
 		94F3A9690E6BFA7C00E0B12A /* Squeak.png */ = {isa = PBXFileReference; explicitFileType = image.png; path = Squeak.png; sourceTree = "<group>"; };
 		94F8798F0E6C0C7E00662DEA /* sqSqueakIPhoneInfoPlistInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqSqueakIPhoneInfoPlistInterface.h; sourceTree = "<group>"; };
 		94F879900E6C0C7E00662DEA /* sqSqueakIPhoneInfoPlistInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = sqSqueakIPhoneInfoPlistInterface.m; sourceTree = "<group>"; };
+		BC6CC8D9134B031C00B9B2B0 /* RoarVMMouseDownEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMMouseDownEvent.h; sourceTree = "<group>"; };
+		BC6CC8DA134B031C00B9B2B0 /* RoarVMMouseDownEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMMouseDownEvent.m; sourceTree = "<group>"; };
+		BC6CC8DD134B034300B9B2B0 /* RoarVMMouseMoveEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMMouseMoveEvent.h; sourceTree = "<group>"; };
+		BC6CC8DE134B034300B9B2B0 /* RoarVMMouseMoveEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMMouseMoveEvent.m; sourceTree = "<group>"; };
+		BC6CC8E0134B036700B9B2B0 /* RoarVMMouseUpEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMMouseUpEvent.h; sourceTree = "<group>"; };
+		BC6CC8E1134B036800B9B2B0 /* RoarVMMouseUpEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMMouseUpEvent.m; sourceTree = "<group>"; };
+		BC6CC8E7134B045000B9B2B0 /* RoarVMAbstractMouseEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMAbstractMouseEvent.h; sourceTree = "<group>"; };
+		BC6CC8E8134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMAbstractMouseEvent.m; sourceTree = "<group>"; };
+		BC6CC8EB134B138300B9B2B0 /* RoarVMSwipeEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RoarVMSwipeEvent.h; path = ../../RoarVMSwipeEvent.h; sourceTree = "<group>"; };
+		BC6CC8EC134B138300B9B2B0 /* RoarVMSwipeEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RoarVMSwipeEvent.m; path = ../../RoarVMSwipeEvent.m; sourceTree = "<group>"; };
+		BCAB989B134B0139004AB528 /* RoarVMAbstractEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMAbstractEvent.h; sourceTree = "<group>"; };
+		BCAB989C134B0139004AB528 /* RoarVMAbstractEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMAbstractEvent.m; sourceTree = "<group>"; };
+		BCCC348D1349603100063417 /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -784,6 +802,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				BC6CC8EB134B138300B9B2B0 /* RoarVMSwipeEvent.h */,
+				BC6CC8EC134B138300B9B2B0 /* RoarVMSwipeEvent.m */,
 				1D3623240D0F684500981E51 /* SqueakNoOGLIPhoneAppDelegate.h */,
 				1D3623250D0F684500981E51 /* SqueakNoOGLIPhoneAppDelegate.m */,
 				942F761B0E0B6B6100848BF2 /* sqSqueakIPhoneApplication.h */,
@@ -816,6 +836,16 @@
 				940CE8550DFCE2D200EBA91B /* SqueakUIController.m */,
 				9458525410F04339001401E7 /* sqSqueakIPhoneClipboardAPI.h */,
 				9458525510F04339001401E7 /* sqSqueakIPhoneClipboardAPI.m */,
+				BCAB989B134B0139004AB528 /* RoarVMAbstractEvent.h */,
+				BC6CC8D9134B031C00B9B2B0 /* RoarVMMouseDownEvent.h */,
+				BC6CC8DD134B034300B9B2B0 /* RoarVMMouseMoveEvent.h */,
+				BC6CC8E0134B036700B9B2B0 /* RoarVMMouseUpEvent.h */,
+				BC6CC8E7134B045000B9B2B0 /* RoarVMAbstractMouseEvent.h */,
+				BC6CC8E8134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m */,
+				BC6CC8E1134B036800B9B2B0 /* RoarVMMouseUpEvent.m */,
+				BC6CC8DE134B034300B9B2B0 /* RoarVMMouseMoveEvent.m */,
+				BC6CC8DA134B031C00B9B2B0 /* RoarVMMouseDownEvent.m */,
+				BCAB989C134B0139004AB528 /* RoarVMAbstractEvent.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1742,7 +1772,7 @@
 				948EC38E1155311D00B08A4F /* Resources-iPad */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				941D1C9A0E696FC7005B77B3 /* Entitlements.plist */,
+				BCCC348D1349603100063417 /* Entitlements.plist */,
 				94C36C9710B0CF290041953A /* Info-iPhone.plist */,
 				947E5F9F10A9FFA000D3B69E /* SqueakPureObjc-Info.plist */,
 				948774B110C64DD800E4AEC5 /* SqueakPureObjc-Info 64x64.plist */,
@@ -1753,6 +1783,7 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				94E658DF0DDD03FE00358328 /* vm */,
 				9424FF570DDCB17F009912BF /* platforms */,
 				94E658DC0DDD03FE00358328 /* src */,
 				947E5F9310A9FF4A00D3B69E /* SqueakPureObjc_Prefix.pch */,
@@ -2060,7 +2091,6 @@
 				0ABFF8351330F41800151AE3 /* from_squeak */,
 				94E658DD0DDD03FE00358328 /* plugins */,
 				94E658DE0DDD03FE00358328 /* plugins.int */,
-				94E658DF0DDD03FE00358328 /* vm */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -2091,7 +2121,8 @@
 				94E658E10DDD03FE00358328 /* interp.h */,
 				94E659200DDD03FE00358328 /* sqNamedPrims.h */,
 			);
-			path = vm;
+			name = vm;
+			path = src/vm;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2144,7 +2175,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
-				941D1C9B0E696FC7005B77B3 /* Entitlements.plist in Resources */,
 				9412CAB30E6C037B00DB8625 /* Settings.bundle in Resources */,
 				9484F8E410B0E0ED0038BDC0 /* Squeak.png in Resources */,
 				9484F8EF10B0E1580038BDC0 /* Default.png in Resources */,
@@ -2160,6 +2190,7 @@
 				0A4EFFDC13317C0D004BC399 /* iPhone.changes in Resources */,
 				0A4EFFDD13317C0D004BC399 /* iPhone.image in Resources */,
 				0A4EFFDE13317C0D004BC399 /* SqueakV3-minimum-MVC.sources in Resources */,
+				BCCC348E1349603100063417 /* Entitlements.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2382,6 +2413,12 @@
 				0AC7ECAF133147F80000A953 /* utils.cpp in Sources */,
 				0AC7ECBB133169C70000A953 /* sqrNamedPrims.c in Sources */,
 				0A4EFFD81331787A004BC399 /* sqrUnixExternalPrims.c in Sources */,
+				BCAB989D134B0139004AB528 /* RoarVMAbstractEvent.m in Sources */,
+				BC6CC8DB134B031C00B9B2B0 /* RoarVMMouseDownEvent.m in Sources */,
+				BC6CC8DF134B034300B9B2B0 /* RoarVMMouseMoveEvent.m in Sources */,
+				BC6CC8E2134B036800B9B2B0 /* RoarVMMouseUpEvent.m in Sources */,
+				BC6CC8E9134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m in Sources */,
+				BC6CC8ED134B138300B9B2B0 /* RoarVMSwipeEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2434,21 +2471,21 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = "";
-				CODE_SIGN_IDENTITY = "iPhone Developer: Engineer Bainomugisha (882W55QM4Q)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Engineer Bainomugisha (882W55QM4Q)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: David Ungar (X77TU3SX7E)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: David Ungar (X77TU3SX7E)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = SqueakNOOGLIPhone_Prefix.pch;
+				GCC_PREFIX_HEADER = src/vm/runtime/rvm_config.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					TARGET_OS_IS_IPHONE,
 					USE_INLINE_MEMORY_ACCESSORS,
 					HAVE_SYS_TIME_H,
 					HAVE_NANOSLEEP,
 					SQUEAK_BUILTIN_PLUGIN,
 					"ISQUEAK_IMAGE=\"iPhone\"",
 					"ISQUEAK_SOURCES=\"PharoV10\"",
+					TARGET_OS_IS_FOR_IPHONE,
 				);
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = 4.2;
@@ -2457,11 +2494,11 @@
 					src/vm/runtime,
 				);
 				INFOPLIST_FILE = "Info-iPhone.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = Squeak;
-				PROVISIONING_PROFILE = "9A3C6CEC-E313-4BB0-B855-DBFA91037171";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9A3C6CEC-E313-4BB0-B855-DBFA91037171";
+				PROVISIONING_PROFILE = "91607298-9968-43DA-98FC-32C6D6712CD6";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "91607298-9968-43DA-98FC-32C6D6712CD6";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
 			};
@@ -2492,19 +2529,19 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				CODE_SIGN_ENTITLEMENTS = Entitlements.plist;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Corporate Smalltalk Consulting Ltd";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Developer: David Ungar (X77TU3SX7E)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: David Ungar (X77TU3SX7E)";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = SqueakNoOGLIPhone_Prefix.pch;
+				GCC_PREFIX_HEADER = src/vm/runtime/rvm_config.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					TARGET_OS_IS_IPHONE,
 					USE_INLINE_MEMORY_ACCESSORS,
 					HAVE_SYS_TIME_H,
 					HAVE_NANOSLEEP,
 					SQUEAK_BUILTIN_PLUGIN,
 					"ISQUEAK_IMAGE=\"iPhone\"",
 					"ISQUEAK_SOURCES=\"PharoV10\"",
+					TARGET_OS_IS_FOR_IPHONE,
 				);
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = 4.2;
@@ -2513,7 +2550,7 @@
 					src/vm/runtime,
 				);
 				INFOPLIST_FILE = "Info-iPhone.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fno-cse-follow-jumps",
@@ -2523,8 +2560,8 @@
 					"-fomit-frame-pointer",
 				);
 				PRODUCT_NAME = Squeak;
-				PROVISIONING_PROFILE = "31EFCDFF-BE30-405D-AB3C-E344083790A0";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE = "91607298-9968-43DA-98FC-32C6D6712CD6";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "91607298-9968-43DA-98FC-32C6D6712CD6";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
 			};

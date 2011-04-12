@@ -115,39 +115,30 @@ static const char* stateString(UIGestureRecognizerState s) {
 
 
 - (void)handleTapFrom:(UITapGestureRecognizer *)recognizer {
-	 
-  RoarVMAbstractEvent* down = [RoarVMMouseDownEvent newFrom: recognizer view: self.view];
-  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: down];
   
+  [RoarVMMouseDownEvent enqueueFrom: recognizer view: self.view];
   
-  RoarVMAbstractEvent* move = [RoarVMMouseMoveEvent newFrom: recognizer view: self.view ];
-  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: move];
+  // RoarVMMouseMoveEvent enqueFrom: recognizer view: self.view ];
 
-  RoarVMAbstractEvent* up = [RoarVMMouseUpEvent newFrom: recognizer view: self.view ];
-  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: up];
+  [RoarVMMouseUpEvent enqueueFrom: recognizer view: self.view ];
 }
 
 
 
 - (void)handleSwipeFrom:(UISwipeGestureRecognizer *)recognizer {
-  RoarVMAbstractEvent *evt = [RoarVMSwipeEvent newFrom: recognizer view: self.view ];
-  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: evt];
+  [RoarVMSwipeEvent enqueueFrom: recognizer view: self.view ];
 }
 
 
 
 
 - (void)handleLongPressFrom:(UILongPressGestureRecognizer *)recognizer {
-	
-  UIGestureRecognizerState state = recognizer.state;
-  RoarVMAbstractEvent *evt =
-    state == UIGestureRecognizerStateBegan   ? [RoarVMMouseDownEvent newFrom: recognizer view: self.view]
-  : state == UIGestureRecognizerStateChanged ? [RoarVMMouseMoveEvent newFrom: recognizer view: self.view]
-  : state == UIGestureRecognizerStateEnded   ? [RoarVMMouseUpEvent   newFrom: recognizer view: self.view]
-  : nil;
-  
-  if (evt == nil) return;
-  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: evt];
+  switch ( recognizer.state ) {
+    case UIGestureRecognizerStateBegan:   [RoarVMMouseDownEvent enqueueFrom: recognizer view: self.view]; break;
+    case UIGestureRecognizerStateChanged: [RoarVMMouseMoveEvent enqueueFrom: recognizer view: self.view]; break;
+    case UIGestureRecognizerStateEnded:   [RoarVMMouseUpEvent   enqueueFrom: recognizer view: self.view]; break;
+    default: break;
+  }
  }
 
 

@@ -5,6 +5,12 @@
 
 #import "sq.h"
 #import "RoarVMAbstractEvent.h"
+#import "sqSqueakIPhoneApplication.h"
+#import "sqSqueakIPhoneApplication+events.h"
+#import "SqueakNoOGLIPhoneAppDelegate.h"
+
+extern SqueakNoOGLIPhoneAppDelegate *gDelegateApp;
+
 
 
 @implementation RoarVMAbstractEvent
@@ -25,4 +31,8 @@
   return evt;
 }
 
++ (void) enqueueFrom: (UIGestureRecognizer*) recognizer view: (UIView*) view {
+  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: 
+   [self newFrom: recognizer view: view]];
+}
 @end

@@ -11,6 +11,8 @@
   int touches;
   CGPoint location;
 }
+
++ (void) enqueueFrom: (UIGestureRecognizer*) recognizer view: (UIView*) view;
 + (RoarVMAbstractEvent*) newFrom: (UIGestureRecognizer*) recognizer view: (UIView*) view;
 - (void) initFrom: (UIGestureRecognizer*) recognizer view: (UIView*) view;
 
