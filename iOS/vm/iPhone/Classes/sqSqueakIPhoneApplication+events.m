@@ -126,7 +126,7 @@ sqInt	windowActive=1;
   
   if (lastMouseLocation.x != thisMouseLocation.x  &&  lastMouseLocation.y != thisMouseLocation.y
       && thisButton != lastButton) {
-    RoarVMMouseMoveEvent *move = [RoarVMMouseMoveEvent new];
+    RoarVMAbstractMouseEvent *move = lastButton ? [RoarVMMouseMoveEvent new] : [RoarVMMouseUpEvent new];
     move.location = thisMouseLocation;
     move.touches = lastTouches;
     [self enqueueRoarVMEvent: move];
