@@ -115,7 +115,7 @@ static const char* stateString(UIGestureRecognizerState s) {
 
 
 - (void)handleTapFrom:(UITapGestureRecognizer *)recognizer {
-  
+  // [RoarVMMouseUpEvent enqueueFrom: recognizer view: self.view ];
   [RoarVMMouseDownEvent enqueueFrom: recognizer view: self.view];
   
   // RoarVMMouseMoveEvent enqueFrom: recognizer view: self.view ];
@@ -134,7 +134,10 @@ static const char* stateString(UIGestureRecognizerState s) {
 
 - (void)handleLongPressFrom:(UILongPressGestureRecognizer *)recognizer {
   switch ( recognizer.state ) {
-    case UIGestureRecognizerStateBegan:   [RoarVMMouseDownEvent enqueueFrom: recognizer view: self.view]; break;
+    case UIGestureRecognizerStateBegan:   
+      // [RoarVMMouseUpEvent enqueueFrom: recognizer view: self.view ];
+      [RoarVMMouseDownEvent enqueueFrom: recognizer view: self.view]; 
+      break;
     case UIGestureRecognizerStateChanged: [RoarVMMouseMoveEvent enqueueFrom: recognizer view: self.view]; break;
     case UIGestureRecognizerStateEnded:   [RoarVMMouseUpEvent   enqueueFrom: recognizer view: self.view]; break;
     default: break;

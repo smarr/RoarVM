@@ -140,8 +140,8 @@ sqInt	windowActive=1;
 
 - (void) enqueueRoarVMEventAndInterpolateMouseEvents: (RoarVMAbstractEvent *)evt  {  
   // Fill in missing mouse events
-  if ([evt isKindOfClass: [RoarVMAbstractMouseEvent class]]) 
-    [self interpolateMouseEventsBefore: (RoarVMAbstractMouseEvent *)evt];
+  //if ([evt isKindOfClass: [RoarVMAbstractMouseEvent class]]) 
+    //[self interpolateMouseEventsBefore: (RoarVMAbstractMouseEvent *)evt];
   [self enqueueRoarVMEvent: evt];
 }
 
