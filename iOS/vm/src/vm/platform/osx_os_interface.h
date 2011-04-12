@@ -19,8 +19,12 @@ public:
 
   static void ensure_Time_Machine_backs_up_run_directory();
 
-  static inline void profiler_enable()  { /*moncontrol(1); */}
-  static inline void profiler_disable() { /* moncontrol(0); */}
+# if On_iOS
+  static inline void moncontrol(int) {}
+# endif
+
+  static inline void profiler_enable()  { moncontrol(1); }
+  static inline void profiler_disable() { moncontrol(0); }
   static inline void profiler_clear()   {}
   
   static Power_Source get_power_source();

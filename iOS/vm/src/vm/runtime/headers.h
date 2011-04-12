@@ -12,8 +12,6 @@
  ******************************************************************************/
 
 
-#include "rvm_config.h"
-
 /**
  * Naming conventions
  *
@@ -58,14 +56,15 @@
 #  include "buffered_channel_debug.h"
 # endif
 
-# if On_Apple
-//#  include <monitor.h>
+# if On_iOS
+# elif On_Apple
+#  include <monitor.h>
 # else
 #  include <sys/resource.h>
 # endif
 
 
-// # include "rvm_config.h" // makefile (or Prefix Header setting in Xcode language settings) includes this before EVERY .c or .cpp file
+// # include "rvm_config.h" // makefile (or Prefix Header setting in Xcode language settings) includes this before EVERY .c or .cpp or .m file
 
 # include "my_rank.h"
 
@@ -78,8 +77,8 @@
 # include "os_interface.h"
 
 
-/*
- # include "host_pci_info.h"
+# if !On_iOS
+# include "host_pci_info.h"
 
 # include "abstract_zero_copy_command_queue_endpoint.h"
 
@@ -92,7 +91,9 @@
 # include "chip_to_chip_zero_copy_command_receiver.h"
 
 # include "tilera_chip_to_chip_message_queue.h"
- */
+# endif
+
+
 # include "message_queue.h"
 # include "cpu_coordinate.h"
 

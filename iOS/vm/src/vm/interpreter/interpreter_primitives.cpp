@@ -1008,21 +1008,32 @@ void Squeak_Interpreter::primitiveGetNextEvent() {
   if (!arg.is_mem() || !(ao = arg.as_object())->isArray() || ao->slotSize() != 8) {
     primitiveFail(); return;
   }
+  int eventTypeIs = evtBuf[0];
   ao->storeInteger(0, evtBuf[0]);
-  ao->storeInteger(1, evtBuf[1] & MillisecondClockMask);
-  if (!successFlag) return;
+  
+  if (eventTypeIs == event_type_complex()) {
+    for (int i = 1;  i < evtBuf_size;  ++i) {
+      Oop v = Oop::from_bits(evtBuf[i]);
+      if (check_assertions) v.okayOop();
+      ao->storePointer(i, v);
+    }
+  }
+  else {
+    ao->storeInteger(1, evtBuf[1] & MillisecondClockMask);
+    if (!successFlag) return;
 
-  for (u_int32 i = 2;  i < sizeof(evtBuf)/sizeof(evtBuf[0]);  ++i) {
-    oop_int_t v = evtBuf[i];
-    if (Oop::isIntegerValue(v))
-      ao->storeInteger(i, v);
-    else {
-      // may GC
-      pushRemappableOop(arg);
-      Oop value = Object::positive32BitIntegerFor(v);
-      arg = popRemappableOop();
-      ao = arg.as_object();
-      ao->storePointer(i, value);
+    for (u_int32 i = 2;  i < sizeof(evtBuf)/sizeof(evtBuf[0]);  ++i) {
+      oop_int_t v = evtBuf[i];
+      if (Oop::isIntegerValue(v))
+        ao->storeInteger(i, v);
+      else {
+        // may GC
+        pushRemappableOop(arg);
+        Oop value = Object::positive32BitIntegerFor(v);
+        arg = popRemappableOop();
+        ao = arg.as_object();
+        ao->storePointer(i, value);
+      }
     }
   }
   if (!successFlag) return;
@@ -1211,9 +1222,13 @@ void Squeak_Interpreter::primitiveKbdNext() {
 
 void Squeak_Interpreter::primitiveKbdPeek() {
   pop(1);
-  /*int keystrokeWord = ioPeekKeystroke();
+# if On_iOS
+  int keystrokeWord = -1;
+# else
+  int keystrokeWord = ioPeekKeystroke();
+# endif
   if (keystrokeWord >= 0)  pushInteger(keystrokeWord);
-  else*/                     push(roots.nilObj);
+  else                     push(roots.nilObj);
 }
 
 void Squeak_Interpreter::primitiveLessOrEqual() {

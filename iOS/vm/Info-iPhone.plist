@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Squeak72x72.png</string>
 	<key>CFBundleIdentifier</key>
-	<string>soft.roarvm.poc</string>
+	<string>RoarVM</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

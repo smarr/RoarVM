@@ -35,5 +35,8 @@ Alternately, this acknowledgment may appear in the software itself, in the same 
 such third-party acknowledgments.
 */
 
-@interface SqueakUIController : UIViewController 
+@interface SqueakUIController : UIViewController <UIGestureRecognizerDelegate> {
+}
+- (void) setupRecognizers;
+
 @end

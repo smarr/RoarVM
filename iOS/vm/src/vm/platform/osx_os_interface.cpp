@@ -13,13 +13,15 @@
 
 
 # include "headers.h"
-//# include <CoreServices/CoreServices.h>
-//# include <CoreFoundation/CoreFoundation.h>
-//# include <IOKit/ps/IOPowerSources.h>
-//# include <IOKit/ps/IOPSKeys.h>
+
+# if !On_iOS
+# include <CoreServices/CoreServices.h>
+# include <CoreFoundation/CoreFoundation.h>
+# include <IOKit/ps/IOPowerSources.h>
+# include <IOKit/ps/IOPSKeys.h>
 
 void OSX_OS_Interface::ensure_Time_Machine_backs_up_run_directory() {
-/*  // Since we put images in same directory as compiled rvm, tell TM to back up that directory,
+  // Since we put images in same directory as compiled rvm, tell TM to back up that directory,
   // contradicting what Xcode does. -- dmu 4/05/10
   OSStatus err;
   
@@ -51,13 +53,13 @@ void OSX_OS_Interface::ensure_Time_Machine_backs_up_run_directory() {
         break;
   }
 
-  free(the_directory);*/
+  free(the_directory);
 }
 
 // Following contributed by Kristen McIntyre:
 
 Abstract_OS_Interface::Power_Source OSX_OS_Interface::get_power_source() {
-/*  CFTypeRef powerInfo = IOPSCopyPowerSourcesInfo();
+  CFTypeRef powerInfo = IOPSCopyPowerSourcesInfo();
   CFArrayRef powerSources = IOPSCopyPowerSourcesList(powerInfo);
   CFIndex count = CFArrayGetCount(powerSources);
   int ac_count = 0, battery_count = 0, offline_count = 0;
@@ -73,8 +75,16 @@ Abstract_OS_Interface::Power_Source OSX_OS_Interface::get_power_source() {
   }
   CFRelease(powerInfo);
   CFRelease(powerSources);
-  return ac_count ? AC :  battery_count ? battery : AC;*/
+  return ac_count ? AC :  battery_count ? battery : AC;
 }
+
+# else
+
+void OSX_OS_Interface::ensure_Time_Machine_backs_up_run_directory() {}
+Abstract_OS_Interface::Power_Source OSX_OS_Interface::get_power_source() { return AC; }
+
+# endif
+
 
 void OSX_OS_Interface::pin_thread_to_core(int32_t rank) {
   // Mac OS X does not support setting explicit affinity to a PU
@@ -82,4 +92,3 @@ void OSX_OS_Interface::pin_thread_to_core(int32_t rank) {
   // and this is only for one process i.e. threads in a process
   // http://developer.apple.com/ReleaseNotes/Performance/RN-AffinityAPI/index.html
 }
-

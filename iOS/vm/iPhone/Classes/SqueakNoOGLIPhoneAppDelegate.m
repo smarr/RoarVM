@@ -184,6 +184,8 @@ SqueakNoOGLIPhoneAppDelegate *gDelegateApp;
 	}
 	
 	[window makeKeyAndVisible];
+  
+  [self.viewController setupRecognizers];
 	
 }
 

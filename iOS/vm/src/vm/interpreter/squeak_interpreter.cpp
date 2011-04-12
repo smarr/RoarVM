@@ -3264,3 +3264,11 @@ bool Squeak_Interpreter::roomToPushNArgs(int n) {
   int cntxSize = (( method_obj()->methodHeader() & Object::LargeContextBit ) ? lcs : scs) / bytesPerWord  -  Object_Indices::ReceiverIndex;
   return stackPointerIndex() + n  <=  cntxSize;
 }
+
+int Squeak_Interpreter::getNextEvent_any_platform(void* p) {
+  int r = ioGetNextEvent(p);
+# if On_iOS
+    r = The_Squeak_Interpreter()->successFlag;
+# endif
+  return r;
+}

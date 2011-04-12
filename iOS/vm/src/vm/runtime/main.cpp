@@ -17,7 +17,10 @@
 # include <math.h>
 
 FILE* BytecodeTraceFile;
-/*extern*/ char* displayName;
+extern char* displayName;
+# if On_iOS
+  char* displayName;
+# endif
 
 static void consume_argument(int& argc, char**& argv, int n) {
   argv[n] = argv[0];
@@ -90,7 +93,10 @@ static void set_trace_file(char* f) {
   }
 }
 
+extern int headless;
+# if On_iOS
 int headless = false;
+# endif
 
 
 
@@ -240,14 +246,17 @@ void helper_core_main() {
   }
 }
 
+
+# if On_iOS
+
 void basic_init() {
   Memory_System::min_heap_MB = 32;
-  
+
   OS_Interface::profiler_disable();
   OS_Interface::profiler_clear();
-  
+
   OS_Interface::initialize();
-  
+
   Timeout_Timer::initialize();
   Memory_Semantics::initialize_memory_system();
   
@@ -307,7 +316,13 @@ void interpret_rvm(char* image_path) {
   ioExit();
 }
 
-int rvm_main(int argc, char *argv[]) {
+# define MAIN rvm_main
+
+# else // not IPHONE
+# define MAIN main
+# endif
+
+int MAIN(int argc, char *argv[]) {
   struct rlimit rl = {100000000, 100000000}; //{ RLIM_INFINITY, RLIM_INFINITY };
   // The rlimit was an attempt to get core dumps for a MDE version that broke them.
   // It didn't work, but we might need it someday. -- dmu 4/09
@@ -366,9 +381,10 @@ int rvm_main(int argc, char *argv[]) {
   else
     Squeak_Image_Reader::read(image_path, The_Memory_System(), The_Squeak_Interpreter());
 
-
-//  extern char** environ;
-//  sqr_main(argc, argv, environ);
+  # if !On_iOS
+  extern char** environ;
+  sqr_main(argc, argv, environ);
+  # endif
 
   if (The_Squeak_Interpreter()->make_checkpoint())
     The_Squeak_Interpreter()->save_all_to_checkpoint();

@@ -45,6 +45,12 @@ Some of this code was funded via a grant from the European Smalltalk User Group 
 #import "sqMacHostWindow.h"
 #import "SqueakNoOGLIPhoneAppDelegate.h"
 #import "Queue.h"
+#import "RoarVMAbstractEvent.h"
+#import "RoarVMMouseDownEvent.h"
+#import "RoarVMMouseUpEvent.h"
+#import "RoarVMMouseMoveEvent.h"
+#import "RoarVMSwipeEvent.h"
+
 #define MillisecondClockMask 536870911
 
 extern SqueakNoOGLIPhoneAppDelegate *gDelegateApp;
@@ -54,12 +60,17 @@ sqInt	windowActive=1;
 
 @implementation sqSqueakIPhoneApplication (events) 
 
+
 - (void ) processAsOldEventOrComplexEvent: (id) event placeIn: (sqInputEvent *) evt {
 	if ([event isKindOfClass: [NSData class]]) {
 		[super processAsOldEventOrComplexEvent: event placeIn: evt];
 		return;
 	}
 	
+  if ([event isKindOfClass: [RoarVMAbstractEvent class]]) {
+    [self processRoarVMEvent: (RoarVMAbstractEvent*)event placeIn: evt];
+    return;
+  }
 	if ([event isKindOfClass: [NSArray class]]) {
 		if ([[event objectAtIndex: 0] intValue] == 1) {
 			[self buildTouchEventComplexObject: [event objectAtIndex: 2] forType:  [event objectAtIndex: 1] placeIn: (sqComplexEvent *) evt];
@@ -98,16 +109,50 @@ sqInt	windowActive=1;
 	}
 }
 
-- (void) recordTouchEvent:(NSSet *) touches type: (UITouchPhase) phase {
-	NSMutableArray* data = [NSMutableArray new];
-	
-	[data addObject: [NSNumber numberWithInteger: 1]];
-	[data addObject: [NSNumber numberWithInteger: (signed) phase]];
-	[data addObject: touches];
-	[eventQueue addItem: data];
-	[data release];
+
+- (void) processRoarVMEvent: (RoarVMAbstractEvent*) event placeIn: (sqInputEvent *) evt {
+  [event processInto: evt];
+}
+
+
+- (void) interpolateMouseEventsBefore: (RoarVMAbstractMouseEvent *)evt  { 
+  static CGPoint lastMouseLocation;
+  static int lastButton = -1;
+  static int lastTouches = 0;
+  
+  CGPoint thisMouseLocation = evt.location;
+  int thisButton = [evt buttonBit];
+  int thisTouches = evt.touches;
+  
+  if (thisButton != lastButton) {
+    RoarVMMouseMoveEvent *move = [RoarVMMouseMoveEvent new];
+    move.location = thisMouseLocation;
+    move.touches = lastTouches;
+    [self enqueueRoarVMEvent: move];
+  }
+  lastButton = thisButton;
+  lastMouseLocation = thisMouseLocation;
+  lastTouches = thisTouches;
+}
+
+
+
+- (void) enqueueRoarVMEventAndInterpolateMouseEvents: (RoarVMAbstractEvent *)evt  {  
+  // Fill in missing mouse events
+  if ([evt isKindOfClass: [RoarVMAbstractMouseEvent class]]) 
+    [self interpolateMouseEventsBefore: (RoarVMAbstractMouseEvent *)evt];
+  [self enqueueRoarVMEvent: evt];
+}
+
+
+- (void) enqueueRoarVMEvent:(RoarVMAbstractEvent *) evt { 
+	[eventQueue addItem: evt];
+	[evt release];
 	interpreterProxy->signalSemaphoreWithIndex(gDelegateApp.squeakApplication.inputSemaphoreIndex);
 }
+
+
+// unused now
 
 - (void) buildTouchEventComplexObject:(NSSet *) touches forType: (NSNumber *) aType placeIn: (sqComplexEvent *) evt {
 	
@@ -116,7 +161,7 @@ sqInt	windowActive=1;
 	sqInt  previousLocationInViewY,previousLocationInViewX,locationInViewX,locationInViewY,squeakMSTime, view, window, tapCount, phase,timeStamp,storageArea,containerArray,touchId;
 	interpreterProxy->pushRemappableOop(interpreterProxy->instantiateClassindexableSize(interpreterProxy->classArray(), count));
 		for (touch in touches) {
-			interpreterProxy->pushRemappableOop(interpreterProxy->instantiateClassindexableSize(interpreterProxy->classArray(), 11));
+ 			interpreterProxy->pushRemappableOop(interpreterProxy->instantiateClassindexableSize(interpreterProxy->classArray(), 11));
 			interpreterProxy->pushRemappableOop(interpreterProxy->integerObjectOf(squeakMSTimeNow));
 			interpreterProxy->pushRemappableOop(interpreterProxy->floatObjectOf([touch timestamp]));
 			interpreterProxy->pushRemappableOop(interpreterProxy->integerObjectOf((signed)[touch phase]));

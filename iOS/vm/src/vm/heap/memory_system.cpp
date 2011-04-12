@@ -1254,6 +1254,22 @@ int Memory_System::assign_rank_for_snapshot_object() {
 
 char  Memory_System::mmap_filename[BUFSIZ] = { 0 };
 
+
+# if On_iOS
+
+char* Memory_System::map_heap_memory(size_t total_size,
+                                     size_t bytes_to_map,
+                                     void*  where,
+                                     off_t  offset,
+                                     int    main_pid,
+                                     int    flags) {
+  return (char*)malloc(total_size);
+}
+
+
+
+# else
+
 char* Memory_System::map_heap_memory(size_t total_size,
                                      size_t bytes_to_map,
                                      void*  where,
@@ -1265,14 +1281,10 @@ char* Memory_System::map_heap_memory(size_t total_size,
   assert( Memory_Semantics::cores_are_initialized());
   assert( On_Tilera || Logical_Core::running_on_main());
   
-  return (char*)malloc(total_size);
-  
-  /*
    
   const bool print = false;
   
-  tmpnam(mmap_filename);
-  //snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/rvm-%d", main_pid);
+  snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/rvm-%d", main_pid);
   int open_flags = (where == NULL  ?  O_CREAT  :  0) | O_RDWR;
   
   int mmap_fd = open(mmap_filename, open_flags, 0600);
@@ -1290,7 +1302,7 @@ char* Memory_System::map_heap_memory(size_t total_size,
     unlink(mmap_filename);
     fatal("ftruncate");
   }
-
+  
   
   
   // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
@@ -1321,6 +1333,6 @@ char* Memory_System::map_heap_memory(size_t total_size,
   close(mmap_fd);
   
   assert_always( mem != NULL );
-  return mem; */
+  return mem;
 }
-
+# endif // On_iOS

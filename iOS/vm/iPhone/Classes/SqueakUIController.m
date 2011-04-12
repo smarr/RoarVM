@@ -41,11 +41,116 @@ Some of this code was funded via a grant from the European Smalltalk User Group 
 #import "sqiPhoneScreenAndWindow.h"
 #import "sq.h"
 
+#import "sqSqueakIPhoneApplication.h"
+#import "sqSqueakIPhoneApplication+events.h"
+#import "RoarVMMouseUpEvent.h"
+#import "RoarVMMouseDownEvent.h"
+#import "RoarVMMouseMoveEvent.h"
+#import "RoarVMSwipeEvent.h"
+
+
 extern struct	VirtualMachine* interpreterProxy;
 extern SqueakNoOGLIPhoneAppDelegate *gDelegateApp;
 static	sqWindowEvent evt;
 
 @implementation SqueakUIController
+
+
+
+- (void) setupRecognizers {
+  printf("VIEWDIDLOAD\n");
+  /*
+   Create and configure the four recognizers. Add each to the view as a gesture recognizer.
+   */
+  for (int taps = 1; taps <= 1 /* 2 just gives two tap events */; ++taps)
+    for (int touches = 1;  touches <= 3;  ++touches) {
+      UITapGestureRecognizer *tr;
+       tr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFrom:)];
+      tr.numberOfTapsRequired = taps;
+      tr.numberOfTouchesRequired = touches;
+      tr.delaysTouchesBegan = NO;  tr.delaysTouchesEnded = NO; tr.cancelsTouchesInView = NO;
+      [self.view addGestureRecognizer:tr];
+       tr.delegate = self;
+    }
+      
+	for (int touches = 1;  touches <= 3;  ++touches) {
+    UILongPressGestureRecognizer *lpr;
+    lpr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressFrom:)];
+    lpr.delaysTouchesBegan = NO; lpr.delaysTouchesEnded = NO; lpr.cancelsTouchesInView = NO;  lpr.numberOfTouchesRequired = touches;
+    CFTimeInterval minSecs = 0.1; // if zero don't get taps, or long press changed
+    lpr.minimumPressDuration = minSecs;
+    [self.view addGestureRecognizer: lpr];
+    lpr.delegate = self;
+  }
+  
+  static int dirs[] = {
+    UISwipeGestureRecognizerDirectionDown, 
+    UISwipeGestureRecognizerDirectionLeft, 
+    UISwipeGestureRecognizerDirectionRight, 
+    UISwipeGestureRecognizerDirectionUp};
+  
+  for (int touches = 1;  touches <= 3;  ++touches)
+    for (int i = 0;  i < sizeof(dirs)/sizeof(dirs[0]); ++i) {
+      UISwipeGestureRecognizer *spr;
+      spr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeFrom:)];
+      spr.direction = dirs[i];
+      spr.delaysTouchesBegan = NO; spr.delaysTouchesEnded = NO; spr.cancelsTouchesInView = NO;
+      spr.numberOfTouchesRequired = touches;
+      [self.view addGestureRecognizer: spr];
+       spr.delegate = self;
+     }
+}
+
+static const char* stateString(UIGestureRecognizerState s) {
+  switch (s) {
+    case UIGestureRecognizerStatePossible: return  "Possible"; 
+    case UIGestureRecognizerStateBegan: return  "Began"; 
+    case UIGestureRecognizerStateChanged: return  "Changed"; 
+    case UIGestureRecognizerStateRecognized: return  "Recognized"; 
+    case UIGestureRecognizerStateCancelled: return  "Cancelled"; 
+    case UIGestureRecognizerStateFailed: return  "Failed"; 
+    default:  return "Unknown state";
+  }
+}
+
+
+- (void)handleTapFrom:(UITapGestureRecognizer *)recognizer {
+	 
+  RoarVMAbstractEvent* down = [RoarVMMouseDownEvent newFrom: recognizer view: self.view];
+  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: down];
+  
+  
+  RoarVMAbstractEvent* move = [RoarVMMouseMoveEvent newFrom: recognizer view: self.view ];
+  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: move];
+
+  RoarVMAbstractEvent* up = [RoarVMMouseUpEvent newFrom: recognizer view: self.view ];
+  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: up];
+}
+
+
+
+- (void)handleSwipeFrom:(UISwipeGestureRecognizer *)recognizer {
+  RoarVMAbstractEvent *evt = [RoarVMSwipeEvent newFrom: recognizer view: self.view ];
+  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: evt];
+}
+
+
+
+
+- (void)handleLongPressFrom:(UILongPressGestureRecognizer *)recognizer {
+	
+  UIGestureRecognizerState state = recognizer.state;
+  RoarVMAbstractEvent *evt =
+    state == UIGestureRecognizerStateBegan   ? [RoarVMMouseDownEvent newFrom: recognizer view: self.view]
+  : state == UIGestureRecognizerStateChanged ? [RoarVMMouseMoveEvent newFrom: recognizer view: self.view]
+  : state == UIGestureRecognizerStateEnded   ? [RoarVMMouseUpEvent   newFrom: recognizer view: self.view]
+  : nil;
+  
+  if (evt == nil) return;
+  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: evt];
+ }
+
+
 // Subclasses override this method to define how the view they control will respond to device rotation 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	//Called by Main Thread, beware of calling Squeak routines in Squeak Thread
@@ -53,7 +158,7 @@ static	sqWindowEvent evt;
 	return YES;
 }
 
-- (void) pushEventToQueue {	
+- (void) pushEventToQueue {
 	NSMutableArray* data = [NSMutableArray new];
 	[data addObject: [NSNumber numberWithInteger: 8]];
 	[data addObject: [NSData  dataWithBytes:(const void *) &evt length: sizeof(sqInputEvent)]];
