@@ -39,7 +39,7 @@ extern SqueakNoOGLIPhoneAppDelegate *gDelegateApp;
 + (void) enqueueFrom: (UIGestureRecognizer*) recognizer controller: (SqueakUIController*) controller where: (RoarVMAbstractEventLocationType) where {
   RoarVMAbstractEvent* e = [self newFrom: recognizer view: controller.view where: where];
   controller.cursor.center = e.location;
-  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEventAndInterpolateMouseEvents: e];
+  [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEvent: e];
 }
 
 - (CGPoint) adjustLocation: (CGPoint) p size: (CGSize) s {
