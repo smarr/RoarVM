@@ -27,7 +27,7 @@
     case 1: return RedButtonBit;
     case 2: return YellowButtonBit;
     case 3: return BlueButtonBit;
-    default: return RedButtonBit;
+    default: return 0;
   }
 }
 

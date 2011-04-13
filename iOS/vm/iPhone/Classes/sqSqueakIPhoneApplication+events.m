@@ -115,37 +115,6 @@ sqInt	windowActive=1;
 }
 
 
-- (void) interpolateMouseEventsBefore: (RoarVMAbstractMouseEvent *)evt  { 
-  static CGPoint lastMouseLocation;
-  static int lastButton = -1;
-  static int lastTouches = 0;
-  
-  CGPoint thisMouseLocation = evt.location;
-  int thisButton = [evt buttonBit];
-  int thisTouches = evt.touches;
-  
-  if (lastMouseLocation.x != thisMouseLocation.x  &&  lastMouseLocation.y != thisMouseLocation.y
-      && thisButton != lastButton) {
-    RoarVMAbstractMouseEvent *move = lastButton ? [RoarVMMouseMoveEvent new] : [RoarVMMouseUpEvent new];
-    move.location = thisMouseLocation;
-    move.touches = lastTouches;
-    [self enqueueRoarVMEvent: move];
-  }
-  lastButton = thisButton;
-  lastMouseLocation = thisMouseLocation;
-  lastTouches = thisTouches;
-}
-
-
-
-- (void) enqueueRoarVMEventAndInterpolateMouseEvents: (RoarVMAbstractEvent *)evt  {  
-  // Fill in missing mouse events
-  //if ([evt isKindOfClass: [RoarVMAbstractMouseEvent class]]) 
-    //[self interpolateMouseEventsBefore: (RoarVMAbstractMouseEvent *)evt];
-  [self enqueueRoarVMEvent: evt];
-}
-
-
 - (void) enqueueRoarVMEvent:(RoarVMAbstractEvent *) evt { 
 	[eventQueue addItem: evt];
 	[evt release];

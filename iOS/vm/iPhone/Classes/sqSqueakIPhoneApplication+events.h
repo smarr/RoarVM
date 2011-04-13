@@ -43,8 +43,6 @@
 
 @interface sqSqueakIPhoneApplication (events) 
 - (void) enqueueRoarVMEvent: (RoarVMAbstractEvent*) evt;
-- (void) enqueueRoarVMEventAndInterpolateMouseEvents: (RoarVMAbstractEvent*) evt;
-- (void) interpolateMouseEventsBefore: (RoarVMAbstractMouseEvent *) evt;
 
 - (void) buildTouchEventComplexObject:(NSSet *) touches forType: (NSNumber *) aType placeIn: (sqComplexEvent *) evt ;
 - (void) buildAccelerationEventComplexObject: (UIAcceleration *) acceleration placeIn: (sqComplexEvent *) evt;
