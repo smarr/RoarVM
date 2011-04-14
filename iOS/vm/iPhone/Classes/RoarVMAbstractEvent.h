@@ -11,6 +11,7 @@ typedef enum  {RoarVMEventAdjustLocation, RoarVMEventReuseLocation, RoarVMEventU
 
 @interface RoarVMAbstractEvent : NSObject {
   int touches;
+  int taps;
   CGPoint location;
   
 

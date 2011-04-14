@@ -44,8 +44,6 @@ Some of this code was funded via a grant from the European Smalltalk User Group 
 #import "sqSqueakIPhoneApplication.h"
 #import "sqSqueakIPhoneApplication+events.h"
 #import "RoarVMMouseUpEvent.h"
-#import "RoarVMMouseDownEvent.h"
-#import "RoarVMMouseMoveEvent.h"
 #import "RoarVMSwipeEvent.h"
 
 
@@ -60,30 +58,35 @@ static	sqWindowEvent evt;
 
 
 - (void) setupRecognizers {
-  printf("VIEWDIDLOAD\n");
-  /*
-   Create and configure the four recognizers. Add each to the view as a gesture recognizer.
-   */
-  for (int taps = 1; taps <= 1 /* 2 just gives two tap events */; ++taps)
-    for (int touches = 1;  touches <= 3;  ++touches) {
-      UITapGestureRecognizer *tr;
-       tr = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFrom:)];
-      tr.numberOfTapsRequired = taps;
-      tr.numberOfTouchesRequired = touches;
-      tr.delaysTouchesBegan = NO;  tr.delaysTouchesEnded = NO; tr.cancelsTouchesInView = NO;
-      [self.view addGestureRecognizer:tr];
-       tr.delegate = self;
+
+  for ( int touches = 1;  touches <= 1;   ++touches ) {
+    UIGestureRecognizer *fewerTapRecognizer = nil;
+    for ( int taps = 1;  taps <= 2;  ++taps) {
+      UITapGestureRecognizer *r;
+      r = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFrom:)];
+      r.numberOfTapsRequired = taps;  r.numberOfTouchesRequired = touches;
+      r.delaysTouchesBegan = NO;  r.delaysTouchesEnded = NO; r.cancelsTouchesInView = NO;
+      [self.view addGestureRecognizer:r];
+      r.delegate = self;
+      
+      if (fewerTapRecognizer != nil) [fewerTapRecognizer requireGestureRecognizerToFail: r];
+      fewerTapRecognizer = r;
     }
+  }
     
-  for (int touches = 1;  touches <= 3;  ++touches) {
-    UILongPressGestureRecognizer *lpr;
-    lpr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressFrom:)];
-    lpr.delaysTouchesBegan = NO; lpr.delaysTouchesEnded = NO; lpr.cancelsTouchesInView = NO;  lpr.numberOfTouchesRequired = touches;  
-    CFTimeInterval minSecs = 0.1; // if zero don't get taps, or long press changed
-    lpr.minimumPressDuration = minSecs;
-    lpr.allowableMovement = 10000;
-    [self.view addGestureRecognizer: lpr];
-    lpr.delegate = self;
+  for ( int taps = 0; taps <= 0; ++taps) {
+    for (int touches = 1;  touches <= sizeof(longRecognizers)/sizeof(longRecognizers[0]);  ++touches) {
+      UILongPressGestureRecognizer *r;
+      r = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressFrom:)];
+      r.delaysTouchesBegan = NO; r.delaysTouchesEnded = NO; r.cancelsTouchesInView = NO;  
+      r.numberOfTouchesRequired = touches; r.numberOfTapsRequired = taps;
+      CFTimeInterval minSecs = 0.1; // if zero don't get taps, or long press changed
+      r.minimumPressDuration = minSecs;
+      r.allowableMovement = 10000;
+      [self.view addGestureRecognizer: r];
+      longRecognizers[touches-1] = r;
+      r.delegate = self;
+    }
   }
 
   static int dirs[] = {
@@ -120,9 +123,8 @@ static const char* stateString(UIGestureRecognizerState s) {
 - (void)handleTapFrom:(UITapGestureRecognizer *)recognizer {
   [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self where: RoarVMEventUseLocation];
 
-  [RoarVMMouseDownEvent enqueueFrom: recognizer controller: self where: RoarVMEventUseLocation];
+  [RoarVMMouseEvent enqueueFrom: recognizer controller: self where: RoarVMEventUseLocation];
   
-  // RoarVMMouseMoveEvent enqueFrom: recognizer view: self.view where: RoarVMEventUse];
   [self performSelector: @selector(finishTapFrom:) withObject: recognizer afterDelay: 0.3];
 }
 
@@ -140,18 +142,38 @@ static const char* stateString(UIGestureRecognizerState s) {
 
 
 - (void)handleLongPressFrom:(UILongPressGestureRecognizer *)recognizer {
-  // [RoarVMMouseUpEvent enqueueFrom: recognizer view: self.view ];
- 
   switch ( recognizer.state ) {
     case UIGestureRecognizerStateBegan:   
-      // [RoarVMMouseUpEvent enqueueFrom: recognizer view: self.view where: RoarVMEventAdjustLocation];
-      [RoarVMMouseDownEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation]; 
+      [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation];
+      [RoarVMMouseEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation]; 
       break;
-    case UIGestureRecognizerStateChanged: [RoarVMMouseMoveEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation]; break;
-    case UIGestureRecognizerStateEnded:   [RoarVMMouseUpEvent   enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation]; break;
+    case UIGestureRecognizerStateChanged: 
+      [RoarVMMouseEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation]; 
+      break;
+    case UIGestureRecognizerStateEnded:   
+      [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation]; 
+      //for (int i = 1;  i < recognizer.numberOfTouchesRequired; ++i)
+      //  longRecognizers[i-1].enabled = YES;
+      break;
     default: break;
   }
  }
+
+# if 0
+- (BOOL) gestureRecognizer: (UIGestureRecognizer*) r1 shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)r2 {
+  if (![r1 isKindOfClass: [UILongPressGestureRecognizer class]]) return NO;
+  if (![r2 isKindOfClass: [UILongPressGestureRecognizer class]]) return NO;
+  return YES;
+}
+
+- (BOOL) gestureRecognizerShouldBegin: (UIGestureRecognizer*) r {
+  if (![r isKindOfClass: [UILongPressGestureRecognizer class]]) return YES;
+  UILongPressGestureRecognizer* lpr = (UILongPressGestureRecognizer*)r;
+  for (int i = 1;  i < lpr.numberOfTouchesRequired; ++i)
+    longRecognizers[i-1].enabled = NO;
+  return YES;
+}
+# endif
 
 
 // Subclasses override this method to define how the view they control will respond to device rotation 

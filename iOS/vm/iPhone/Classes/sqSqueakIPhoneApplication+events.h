@@ -39,7 +39,7 @@
 
 #import "sqSqueakIPhoneApplication.h"
 #import "RoarVMAbstractEvent.h"
-#import "RoarVMAbstractMouseEvent.h"
+#import "RoarVMMouseEvent.h"
 
 @interface sqSqueakIPhoneApplication (events) 
 - (void) enqueueRoarVMEvent: (RoarVMAbstractEvent*) evt;

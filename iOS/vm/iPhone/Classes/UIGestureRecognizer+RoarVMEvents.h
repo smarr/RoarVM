@@ -1,5 +1,5 @@
 //
-//  RoarVMMouseUpEvent.h
+//  UIGestureRecognizer+RoarVMEvents.h
 //  RoarVMOnIPad
 //
 //  Created by David Ungar on 4/13/11.
@@ -7,11 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
-# import "RoarVMMouseEvent.h"
 
 
-@interface RoarVMMouseUpEvent : RoarVMMouseEvent {
-    
-}
+@interface UIGestureRecognizer (UIGestureRecognizer_RoarVMEvents)
+
+- (int) numberOfTapsRequired;
 
 @end

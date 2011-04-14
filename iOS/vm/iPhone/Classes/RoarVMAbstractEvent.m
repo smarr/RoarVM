@@ -8,6 +8,7 @@
 #import "sqSqueakIPhoneApplication.h"
 #import "sqSqueakIPhoneApplication+events.h"
 #import "SqueakNoOGLIPhoneAppDelegate.h"
+#import "UIGestureRecognizer+RoarVMEvents.h"
 
 extern SqueakNoOGLIPhoneAppDelegate *gDelegateApp;
 
@@ -19,6 +20,7 @@ extern SqueakNoOGLIPhoneAppDelegate *gDelegateApp;
 
 - (void ) initFrom: (UIGestureRecognizer*) recognizer view: (UIView*) view where: (RoarVMAbstractEventLocationType) where {
   touches = recognizer.numberOfTouches;
+  taps = recognizer.numberOfTapsRequired;
   static CGPoint lastLocation;
   lastLocation = location = 
     where == RoarVMEventReuseLocation  ?  lastLocation 

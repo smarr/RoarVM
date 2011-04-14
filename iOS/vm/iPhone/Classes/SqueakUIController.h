@@ -37,6 +37,7 @@ such third-party acknowledgments.
 
 @interface SqueakUIController : UIViewController <UIGestureRecognizerDelegate> {
   UIButton* cursor;
+  UILongPressGestureRecognizer* longRecognizers[3];
 }
 - (void) setupRecognizers;
 - (void) addCursor;

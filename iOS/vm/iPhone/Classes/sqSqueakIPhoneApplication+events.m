@@ -46,9 +46,6 @@ Some of this code was funded via a grant from the European Smalltalk User Group 
 #import "SqueakNoOGLIPhoneAppDelegate.h"
 #import "Queue.h"
 #import "RoarVMAbstractEvent.h"
-#import "RoarVMMouseDownEvent.h"
-#import "RoarVMMouseUpEvent.h"
-#import "RoarVMMouseMoveEvent.h"
 #import "RoarVMSwipeEvent.h"
 
 #define MillisecondClockMask 536870911
