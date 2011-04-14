@@ -136,9 +136,37 @@ static const char* stateString(UIGestureRecognizerState s) {
 
 - (void)handleSwipeFrom:(UISwipeGestureRecognizer *)recognizer {
   [RoarVMSwipeEvent enqueueFrom: recognizer controller: self   where: RoarVMEventUseLocation];
+  [self startEnteringText];
 }
 
 
+
+
+
+- (BOOL)canBecomeFirstResponder
+{
+  return YES;
+}
+
+- (BOOL) hasText {return NO;}
+
+- (void)startEnteringText
+{
+  [self becomeFirstResponder];
+}
+
+- (void) insertText:(NSString *)text {
+  [(SqueakUIView*)self.view recordCharEvent: text];
+}
+
+- (void) deleteBackward {
+  static NSString* backspace = nil;
+  if (!backspace) {
+    backspace = [NSString stringWithCString: "\b" encoding: NSASCIIStringEncoding];
+    [backspace retain];
+  }
+  [self insertText: backspace];
+}
 
 
 - (void)handleLongPressFrom:(UILongPressGestureRecognizer *)recognizer {

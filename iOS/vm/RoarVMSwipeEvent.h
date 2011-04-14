@@ -4,7 +4,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RoarVMAbstractMouseEvent.h"
+#import "RoarVMMouseEvent.h"
 
 
 @interface RoarVMSwipeEvent : RoarVMAbstractEvent {

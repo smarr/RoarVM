@@ -35,7 +35,7 @@ Alternately, this acknowledgment may appear in the software itself, in the same 
 such third-party acknowledgments.
 */
 
-@interface SqueakUIController : UIViewController <UIGestureRecognizerDelegate> {
+@interface SqueakUIController : UIViewController <UIGestureRecognizerDelegate, UIKeyInput> {
   UIButton* cursor;
   UILongPressGestureRecognizer* longRecognizers[3];
 }
@@ -46,6 +46,8 @@ such third-party acknowledgments.
 - (void)finishTapFrom:(UITapGestureRecognizer *)recognizer;
 - (void)handleSwipeFrom:(UISwipeGestureRecognizer *)recognize;
 - (void)handleLongPressFrom:(UILongPressGestureRecognizer *)recognizer;
+
+- (void)startEnteringText;
 
 @property (nonatomic,assign) UIButton* cursor;
 
