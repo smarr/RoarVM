@@ -35,6 +35,7 @@ extern sqExport SoundPlugin_exports[];
 extern sqExport StarSqueakPlugin_exports[];
 extern sqExport SurfacePlugin_exports[];
 extern sqExport UUIDPlugin_exports[];
+extern sqExport RVMPlugin_exports[];
 
 sqExport *pluginExports[] = {
 //	vm_exports,
@@ -70,6 +71,7 @@ sqExport *pluginExports[] = {
 	StarSqueakPlugin_exports,
 	SurfacePlugin_exports,
 	UUIDPlugin_exports,
+  RVMPlugin_exports, // RoarVM
 	NULL
 };
 
