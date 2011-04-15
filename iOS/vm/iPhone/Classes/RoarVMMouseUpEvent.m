@@ -15,4 +15,6 @@
   return 0;
 }
 
+- (BOOL) resetsRelativeOffset { return  YES; }
+
 @end

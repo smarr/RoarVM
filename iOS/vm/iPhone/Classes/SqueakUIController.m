@@ -69,7 +69,7 @@ static	sqWindowEvent evt;
       [self.view addGestureRecognizer:r];
       r.delegate = self;
       
-      if (fewerTapRecognizer != nil) [fewerTapRecognizer requireGestureRecognizerToFail: r];
+      // if (fewerTapRecognizer != nil) [fewerTapRecognizer requireGestureRecognizerToFail: r];
       fewerTapRecognizer = r;
     }
   }
@@ -95,12 +95,12 @@ static	sqWindowEvent evt;
     UISwipeGestureRecognizerDirectionRight, 
     UISwipeGestureRecognizerDirectionUp};
   
-  for (int touches = 1;  touches <= 3;  ++touches)
+  for (int touches = 3;  touches <= 4;  ++touches)
     for (int i = 0;  i < sizeof(dirs)/sizeof(dirs[0]); ++i) {
       UISwipeGestureRecognizer *spr;
       spr = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeFrom:)];
       spr.direction = dirs[i];
-      spr.delaysTouchesBegan = NO; spr.delaysTouchesEnded = NO; spr.cancelsTouchesInView = NO;
+      spr.delaysTouchesBegan = NO; spr.delaysTouchesEnded = NO; spr.cancelsTouchesInView = YES;
       spr.numberOfTouchesRequired = touches;
       [self.view addGestureRecognizer: spr];
        spr.delegate = self;
@@ -121,22 +121,23 @@ static const char* stateString(UIGestureRecognizerState s) {
 
 
 - (void)handleTapFrom:(UITapGestureRecognizer *)recognizer {
-  [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self where: RoarVMEventUseLocation];
-
-  [RoarVMMouseEvent enqueueFrom: recognizer controller: self where: RoarVMEventUseLocation];
+  if (recognizer.numberOfTapsRequired > 1) {
+    [self startEnteringText];
+    return;
+  }
+  [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self where: RoarVMEventLocationAbsolute];
   
   [self performSelector: @selector(finishTapFrom:) withObject: recognizer afterDelay: 0.3];
 }
 
 - (void) finishTapFrom:(UITapGestureRecognizer *) recognizer {
-  [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self  where: RoarVMEventReuseLocation];
+  [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self  where: RoarVMEventLocationPrevious];
 }
 
 
 
 - (void)handleSwipeFrom:(UISwipeGestureRecognizer *)recognizer {
-  [RoarVMSwipeEvent enqueueFrom: recognizer controller: self   where: RoarVMEventUseLocation];
-  [self startEnteringText];
+  [RoarVMSwipeEvent enqueueFrom: recognizer controller: self   where: RoarVMEventLocationAbsolute];
 }
 
 
@@ -172,14 +173,13 @@ static const char* stateString(UIGestureRecognizerState s) {
 - (void)handleLongPressFrom:(UILongPressGestureRecognizer *)recognizer {
   switch ( recognizer.state ) {
     case UIGestureRecognizerStateBegan:   
-      [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation];
-      [RoarVMMouseEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation]; 
+      [RoarVMMouseEvent enqueueFrom: recognizer controller: self where: RoarVMEventLocationRelative]; 
       break;
     case UIGestureRecognizerStateChanged: 
-      [RoarVMMouseEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation]; 
+      [RoarVMMouseEvent enqueueFrom: recognizer controller: self where: RoarVMEventLocationRelative]; 
       break;
     case UIGestureRecognizerStateEnded:   
-      [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self where: RoarVMEventAdjustLocation]; 
+      [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self where: RoarVMEventLocationRelative]; 
       //for (int i = 1;  i < recognizer.numberOfTouchesRequired; ++i)
       //  longRecognizers[i-1].enabled = YES;
       break;
