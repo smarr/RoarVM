@@ -59,7 +59,7 @@ static	sqWindowEvent evt;
 
 - (void) setupRecognizers {
 
-  for ( int touches = 1;  touches <= 1;   ++touches ) {
+  for ( int touches = 1;  touches <= 3;   ++touches ) {
     UIGestureRecognizer *fewerTapRecognizer = nil;
     for ( int taps = 1;  taps <= 2;  ++taps) {
       UITapGestureRecognizer *r;
@@ -78,7 +78,7 @@ static	sqWindowEvent evt;
     for (int touches = 1;  touches <= sizeof(longRecognizers)/sizeof(longRecognizers[0]);  ++touches) {
       UILongPressGestureRecognizer *r;
       r = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressFrom:)];
-      r.delaysTouchesBegan = NO; r.delaysTouchesEnded = NO; r.cancelsTouchesInView = NO;  
+      r.delaysTouchesBegan = NO; r.delaysTouchesEnded = NO; r.cancelsTouchesInView = YES;  
       r.numberOfTouchesRequired = touches; r.numberOfTapsRequired = taps;
       CFTimeInterval minSecs = 0.1; // if zero don't get taps, or long press changed
       r.minimumPressDuration = minSecs;
@@ -125,7 +125,7 @@ static const char* stateString(UIGestureRecognizerState s) {
     [self startEnteringText];
     return;
   }
-  [RoarVMMouseUpEvent enqueueFrom: recognizer controller: self where: RoarVMEventLocationAbsolute];
+  [RoarVMMouseEvent enqueueFrom: recognizer controller: self where: RoarVMEventLocationAbsolute];
   
   [self performSelector: @selector(finishTapFrom:) withObject: recognizer afterDelay: 0.3];
 }
