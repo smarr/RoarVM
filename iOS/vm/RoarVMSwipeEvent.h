@@ -11,8 +11,6 @@
   UISwipeGestureRecognizerDirection direction;
 }
 
-- (void) initFrom: (UISwipeGestureRecognizer*) recognizer view: (UIView*) view;
-
 
 
 @end

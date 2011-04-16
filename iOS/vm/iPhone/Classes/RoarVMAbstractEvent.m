@@ -45,7 +45,7 @@ static const char* typeString(RoarVMEventLocationType t) {
     inited = YES;
     lastLocation = CGPointMake(CGRectGetMidX(view.frame), CGRectGetMidY(view.frame));
   }
-  CGPoint touchLocation = [self leftmostLocationInView: view recognizer: recognizer];
+  CGPoint touchLocation = [[self class] leftmostLocationInView: view recognizer: recognizer];
   switch (where) {
     case RoarVMEventLocationPrevious:  
       break;
@@ -54,7 +54,7 @@ static const char* typeString(RoarVMEventLocationType t) {
       break;
       
     case RoarVMEventLocationOffset:    
-      lastLocation = [self adjustLocation: touchLocation size: view.frame.size];
+      lastLocation = [[self class] adjustLocation: touchLocation size: view.frame.size];
       break;
       
     case RoarVMEventLocationRelative: 
@@ -74,6 +74,7 @@ static const char* typeString(RoarVMEventLocationType t) {
 - (void) processInto: (sqInputEvent*)evt {
 }
 
+
 + (RoarVMAbstractEvent*) newFrom: (UIGestureRecognizer*) recognizer view: (UIView*) view where: (RoarVMEventLocationType) where {
   RoarVMAbstractEvent* evt = [self new];
   [evt initFrom: recognizer view: view where: where];
@@ -86,13 +87,14 @@ static const char* typeString(RoarVMEventLocationType t) {
   [(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication enqueueRoarVMEvent: e];
 }
 
-- (CGPoint) adjustLocation: (CGPoint) p size: (CGSize) s {
++ (CGPoint) adjustLocation: (CGPoint) p size: (CGSize) s {
   static const float offsetUp = 100;
   
   return CGPointMake(p.x, s.height - p.y  >  offsetUp  ?  p.y - offsetUp  :  2 * p.y  -  s.height);
 }
 
-- (CGPoint) leftmostLocationInView: (UIView*) view recognizer: (UIGestureRecognizer*) recognizer {
+
++ (CGPoint) leftmostLocationInView: (UIView*) view recognizer: (UIGestureRecognizer*) recognizer {
   
   CGPoint result = CGPointMake(INFINITY, INFINITY);
   NSUInteger nt = [recognizer numberOfTouches];

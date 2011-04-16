@@ -9,8 +9,8 @@
 
 @implementation RoarVMSwipeEvent
 
-- (void) initFrom: (UISwipeGestureRecognizer*) recognizer view: (UIView*) view {
-  [super initFrom: recognizer view: view];
+-(void) initFrom: (UISwipeGestureRecognizer*) recognizer view: (UIView*) view where: (RoarVMEventLocationType) where {
+  [super initFrom: recognizer view: view where: where];
   direction = recognizer.direction;
 }
 

@@ -23,6 +23,8 @@ typedef long long sqLong;
 
 # ifdef __cplusplus
 extern "C" { char* pointerForIndex_xxx_dmu(sqInt); }
+# else
+extern char* pointerForIndex_xxx_dmu();
 # endif
 
 # ifdef __cplusplus

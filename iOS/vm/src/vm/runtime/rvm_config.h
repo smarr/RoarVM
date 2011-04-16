@@ -370,9 +370,13 @@
 
 
 // for Squeak:
-
+# ifndef USE_INLINE_MEMORY_ACCESSORS
 # define USE_INLINE_MEMORY_ACCESSORS
+# endif
+
+# ifndef SQUEAK_BUILTIN_PLUGIN
 # define SQUEAK_BUILTIN_PLUGIN
+# endif
 
 # ifdef __cplusplus
 extern "C" {

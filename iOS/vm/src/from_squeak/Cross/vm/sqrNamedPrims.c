@@ -12,6 +12,7 @@
 *
 *****************************************************************************/
 #include "sq.h"
+# include "squeak_adapters.h"
 
 
 typedef struct {
@@ -308,6 +309,7 @@ void *ioLoadFunctionFrom(const char *functionName, const char *pluginName)
 	/* and load the actual function */
 	return findFunctionIn(functionName, module);
 }
+
 
 /* ioLoadExternalFunctionOfLengthFromModuleOfLength
 	Entry point for functions looked up through the VM.

@@ -20,8 +20,8 @@ typedef enum  {RoarVMEventLocationOffset, RoarVMEventLocationPrevious, RoarVMEve
 - (void) initFrom: (UIGestureRecognizer*) recognizer view: (UIView*) view where: (RoarVMEventLocationType) where;
 
 - (void) processInto: (sqInputEvent*)evt;
-- (CGPoint) adjustLocation: (CGPoint) p size: (CGSize) s;
-- (CGPoint) leftmostLocationInView: (UIView*) view recognizer: (UIGestureRecognizer*) recognizer ;
++ (CGPoint) adjustLocation: (CGPoint) p size: (CGSize) s;
++ (CGPoint) leftmostLocationInView: (UIView*) view recognizer: (UIGestureRecognizer*) recognizer ;
 - (CGPoint) computeLocationFrom: (UIGestureRecognizer*) recognizer view: (UIView*) view where: (RoarVMEventLocationType) where;
 - (BOOL) resetsRelativeOffset;
 
