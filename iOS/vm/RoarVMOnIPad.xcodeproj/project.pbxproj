@@ -244,11 +244,10 @@
 		94B6E9DD10BC777A00333E9E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 94B6E9DC10BC777A00333E9E /* Localizable.strings */; };
 		94BCE78C0DDDF61200F38F31 /* sqUnixUUID.c in Sources */ = {isa = PBXBuildFile; fileRef = 94BCE7870DDDF61200F38F31 /* sqUnixUUID.c */; };
 		94D2A24C112B8ED000B6E459 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C208F810AF7262002F4160 /* QuartzCore.framework */; };
-		BC6CC8DB134B031C00B9B2B0 /* RoarVMMouseDownEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8DA134B031C00B9B2B0 /* RoarVMMouseDownEvent.m */; };
-		BC6CC8DF134B034300B9B2B0 /* RoarVMMouseMoveEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8DE134B034300B9B2B0 /* RoarVMMouseMoveEvent.m */; };
-		BC6CC8E2134B036800B9B2B0 /* RoarVMMouseUpEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8E1134B036800B9B2B0 /* RoarVMMouseUpEvent.m */; };
-		BC6CC8E9134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8E8134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m */; };
+		BC6CC8E9134B045100B9B2B0 /* RoarVMMouseEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8E8134B045100B9B2B0 /* RoarVMMouseEvent.m */; };
 		BC6CC8ED134B138300B9B2B0 /* RoarVMSwipeEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC6CC8EC134B138300B9B2B0 /* RoarVMSwipeEvent.m */; };
+		BC82F912135697D000EC2309 /* UIGestureRecognizer+RoarVMEvents.m in Sources */ = {isa = PBXBuildFile; fileRef = BC82F911135697CE00EC2309 /* UIGestureRecognizer+RoarVMEvents.m */; };
+		BC82F9151356A4C400EC2309 /* RoarVMMouseUpEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BC82F9141356A4C300EC2309 /* RoarVMMouseUpEvent.m */; };
 		BCAB989D134B0139004AB528 /* RoarVMAbstractEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = BCAB989C134B0139004AB528 /* RoarVMAbstractEvent.m */; };
 		BCCC348E1349603100063417 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = BCCC348D1349603100063417 /* Entitlements.plist */; };
 /* End PBXBuildFile section */
@@ -439,9 +438,9 @@
 		0AC7EBD8133147F80000A953 /* obsolete_indexed_primitive_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = obsolete_indexed_primitive_table.h; sourceTree = "<group>"; };
 		0AC7EBD9133147F80000A953 /* obsolete_named_primitive_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = obsolete_named_primitive_table.cpp; sourceTree = "<group>"; };
 		0AC7EBDA133147F80000A953 /* obsolete_named_primitive_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = obsolete_named_primitive_table.h; sourceTree = "<group>"; };
-		0AC7EBDB133147F80000A953 /* primitive_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = primitive_table.cpp; sourceTree = "<group>"; };
+		0AC7EBDB133147F80000A953 /* primitive_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = primitive_table.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		0AC7EBDC133147F80000A953 /* primitive_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = primitive_table.h; sourceTree = "<group>"; };
-		0AC7EBDD133147F80000A953 /* squeak_interpreter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = squeak_interpreter.cpp; sourceTree = "<group>"; };
+		0AC7EBDD133147F80000A953 /* squeak_interpreter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = squeak_interpreter.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		0AC7EBDE133147F80000A953 /* squeak_interpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = squeak_interpreter.h; sourceTree = "<group>"; };
 		0AC7EBE0133147F80000A953 /* abstract_message.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = abstract_message.cpp; sourceTree = "<group>"; };
 		0AC7EBE1133147F80000A953 /* abstract_message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abstract_message.h; sourceTree = "<group>"; };
@@ -758,22 +757,21 @@
 		94D3654D10CEC86C00805023 /* BitMapConversionLogicFromX11.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BitMapConversionLogicFromX11.h; path = vm/OSX/BitMapConversionLogicFromX11.h; sourceTree = "<group>"; };
 		94D3654E10CEC86C00805023 /* BitMapConversionLogicFromX11.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = BitMapConversionLogicFromX11.c; path = vm/OSX/BitMapConversionLogicFromX11.c; sourceTree = "<group>"; };
 		94E658DE0DDD03FE00358328 /* plugins.int */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = plugins.int; sourceTree = "<group>"; };
-		94E658E00DDD03FE00358328 /* interp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = interp.c; sourceTree = "<group>"; };
+		94E658E00DDD03FE00358328 /* interp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 1; path = interp.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		94E658E10DDD03FE00358328 /* interp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interp.h; sourceTree = "<group>"; };
 		94E659200DDD03FE00358328 /* sqNamedPrims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqNamedPrims.h; sourceTree = "<group>"; };
 		94F3A9690E6BFA7C00E0B12A /* Squeak.png */ = {isa = PBXFileReference; explicitFileType = image.png; path = Squeak.png; sourceTree = "<group>"; };
 		94F8798F0E6C0C7E00662DEA /* sqSqueakIPhoneInfoPlistInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqSqueakIPhoneInfoPlistInterface.h; sourceTree = "<group>"; };
 		94F879900E6C0C7E00662DEA /* sqSqueakIPhoneInfoPlistInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = sqSqueakIPhoneInfoPlistInterface.m; sourceTree = "<group>"; };
-		BC6CC8D9134B031C00B9B2B0 /* RoarVMMouseDownEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMMouseDownEvent.h; sourceTree = "<group>"; };
-		BC6CC8DA134B031C00B9B2B0 /* RoarVMMouseDownEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMMouseDownEvent.m; sourceTree = "<group>"; };
-		BC6CC8DD134B034300B9B2B0 /* RoarVMMouseMoveEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMMouseMoveEvent.h; sourceTree = "<group>"; };
-		BC6CC8DE134B034300B9B2B0 /* RoarVMMouseMoveEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMMouseMoveEvent.m; sourceTree = "<group>"; };
-		BC6CC8E0134B036700B9B2B0 /* RoarVMMouseUpEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMMouseUpEvent.h; sourceTree = "<group>"; };
-		BC6CC8E1134B036800B9B2B0 /* RoarVMMouseUpEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMMouseUpEvent.m; sourceTree = "<group>"; };
-		BC6CC8E7134B045000B9B2B0 /* RoarVMAbstractMouseEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMAbstractMouseEvent.h; sourceTree = "<group>"; };
-		BC6CC8E8134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMAbstractMouseEvent.m; sourceTree = "<group>"; };
+		BC4F78761358D2870081FC27 /* SqueakV3-minimum-MVC.sources */ = {isa = PBXFileReference; lastKnownFileType = text; name = "SqueakV3-minimum-MVC.sources"; path = "iPhone/SqueakV3-minimum-MVC.sources"; sourceTree = "<group>"; };
+		BC6CC8E7134B045000B9B2B0 /* RoarVMMouseEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMMouseEvent.h; sourceTree = "<group>"; };
+		BC6CC8E8134B045100B9B2B0 /* RoarVMMouseEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMMouseEvent.m; sourceTree = "<group>"; };
 		BC6CC8EB134B138300B9B2B0 /* RoarVMSwipeEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RoarVMSwipeEvent.h; path = ../../RoarVMSwipeEvent.h; sourceTree = "<group>"; };
 		BC6CC8EC134B138300B9B2B0 /* RoarVMSwipeEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RoarVMSwipeEvent.m; path = ../../RoarVMSwipeEvent.m; sourceTree = "<group>"; };
+		BC82F910135697CD00EC2309 /* UIGestureRecognizer+RoarVMEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+RoarVMEvents.h"; sourceTree = "<group>"; };
+		BC82F911135697CE00EC2309 /* UIGestureRecognizer+RoarVMEvents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+RoarVMEvents.m"; sourceTree = "<group>"; };
+		BC82F9131356A4C200EC2309 /* RoarVMMouseUpEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMMouseUpEvent.h; sourceTree = "<group>"; };
+		BC82F9141356A4C300EC2309 /* RoarVMMouseUpEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMMouseUpEvent.m; sourceTree = "<group>"; };
 		BCAB989B134B0139004AB528 /* RoarVMAbstractEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoarVMAbstractEvent.h; sourceTree = "<group>"; };
 		BCAB989C134B0139004AB528 /* RoarVMAbstractEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoarVMAbstractEvent.m; sourceTree = "<group>"; };
 		BCCC348D1349603100063417 /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
@@ -837,15 +835,13 @@
 				9458525410F04339001401E7 /* sqSqueakIPhoneClipboardAPI.h */,
 				9458525510F04339001401E7 /* sqSqueakIPhoneClipboardAPI.m */,
 				BCAB989B134B0139004AB528 /* RoarVMAbstractEvent.h */,
-				BC6CC8D9134B031C00B9B2B0 /* RoarVMMouseDownEvent.h */,
-				BC6CC8DD134B034300B9B2B0 /* RoarVMMouseMoveEvent.h */,
-				BC6CC8E0134B036700B9B2B0 /* RoarVMMouseUpEvent.h */,
-				BC6CC8E7134B045000B9B2B0 /* RoarVMAbstractMouseEvent.h */,
-				BC6CC8E8134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m */,
-				BC6CC8E1134B036800B9B2B0 /* RoarVMMouseUpEvent.m */,
-				BC6CC8DE134B034300B9B2B0 /* RoarVMMouseMoveEvent.m */,
-				BC6CC8DA134B031C00B9B2B0 /* RoarVMMouseDownEvent.m */,
+				BC6CC8E7134B045000B9B2B0 /* RoarVMMouseEvent.h */,
+				BC82F9131356A4C200EC2309 /* RoarVMMouseUpEvent.h */,
+				BC82F9141356A4C300EC2309 /* RoarVMMouseUpEvent.m */,
+				BC6CC8E8134B045100B9B2B0 /* RoarVMMouseEvent.m */,
 				BCAB989C134B0139004AB528 /* RoarVMAbstractEvent.m */,
+				BC82F910135697CD00EC2309 /* UIGestureRecognizer+RoarVMEvents.h */,
+				BC82F911135697CE00EC2309 /* UIGestureRecognizer+RoarVMEvents.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -1794,6 +1790,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				BC4F78761358D2870081FC27 /* SqueakV3-minimum-MVC.sources */,
 				94B6E9DC10BC777A00333E9E /* Localizable.strings */,
 				947E64DC10AA18FE00D3B69E /* MainMenu.xib */,
 				0A4EFFD913317C0D004BC399 /* iPhone.changes */,
@@ -2174,6 +2171,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A4EFFDE13317C0D004BC399 /* SqueakV3-minimum-MVC.sources in Resources */,
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
 				9412CAB30E6C037B00DB8625 /* Settings.bundle in Resources */,
 				9484F8E410B0E0ED0038BDC0 /* Squeak.png in Resources */,
@@ -2189,7 +2187,6 @@
 				0AEBA96813313AB3003A04DF /* SqueakObjectiveC.xcodeproj.zip in Resources */,
 				0A4EFFDC13317C0D004BC399 /* iPhone.changes in Resources */,
 				0A4EFFDD13317C0D004BC399 /* iPhone.image in Resources */,
-				0A4EFFDE13317C0D004BC399 /* SqueakV3-minimum-MVC.sources in Resources */,
 				BCCC348E1349603100063417 /* Entitlements.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2414,11 +2411,10 @@
 				0AC7ECBB133169C70000A953 /* sqrNamedPrims.c in Sources */,
 				0A4EFFD81331787A004BC399 /* sqrUnixExternalPrims.c in Sources */,
 				BCAB989D134B0139004AB528 /* RoarVMAbstractEvent.m in Sources */,
-				BC6CC8DB134B031C00B9B2B0 /* RoarVMMouseDownEvent.m in Sources */,
-				BC6CC8DF134B034300B9B2B0 /* RoarVMMouseMoveEvent.m in Sources */,
-				BC6CC8E2134B036800B9B2B0 /* RoarVMMouseUpEvent.m in Sources */,
-				BC6CC8E9134B045100B9B2B0 /* RoarVMAbstractMouseEvent.m in Sources */,
+				BC6CC8E9134B045100B9B2B0 /* RoarVMMouseEvent.m in Sources */,
 				BC6CC8ED134B138300B9B2B0 /* RoarVMSwipeEvent.m in Sources */,
+				BC82F912135697D000EC2309 /* UIGestureRecognizer+RoarVMEvents.m in Sources */,
+				BC82F9151356A4C400EC2309 /* RoarVMMouseUpEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2453,7 +2449,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Engineer Bainomugisha (882W55QM4Q)";
 				CODE_SIGN_RESOURCE_RULES_PATH = "$(SDKROOT)/ResourceRules.plist";
 				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_PREPROCESSOR_DEFINITIONS = "-DSQUEAK_BUILTIN_PLUGIN";
+				GCC_PREPROCESSOR_DEFINITIONS = SQUEAK_BUILTIN_PLUGIN;
 				GCC_VERSION = 4.2;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -2484,8 +2480,9 @@
 					HAVE_NANOSLEEP,
 					SQUEAK_BUILTIN_PLUGIN,
 					"ISQUEAK_IMAGE=\"iPhone\"",
-					"ISQUEAK_SOURCES=\"PharoV10\"",
+					"ISQUEAK_SOURCES=\"SqueakV3-minimum-MVC\"",
 					TARGET_OS_IS_FOR_IPHONE,
+					"Extra_Preheader_Word_Experiment=1",
 				);
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = 4.2;
@@ -2540,8 +2537,9 @@
 					HAVE_NANOSLEEP,
 					SQUEAK_BUILTIN_PLUGIN,
 					"ISQUEAK_IMAGE=\"iPhone\"",
-					"ISQUEAK_SOURCES=\"PharoV10\"",
+					"ISQUEAK_SOURCES=\"SqueakV3-minimum-MVC\"",
 					TARGET_OS_IS_FOR_IPHONE,
+					"Extra_Preheader_Word_Experiment=1",
 				);
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = 4.2;
