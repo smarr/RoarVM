@@ -2931,7 +2931,7 @@ void Squeak_Interpreter::commonVariableAtPut(Oop rcvr, oop_int_t index, Oop valu
       return;
     }
     if (!Object::Format::has_bytes(fmt)) { // bitmap
-      oop_int_t valToPut = positive32BitValueOf(value);
+      oop_int_t valToPut = signed32BitValueOf(value); // was positive32BitValueOf
       if (successFlag)
         rcvr.as_object()->storeLong32(index - 1, valToPut);
       return;
