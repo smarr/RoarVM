@@ -10,6 +10,8 @@
  ******************************************************************************/
 
 
+# if !On_Tilera
+
 #include <gtest/gtest.h>
 #include <limits.h>
 
@@ -73,3 +75,5 @@ TEST(SyncedQueueThreaded, DISABLED_Pressure) {
     remaining_items--;
   }
 }
+
+# endif // !On_Tilera

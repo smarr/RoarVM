@@ -10,6 +10,8 @@
  ******************************************************************************/
 
 
+# if !On_Tilera
+
 #include <gtest/gtest.h>
 #include "buffered_channel.h"
 
@@ -90,3 +92,4 @@ TEST(BufferedChannelTest, simpleSendReleaseSend) {
 
 }
 
+# endif // !On_Tilera
