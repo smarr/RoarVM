@@ -138,7 +138,7 @@ public:
    * 
    * Returns the initial value at ptr.
    */
-  static inline bool atomic_compare_and_swap_val(int* ptr, int old_value, int new_value) {
+  static inline int atomic_compare_and_swap_val(int* ptr, int old_value, int new_value) {
     return __sync_val_compare_and_swap(ptr, old_value, new_value);
   }
   
