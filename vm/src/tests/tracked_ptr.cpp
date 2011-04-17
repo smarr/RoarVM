@@ -10,6 +10,8 @@
  ******************************************************************************/
 
 
+# if !On_Tilera
+
 # define Track_OnStackPointer 1  /* Enforce this here for the tests */
 
 # include <gtest/gtest.h>
@@ -604,4 +606,5 @@ TEST(TrackedPointer, DISABLED_InvalidationDuringCall) {
   t->someMethodChangingFields();
 }
 
+# endif // !On_Tilera
 

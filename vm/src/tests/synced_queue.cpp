@@ -10,6 +10,8 @@
  ******************************************************************************/
 
 
+# if !On_Tilera
+
 #include "synced_queue.h"
 
 #include <gtest/gtest.h>
@@ -147,4 +149,6 @@ TEST(SyncedQueue, WrappingEnqueueDequeue) {
     EXPECT_EQ(sample2[i], dequeuedSample[i]);
   }
 }
+
+# endif // !On_Tilera
 
