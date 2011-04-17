@@ -17,6 +17,9 @@
  ******************************************************************************/
 
 
+// Currently not needed on Tilera STEFAN: 2011-04-17
+# ifndef __tile__
+
 #ifndef __tile__
   #define _GNU_SOURCE
 #endif
@@ -179,3 +182,4 @@ void starter_signal_initalization_finished(starter_t* const starter) {
   pthread_mutex_unlock  (&starter->global_init_mtx);
 }
 
+# endif // # ifndef __tile__
