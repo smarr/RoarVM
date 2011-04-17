@@ -366,6 +366,7 @@
 		0A278516128DBF7400336BDE /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
 		0A2785E3128DC3A000336BDE /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		0A2785ED128DC42800336BDE /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		0A6A4830135ADDB400933643 /* test_headers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_headers.h; sourceTree = "<group>"; };
 		0A8C91BC12DE61BB007DBAD9 /* object_p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_p.h; sourceTree = "<group>"; };
 		0A8C91C612DE62B6007DBAD9 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		0A97FB26128FE95A003A1C74 /* UnitTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTests; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1015,6 +1016,7 @@
 				0A97FBB412900371003A1C74 /* tracked_ptr.cpp */,
 				0A97FEE412909C92003A1C74 /* test_os_interface.h */,
 				0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */,
+				0A6A4830135ADDB400933643 /* test_headers.h */,
 			);
 			name = tests;
 			path = src/tests;
