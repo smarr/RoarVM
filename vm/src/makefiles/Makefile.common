@@ -542,11 +542,11 @@ TEST_H    := $(wildcard $(SRC_DIR)/tests/*.h)
 TEST_OBJS := $(TEST_SRC:.cpp=.o) $(OBJS)
 
 $(TEST_OBJS) : $(TEST_H)
-                                         
+
 rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
 rvm-test : INCLUDES+=$(GTEST_INCLUDES)
 rvm-test: libgtest.a $(TEST_OBJS) $(TEST_H)
-	$(CXX) -L. $(LIBS_LINKING) $(LDFLAGS) $(TEST_OBJS) -lm -lgtest $(TILERA_LIBS) -o $@
+	$(CXX) $(LDFLAGS) $(TEST_OBJS) gtest-all.o -lm -lpthread  $(TILERA_LIBS) -L. $(LIBS_LINKING) -o $@
 
 test: rvm-test
 	@./rvm-test
