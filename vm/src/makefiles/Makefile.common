@@ -19,6 +19,17 @@ ifndef PLATFORM
   PLATFORM = Tilera
 endif
 
+# Set Value for the platform define, used mainly in the unit tests
+ifeq "$(PLATFORM)" "Intel"
+    ifeq "$(OS)" "Darwin"
+        PLATFORM_DEF = -DOn_Apple
+    else
+        PLATFORM_DEF = -DOn_Intel_Linux
+    endif
+else
+    PLATFORM_DEF = -DOn_Tilera
+endif
+
 ifdef TILERA_ROOT
 BIN = $(TILERA_ROOT)/bin/
 endif
@@ -538,15 +549,18 @@ libgtest.a:
 # REM: this will build the object files inside the test folder
 #      this allows us to use the same names for tests and implementation files
 TEST_SRC  := $(wildcard $(SRC_DIR)/tests/*.cpp)
+TEST_H    := $(wildcard $(SRC_DIR)/tests/*.h)
 TEST_OBJS := $(TEST_SRC:.cpp=.o) \
   synced_queue.opt \
   buffered_channel.opt \
   
 
-rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
+$(TEST_OBJS) : $(TEST_H)
+                                         
+rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS) $(PLATFROM_DEF)
 rvm-test : INCLUDES+=$(GTEST_INCLUDES)
-rvm-test: libgtest.a $(TEST_OBJS)
-	$(CXX) -L. $(LIBS_LINKING) $(LDFLAGS) $(TEST_OBJS) -lm -lgtest $(TILERA_LIBS) -o $@
+rvm-test: libgtest.a $(TEST_OBJS) $(TEST_H)
+	$(CXX) -L. $(LIBS_LINKING) $(LDFLAGS) $(PLATFROM_DEF) $(TEST_OBJS) -lm -lgtest $(TILERA_LIBS) -o $@
 
 test: rvm-test
 	@./rvm-test
