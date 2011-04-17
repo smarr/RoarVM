@@ -22,9 +22,9 @@
  *
  * It is defined here as the standard OS_Interface for tests.
  */
-class   Test_OS_Interface;
-typedef Test_OS_Interface OS_Interface;
 
+/** STEFAN: Not used anymore. We are now using the OS_Interface implementation 
+            directly. (2011-04-17) */
 
 class Test_OS_Interface {
 public:
