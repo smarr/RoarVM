@@ -83,7 +83,7 @@ public:
    * if they are equal set the new value and return true, false otherwise.
    */
   static inline bool atomic_compare_and_swap(int* ptr, int old_value, int new_value) {
-    return atomic_compare_and_exchange_bool_acq(ptr, new_value, old_value);
+    return (0 == atomic_compare_and_exchange_bool_acq(ptr, new_value, old_value)); // Not sure whether that is stable, this API is unintuitive for me, got it wrong twice!! make sure the test cases are rerun on new lib versions
   }
   
   /**
