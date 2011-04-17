@@ -1,0 +1,12 @@
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+export PATH=$PATH:$HOME/bin:/sbin:/opt/Tilera/tile64/bin
+export TILERA_ROOT=/opt/Tilera/tile64
+export TileraMDE=/opt/Tilera/tile64

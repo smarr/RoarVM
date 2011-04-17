@@ -1,0 +1,12 @@
+CONFIG_FLAGS = -g -Dcheck_assertions=1 -Dcheck_many_assertions=0 -DMeasure=0 -DWork_Around_Barrier_Bug=1
+# CONFIG_FLAGS = -g -Dcheck_assertions=1 -Dcheck_many_assertions=0 -DMeasure=0 -DWork_Around_Barrier_Bug=1 -DTrace_Execution=1
+
+
+include ../src/makefiles/Makefile.common
+
+#CONFIG_FLAGS = -g -Dcheck_assertions=false -DMeasure=1
+#CONLY_CONFIG_FLAGS = -O3
+#CXX_CONFIG_FLAGS = -O3
+
+LOW_OPTIMIZE_LEVEL  = -O0
+HIGH_OPTIMIZE_LEVEL = -O0
