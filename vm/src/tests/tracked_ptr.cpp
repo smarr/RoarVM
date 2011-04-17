@@ -10,14 +10,12 @@
  ******************************************************************************/
 
 
-#define Track_OnStackPointer 1  /* Enforce this here for the tests */
+# define Track_OnStackPointer 1  /* Enforce this here for the tests */
 
-#include "test_headers.h"
+# include <gtest/gtest.h>
 
-#include "tracked_ptr_registry.h"
-#include "tracked_ptr.h"
+# include "headers.h"
 
-#include <gtest/gtest.h>
 
 /** A simple class used in the tests **/
 class MyClass {

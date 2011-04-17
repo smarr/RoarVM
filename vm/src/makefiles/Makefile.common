@@ -19,16 +19,6 @@ ifndef PLATFORM
   PLATFORM = Tilera
 endif
 
-# Set Value for the platform define, used mainly in the unit tests
-ifeq "$(PLATFORM)" "Intel"
-    ifeq "$(OS)" "Darwin"
-        PLATFORM_DEF = -DOn_Apple
-    else
-        PLATFORM_DEF = -DOn_Intel_Linux
-    endif
-else
-    PLATFORM_DEF = -DOn_Tilera
-endif
 
 ifdef TILERA_ROOT
 BIN = $(TILERA_ROOT)/bin/
@@ -418,7 +408,6 @@ OBJS = \
   interpreter_bytecodes.opt \
   interpreter_primitives.o \
   LargeIntegers.opt \
-  main.opt \
   Matrix2x3Plugin.opt \
   measurements.opt \
   memory_system.o \
@@ -534,8 +523,8 @@ else
 endif
 
 
-rvm: $(OBJS)
-	$(CXX) $(LDFLAGS) $(OBJS) -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
+rvm: $(OBJS) main.opt
+	$(CXX) $(LDFLAGS) $(OBJS) main.opt -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
 
 # Test Related targets, we use the googletest framework for unit tests
 
@@ -550,17 +539,14 @@ libgtest.a:
 #      this allows us to use the same names for tests and implementation files
 TEST_SRC  := $(wildcard $(SRC_DIR)/tests/*.cpp)
 TEST_H    := $(wildcard $(SRC_DIR)/tests/*.h)
-TEST_OBJS := $(TEST_SRC:.cpp=.o) \
-  synced_queue.opt \
-  buffered_channel.opt \
-  
+TEST_OBJS := $(TEST_SRC:.cpp=.o) $(OBJS)
 
 $(TEST_OBJS) : $(TEST_H)
                                          
-rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS) $(PLATFROM_DEF)
+rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
 rvm-test : INCLUDES+=$(GTEST_INCLUDES)
 rvm-test: libgtest.a $(TEST_OBJS) $(TEST_H)
-	$(CXX) -L. $(LIBS_LINKING) $(LDFLAGS) $(PLATFROM_DEF) $(TEST_OBJS) -lm -lgtest $(TILERA_LIBS) -o $@
+	$(CXX) -L. $(LIBS_LINKING) $(LDFLAGS) $(TEST_OBJS) -lm -lgtest $(TILERA_LIBS) -o $@
 
 test: rvm-test
 	@./rvm-test
