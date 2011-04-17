@@ -86,6 +86,7 @@ alias xbi32="tile-monitor --pci --rtc $mon_args rvm -geom 8,4 -min_heap_MB 128 /
 alias xbi40="tile-monitor --pci --rtc $mon_args rvm -geom 8,5 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
 alias xbi48="tile-monitor --pci --rtc $mon_args rvm -geom 8,6 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
 alias xbi56="tile-monitor --pci --rtc $mon_args rvm -geom 8,7 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
+alias xbi59="tile-monitor --pci --rtc $mon_args rvm -num_cores 59 -min_heap_MB 128 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
 alias xbi56bar="tile-monitor --pci --rtc $mon_args rvm -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/rvm-base.image -+- --quit"
 
 alias xbi1A="tile-monitor --pci-card 0 --rtc  $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.252 --run -+- rvm -num_chips 4 -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
@@ -97,6 +98,11 @@ alias xbi56A="tile-monitor --pci-card 0 --rtc $mon_args_no_eth --hvx TLR_NETADDR
 alias xbi56B="tile-monitor --pci-card 1 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.251 --run -+- rvm -num_chips 4 -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
 alias xbi56C="tile-monitor --pci-card 2 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.250 --run -+- rvm -num_chips 4 -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
 alias xbi56D="tile-monitor --pci-card 3 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.249 --run -+- rvm -num_chips 4 -geom 8,7 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
+
+alias xbi59A="tile-monitor --pci-card 0 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.240 --run -+- rvm -num_chips 4 -num_cores 59 -min_heap_MB 64 /home/ungar/renaissance/rvm/runA/rvm-base.image -+- --quit"
+alias xbi59B="tile-monitor --pci-card 1 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.241 --run -+- rvm -num_chips 4 -num_cores 59 -min_heap_MB 64 /home/ungar/renaissance/rvm/runB/rvm-base.image -+- --quit"
+alias xbi59C="tile-monitor --pci-card 2 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.242 --run -+- rvm -num_chips 4 -num_cores 59 -min_heap_MB 64 /home/ungar/renaissance/rvm/runC/rvm-base.image -+- --quit"
+alias xbi59D="tile-monitor --pci-card 3 --rtc $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.243 --run -+- rvm -num_chips 4 -num_cores 59 -min_heap_MB 64 /home/ungar/renaissance/rvm/runD/rvm-base.image -+- --quit"
 
 alias A="tile-monitor --pci-card 0 --rtc  $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.252 --run -+- rvm -num_chips 2 -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
 alias B="tile-monitor --pci-card 1 --rtc  $mon_args_no_eth --hvx TLR_NETADDR=10.0.1.251 --run -+- rvm -num_chips 2 -geom 1,1 -min_heap_MB 64 /home/ungar/renaissance/rvm/run/sam-serially.image -+- --quit"
