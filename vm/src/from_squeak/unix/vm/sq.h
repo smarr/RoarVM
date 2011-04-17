@@ -1,11 +1,11 @@
 /****************************************************************************
 *   PROJECT: Common include
 *   FILE:    sq.h
-*   CONTENT: 
+*   CONTENT:
 *
-*   AUTHOR:  
-*   ADDRESS: 
-*   EMAIL:   
+*   AUTHOR:
+*   ADDRESS:
+*   EMAIL:
 *   RCSID:   $Id: sq.h 1283 2005-12-31 00:51:12Z rowledge $
 *
 */
@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+# include "squeak_adapters.h"
 
 #include "sqConfig.h"
 #include "sqMemoryAccess.h"
@@ -80,8 +82,8 @@
 
 /* Platform-dependent millisecond clock macros. */
 
-/* Note: The Squeak VM uses two different clock functions for timing, and
-   the Cog VMs provide a third.
+/* Note: The Squeak VM uses two different clock functions for
+   timing.
 
    The primary one, ioMSecs(), is used to implement Delay and Time
    millisecondClockValue. The resolution of this clock
@@ -107,49 +109,20 @@
    By default, the basic ioMSec() clock function is defined
    here as a macro based on the standard C library function clock().
    Any of this can be overridden in sqPlatformSpecific.h.
-
-   The wall clock is answered by ioSeconds, which answers the number of seconds
-   since the start of the 20th century (12pm Dec 31, 1900).
-
-   The Cog VMs depend on a heartbeat to cause the VM to check for interrupts at
-   regular intervals (of the order of ever milisecond).  The heartbeat on these
-   VMs is responsible for updating a 64-bit microsecond clock with the number
-   of microseconds since the start of the 20th century (12pm Dec 31, 1900)
-   available via ioUTCMicroseconds() and ioLocalMicroseconds().  For cases
-   where exact time is required we provide ioUTCMicrosecondsNow that updates
-   the clock to return the time right now, rather than of the last heartbeat.
 */
 
 sqInt ioMSecs(void);
-/* deprecated out of existence sqInt ioLowResMSecs(void); */
+/* deprecated out ofexistence sqInt ioLowResMSecs(void); */
 sqInt ioMicroMSecs(void);
 
-/* duplicate the generated definition in the interpreter.  If they differ the
- * compiler will complain and catch it for us.  We use 0x1FFFFFFF instead of
- * 0x3FFFFFFF so that twice the maximum clock value remains in the positive
- * SmallInteger range.  This assumes 31 bit SmallIntegers; 0x3FFFFFFF is
- * SmallInteger maxVal.
- */
-#define MillisecondClockMask 0x1FFFFFFF
+#define ioMSecs()	((1000 * clock()) / CLOCKS_PER_SEC)
 
-#if STACKVM
-usqLong ioUTCMicrosecondsNow();
-usqLong ioUTCMicroseconds();
-usqLong ioLocalMicroseconds();
-void	ioUpdateVMTimezone();
-void	ioSynchronousCheckForEvents();
-void	checkHighPriorityTickees(usqLong);
-# if ITIMER_HEARTBEAT		/* Hack; allow heartbeat to avoid */
-extern int numAsyncTickees; /* prodHighPriorityThread unless necessary */
-# endif						/* see platforms/unix/vm/sqUnixHeartbeat.c */
-void	ioGetClockLogSizeUsecsIdxMsecsIdx(sqInt*,void**,sqInt*,void**,sqInt*);
-#endif
+/* this macro cannot be used now that ioMicroMSecs is involved in the
+   sqVirtualMachine structures - we must have a function
+#define ioMicroMSecs()	((1000 * clock()) / CLOCKS_PER_SEC)
+*/
 
-/* this function should return the value of the high performance
-   counter if there is such a thing on this platform (otherwise return 0) */
-sqLong ioHighResClock(void);
-
-/* New filename converting function; used by the interpreterProxy function 
+/* New filename converting function; used by the interpreterProxy function
   ioFilenamefromStringofLengthresolveAliases. Most platforms can ignore the
   resolveAlias boolean - it seems to only be of use by OSX but is crucial there.
 */
@@ -160,7 +133,7 @@ sqInt sqGetFilenameFromString(char * aCharBuffer, char * aFilenameString, sqInt 
    Override in sqPlatformSpecific.h for each platform that implements a
    file truncate, or consider replacing the
    ../Cross/plugins/FilePlugin/sqFilePluginBasicPrims.c
-   file with a platform specific version as Win32 and RISC OS do. 
+   file with a platform specific version as Win32 and RISC OS do.
 */
 #define sqFTruncate(filenum, fileoffset) true
 
@@ -178,15 +151,13 @@ sqInt sqGetFilenameFromString(char * aCharBuffer, char * aFilenameString, sqInt 
 
 /* Interpreter entry points. */
 
-/* Disable Intel compiler inlining of error which is used for breakpoints */
-#pragma auto_inline off
 void error(char *s);
-#pragma auto_inline on
 sqInt checkedByteAt(sqInt byteAddress);
 sqInt checkedByteAtput(sqInt byteAddress, sqInt byte);
 sqInt checkedLongAt(sqInt byteAddress);
 sqInt checkedLongAtput(sqInt byteAddress, sqInt a32BitInteger);
 sqInt fullDisplayUpdate(void);
+sqInt initializeInterpreter(sqInt bytesToShift);
 sqInt interpret(void);
 sqInt primitiveFail(void);
 sqInt signalSemaphoreWithIndex(sqInt semaIndex);
@@ -196,7 +167,6 @@ sqInt success(sqInt);
 
 sqInt ioBeep(void);
 sqInt ioExit(void);
-sqInt ioExitWithErrorCode(int);
 sqInt ioForceDisplayUpdate(void);
 sqInt ioFormPrint(sqInt bitsAddr, sqInt width, sqInt height, sqInt depth,
 		  double hScale, double vScale, sqInt landscapeFlag);
@@ -212,104 +182,6 @@ sqInt ioShowDisplay(sqInt dispBitsIndex, sqInt width, sqInt height, sqInt depth,
 sqInt ioHasDisplayDepth(sqInt depth);
 sqInt ioSetDisplayMode(sqInt width, sqInt height, sqInt depth, sqInt fullscreenFlag);
 
-#if STACKVM
-/* thread subsystem support for e.g. sqExternalSemaphores.c */
-void ioInitThreads();
-
-/* Event polling via periodic heartbeat thread. */
-void  ioInitHeartbeat(void);
-int   ioHeartbeatMilliseconds(void);
-void  ioSetHeartbeatMilliseconds(int);
-unsigned long ioHeartbeatFrequency(int);
-
-/* Management of the external semaphore table (max size set at startup) */
-#if !defined(INITIAL_EXT_SEM_TABLE_SIZE)
-# define INITIAL_EXT_SEM_TABLE_SIZE 256
-#endif
-int   ioGetMaxExtSemTableSize(void);
-void  ioSetMaxExtSemTableSize(int);
-
-/* these are used both in the STACKVM & the COGMTVM */
-# if !defined(ioCurrentOSThread)
-sqOSThread ioCurrentOSThread(void);
-# endif
-# if !defined(ioOSThreadsEqual)
-int  ioOSThreadsEqual(sqOSThread,sqOSThread);
-# endif
-# if !COGMTVM
-extern sqOSThread ioVMThread;
-# define getVMOSThread() ioVMThread
-# endif
-#endif /* STACKVM */
-#if COGMTVM
-#define THRLOGSZ 256
-extern int thrlogidx;
-extern char *thrlog[];
-
-/* Debug logging that defers printing.  Use like printf, e.g.
- * TLOG("tryLockVMToIndex vmOwner = %d\n", vmOwner);
- * Requires #include "sqAtomicOps.h"
- * N.B. The following still isn't safe.  If enough log entries are made by other
- * threads after myindex is obtained but before asprintf completes we can get
- * two threads using the same entry.  But this is good enough for now.
- */
-#define THRLOG(...) do { int myidx, oldidx; \
-	do { myidx = thrlogidx; \
-		sqCompareAndSwapRes(thrlogidx,myidx,(myidx+1)&(THRLOGSZ-1),oldidx); \
-	} while (myidx != oldidx); \
-	if (thrlog[myidx]) free(thrlog[myidx]); \
-	asprintf(thrlog + myidx, __VA_ARGS__); \
-} while (0)
-
-extern sqOSThread getVMOSThread();
-/* Please read the comment for CogThreadManager in the VMMaker package for
- * documentation of this API.  N.B. code is included from sqPlatformSpecific.h
- * before the code here.  e.g.
- * # include <pthread.h>
- * # define sqOSThread pthread_t
- * # define sqOSSemaphore pthread_cond_t
- * # define ioOSThreadsEqual(a,b) pthread_equal(a,b)
- */
-# if !defined(ioGetThreadLocalThreadIndex)
-long ioGetThreadLocalThreadIndex(void);
-# endif
-# if !defined(ioSetThreadLocalThreadIndex)
-void ioSetThreadLocalThreadIndex(long);
-# endif
-
-# if !defined(ioNewOSThread)
-int  ioNewOSThread(void (*func)(void *), void *);
-# endif
-# if !defined(ioExitOSThread)
-void ioExitOSThread(sqOSThread thread);
-# endif
-# if !defined(ioReleaseOSThreadState)
-void ioReleaseOSThreadState(sqOSThread thread);
-# endif
-# if !defined(ioOSThreadIsAlive)
-int  ioOSThreadIsAlive(sqOSThread);
-# endif
-int  ioNewOSSemaphore(sqOSSemaphore *);
-# if !defined(ioDestroyOSSemaphore)
-void ioDestroyOSSemaphore(sqOSSemaphore *);
-# endif
-void ioSignalOSSemaphore(sqOSSemaphore *);
-void ioWaitOnOSSemaphore(sqOSSemaphore *);
-int  ioNumProcessors(void);
-# if !defined(ioTransferTimeslice)
-void ioTransferTimeslice(void);
-# endif
-#endif /* COGMTVM */
-
-/* Profiling. */
-void  ioProfileStatus(sqInt *running, void **exestartpc, void **exelimitpc,
-					  void **vmhst, long *nvmhbin, void **eahst, long *neahbin);
-void  ioControlProfile(int on, void **vhp, long *nvb, void **ehp, long *neb);
-long  ioControlNewProfile(int on, unsigned long buffer_size);
-void  ioNewProfileStatus(sqInt *running, long *buffersize);
-long  ioNewProfileSamplesInto(void *sampleBuffer);
-void  ioClearProfile(void);
-
 /* Power management. */
 
 sqInt ioDisablePowerManager(sqInt disableIfNonZero);
@@ -318,7 +190,7 @@ sqInt ioDisablePowerManager(sqInt disableIfNonZero);
    In general, either set of input function can be supported,
    depending on the platform. This (first) set is state based
    and should be supported even on platforms that make use
-   of the newer event driven API to support older images 
+   of the newer event driven API to support older images
    without event support.
 */
 
@@ -344,7 +216,6 @@ sqInt ioProcessEvents(void);
 #define EventTypeDragDropFiles	3
 #define EventTypeMenu		4
 #define EventTypeWindow		5
-#define	EventTypeComplex	6
 
 /* Keypress state for keyboard events. */
 #define EventKeyChar	0
@@ -385,7 +256,7 @@ typedef struct sqMouseEvent
   int y;			/* mouse position y */
   int buttons;			/* combination of xxxButtonBit */
   int modifiers;		/* combination of xxxKeyBit */
-  int nrClicks;			/* number of clicks in button downs - was reserved1 */
+  int reserved1;		/* reserved for future use */
   int windowIndex;		/* host window structure */
 } sqMouseEvent;
 
@@ -419,7 +290,6 @@ typedef struct sqDragDropFilesEvent
 #define DragMove	2 /* drag operation from OS moved within Squeak window */
 #define DragLeave	3 /* drag operation from OS left Squeak window	 */
 #define DragDrop	4 /* drag operation dropped contents onto Squeak.      */
-#define DragRequest	5 /* data request from other app. */
 
 /* menu event */
 typedef struct sqMenuEvent
@@ -456,29 +326,6 @@ typedef struct sqWindowEvent
 #define WindowEventPaint	5 /* window area (in value1-4) needs updating. Some platforms do not need to send this, do not rely on it in image */
 #define WindowEventStinks	6 /* this window stinks (just to see if people read this stuff) */
 
-typedef struct sqComplexEvent
-	{
-		int type;			/* type of event;  EventTypeComplex */
-		unsigned int timeStamp;	/* time stamp */
-		/* the interpretation of the following fields depend on the type  of the event */
-		int action;		        /* one of ComplexEventXXX (see below) */
-		usqInt objectPointer;	/* used to point to object */
-		int unused1;			/*  */
-		int unused2;			/*  */
-		int unused3;			/*  */
-		int windowIndex;	/* host window structure */
-	} sqComplexEvent;
-
-#define ComplexEventTypeTouchsDown	1 /*  */
-#define ComplexEventTypeTouchsUp	2 /*  */
-#define ComplexEventTypeTouchsMoved	3 /*  */
-#define ComplexEventTypeTouchsStationary 4 /*  */
-#define ComplexEventTypeTouchsCancelled	5 /*  */
-#define ComplexEventTypeAccelerationData	6 /*  */
-#define ComplexEventTypeLocationData	7 /*  */
-#define ComplexEventTypeApplicationData	8 /*  */
-
-
 /* Set an asynchronous input semaphore index for events. */
 sqInt ioSetInputSemaphore(sqInt semaIndex);
 /* Retrieve the next input event from the OS. */
@@ -492,8 +339,6 @@ sqInt imageNamePutLength(sqInt sqImageNameIndex, sqInt length);
 sqInt imageNameSize(void);
 sqInt vmPathSize(void);
 sqInt vmPathGetLength(sqInt sqVMPathIndex, sqInt length);
-char* ioGetLogDirectory(void);
-char* ioGetWindowLabel(void);
 
 /* Image security traps. */
 sqInt ioCanRenameImage(void);
@@ -502,7 +347,9 @@ sqInt ioDisableImageWrite(void);
 
 /* Save/restore. */
 /* Read the image from the given file starting at the given image offset */
-sqInt readImageFromFileHeapSizeStartingAt(sqImageFile f, usqInt desiredHeapSize, squeakFileOffsetType imageOffset);
+sqInt readImageFromFileHeapSizeStartingAt(sqImageFile f, sqInt desiredHeapSize, squeakFileOffsetType imageOffset);
+/* NOTE: The following is obsolete - it is only provided for compatibility */
+#define readImageFromFileHeapSize(f, s) readImageFromFileHeapSizeStartingAt(f,s,0)
 
 /* Clipboard (cut/copy/paste). */
 sqInt clipboardSize(void);
@@ -522,9 +369,15 @@ sqInt pushInteger(sqInt integerValue);
 sqInt sizeOfSTArrayFromCPrimitive(void *cPtr);
 sqInt storeIntegerofObjectwithValue(sqInt fieldIndex, sqInt objectPointer, sqInt integerValue);
 
+/* Profiling. */
+sqInt clearProfile(void);
+sqInt dumpProfile(void);
+sqInt startProfiling(void);
+sqInt stopProfiling(void);
+
 /* System attributes. */
-sqInt attributeSize(sqInt indexNumber);
-sqInt getAttributeIntoLength(sqInt indexNumber, sqInt byteArrayIndex, sqInt length);
+sqInt attributeSize(sqInt id);
+sqInt getAttributeIntoLength(sqInt id, sqInt byteArrayIndex, sqInt length);
 
 /*** Pluggable primitive support. ***/
 
@@ -549,13 +402,13 @@ void  *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNam
 	a loaded one.
 	WARNING: never primitiveFail() within, just return 0
 */
-void *ioLoadModule(char *pluginName);
+void *ioLoadModule(const char *pluginName);
 
 /* ioFindExternalFunctionIn:
 	Find the function with the given name in the moduleHandle.
 	WARNING: never primitiveFail() within, just return 0.
 */
-void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle);
+void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle);
 
 /* ioFreeModule:
 	Free the module with the associated handle.

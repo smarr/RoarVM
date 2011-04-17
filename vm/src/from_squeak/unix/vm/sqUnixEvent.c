@@ -108,7 +108,7 @@ static sqInputEvent *allocateInputEvent(int eventType)
       iebAdvance(iebOut);
     }
   evt->type= eventType;
-  evt->timeStamp= ioMSecs();
+  evt->timeStamp= ioWhicheverMSecs();
   return evt;
 }
 

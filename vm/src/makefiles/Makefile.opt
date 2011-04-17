@@ -1,0 +1,14 @@
+CONFIG_FLAGS = -g
+#CONLY_CONFIG_FLAGS = -O0
+#CXX_CONFIG_FLAGS = -g -O0  -DWork_Around_Barrier_Bug=1
+CONLY_CONFIG_FLAGS = -O3
+CXX_CONFIG_FLAGS = -g -O3  -DWork_Around_Barrier_Bug=1
+
+../run/rvm: rvm
+	cp rvm ../run
+  echo "WARNING: gcc optimizations turned off for debugging"
+
+include ../src/makefiles/Makefile.common
+
+# run faster on Tilera, low level only needed for some compilers
+LOW_OPTIMIZE_LEVEL  = -O3
