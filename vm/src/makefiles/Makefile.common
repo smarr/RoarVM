@@ -429,12 +429,12 @@ OBJS = \
   SoundPlugin.opt \
   SocketPlugin.opt \
   sqFilePluginBasicPrims.opt \
-  sqrNamedPrims.opt \
-  sqrUnixCharConv.opt \
-  sqrUnixExternalPrims.opt \
-  sqrUnixMain.opt \
-  sqrUnixX11.opt \
-  sqrVirtualMachine.opt \
+  sqNamedPrims.opt \
+  sqUnixCharConv.opt \
+  sqUnixExternalPrims.opt \
+  sqUnixMain.opt \
+  sqUnixX11.opt \
+  sqVirtualMachine.opt \
   squeak_adapters.opt \
   squeak_image_reader.opt \
   squeak_interpreter.opt \
