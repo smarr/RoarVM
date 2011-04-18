@@ -1277,7 +1277,10 @@
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
-				OTHER_CFLAGS = "-DLSB_FIRST";
+				OTHER_CFLAGS = (
+					"-DLSB_FIRST",
+					"-DROAR_VM",
+				);
 				OTHER_LDFLAGS = (
 					"-lX11",
 					"-lXext",
@@ -1316,7 +1319,10 @@
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
-				OTHER_CFLAGS = "-DLSB_FIRST";
+				OTHER_CFLAGS = (
+					"-DLSB_FIRST",
+					"-DROAR_VM",
+				);
 				OTHER_LDFLAGS = (
 					"-lX11",
 					"-lXext",

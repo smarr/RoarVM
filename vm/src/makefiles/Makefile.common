@@ -72,7 +72,7 @@ INCLUDES += \
 endif
 
 
-CONFIG_FLAGS += -Winline -DExtra_Preheader_Word_Experiment=1 -DLSB_FIRST=1
+CONFIG_FLAGS += -Winline -DExtra_Preheader_Word_Experiment=1 -DLSB_FIRST=1 -DROAR_VM
 CXX_CONFIG_FLAGS += -Winline
 CFLAGS = $(INCLUDES) $(CONFIG_FLAGS) -include rvm_config.h
 CXXFLAGS = -fno-rtti $(CXX_CONFIG_FLAGS)
