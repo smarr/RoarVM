@@ -16,6 +16,10 @@
 
 # define clone sqr_clone
 
+// STEFAN: added this and set it to 7 since that seems to be the
+//         verion the original RVM/RoarVM was start of with
+# define VM_PROXY_MINOR 7
+
 # if On_Tilera && !defined(__APPLE__) || defined(RVM_CODE_NOT_SQUEAK_CODE)
 typedef int sqInt;
 typedef long long sqLong;

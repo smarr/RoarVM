@@ -15,6 +15,8 @@
 #include <string.h>
 #include <time.h>
 
+# include "squeak_adapters.h"
+
 #include "sqConfig.h"
 #include "sqMemoryAccess.h"
 #include "sqVirtualMachine.h"

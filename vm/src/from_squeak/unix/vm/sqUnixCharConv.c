@@ -29,6 +29,8 @@
  * Last edited: 2009-08-15 12:59:49 by piumarta on emilia-2.local
  */
 
+# include "squeak_adapters.h"
+
 #if !defined(__MACH__)
 # include "sqMemoryAccess.h"
 #endif

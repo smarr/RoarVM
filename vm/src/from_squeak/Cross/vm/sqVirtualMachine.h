@@ -8,6 +8,8 @@
 /* Note: You can define a different VM_PROXY_MINOR if the plugin
    should work with older VMs. */
 #ifndef VM_PROXY_MINOR
+  // STEFAN: make sure the RoarVM code sets up this define correctly
+  # error The macro VM_PROXY_MINOR was not defined, it should be 7 as far as I can tell
 /* Increment the following number if you add functions at the end */
 # define VM_PROXY_MINOR 12
 #endif
