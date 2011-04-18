@@ -171,6 +171,7 @@ sqInt classExternalStructure(void);
 sqInt ioLoadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength);
 sqInt ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNameLength, sqInt moduleHandle);
 sqInt isInMemory(sqInt address);
+# if VM_PROXY_MINOR > 7
 sqInt classAlien(void); /* Alien FFI */
 sqInt classUnsafeAlien(void); /* Alien FFI */
 void *startOfAlienData(sqInt);
@@ -181,10 +182,10 @@ sqInt reestablishContextPriorToCallback(sqInt callbackContext); /* Alien FFI */
 sqInt sendInvokeCallbackContext(VMCallbackContext *);
 sqInt returnAsThroughCallbackContext(int, VMCallbackContext *, sqInt);
 char *cStringOrNullFor(sqInt);
+# endif
 void *ioLoadFunctionFrom(const char *fnName, const char *modName);
 
-
-
+# if VM_PROXY_MINOR > 7
 /* Proxy declarations for v1.8 */
 sqInt callbackEnter(sqInt *callbackID);
 sqInt callbackLeave(sqInt  callbackID);
@@ -198,6 +199,7 @@ sqInt integerArg(sqInt index);
 double floatArg(sqInt index);
 sqInt methodReturnValue(sqInt oop);
 sqInt topRemappableOop(void);
+# endif // VM_PROXY_MINOR
 
 struct VirtualMachine *VM = NULL;
 
@@ -222,6 +224,7 @@ void (*setInterruptCheckChain(void (*aFunction)(void)))();
 void (*setInterruptCheckChain(void (*aFunction)(void)))() { return 0; }
 #endif
 
+# if VM_PROXY_MINOR > 7
 #if COGMTVM
 sqInt disownVM(sqInt flags);
 sqInt ownVM(sqInt threadIdAndFlags);
@@ -233,6 +236,8 @@ sqInt ownVM(sqInt threadIdAndFlags)
 	return amInVMThread() ? 0 : -1;
 }
 #endif
+# endif // VM_PROXY_MINOR
+
 extern sqInt isYoung(sqInt);
 
 /* High-priority and synchronous ticker function support. */
