@@ -12,8 +12,6 @@
 		0A278519128DBF7400336BDE /* FilePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278400128DBF7300336BDE /* FilePlugin.c */; };
 		0A27851A128DBF7400336BDE /* sqFilePluginBasicPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278402128DBF7300336BDE /* sqFilePluginBasicPrims.c */; };
 		0A27851B128DBF7400336BDE /* sqUnixFile.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278403128DBF7300336BDE /* sqUnixFile.c */; };
-		0A27851C128DBF7400336BDE /* sqrNamedPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27840A128DBF7300336BDE /* sqrNamedPrims.c */; };
-		0A27851D128DBF7400336BDE /* sqrVirtualMachine.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27840B128DBF7300336BDE /* sqrVirtualMachine.c */; };
 		0A27851E128DBF7400336BDE /* B2DPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27840F128DBF7300336BDE /* B2DPlugin.c */; };
 		0A27851F128DBF7400336BDE /* BitBltPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278411128DBF7300336BDE /* BitBltPlugin.c */; };
 		0A278520128DBF7400336BDE /* FloatArrayPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278413128DBF7300336BDE /* FloatArrayPlugin.c */; };
@@ -25,12 +23,7 @@
 		0A278526128DBF7400336BDE /* sqUnixSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27841F128DBF7300336BDE /* sqUnixSound.c */; };
 		0A278528128DBF7400336BDE /* sqUnixSocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278424128DBF7300336BDE /* sqUnixSocket.c */; };
 		0A278529128DBF7400336BDE /* aio.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278426128DBF7300336BDE /* aio.c */; };
-		0A27852B128DBF7400336BDE /* sqrUnixCharConv.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278431128DBF7300336BDE /* sqrUnixCharConv.c */; };
-		0A27852C128DBF7400336BDE /* sqrUnixExternalPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278432128DBF7300336BDE /* sqrUnixExternalPrims.c */; };
-		0A27852D128DBF7400336BDE /* sqrUnixMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278433128DBF7300336BDE /* sqrUnixMain.c */; };
-		0A27852F128DBF7400336BDE /* sqrUnixX11.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27843A128DBF7300336BDE /* sqrUnixX11.c */; };
 		0A278531128DBF7400336BDE /* sqUnixCustomSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27843D128DBF7300336BDE /* sqUnixCustomSound.c */; };
-		0A278532128DBF7400336BDE /* sqrUnixSoundMacOSX.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27843F128DBF7300336BDE /* sqrUnixSoundMacOSX.c */; };
 		0A278533128DBF7400336BDE /* sqUnixSoundNull.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278442128DBF7300336BDE /* sqUnixSoundNull.c */; };
 		0A278534128DBF7400336BDE /* abstract_mark_sweep_collector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278444128DBF7300336BDE /* abstract_mark_sweep_collector.cpp */; };
 		0A278535128DBF7400336BDE /* abstract_object_heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278446128DBF7300336BDE /* abstract_object_heap.cpp */; };
@@ -97,6 +90,19 @@
 		0A2785A6128DC2B700336BDE /* logical_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784C4128DBF7400336BDE /* logical_core.cpp */; };
 		0A2785E4128DC3A000336BDE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A2785E3128DC3A000336BDE /* CoreFoundation.framework */; };
 		0A2785EE128DC42800336BDE /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A2785ED128DC42800336BDE /* CoreServices.framework */; };
+		0A4D824B135C51D500CD74D8 /* sqNamedPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8249135C51D500CD74D8 /* sqNamedPrims.c */; };
+		0A4D824C135C51D500CD74D8 /* sqNamedPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8249135C51D500CD74D8 /* sqNamedPrims.c */; };
+		0A4D824D135C51D500CD74D8 /* sqVirtualMachine.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D824A135C51D500CD74D8 /* sqVirtualMachine.c */; };
+		0A4D824E135C51D500CD74D8 /* sqVirtualMachine.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D824A135C51D500CD74D8 /* sqVirtualMachine.c */; };
+		0A4D8253135C523B00CD74D8 /* sqUnixCharConv.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8250135C523B00CD74D8 /* sqUnixCharConv.c */; };
+		0A4D8254135C523B00CD74D8 /* sqUnixCharConv.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8250135C523B00CD74D8 /* sqUnixCharConv.c */; };
+		0A4D8255135C523B00CD74D8 /* sqUnixExternalPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8251135C523B00CD74D8 /* sqUnixExternalPrims.c */; };
+		0A4D8256135C523B00CD74D8 /* sqUnixExternalPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8251135C523B00CD74D8 /* sqUnixExternalPrims.c */; };
+		0A4D8257135C523B00CD74D8 /* sqUnixMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8252135C523B00CD74D8 /* sqUnixMain.c */; };
+		0A4D8258135C523B00CD74D8 /* sqUnixMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8252135C523B00CD74D8 /* sqUnixMain.c */; };
+		0A4D825A135C526100CD74D8 /* sqUnixX11.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8259135C526100CD74D8 /* sqUnixX11.c */; };
+		0A4D825B135C526100CD74D8 /* sqUnixX11.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8259135C526100CD74D8 /* sqUnixX11.c */; };
+		0A4D825D135C526F00CD74D8 /* sqUnixSoundMacOSX.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */; };
 		0A6A4834135ADF0A00933643 /* os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A4832135ADF0A00933643 /* os_interface.cpp */; };
 		0A6A4837135AE32D00933643 /* external_primitive_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A4835135AE32D00933643 /* external_primitive_table.cpp */; };
 		0A8C91C712DE62B6007DBAD9 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A8C91C612DE62B6007DBAD9 /* IOKit.framework */; };
@@ -368,6 +374,13 @@
 		0A278516128DBF7400336BDE /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
 		0A2785E3128DC3A000336BDE /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = /System/Library/Frameworks/CoreFoundation.framework; sourceTree = "<absolute>"; };
 		0A2785ED128DC42800336BDE /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		0A4D8249135C51D500CD74D8 /* sqNamedPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqNamedPrims.c; sourceTree = "<group>"; };
+		0A4D824A135C51D500CD74D8 /* sqVirtualMachine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqVirtualMachine.c; sourceTree = "<group>"; };
+		0A4D8250135C523B00CD74D8 /* sqUnixCharConv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixCharConv.c; sourceTree = "<group>"; };
+		0A4D8251135C523B00CD74D8 /* sqUnixExternalPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixExternalPrims.c; sourceTree = "<group>"; };
+		0A4D8252135C523B00CD74D8 /* sqUnixMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixMain.c; sourceTree = "<group>"; };
+		0A4D8259135C526100CD74D8 /* sqUnixX11.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixX11.c; sourceTree = "<group>"; };
+		0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSoundMacOSX.c; sourceTree = "<group>"; };
 		0A6A4832135ADF0A00933643 /* os_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = os_interface.cpp; sourceTree = "<group>"; };
 		0A6A4835135AE32D00933643 /* external_primitive_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = external_primitive_table.cpp; sourceTree = "<group>"; };
 		0A8C91BC12DE61BB007DBAD9 /* object_p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_p.h; sourceTree = "<group>"; };
@@ -535,6 +548,8 @@
 		0A278409128DBF7300336BDE /* vm */ = {
 			isa = PBXGroup;
 			children = (
+				0A4D8249135C51D500CD74D8 /* sqNamedPrims.c */,
+				0A4D824A135C51D500CD74D8 /* sqVirtualMachine.c */,
 				0A27840A128DBF7300336BDE /* sqrNamedPrims.c */,
 				0A27840B128DBF7300336BDE /* sqrVirtualMachine.c */,
 				0A27840C128DBF7300336BDE /* sqVirtualMachine.h */,
@@ -667,6 +682,9 @@
 				0A27842E128DBF7300336BDE /* SqModule.h */,
 				0A27842F128DBF7300336BDE /* sqNamedPrims.h */,
 				0A278430128DBF7300336BDE /* sqPlatformSpecific.h */,
+				0A4D8250135C523B00CD74D8 /* sqUnixCharConv.c */,
+				0A4D8251135C523B00CD74D8 /* sqUnixExternalPrims.c */,
+				0A4D8252135C523B00CD74D8 /* sqUnixMain.c */,
 				0A278431128DBF7300336BDE /* sqrUnixCharConv.c */,
 				0A278432128DBF7300336BDE /* sqrUnixExternalPrims.c */,
 				0A278433128DBF7300336BDE /* sqrUnixMain.c */,
@@ -683,6 +701,7 @@
 			isa = PBXGroup;
 			children = (
 				0A27843A128DBF7300336BDE /* sqrUnixX11.c */,
+				0A4D8259135C526100CD74D8 /* sqUnixX11.c */,
 				0A27843B128DBF7300336BDE /* sqUnixXdnd.c */,
 			);
 			path = "vm-display-X11";
@@ -700,6 +719,7 @@
 			isa = PBXGroup;
 			children = (
 				0A27843F128DBF7300336BDE /* sqrUnixSoundMacOSX.c */,
+				0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */,
 				0A278440128DBF7300336BDE /* sqUnixSoundDebug.h */,
 			);
 			path = "vm-sound-MacOSX";
@@ -1124,8 +1144,6 @@
 				0A278519128DBF7400336BDE /* FilePlugin.c in Sources */,
 				0A27851A128DBF7400336BDE /* sqFilePluginBasicPrims.c in Sources */,
 				0A27851B128DBF7400336BDE /* sqUnixFile.c in Sources */,
-				0A27851C128DBF7400336BDE /* sqrNamedPrims.c in Sources */,
-				0A27851D128DBF7400336BDE /* sqrVirtualMachine.c in Sources */,
 				0A27851E128DBF7400336BDE /* B2DPlugin.c in Sources */,
 				0A27851F128DBF7400336BDE /* BitBltPlugin.c in Sources */,
 				0A278520128DBF7400336BDE /* FloatArrayPlugin.c in Sources */,
@@ -1137,12 +1155,7 @@
 				0A278526128DBF7400336BDE /* sqUnixSound.c in Sources */,
 				0A278528128DBF7400336BDE /* sqUnixSocket.c in Sources */,
 				0A278529128DBF7400336BDE /* aio.c in Sources */,
-				0A27852B128DBF7400336BDE /* sqrUnixCharConv.c in Sources */,
-				0A27852C128DBF7400336BDE /* sqrUnixExternalPrims.c in Sources */,
-				0A27852D128DBF7400336BDE /* sqrUnixMain.c in Sources */,
-				0A27852F128DBF7400336BDE /* sqrUnixX11.c in Sources */,
 				0A278531128DBF7400336BDE /* sqUnixCustomSound.c in Sources */,
-				0A278532128DBF7400336BDE /* sqrUnixSoundMacOSX.c in Sources */,
 				0A278533128DBF7400336BDE /* sqUnixSoundNull.c in Sources */,
 				0A278534128DBF7400336BDE /* abstract_mark_sweep_collector.cpp in Sources */,
 				0A278535128DBF7400336BDE /* abstract_object_heap.cpp in Sources */,
@@ -1209,6 +1222,13 @@
 				0A2785A6128DC2B700336BDE /* logical_core.cpp in Sources */,
 				0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */,
 				0ACF551912E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp in Sources */,
+				0A4D824B135C51D500CD74D8 /* sqNamedPrims.c in Sources */,
+				0A4D824D135C51D500CD74D8 /* sqVirtualMachine.c in Sources */,
+				0A4D8253135C523B00CD74D8 /* sqUnixCharConv.c in Sources */,
+				0A4D8255135C523B00CD74D8 /* sqUnixExternalPrims.c in Sources */,
+				0A4D8257135C523B00CD74D8 /* sqUnixMain.c in Sources */,
+				0A4D825A135C526100CD74D8 /* sqUnixX11.c in Sources */,
+				0A4D825D135C526F00CD74D8 /* sqUnixSoundMacOSX.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1227,6 +1247,12 @@
 				0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */,
 				0A6A4834135ADF0A00933643 /* os_interface.cpp in Sources */,
 				0A6A4837135AE32D00933643 /* external_primitive_table.cpp in Sources */,
+				0A4D824C135C51D500CD74D8 /* sqNamedPrims.c in Sources */,
+				0A4D824E135C51D500CD74D8 /* sqVirtualMachine.c in Sources */,
+				0A4D8254135C523B00CD74D8 /* sqUnixCharConv.c in Sources */,
+				0A4D8256135C523B00CD74D8 /* sqUnixExternalPrims.c in Sources */,
+				0A4D8258135C523B00CD74D8 /* sqUnixMain.c in Sources */,
+				0A4D825B135C526100CD74D8 /* sqUnixX11.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
