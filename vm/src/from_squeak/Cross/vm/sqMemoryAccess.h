@@ -106,7 +106,9 @@
   static inline sqInt oopAt(sqInt oop)				{ return oopAtPointer(pointerForOop(oop)); }
   static inline sqInt oopAtput(sqInt oop, sqInt val)		{ return oopAtPointerput(pointerForOop(oop), val); }
 #else
-# error Use the other ones for Renaissance
+  # ifdef ROAR_VM
+   # error Use the other ones for the RVM/RoarVM
+  # endif
   /* Use macros when static inline functions aren't efficient. */
 # define byteAtPointer(ptr)		((sqInt)(*((unsigned char *)(ptr))))
 # define byteAtPointerput(ptr, val)	((sqInt)(*((unsigned char *)(ptr))= (unsigned char)(val)))
