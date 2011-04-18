@@ -133,7 +133,6 @@
 		0A278402128DBF7300336BDE /* sqFilePluginBasicPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqFilePluginBasicPrims.c; sourceTree = "<group>"; };
 		0A278403128DBF7300336BDE /* sqUnixFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixFile.c; sourceTree = "<group>"; };
 		0A278405128DBF7300336BDE /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		0A278406128DBF7300336BDE /* sqr_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqr_config.h; sourceTree = "<group>"; };
 		0A278408128DBF7300336BDE /* SocketPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketPlugin.h; sourceTree = "<group>"; };
 		0A27840C128DBF7300336BDE /* sqVirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqVirtualMachine.h; sourceTree = "<group>"; };
 		0A27840F128DBF7300336BDE /* B2DPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = B2DPlugin.c; sourceTree = "<group>"; };
@@ -374,6 +373,7 @@
 		0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSoundMacOSX.c; sourceTree = "<group>"; };
 		0A5D7C87135C905800D13E53 /* sq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sq.h; sourceTree = "<group>"; };
 		0A5D7C88135C90BC00D13E53 /* sqMemoryAccess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqMemoryAccess.h; sourceTree = "<group>"; };
+		0A5D7C94135CA28500D13E53 /* rvm_squeak_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rvm_squeak_config.h; sourceTree = "<group>"; };
 		0A6A4832135ADF0A00933643 /* os_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = os_interface.cpp; sourceTree = "<group>"; };
 		0A6A4835135AE32D00933643 /* external_primitive_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = external_primitive_table.cpp; sourceTree = "<group>"; };
 		0A8C91BC12DE61BB007DBAD9 /* object_p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_p.h; sourceTree = "<group>"; };
@@ -525,7 +525,6 @@
 			isa = PBXGroup;
 			children = (
 				0A278405128DBF7300336BDE /* config.h */,
-				0A278406128DBF7300336BDE /* sqr_config.h */,
 			);
 			path = RePlugin;
 			sourceTree = "<group>";
@@ -986,6 +985,7 @@
 				0A2784F8128DBF7400336BDE /* rvm_bitmap.h */,
 				0A2784F9128DBF7400336BDE /* rvm_config.cpp */,
 				0A2784FA128DBF7400336BDE /* rvm_config.h */,
+				0A5D7C94135CA28500D13E53 /* rvm_squeak_config.h */,
 				0A2784FB128DBF7400336BDE /* safepoint.cpp */,
 				0A2784FC128DBF7400336BDE /* safepoint.h */,
 				0A2784FD128DBF7400336BDE /* safepoint_ability.cpp */,
