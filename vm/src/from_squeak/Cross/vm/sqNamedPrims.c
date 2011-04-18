@@ -43,7 +43,7 @@ static ModuleEntry *squeakModule = NULL;
 static ModuleEntry *firstModule = NULL;
 struct VirtualMachine *sqGetInterpreterProxy(void);
 
-static void *findLoadedModule(char *pluginName)
+static void *findLoadedModule(const char *pluginName)
 {
 	ModuleEntry *module;
 	if(!pluginName || !pluginName[0]) return squeakModule;
@@ -55,7 +55,7 @@ static void *findLoadedModule(char *pluginName)
 	return NULL;
 }
 
-static ModuleEntry *addToModuleList(char *pluginName, void* handle, sqInt ffiFlag)
+static ModuleEntry *addToModuleList(const char *pluginName, void* handle, sqInt ffiFlag)
 {
 	ModuleEntry *module;
 
@@ -114,7 +114,7 @@ static void *findExternalFunctionIn(char *functionName, ModuleEntry *module)
 	primitive table. If it can not be found try to look it up
 	by using the OS dependent mechanism (see comment below).
 */
-static void *findInternalFunctionIn(char *functionName, char *pluginName)
+static void *findInternalFunctionIn(const char *functionName, const char *pluginName)
 {
   char *function, *plugin;
   sqInt listIndex, index;
@@ -153,7 +153,7 @@ static void *findInternalFunctionIn(char *functionName, char *pluginName)
 }
 
 
-static void *findFunctionIn(char *functionName, ModuleEntry *module)
+static void *findFunctionIn(const char *functionName, ModuleEntry *module)
 {
 	if(module->handle == squeakModule->handle)
 		return findInternalFunctionIn(functionName, module->name);
@@ -235,7 +235,7 @@ void ioDisableModuleLoading() {
 	moduleLoadingEnabled = 0;
 }
 
-static ModuleEntry *findAndLoadModule(char *pluginName, sqInt ffiLoad)
+static ModuleEntry *findAndLoadModule(const char *pluginName, sqInt ffiLoad)
 {
 	void *handle;
 	ModuleEntry *module;
@@ -276,7 +276,7 @@ static ModuleEntry *findAndLoadModule(char *pluginName, sqInt ffiLoad)
 	Look if the given module is already loaded. 
 	If so, return it's handle, otherwise try to load it.
 */
-static ModuleEntry *findOrLoadModule(char *pluginName, sqInt ffiLoad)
+static ModuleEntry *findOrLoadModule(const char *pluginName, sqInt ffiLoad)
 {
 	ModuleEntry *module;
 
@@ -300,7 +300,7 @@ static ModuleEntry *findOrLoadModule(char *pluginName, sqInt ffiLoad)
 	Return the function address if successful, otherwise 0.
 	This entry point is called from the interpreter proxy.
 */
-void *ioLoadFunctionFrom(char *functionName, char *pluginName)
+void *ioLoadFunctionFrom(const char *functionName, const char *pluginName)
 {
 	ModuleEntry *module;
 
@@ -324,8 +324,8 @@ void *ioLoadFunctionFrom(char *functionName, char *pluginName)
 void *ioLoadExternalFunctionOfLengthFromModuleOfLength(sqInt functionNameIndex, sqInt functionNameLength,
 						       sqInt moduleNameIndex,   sqInt moduleNameLength)
 {
-	char *functionNamePointer= pointerForOop((usqInt)functionNameIndex);
-	char *moduleNamePointer= pointerForOop((usqInt)moduleNameIndex);
+	char *functionNamePointer= pointerForIndex_xxx_dmu((usqInt)functionNameIndex);
+	char *moduleNamePointer= pointerForIndex_xxx_dmu((usqInt)moduleNameIndex);
 	char functionName[256];
 	char moduleName[256];
 	sqInt i;
@@ -346,7 +346,7 @@ void *ioLoadExternalFunctionOfLengthFromModuleOfLength(sqInt functionNameIndex, 
 */
 void *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNameLength, void *moduleHandle)
 {
-	char *functionNamePointer= pointerForOop((usqInt)functionNameIndex);
+	char *functionNamePointer= pointerForIndex_xxx_dmu((usqInt)functionNameIndex);
 	char functionName[256];
 	sqInt i;
 
@@ -369,7 +369,7 @@ void *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionName
 void *ioLoadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 {
 	ModuleEntry *module;
-	char *moduleNamePointer= pointerForOop((usqInt)moduleNameIndex);
+	char *moduleNamePointer= pointerForIndex_xxx_dmu((usqInt)moduleNameIndex);
 	char moduleName[256];
 	sqInt i;
 
@@ -415,7 +415,7 @@ sqInt ioShutdownAllModules(void)
 /* ioUnloadModule:
 	Unload the module with the given name.
 */
-sqInt ioUnloadModule(char *moduleName)
+sqInt ioUnloadModule(const char *moduleName)
 {
 	ModuleEntry *entry, *temp;
 
@@ -456,7 +456,7 @@ sqInt ioUnloadModule(char *moduleName)
 */
 sqInt ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 {
-	char *moduleNamePointer= pointerForOop((usqInt) moduleNameIndex);
+	char *moduleNamePointer= pointerForIndex_xxx_dmu((usqInt) moduleNameIndex);
 	char moduleName[256];
 	sqInt i;
 
@@ -529,3 +529,11 @@ char *ioListLoadedModule(sqInt moduleIndex) {
 	}
 	else return (char*)NULL;
 }
+
+
+
+void rvm_callInitializersInAllModules() {
+  findOrLoadModule("BitBltPlugin", 0);
+  // xxxxxx Which other modules?
+}
+

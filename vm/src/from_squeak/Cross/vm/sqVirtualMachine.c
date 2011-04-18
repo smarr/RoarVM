@@ -181,8 +181,8 @@ sqInt reestablishContextPriorToCallback(sqInt callbackContext); /* Alien FFI */
 sqInt sendInvokeCallbackContext(VMCallbackContext *);
 sqInt returnAsThroughCallbackContext(int, VMCallbackContext *, sqInt);
 char *cStringOrNullFor(sqInt);
+void *ioLoadFunctionFrom(const char *fnName, const char *modName);
 
-void *ioLoadFunctionFrom(char *fnName, char *modName);
 
 
 /* Proxy declarations for v1.8 */

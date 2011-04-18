@@ -25,7 +25,7 @@ struct SqSound
   /* mixer */
   void   (*snd_Volume)(double *left, double *right);
   void   (*snd_SetVolume)(double left, double right);
-  void   (*snd_SetRecordLevel)(sqInt level);
+  sqInt  (*snd_SetRecordLevel)(sqInt level);
   sqInt  (*snd_GetSwitch)(int id, int captureFlag, int channel);
   sqInt  (*snd_SetSwitch)(int id, int captureFlag, int parameter);
   sqInt  (*snd_SetDevice)(int id, char *name);
