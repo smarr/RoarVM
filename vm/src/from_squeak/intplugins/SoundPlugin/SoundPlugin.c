@@ -6,6 +6,8 @@
 #include <string.h>
 #include <time.h>
 
+# include "squeak_adapters.h"
+
 /* Default EXPORT macro that does nothing (see comment in sq.h): */
 #define EXPORT(returnType) returnType
 

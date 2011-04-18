@@ -5,7 +5,7 @@
 #include <time.h>
 #include <setjmp.h>
 
-#include "vmCallback.h"
+#include "squeak_adapters.h"
 #include "sqVirtualMachine.h"
 
 

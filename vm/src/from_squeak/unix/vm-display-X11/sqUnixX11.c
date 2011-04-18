@@ -52,6 +52,8 @@
  *	Dave Lewis <lewis@mail.msen.com> Mon Oct 18 20:36:54 EDT 1999
  */
 
+# include "squeak_adapters.h"
+
 #include "sq.h"
 #include "sqMemoryAccess.h"
 
