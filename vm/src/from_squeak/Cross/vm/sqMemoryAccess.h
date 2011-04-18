@@ -82,6 +82,10 @@
   static inline sqInt longAtPointerput(char *ptr, sqInt val)	{ return *(sqInt *)ptr= (sqInt)val; }
   static inline sqInt oopAtPointer(char *ptr)			{ return *(sqInt *)ptr; }
   static inline sqInt oopAtPointerput(char *ptr, sqInt val)	{ return (sqInt)(*(sqInt *)ptr= (sqInt)val); }
+# ifdef ROAR_VM
+  extern char *pointerForOop(sqInt oop);			 // xxx_dmu Renaissance
+  extern sqInt oopForPointer(void *ptr);			 // xxx_dmu Renaissance
+# else
 # if defined(sqMemoryBase) && !sqMemoryBase
   static inline char *pointerForOop(usqInt oop)			{ return (char *)oop; }
   static inline sqInt oopForPointer(char *ptr)			{ return (sqInt)ptr; }
@@ -89,6 +93,8 @@
   static inline char *pointerForOop(usqInt oop)			{ return sqMemoryBase + oop; }
   static inline sqInt oopForPointer(char *ptr)			{ return (sqInt)(ptr - sqMemoryBase); }
 # endif
+# endif // ROAR_VM
+
   static inline sqInt byteAt(sqInt oop)				{ return byteAtPointer(pointerForOop(oop)); }
   static inline sqInt byteAtput(sqInt oop, int val)		{ return byteAtPointerput(pointerForOop(oop), val); }
   static inline sqInt shortAt(sqInt oop)			{ return shortAtPointer(pointerForOop(oop)); }
@@ -100,6 +106,7 @@
   static inline sqInt oopAt(sqInt oop)				{ return oopAtPointer(pointerForOop(oop)); }
   static inline sqInt oopAtput(sqInt oop, sqInt val)		{ return oopAtPointerput(pointerForOop(oop), val); }
 #else
+# error Use the other ones for Renaissance
   /* Use macros when static inline functions aren't efficient. */
 # define byteAtPointer(ptr)		((sqInt)(*((unsigned char *)(ptr))))
 # define byteAtPointerput(ptr, val)	((sqInt)(*((unsigned char *)(ptr))= (unsigned char)(val)))
@@ -132,6 +139,11 @@
 
 #define long32At	intAt
 #define long32Atput	intAtput
+
+# ifdef ROAR_VM
+  #define long32AtPointer	intAtPointer // xxx_dmu
+  #define long32AtPointerput	intAtPointerput // xxx_dmu
+# endif // ROAR_VM
 
 /* platform-dependent float conversion macros */
 /* Note: Second argument must be a variable name, not an expression! */

@@ -1,3 +1,4 @@
+# if !Configure_Squeak_Code_for_Tilera  // xxx_dmu
 /* sqUnixSoundMacOSX.c -- sound support for CoreAudio on Mac OS 10
  *
  * Author: Ian.Piumarta@squeakland.org
@@ -52,6 +53,8 @@
 
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioConverter.h>
+
+# include "squeak_adapters.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -709,9 +712,9 @@ static sqInt sound_InsertSamplesFromLeadTime(sqInt frameCount, sqInt srcBufPtr, 
 
       if ((frontFrames + backFrames) >= (frameCount / 2))
 	{
-	  mixFrames((short *)frontData, (short *)pointerForOop(srcBufPtr), frontFrames);
+	  mixFrames((short *)frontData, (short *)pointerForIndex_xxx_dmu(srcBufPtr), frontFrames);
 	  srcBufPtr += frontFrames * SqueakFrameSize;
-	  mixFrames((short *)backData,  (short *)pointerForOop(srcBufPtr), backFrames);
+	  mixFrames((short *)backData,  (short *)pointerForIndex_xxx_dmu(srcBufPtr), backFrames);
 	  framesDone= frontFrames + backFrames;
 	}
       return framesDone;
@@ -733,7 +736,7 @@ static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, sqInt arrayIndex, s
       if (Buffer_free(output->buffer) >= byteCount)
 	{
 	  Buffer_write(output->buffer,
-		       pointerForOop(arrayIndex) + (startIndex * SqueakFrameSize),
+		       pointerForIndex_xxx_dmu(arrayIndex) + (startIndex * SqueakFrameSize),
 		       byteCount);
 	  return frameCount;
 	}
@@ -864,7 +867,7 @@ static sqInt sound_RecordSamplesIntoAtLength(sqInt buf, sqInt startSliceIndex, s
 	  int    start= startSliceIndex * SqueakFrameSize / 2;
 	  UInt32 count= min(input->cvtBufSize, bufferSizeInBytes - start);
 	  if (kAudioHardwareNoError == AudioConverterFillBuffer(input->converter, bufferDataProc, input,
-								&count, pointerForOop(buf) + start))
+								&count, pointerForIndex_xxx_dmu(buf) + start))
 	    return count / (SqueakFrameSize / 2) / input->channels;
 	}
       return 0;
@@ -1088,3 +1091,5 @@ int main()
 */
 
 #endif // TESTING
+# endif // !Configure_Squeak_Code_for_Tilera xxx_dmu
+

@@ -147,6 +147,7 @@ extern int numAsyncTickees; /* prodHighPriorityThread unless necessary */
 void	ioGetClockLogSizeUsecsIdxMsecsIdx(sqInt*,void**,sqInt*,void**,sqInt*);
 #endif
 
+
 /* this function should return the value of the high performance
    counter if there is such a thing on this platform (otherwise return 0) */
 sqLong ioHighResClock(void);
@@ -551,13 +552,13 @@ void  *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNam
 	a loaded one.
 	WARNING: never primitiveFail() within, just return 0
 */
-void *ioLoadModule(char *pluginName);
+void *ioLoadModule(const char *pluginName);
 
 /* ioFindExternalFunctionIn:
 	Find the function with the given name in the moduleHandle.
 	WARNING: never primitiveFail() within, just return 0.
 */
-void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle);
+void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle);
 
 /* ioFreeModule:
 	Free the module with the associated handle.
