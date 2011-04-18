@@ -35,6 +35,7 @@ INCLUDES = \
     -I$(SRC_DIR)/from_squeak/Cross \
     -I$(SRC_DIR)/from_squeak/Cross/plugins \
     -I$(SRC_DIR)/from_squeak/Cross/plugins/SocketPlugin \
+    -I$(SRC_DIR)/from_squeak/Cross/plugins/SoundPlugin \
     -I$(SRC_DIR)/from_squeak/Cross/plugins/FilePlugin \
     -I$(SRC_DIR)/from_squeak/Cross/plugins/RePlugin \
     -I$(SRC_DIR)/from_squeak/Cross/plugins/B3DAcceleratorPlugin \
@@ -50,6 +51,7 @@ INCLUDES = \
     -I$(SRC_DIR)/from_squeak/intplugins/MiscPrimitivePlugin \
     -I$(SRC_DIR)/from_squeak/intplugins/SocketPlugin \
     -I$(SRC_DIR)/from_squeak/unix \
+    -I$(SRC_DIR)/from_squeak/unix/plugins/B3DAcceleratorPlugin \
     -I$(SRC_DIR)/from_squeak/unix/vm-display-X11 \
     -I$(SRC_DIR)/from_squeak/unix/vm-sound-null \
     -I$(SRC_DIR)/from_squeak/unix/vm-sound-custom \
@@ -269,7 +271,7 @@ info:
 
 #Hack to satisfy make, to force override buildin rules, even if its not able to find all prerequisites.
 $(RVM_HEADERS):
-	@echo The following RVM_HEADER files have not been found and cause unnecessary rebuilds: $@
+	echo The following RVM_HEADER files have not been found and cause unnecessary rebuilds: $@
 
 #Hack to satisfy make, to force override buildin rules, even if its not able to find all prerequisites.
 $(SQ_HEADERS):
@@ -316,7 +318,8 @@ vpath %.c $(SRC_DIR)/from_squeak/intplugins/SoundPlugin
 vpath %.c $(SRC_DIR)/from_squeak/intplugins/UnixOSProcessPlugin
 vpath %.c $(SRC_DIR)/from_squeak/intplugins/SocketPlugin
 vpath %.c $(SRC_DIR)/from_squeak/unix
-vpath %.c $(SRC_DIR)/from_squeak/unix/SocketPlugin
+vpath %.c $(SRC_DIR)/from_squeak/unix/plugins/SocketPlugin
+vpath %.c $(SRC_DIR)/from_squeak/unix/plugins/SoundPlugin
 vpath %.c $(SRC_DIR)/from_squeak/unix/vm
 vpath %.c $(SRC_DIR)/from_squeak/unix/vm-display-X11
 vpath %.c $(SRC_DIR)/from_squeak/unix/vm-sound-custom
@@ -331,6 +334,7 @@ vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/B3DAcceleratorPlugin
 vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/FilePlugin
 vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/RePlugin
 vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/SocketPlugin
+vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/SoundPlugin
 vpath %.h $(SRC_DIR)/from_squeak/Cross/vm
 vpath %.h $(SRC_DIR)/from_squeak/intplugins
 vpath %.h $(SRC_DIR)/from_squeak/intplugins/B2DPlugin
@@ -343,6 +347,7 @@ vpath %.h $(SRC_DIR)/from_squeak/intplugins/SoundPlugin
 vpath %.h $(SRC_DIR)/from_squeak/intplugins/UnixOSProcessPlugin
 vpath %.h $(SRC_DIR)/from_squeak/intplugins/SocketPlugin
 vpath %.h $(SRC_DIR)/from_squeak/unix
+vpath %.h $(SRC_DIR)/from_squeak/unix/plugins/B3DAcceleratorPlugin
 vpath %.h $(SRC_DIR)/from_squeak/unix/vm
 vpath %.h $(SRC_DIR)/from_squeak/unix/vm-display-X11
 vpath %.h $(SRC_DIR)/from_squeak/unix/vm-sound-custom
