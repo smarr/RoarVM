@@ -16,6 +16,12 @@
 
 // A collection of all the ifdefs we use for configuring RVM.
 
+// This should be always defined if code is compiled for the RVM/RoarVM.
+// We use it in original Squeak code to indicate our adaptations.
+# ifndef ROAR_VM
+  # define ROAR_VM
+# endif
+
 # ifdef __cplusplus
   # define RVM_CODE_NOT_SQUEAK_CODE // for decls already in Squeak code that we need
 # endif
