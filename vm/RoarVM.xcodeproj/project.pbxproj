@@ -20,8 +20,6 @@
 		0A278523128DBF7400336BDE /* MiscPrimitivePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278419128DBF7300336BDE /* MiscPrimitivePlugin.c */; };
 		0A278524128DBF7400336BDE /* SocketPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27841B128DBF7300336BDE /* SocketPlugin.c */; };
 		0A278525128DBF7400336BDE /* SoundPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27841D128DBF7300336BDE /* SoundPlugin.c */; };
-		0A278526128DBF7400336BDE /* sqUnixSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27841F128DBF7300336BDE /* sqUnixSound.c */; };
-		0A278528128DBF7400336BDE /* sqUnixSocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278424128DBF7300336BDE /* sqUnixSocket.c */; };
 		0A278529128DBF7400336BDE /* aio.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278426128DBF7300336BDE /* aio.c */; };
 		0A278531128DBF7400336BDE /* sqUnixCustomSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27843D128DBF7300336BDE /* sqUnixCustomSound.c */; };
 		0A278533128DBF7400336BDE /* sqUnixSoundNull.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278442128DBF7300336BDE /* sqUnixSoundNull.c */; };
@@ -103,6 +101,8 @@
 		0A4D825A135C526100CD74D8 /* sqUnixX11.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8259135C526100CD74D8 /* sqUnixX11.c */; };
 		0A4D825B135C526100CD74D8 /* sqUnixX11.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8259135C526100CD74D8 /* sqUnixX11.c */; };
 		0A4D825D135C526F00CD74D8 /* sqUnixSoundMacOSX.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */; };
+		0A5D7C99135CC84700D13E53 /* sqUnixSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7C98135CC84700D13E53 /* sqUnixSound.c */; };
+		0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7C9B135CC86800D13E53 /* sqUnixSocket.c */; };
 		0A6A4834135ADF0A00933643 /* os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A4832135ADF0A00933643 /* os_interface.cpp */; };
 		0A6A4837135AE32D00933643 /* external_primitive_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A4835135AE32D00933643 /* external_primitive_table.cpp */; };
 		0A8C91C712DE62B6007DBAD9 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A8C91C612DE62B6007DBAD9 /* IOKit.framework */; };
@@ -127,7 +127,6 @@
 		0A2783F7128DBF7300336BDE /* externals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = externals.h; sourceTree = "<group>"; };
 		0A2783FC128DBF7300336BDE /* B3DAcceleratorPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = B3DAcceleratorPlugin.h; sourceTree = "<group>"; };
 		0A2783FD128DBF7300336BDE /* sqOpenGLRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqOpenGLRenderer.h; sourceTree = "<group>"; };
-		0A2783FE128DBF7300336BDE /* sqUnixOpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqUnixOpenGL.h; sourceTree = "<group>"; };
 		0A278400128DBF7300336BDE /* FilePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FilePlugin.c; sourceTree = "<group>"; };
 		0A278401128DBF7300336BDE /* FilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilePlugin.h; sourceTree = "<group>"; };
 		0A278402128DBF7300336BDE /* sqFilePluginBasicPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqFilePluginBasicPrims.c; sourceTree = "<group>"; };
@@ -143,10 +142,7 @@
 		0A278419128DBF7300336BDE /* MiscPrimitivePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MiscPrimitivePlugin.c; sourceTree = "<group>"; };
 		0A27841B128DBF7300336BDE /* SocketPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SocketPlugin.c; sourceTree = "<group>"; };
 		0A27841D128DBF7300336BDE /* SoundPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SoundPlugin.c; sourceTree = "<group>"; };
-		0A27841E128DBF7300336BDE /* SoundPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundPlugin.h; sourceTree = "<group>"; };
-		0A27841F128DBF7300336BDE /* sqUnixSound.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSound.c; sourceTree = "<group>"; };
 		0A278421128DBF7300336BDE /* UnixOSProcessPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = UnixOSProcessPlugin.c; sourceTree = "<group>"; };
-		0A278424128DBF7300336BDE /* sqUnixSocket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSocket.c; sourceTree = "<group>"; };
 		0A278426128DBF7300336BDE /* aio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aio.c; sourceTree = "<group>"; };
 		0A278427128DBF7300336BDE /* dlfcn-dyld.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "dlfcn-dyld.c"; sourceTree = "<group>"; };
 		0A278428128DBF7300336BDE /* interp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interp.h; sourceTree = "<group>"; };
@@ -374,6 +370,10 @@
 		0A5D7C87135C905800D13E53 /* sq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sq.h; sourceTree = "<group>"; };
 		0A5D7C88135C90BC00D13E53 /* sqMemoryAccess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqMemoryAccess.h; sourceTree = "<group>"; };
 		0A5D7C94135CA28500D13E53 /* rvm_squeak_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rvm_squeak_config.h; sourceTree = "<group>"; };
+		0A5D7C98135CC84700D13E53 /* sqUnixSound.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqUnixSound.c; path = plugins/SoundPlugin/sqUnixSound.c; sourceTree = "<group>"; };
+		0A5D7C9B135CC86800D13E53 /* sqUnixSocket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSocket.c; sourceTree = "<group>"; };
+		0A5D7C9E135CC8D700D13E53 /* sqUnixOpenGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqUnixOpenGL.h; path = plugins/B3DAcceleratorPlugin/sqUnixOpenGL.h; sourceTree = "<group>"; };
+		0A5D7CA0135CC9D400D13E53 /* SoundPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundPlugin.h; sourceTree = "<group>"; };
 		0A6A4832135ADF0A00933643 /* os_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = os_interface.cpp; sourceTree = "<group>"; };
 		0A6A4835135AE32D00933643 /* external_primitive_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = external_primitive_table.cpp; sourceTree = "<group>"; };
 		0A8C91BC12DE61BB007DBAD9 /* object_p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_p.h; sourceTree = "<group>"; };
@@ -492,6 +492,7 @@
 		0A2783FA128DBF7300336BDE /* plugins */ = {
 			isa = PBXGroup;
 			children = (
+				0A5D7C9F135CC9D400D13E53 /* SoundPlugin */,
 				0A2783FB128DBF7300336BDE /* B3DAcceleratorPlugin */,
 				0A2783FF128DBF7300336BDE /* FilePlugin */,
 				0A278404128DBF7300336BDE /* RePlugin */,
@@ -505,7 +506,6 @@
 			children = (
 				0A2783FC128DBF7300336BDE /* B3DAcceleratorPlugin.h */,
 				0A2783FD128DBF7300336BDE /* sqOpenGLRenderer.h */,
-				0A2783FE128DBF7300336BDE /* sqUnixOpenGL.h */,
 			);
 			path = B3DAcceleratorPlugin;
 			sourceTree = "<group>";
@@ -625,8 +625,6 @@
 			isa = PBXGroup;
 			children = (
 				0A27841D128DBF7300336BDE /* SoundPlugin.c */,
-				0A27841E128DBF7300336BDE /* SoundPlugin.h */,
-				0A27841F128DBF7300336BDE /* sqUnixSound.c */,
 			);
 			path = SoundPlugin;
 			sourceTree = "<group>";
@@ -642,7 +640,7 @@
 		0A278422128DBF7300336BDE /* unix */ = {
 			isa = PBXGroup;
 			children = (
-				0A278423128DBF7300336BDE /* SocketPlugin */,
+				0A5D7C96135CC81F00D13E53 /* plugins */,
 				0A278425128DBF7300336BDE /* vm */,
 				0A278439128DBF7300336BDE /* vm-display-X11 */,
 				0A27843C128DBF7300336BDE /* vm-sound-custom */,
@@ -650,14 +648,6 @@
 				0A278441128DBF7300336BDE /* vm-sound-null */,
 			);
 			path = unix;
-			sourceTree = "<group>";
-		};
-		0A278423128DBF7300336BDE /* SocketPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0A278424128DBF7300336BDE /* sqUnixSocket.c */,
-			);
-			path = SocketPlugin;
 			sourceTree = "<group>";
 		};
 		0A278425128DBF7300336BDE /* vm */ = {
@@ -1041,6 +1031,49 @@
 			path = src/types;
 			sourceTree = "<group>";
 		};
+		0A5D7C96135CC81F00D13E53 /* plugins */ = {
+			isa = PBXGroup;
+			children = (
+				0A5D7C9D135CC8C800D13E53 /* B3DAcceleratorPlugin */,
+				0A5D7C9A135CC86800D13E53 /* SocketPlugin */,
+				0A5D7C97135CC83500D13E53 /* SoundPlugin */,
+			);
+			name = plugins;
+			sourceTree = "<group>";
+		};
+		0A5D7C97135CC83500D13E53 /* SoundPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0A5D7C98135CC84700D13E53 /* sqUnixSound.c */,
+			);
+			name = SoundPlugin;
+			sourceTree = "<group>";
+		};
+		0A5D7C9A135CC86800D13E53 /* SocketPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0A5D7C9B135CC86800D13E53 /* sqUnixSocket.c */,
+			);
+			name = SocketPlugin;
+			path = plugins/SocketPlugin;
+			sourceTree = "<group>";
+		};
+		0A5D7C9D135CC8C800D13E53 /* B3DAcceleratorPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0A5D7C9E135CC8D700D13E53 /* sqUnixOpenGL.h */,
+			);
+			name = B3DAcceleratorPlugin;
+			sourceTree = "<group>";
+		};
+		0A5D7C9F135CC9D400D13E53 /* SoundPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0A5D7CA0135CC9D400D13E53 /* SoundPlugin.h */,
+			);
+			path = SoundPlugin;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
@@ -1138,8 +1171,6 @@
 				0A278523128DBF7400336BDE /* MiscPrimitivePlugin.c in Sources */,
 				0A278524128DBF7400336BDE /* SocketPlugin.c in Sources */,
 				0A278525128DBF7400336BDE /* SoundPlugin.c in Sources */,
-				0A278526128DBF7400336BDE /* sqUnixSound.c in Sources */,
-				0A278528128DBF7400336BDE /* sqUnixSocket.c in Sources */,
 				0A278529128DBF7400336BDE /* aio.c in Sources */,
 				0A278531128DBF7400336BDE /* sqUnixCustomSound.c in Sources */,
 				0A278533128DBF7400336BDE /* sqUnixSoundNull.c in Sources */,
@@ -1215,6 +1246,8 @@
 				0A4D8257135C523B00CD74D8 /* sqUnixMain.c in Sources */,
 				0A4D825A135C526100CD74D8 /* sqUnixX11.c in Sources */,
 				0A4D825D135C526F00CD74D8 /* sqUnixSoundMacOSX.c in Sources */,
+				0A5D7C99135CC84700D13E53 /* sqUnixSound.c in Sources */,
+				0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
