@@ -564,7 +564,12 @@ sqInt ioFormPrint(sqInt bitsAddr, sqInt width, sqInt height, sqInt depth, double
 #if STACKVM
 sqInt ioRelinquishProcessorForMicroseconds(sqInt us)
 {
-  dpy->ioRelinquishProcessorForMicroseconds(us);
+  # ifdef ROAR_VM
+    dpy->ioRelinquishProcessorForMicroseconds(0);
+    setInterruptCheckCounter(0);
+  # else
+    dpy->ioRelinquishProcessorForMicroseconds(us);
+  # endif
   return 0;
 }
 #else /* STACKVM */

@@ -135,8 +135,6 @@
 		0A278405128DBF7300336BDE /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		0A278406128DBF7300336BDE /* sqr_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqr_config.h; sourceTree = "<group>"; };
 		0A278408128DBF7300336BDE /* SocketPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketPlugin.h; sourceTree = "<group>"; };
-		0A27840A128DBF7300336BDE /* sqrNamedPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqrNamedPrims.c; sourceTree = "<group>"; };
-		0A27840B128DBF7300336BDE /* sqrVirtualMachine.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqrVirtualMachine.c; sourceTree = "<group>"; };
 		0A27840C128DBF7300336BDE /* sqVirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqVirtualMachine.h; sourceTree = "<group>"; };
 		0A27840F128DBF7300336BDE /* B2DPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = B2DPlugin.c; sourceTree = "<group>"; };
 		0A278411128DBF7300336BDE /* BitBltPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = BitBltPlugin.c; sourceTree = "<group>"; };
@@ -153,26 +151,19 @@
 		0A278426128DBF7300336BDE /* aio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aio.c; sourceTree = "<group>"; };
 		0A278427128DBF7300336BDE /* dlfcn-dyld.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "dlfcn-dyld.c"; sourceTree = "<group>"; };
 		0A278428128DBF7300336BDE /* interp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interp.h; sourceTree = "<group>"; };
-		0A278429128DBF7300336BDE /* sq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sq.h; sourceTree = "<group>"; };
 		0A27842A128DBF7300336BDE /* sqaio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqaio.h; sourceTree = "<group>"; };
 		0A27842B128DBF7300336BDE /* sqConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqConfig.h; sourceTree = "<group>"; };
 		0A27842C128DBF7300336BDE /* SqDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SqDisplay.h; sourceTree = "<group>"; };
-		0A27842D128DBF7300336BDE /* sqMemoryAccess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqMemoryAccess.h; sourceTree = "<group>"; };
 		0A27842E128DBF7300336BDE /* SqModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SqModule.h; sourceTree = "<group>"; };
 		0A27842F128DBF7300336BDE /* sqNamedPrims.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqNamedPrims.h; sourceTree = "<group>"; };
 		0A278430128DBF7300336BDE /* sqPlatformSpecific.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqPlatformSpecific.h; sourceTree = "<group>"; };
-		0A278431128DBF7300336BDE /* sqrUnixCharConv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqrUnixCharConv.c; sourceTree = "<group>"; };
-		0A278432128DBF7300336BDE /* sqrUnixExternalPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqrUnixExternalPrims.c; sourceTree = "<group>"; };
-		0A278433128DBF7300336BDE /* sqrUnixMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqrUnixMain.c; sourceTree = "<group>"; };
 		0A278434128DBF7300336BDE /* SqSound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SqSound.h; sourceTree = "<group>"; };
 		0A278435128DBF7300336BDE /* sqUnixCharConv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqUnixCharConv.h; sourceTree = "<group>"; };
 		0A278436128DBF7300336BDE /* sqUnixEvent.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixEvent.c; sourceTree = "<group>"; };
 		0A278437128DBF7300336BDE /* sqUnixGlobals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqUnixGlobals.h; sourceTree = "<group>"; };
 		0A278438128DBF7300336BDE /* sqUnixMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqUnixMain.h; sourceTree = "<group>"; };
-		0A27843A128DBF7300336BDE /* sqrUnixX11.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqrUnixX11.c; sourceTree = "<group>"; };
 		0A27843B128DBF7300336BDE /* sqUnixXdnd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixXdnd.c; sourceTree = "<group>"; };
 		0A27843D128DBF7300336BDE /* sqUnixCustomSound.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixCustomSound.c; sourceTree = "<group>"; };
-		0A27843F128DBF7300336BDE /* sqrUnixSoundMacOSX.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqrUnixSoundMacOSX.c; sourceTree = "<group>"; };
 		0A278440128DBF7300336BDE /* sqUnixSoundDebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqUnixSoundDebug.h; sourceTree = "<group>"; };
 		0A278442128DBF7300336BDE /* sqUnixSoundNull.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSoundNull.c; sourceTree = "<group>"; };
 		0A278444128DBF7300336BDE /* abstract_mark_sweep_collector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = abstract_mark_sweep_collector.cpp; sourceTree = "<group>"; };
@@ -381,6 +372,8 @@
 		0A4D8252135C523B00CD74D8 /* sqUnixMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixMain.c; sourceTree = "<group>"; };
 		0A4D8259135C526100CD74D8 /* sqUnixX11.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixX11.c; sourceTree = "<group>"; };
 		0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSoundMacOSX.c; sourceTree = "<group>"; };
+		0A5D7C87135C905800D13E53 /* sq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sq.h; sourceTree = "<group>"; };
+		0A5D7C88135C90BC00D13E53 /* sqMemoryAccess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqMemoryAccess.h; sourceTree = "<group>"; };
 		0A6A4832135ADF0A00933643 /* os_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = os_interface.cpp; sourceTree = "<group>"; };
 		0A6A4835135AE32D00933643 /* external_primitive_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = external_primitive_table.cpp; sourceTree = "<group>"; };
 		0A8C91BC12DE61BB007DBAD9 /* object_p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_p.h; sourceTree = "<group>"; };
@@ -548,10 +541,10 @@
 		0A278409128DBF7300336BDE /* vm */ = {
 			isa = PBXGroup;
 			children = (
+				0A5D7C87135C905800D13E53 /* sq.h */,
+				0A5D7C88135C90BC00D13E53 /* sqMemoryAccess.h */,
 				0A4D8249135C51D500CD74D8 /* sqNamedPrims.c */,
 				0A4D824A135C51D500CD74D8 /* sqVirtualMachine.c */,
-				0A27840A128DBF7300336BDE /* sqrNamedPrims.c */,
-				0A27840B128DBF7300336BDE /* sqrVirtualMachine.c */,
 				0A27840C128DBF7300336BDE /* sqVirtualMachine.h */,
 			);
 			path = vm;
@@ -674,20 +667,15 @@
 				0A278426128DBF7300336BDE /* aio.c */,
 				0A278427128DBF7300336BDE /* dlfcn-dyld.c */,
 				0A278428128DBF7300336BDE /* interp.h */,
-				0A278429128DBF7300336BDE /* sq.h */,
 				0A27842A128DBF7300336BDE /* sqaio.h */,
 				0A27842B128DBF7300336BDE /* sqConfig.h */,
 				0A27842C128DBF7300336BDE /* SqDisplay.h */,
-				0A27842D128DBF7300336BDE /* sqMemoryAccess.h */,
 				0A27842E128DBF7300336BDE /* SqModule.h */,
 				0A27842F128DBF7300336BDE /* sqNamedPrims.h */,
 				0A278430128DBF7300336BDE /* sqPlatformSpecific.h */,
 				0A4D8250135C523B00CD74D8 /* sqUnixCharConv.c */,
 				0A4D8251135C523B00CD74D8 /* sqUnixExternalPrims.c */,
 				0A4D8252135C523B00CD74D8 /* sqUnixMain.c */,
-				0A278431128DBF7300336BDE /* sqrUnixCharConv.c */,
-				0A278432128DBF7300336BDE /* sqrUnixExternalPrims.c */,
-				0A278433128DBF7300336BDE /* sqrUnixMain.c */,
 				0A278434128DBF7300336BDE /* SqSound.h */,
 				0A278435128DBF7300336BDE /* sqUnixCharConv.h */,
 				0A278436128DBF7300336BDE /* sqUnixEvent.c */,
@@ -700,7 +688,6 @@
 		0A278439128DBF7300336BDE /* vm-display-X11 */ = {
 			isa = PBXGroup;
 			children = (
-				0A27843A128DBF7300336BDE /* sqrUnixX11.c */,
 				0A4D8259135C526100CD74D8 /* sqUnixX11.c */,
 				0A27843B128DBF7300336BDE /* sqUnixXdnd.c */,
 			);
@@ -718,7 +705,6 @@
 		0A27843E128DBF7300336BDE /* vm-sound-MacOSX */ = {
 			isa = PBXGroup;
 			children = (
-				0A27843F128DBF7300336BDE /* sqrUnixSoundMacOSX.c */,
 				0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */,
 				0A278440128DBF7300336BDE /* sqUnixSoundDebug.h */,
 			);

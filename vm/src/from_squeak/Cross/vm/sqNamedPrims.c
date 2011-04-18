@@ -95,7 +95,7 @@ static sqInt removeFromList(ModuleEntry *entry)
 	the OS dependent call. NEVER used to search through the internal
 	primitive table.
 */
-static void *findExternalFunctionIn(char *functionName, ModuleEntry *module)
+static void *findExternalFunctionIn(const char *functionName, ModuleEntry *module)
 {
 	void *result;
 
