@@ -1,4 +1,6 @@
-/* Automatically generated from Squeak on an Array(18 April 2006 8:21:44 pm) */
+/* Automatically generated from Squeak on 23 January 2011 3:55:48 pm 
+   by VMMaker 4.4.7
+ */
 
 #include <math.h>
 #include <stdio.h>
@@ -43,7 +45,7 @@ static sqInt halt(void);
 #pragma export on
 EXPORT(sqInt) initialiseModule(void);
 #pragma export off
-static sqInt msg(char * s);
+static sqInt msg(char *s);
 #pragma export on
 EXPORT(sqInt) primitiveSoundAvailableSpace(void);
 EXPORT(sqInt) primitiveSoundGetRecordingSampleRate(void);
@@ -55,11 +57,11 @@ EXPORT(sqInt) primitiveSoundRecordSamples(void);
 EXPORT(sqInt) primitiveSoundSetLeftVolume(void);
 EXPORT(sqInt) primitiveSoundSetRecordLevel(void);
 EXPORT(sqInt) primitiveSoundStart(void);
-EXPORT(sqInt) primitiveSoundStartRecording(void);
 EXPORT(sqInt) primitiveSoundStartWithSemaphore(void);
+EXPORT(sqInt) primitiveSoundStartRecording(void);
 EXPORT(sqInt) primitiveSoundStop(void);
 EXPORT(sqInt) primitiveSoundStopRecording(void);
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter);
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter);
 EXPORT(sqInt) shutdownModule(void);
 #pragma export off
 static sqInt sqAssert(sqInt aBool);
@@ -71,9 +73,9 @@ extern
 struct VirtualMachine* interpreterProxy;
 static const char *moduleName =
 #ifdef SQUEAK_BUILTIN_PLUGIN
-	"SoundPlugin 18 April 2006 (i)"
+	"SoundPlugin 23 January 2011 (i)"
 #else
-	"SoundPlugin 18 April 2006 (e)"
+	"SoundPlugin 23 January 2011 (e)"
 #endif
 ;
 
@@ -103,7 +105,7 @@ EXPORT(sqInt) initialiseModule(void) {
 	return soundInit();
 }
 
-static sqInt msg(char * s) {
+static sqInt msg(char *s) {
 	fprintf(stderr, "\n%s: %s", moduleName, s);
 }
 
@@ -150,9 +152,9 @@ EXPORT(sqInt) primitiveSoundGetRecordingSampleRate(void) {
 /*	Set the sound input recording level. */
 
 EXPORT(sqInt) primitiveSoundGetVolume(void) {
-	double  left;
 	double  right;
 	sqInt results;
+	double  left;
 
 	left = 0;
 	right = 0;
@@ -171,13 +173,13 @@ EXPORT(sqInt) primitiveSoundGetVolume(void) {
 }
 
 
-/*	Insert a buffer's worth of sound samples into the currently playing
-	buffer. Used to make a sound start playing as quickly as possible. The
+/*	Insert a buffer's worth of sound samples into the currently playing  
+	buffer. Used to make a sound start playing as quickly as possible. The  
 	new sound is mixed with the previously buffered sampled. */
-/*	Details: Unlike primitiveSoundPlaySamples, this primitive always starts
-	with the first sample the given sample buffer. Its third argument
-	specifies the number of samples past the estimated sound output buffer
-	position the inserted sound should start. If successful, it returns the
+/*	Details: Unlike primitiveSoundPlaySamples, this primitive always starts  
+	with the first sample the given sample buffer. Its third argument  
+	specifies the number of samples past the estimated sound output buffer  
+	position the inserted sound should start. If successful, it returns the  
 	number of samples inserted. */
 
 EXPORT(sqInt) primitiveSoundInsertSamples(void) {
@@ -194,9 +196,9 @@ EXPORT(sqInt) primitiveSoundInsertSamples(void) {
 	if (interpreterProxy->failed()) {
 		return null;
 	}
-	interpreterProxy->success(frameCount <= (interpreterProxy->slotSizeOf(((sqInt)(long)(buf) - 4))));
+	interpreterProxy->success(frameCount <= (interpreterProxy->slotSizeOf((oopForPointer( buf ) - BASE_HEADER_SIZE))));
 	if (!(interpreterProxy->failed())) {
-		framesPlayed = snd_InsertSamplesFromLeadTime(frameCount, (int)buf, leadTime);
+		framesPlayed = snd_InsertSamplesFromLeadTime(frameCount, (void *)buf, leadTime);
 		interpreterProxy->success(framesPlayed >= 0);
 	}
 	_return_value = interpreterProxy->positive32BitIntegerFor(framesPlayed);
@@ -224,9 +226,9 @@ EXPORT(sqInt) primitiveSoundPlaySamples(void) {
 	if (interpreterProxy->failed()) {
 		return null;
 	}
-	interpreterProxy->success((startIndex >= 1) && (((startIndex + frameCount) - 1) <= (interpreterProxy->slotSizeOf(((sqInt)(long)(buf) - 4)))));
+	interpreterProxy->success((startIndex >= 1) && (((startIndex + frameCount) - 1) <= (interpreterProxy->slotSizeOf((oopForPointer( buf ) - BASE_HEADER_SIZE)))));
 	if (!(interpreterProxy->failed())) {
-		framesPlayed = snd_PlaySamplesFromAtLength(frameCount, (int)buf, startIndex - 1);
+		framesPlayed = snd_PlaySamplesFromAtLength(frameCount, (void *)buf, startIndex - 1);
 		interpreterProxy->success(framesPlayed >= 0);
 	}
 	_return_value = interpreterProxy->positive32BitIntegerFor(framesPlayed);
@@ -261,8 +263,11 @@ EXPORT(sqInt) primitiveSoundPlaySilence(void) {
 /*	Record a buffer's worth of 16-bit sound samples. */
 
 EXPORT(sqInt) primitiveSoundRecordSamples(void) {
-	sqInt bufSizeInBytes;
+	sqInt bufLen;
 	sqInt samplesRecorded;
+	sqInt bufSizeInBytes;
+	sqInt byteOffset;
+	char*bufPtr;
 	usqInt *buf;
 	sqInt startWordIndex;
 	sqInt _return_value;
@@ -274,11 +279,14 @@ EXPORT(sqInt) primitiveSoundRecordSamples(void) {
 		return null;
 	}
 	if (!(interpreterProxy->failed())) {
-		bufSizeInBytes = (interpreterProxy->slotSizeOf(((sqInt)(long)(buf) - 4))) * 4;
+		bufSizeInBytes = (interpreterProxy->slotSizeOf((oopForPointer( buf ) - BASE_HEADER_SIZE))) * 4;
 		interpreterProxy->success((startWordIndex >= 1) && (((startWordIndex - 1) * 2) < bufSizeInBytes));
 	}
 	if (!(interpreterProxy->failed())) {
-		samplesRecorded = snd_RecordSamplesIntoAtLength((int)buf, startWordIndex - 1, bufSizeInBytes);
+		byteOffset = (startWordIndex - 1) * 2;
+		bufPtr = (((char*) buf)) + byteOffset;
+		bufLen = bufSizeInBytes - byteOffset;
+		samplesRecorded = snd_RecordSamplesIntoAtLength(bufPtr, 0, bufLen);
 	}
 	_return_value = interpreterProxy->positive32BitIntegerFor(samplesRecorded);
 	if (interpreterProxy->failed()) {
@@ -353,28 +361,6 @@ EXPORT(sqInt) primitiveSoundStart(void) {
 }
 
 
-/*	Start recording sound with the given parameters. */
-
-EXPORT(sqInt) primitiveSoundStartRecording(void) {
-	sqInt desiredSamplesPerSec;
-	sqInt stereoFlag;
-	sqInt semaIndex;
-
-	desiredSamplesPerSec = interpreterProxy->stackIntegerValue(2);
-	stereoFlag = interpreterProxy->booleanValueOf(interpreterProxy->stackValue(1));
-	semaIndex = interpreterProxy->stackIntegerValue(0);
-	if (interpreterProxy->failed()) {
-		return null;
-	}
-	snd_StartRecording(desiredSamplesPerSec, stereoFlag, semaIndex);
-	if (interpreterProxy->failed()) {
-		return null;
-	}
-	interpreterProxy->pop(3);
-	return null;
-}
-
-
 /*	Start the double-buffered sound output with the given buffer size, sample rate, stereo flag, and semaphore index. */
 
 EXPORT(sqInt) primitiveSoundStartWithSemaphore(void) {
@@ -395,6 +381,28 @@ EXPORT(sqInt) primitiveSoundStartWithSemaphore(void) {
 		return null;
 	}
 	interpreterProxy->pop(4);
+	return null;
+}
+
+
+/*	Start recording sound with the given parameters. */
+
+EXPORT(sqInt) primitiveSoundStartRecording(void) {
+	sqInt desiredSamplesPerSec;
+	sqInt stereoFlag;
+	sqInt semaIndex;
+
+	desiredSamplesPerSec = interpreterProxy->stackIntegerValue(2);
+	stereoFlag = interpreterProxy->booleanValueOf(interpreterProxy->stackValue(1));
+	semaIndex = interpreterProxy->stackIntegerValue(0);
+	if (interpreterProxy->failed()) {
+		return null;
+	}
+	snd_StartRecording(desiredSamplesPerSec, stereoFlag, semaIndex);
+	if (interpreterProxy->failed()) {
+		return null;
+	}
+	interpreterProxy->pop(3);
 	return null;
 }
 
@@ -423,7 +431,7 @@ EXPORT(sqInt) primitiveSoundStopRecording(void) {
 
 /*	Note: This is coded so that is can be run from Squeak. */
 
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter) {
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter) {
 	sqInt ok;
 
 	interpreterProxy = anInterpreter;
@@ -449,23 +457,23 @@ static sqInt sqAssert(sqInt aBool) {
 
 void* SoundPlugin_exports[][3] = {
 	{"SoundPlugin", "primitiveSoundPlaySilence", (void*)primitiveSoundPlaySilence},
-	{"SoundPlugin", "primitiveSoundStartWithSemaphore", (void*)primitiveSoundStartWithSemaphore},
-	{"SoundPlugin", "primitiveSoundStopRecording", (void*)primitiveSoundStopRecording},
-	{"SoundPlugin", "getModuleName", (void*)getModuleName},
-	{"SoundPlugin", "setInterpreter", (void*)setInterpreter},
-	{"SoundPlugin", "primitiveSoundAvailableSpace", (void*)primitiveSoundAvailableSpace},
-	{"SoundPlugin", "primitiveSoundSetRecordLevel", (void*)primitiveSoundSetRecordLevel},
-	{"SoundPlugin", "primitiveSoundGetRecordingSampleRate", (void*)primitiveSoundGetRecordingSampleRate},
 	{"SoundPlugin", "primitiveSoundGetVolume", (void*)primitiveSoundGetVolume},
-	{"SoundPlugin", "primitiveSoundStop", (void*)primitiveSoundStop},
+	{"SoundPlugin", "primitiveSoundAvailableSpace", (void*)primitiveSoundAvailableSpace},
 	{"SoundPlugin", "primitiveSoundSetLeftVolume", (void*)primitiveSoundSetLeftVolume},
-	{"SoundPlugin", "primitiveSoundPlaySamples", (void*)primitiveSoundPlaySamples},
-	{"SoundPlugin", "primitiveSoundInsertSamples", (void*)primitiveSoundInsertSamples},
+	{"SoundPlugin", "primitiveSoundStopRecording", (void*)primitiveSoundStopRecording},
 	{"SoundPlugin", "shutdownModule", (void*)shutdownModule},
-	{"SoundPlugin", "primitiveSoundRecordSamples", (void*)primitiveSoundRecordSamples},
+	{"SoundPlugin", "primitiveSoundStartWithSemaphore", (void*)primitiveSoundStartWithSemaphore},
 	{"SoundPlugin", "primitiveSoundStart", (void*)primitiveSoundStart},
-	{"SoundPlugin", "initialiseModule", (void*)initialiseModule},
+	{"SoundPlugin", "primitiveSoundPlaySamples", (void*)primitiveSoundPlaySamples},
+	{"SoundPlugin", "primitiveSoundGetRecordingSampleRate", (void*)primitiveSoundGetRecordingSampleRate},
 	{"SoundPlugin", "primitiveSoundStartRecording", (void*)primitiveSoundStartRecording},
+	{"SoundPlugin", "primitiveSoundStop", (void*)primitiveSoundStop},
+	{"SoundPlugin", "setInterpreter", (void*)setInterpreter},
+	{"SoundPlugin", "primitiveSoundRecordSamples", (void*)primitiveSoundRecordSamples},
+	{"SoundPlugin", "initialiseModule", (void*)initialiseModule},
+	{"SoundPlugin", "getModuleName", (void*)getModuleName},
+	{"SoundPlugin", "primitiveSoundSetRecordLevel", (void*)primitiveSoundSetRecordLevel},
+	{"SoundPlugin", "primitiveSoundInsertSamples", (void*)primitiveSoundInsertSamples},
 	{NULL, NULL, NULL}
 };
 

@@ -1,5 +1,5 @@
-/* Automatically generated from Squeak on an Array(14 April 2008 3:48:51 pm)
-by VMMaker 3.8b6
+/* Automatically generated from Squeak on 23 January 2011 3:55:43 pm 
+   by VMMaker 4.4.7
  */
 
 #include <math.h>
@@ -43,10 +43,10 @@ EXPORT(const char*) getModuleName(void);
 static sqInt halt(void);
 static float * loadArgumentMatrix(sqInt matrix);
 static sqInt loadArgumentPoint(sqInt point);
-static sqInt matrix2x3ComposeMatrixwithinto(const float * m1, const float * m2, float * m3);
-static sqInt matrix2x3InvertPoint(float * m);
-static sqInt matrix2x3TransformPoint(float * m);
-static sqInt msg(char * s);
+static sqInt matrix2x3ComposeMatrixwithinto(const float *m1, const float *m2, float *m3);
+static sqInt matrix2x3InvertPoint(float *m);
+static sqInt matrix2x3TransformPoint(float *m);
+static sqInt msg(char *s);
 static sqInt okayIntValue(sqInt value);
 #pragma export on
 EXPORT(sqInt) primitiveComposeMatrix(void);
@@ -60,7 +60,7 @@ EXPORT(sqInt) primitiveTransformRectInto(void);
 static sqInt roundAndStoreResultPoint(sqInt nItemsToPop);
 static sqInt roundAndStoreResultRectx0y0x1y1(sqInt dstOop, double  x0, double  y0, double  x1, double  y1);
 #pragma export on
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter);
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter);
 #pragma export off
 /*** Variables ***/
 
@@ -74,9 +74,9 @@ static double m23ResultX;
 static double m23ResultY;
 static const char *moduleName =
 #ifdef SQUEAK_BUILTIN_PLUGIN
-	"Matrix2x3Plugin 14 April 2008 (i)"
+	"Matrix2x3Plugin 23 January 2011 (i)"
 #else
-	"Matrix2x3Plugin 14 April 2008 (e)"
+	"Matrix2x3Plugin 23 January 2011 (e)"
 #endif
 ;
 
@@ -120,8 +120,8 @@ static float * loadArgumentMatrix(sqInt matrix) {
 /*	Load the argument point into m23ArgX and m23ArgY */
 
 static sqInt loadArgumentPoint(sqInt point) {
-    sqInt oop;
     sqInt isInt;
+    sqInt oop;
 
 	if (interpreterProxy->failed()) {
 		return null;
@@ -154,12 +154,12 @@ static sqInt loadArgumentPoint(sqInt point) {
 
 /*	Multiply matrix m1 with m2 and store the result into m3. */
 
-static sqInt matrix2x3ComposeMatrixwithinto(const float * m1, const float * m2, float * m3) {
-    double  a13;
-    double  a22;
-    double  a12;
-    double  a21;
+static sqInt matrix2x3ComposeMatrixwithinto(const float *m1, const float *m2, float *m3) {
     double  a11;
+    double  a12;
+    double  a13;
+    double  a21;
+    double  a22;
     double  a23;
 
 	a11 = ((m1[0]) * (m2[0])) + ((m1[1]) * (m2[3]));
@@ -179,12 +179,12 @@ static sqInt matrix2x3ComposeMatrixwithinto(const float * m1, const float * m2, 
 
 /*	Invert the pre-loaded argument point by the given matrix */
 
-static sqInt matrix2x3InvertPoint(float * m) {
-    double  detY;
-    double  y;
-    double  detX;
-    double  x;
+static sqInt matrix2x3InvertPoint(float *m) {
     double  det;
+    double  detX;
+    double  detY;
+    double  x;
+    double  y;
 
 	x = m23ArgX - (m[2]);
 	y = m23ArgY - (m[5]);
@@ -202,12 +202,12 @@ static sqInt matrix2x3InvertPoint(float * m) {
 
 /*	Transform the pre-loaded argument point by the given matrix */
 
-static sqInt matrix2x3TransformPoint(float * m) {
+static sqInt matrix2x3TransformPoint(float *m) {
 	m23ResultX = ((m23ArgX * (m[0])) + (m23ArgY * (m[1]))) + (m[2]);
 	m23ResultY = ((m23ArgX * (m[3])) + (m23ArgY * (m[4]))) + (m[5]);
 }
 
-static sqInt msg(char * s) {
+static sqInt msg(char *s) {
 	fprintf(stderr, "\n%s: %s", moduleName, s);
 }
 
@@ -216,10 +216,10 @@ static sqInt okayIntValue(sqInt value) {
 }
 
 EXPORT(sqInt) primitiveComposeMatrix(void) {
-    sqInt result;
-    float * m3;
-    float * m2;
     float * m1;
+    float * m2;
+    float * m3;
+    sqInt result;
     sqInt matrix;
     sqInt matrix1;
     sqInt matrix2;
@@ -268,8 +268,7 @@ l3:	/* end loadArgumentMatrix: */;
 		return null;
 	}
 	matrix2x3ComposeMatrixwithinto(m1, m2, m3);
-	interpreterProxy->pop(3);
-	interpreterProxy->push(result);
+	interpreterProxy->popthenPush(3, result);
 }
 
 EXPORT(sqInt) primitiveInvertPoint(void) {
@@ -306,24 +305,23 @@ l1:	/* end loadArgumentMatrix: */;
 			interpreterProxy->primitiveFail();
 			goto l2;
 		}
-		interpreterProxy->pop(2);
-		interpreterProxy->push(interpreterProxy->makePointwithxValueyValue(((sqInt) m23ResultX ), ((sqInt) m23ResultY )));
+		interpreterProxy->popthenPush(2, interpreterProxy->makePointwithxValueyValue(((sqInt)m23ResultX), ((sqInt)m23ResultY)));
 	l2:	/* end roundAndStoreResultPoint: */;
 	}
 }
 
 EXPORT(sqInt) primitiveInvertRectInto(void) {
-    double  minX;
-    sqInt dstOop;
-    double  cornerY;
     double  cornerX;
-    double  originY;
-    double  originX;
-    double  maxY;
-    sqInt srcOop;
-    double  minY;
-    double  maxX;
+    double  cornerY;
+    sqInt dstOop;
     float * matrix;
+    double  maxX;
+    double  maxY;
+    double  minX;
+    double  minY;
+    double  originX;
+    double  originY;
+    sqInt srcOop;
     sqInt matrix1;
 
 	dstOop = interpreterProxy->stackObjectValue(0);
@@ -400,8 +398,7 @@ l1:	/* end loadArgumentMatrix: */;
 		dstOop = roundAndStoreResultRectx0y0x1y1(dstOop, minX, minY, maxX, maxY);
 	}
 	if (!(interpreterProxy->failed())) {
-		interpreterProxy->pop(3);
-		interpreterProxy->push(dstOop);
+		interpreterProxy->popthenPush(3, dstOop);
 	}
 }
 
@@ -486,23 +483,22 @@ l1:	/* end loadArgumentMatrix: */;
 		interpreterProxy->primitiveFail();
 		goto l2;
 	}
-	interpreterProxy->pop(2);
-	interpreterProxy->push(interpreterProxy->makePointwithxValueyValue(((sqInt) m23ResultX ), ((sqInt) m23ResultY )));
+	interpreterProxy->popthenPush(2, interpreterProxy->makePointwithxValueyValue(((sqInt)m23ResultX), ((sqInt)m23ResultY)));
 l2:	/* end roundAndStoreResultPoint: */;
 }
 
 EXPORT(sqInt) primitiveTransformRectInto(void) {
-    double  minX;
-    sqInt dstOop;
-    double  cornerY;
     double  cornerX;
-    double  originY;
-    double  originX;
-    double  maxY;
-    sqInt srcOop;
-    double  minY;
-    double  maxX;
+    double  cornerY;
+    sqInt dstOop;
     float * matrix;
+    double  maxX;
+    double  maxY;
+    double  minX;
+    double  minY;
+    double  originX;
+    double  originY;
+    sqInt srcOop;
     sqInt matrix1;
 
 	dstOop = interpreterProxy->stackObjectValue(0);
@@ -577,8 +573,7 @@ l1:	/* end loadArgumentMatrix: */;
 	maxY = ((maxY < m23ResultY) ? m23ResultY : maxY);
 	dstOop = roundAndStoreResultRectx0y0x1y1(dstOop, minX, minY, maxX, maxY);
 	if (!(interpreterProxy->failed())) {
-		interpreterProxy->pop(3);
-		interpreterProxy->push(dstOop);
+		interpreterProxy->popthenPush(3, dstOop);
 	}
 }
 
@@ -595,21 +590,20 @@ static sqInt roundAndStoreResultPoint(sqInt nItemsToPop) {
 	if (!((m23ResultY >= (((double) -1073741824 ))) && (m23ResultX <= (((double) 1073741823 ))))) {
 		return interpreterProxy->primitiveFail();
 	}
-	interpreterProxy->pop(nItemsToPop);
-	interpreterProxy->push(interpreterProxy->makePointwithxValueyValue(((sqInt) m23ResultX ), ((sqInt) m23ResultY )));
+	interpreterProxy->popthenPush(nItemsToPop, interpreterProxy->makePointwithxValueyValue(((sqInt)m23ResultX), ((sqInt)m23ResultY)));
 }
 
 
 /*	Check, round and store the result of a rectangle operation */
 
 static sqInt roundAndStoreResultRectx0y0x1y1(sqInt dstOop, double  x0, double  y0, double  x1, double  y1) {
-    double  maxX;
-    sqInt rectOop;
     sqInt cornerOop;
+    double  maxX;
     double  maxY;
+    double  minX;
     double  minY;
     sqInt originOop;
-    double  minX;
+    sqInt rectOop;
 
 	minX = x0 + 0.5;
 	if (!((minX >= (((double) -1073741824 ))) && (m23ResultX <= (((double) 1073741823 ))))) {
@@ -628,9 +622,9 @@ static sqInt roundAndStoreResultRectx0y0x1y1(sqInt dstOop, double  x0, double  y
 		return interpreterProxy->primitiveFail();
 	}
 	interpreterProxy->pushRemappableOop(dstOop);
-	originOop = interpreterProxy->makePointwithxValueyValue(((sqInt) minX ), ((sqInt) minY ));
+	originOop = interpreterProxy->makePointwithxValueyValue(((sqInt)minX), ((sqInt)minY));
 	interpreterProxy->pushRemappableOop(originOop);
-	cornerOop = interpreterProxy->makePointwithxValueyValue(((sqInt) maxX ), ((sqInt) maxY ));
+	cornerOop = interpreterProxy->makePointwithxValueyValue(((sqInt)maxX), ((sqInt)maxY));
 	originOop = interpreterProxy->popRemappableOop();
 	rectOop = interpreterProxy->popRemappableOop();
 	interpreterProxy->storePointerofObjectwithValue(0, rectOop, originOop);
@@ -641,7 +635,7 @@ static sqInt roundAndStoreResultRectx0y0x1y1(sqInt dstOop, double  x0, double  y
 
 /*	Note: This is coded so that is can be run from Squeak. */
 
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter) {
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter) {
     sqInt ok;
 
 	interpreterProxy = anInterpreter;
@@ -658,15 +652,15 @@ EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter) {
 
 
 void* Matrix2x3Plugin_exports[][3] = {
-	{"Matrix2x3Plugin", "setInterpreter", (void*)setInterpreter},
-	{"Matrix2x3Plugin", "primitiveIsIdentity", (void*)primitiveIsIdentity},
-	{"Matrix2x3Plugin", "primitiveTransformPoint", (void*)primitiveTransformPoint},
-	{"Matrix2x3Plugin", "primitiveTransformRectInto", (void*)primitiveTransformRectInto},
-	{"Matrix2x3Plugin", "primitiveInvertRectInto", (void*)primitiveInvertRectInto},
 	{"Matrix2x3Plugin", "primitiveInvertPoint", (void*)primitiveInvertPoint},
-	{"Matrix2x3Plugin", "getModuleName", (void*)getModuleName},
-	{"Matrix2x3Plugin", "primitiveIsPureTranslation", (void*)primitiveIsPureTranslation},
+	{"Matrix2x3Plugin", "primitiveInvertRectInto", (void*)primitiveInvertRectInto},
+	{"Matrix2x3Plugin", "primitiveIsIdentity", (void*)primitiveIsIdentity},
 	{"Matrix2x3Plugin", "primitiveComposeMatrix", (void*)primitiveComposeMatrix},
+	{"Matrix2x3Plugin", "setInterpreter", (void*)setInterpreter},
+	{"Matrix2x3Plugin", "primitiveTransformRectInto", (void*)primitiveTransformRectInto},
+	{"Matrix2x3Plugin", "primitiveIsPureTranslation", (void*)primitiveIsPureTranslation},
+	{"Matrix2x3Plugin", "getModuleName", (void*)getModuleName},
+	{"Matrix2x3Plugin", "primitiveTransformPoint", (void*)primitiveTransformPoint},
 	{NULL, NULL, NULL}
 };
 

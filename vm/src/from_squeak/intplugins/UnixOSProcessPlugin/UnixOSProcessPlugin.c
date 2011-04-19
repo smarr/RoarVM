@@ -1,5 +1,5 @@
-/* Automatically generated from Squeak on an Array(14 April 2008 3:48:53 pm)
-by VMMaker 3.8b6
+/* Automatically generated from Squeak on 23 January 2011 3:56:04 pm 
+   by VMMaker 4.4.7
  */
 
 // added bu dmu
@@ -44,8 +44,8 @@ by VMMaker 3.8b6
 #define EXPORT(returnType) static returnType
 #endif
 #include <sys/types.h>
-/* D T Lewis 2005 - UnixOSProcessPlugin.c translated from class
-   UnixOSProcessPluginInterpreterGetThisSession of OSProcessPlugin version 4.2.6 */
+/* D T Lewis - UnixOSProcessPlugin.c translated from class
+   UnixOSProcessPlugin of OSProcessPlugin version 4.3.3 */
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <signal.h>
@@ -76,11 +76,11 @@ by VMMaker 3.8b6
 /*** Constants ***/
 
 /*** Function Prototypes ***/
-static void aioForwardwithDataandFlags(int fd, void * data, int flags);
+static void aioForwardwithDataandFlags(int fd, void *data, int flags);
 static char * cStringFromString(sqInt aString);
 static void * callocWrappersize(sqInt count, sqInt objectSize);
-static sqInt copyBytesFromtolength(void * charArray1, void * charArray2, sqInt len);
-static sqInt createPipeForReaderwriter(FILEHANDLETYPE * readerIOStreamPtr, FILEHANDLETYPE * writerIOStreamPtr);
+static sqInt copyBytesFromtolength(void *charArray1, void *charArray2, sqInt len);
+static sqInt createPipeForReaderwriter(FILEHANDLETYPE *readerIOStreamPtr, FILEHANDLETYPE *writerIOStreamPtr);
 static sqInt descriptorTableSize(void);
 static void dupToStdErr(sqInt anSQFileDataStructure);
 static void dupToStdIn(sqInt anSQFileDataStructure);
@@ -113,10 +113,13 @@ static sqInt isSQFileObject(sqInt objectPointer);
 static sqInt isSQSocketObject(sqInt objectPointer);
 static sqInt isValidFileSession(sqInt objectPointer);
 static sqInt isVmThread(void);
-static sqInt makePipeForReaderwriter(FILEHANDLETYPE * readerIOStreamPtr, FILEHANDLETYPE * writerIOStreamPtr);
+static sqInt makePipeForReaderwriter(FILEHANDLETYPE *readerIOStreamPtr, FILEHANDLETYPE *writerIOStreamPtr);
 static sqInt maskForThisThreadAndResend(int sigNum);
 static sqInt maskSignalForThisThread(int sigNum);
-static sqInt msg(char * s);
+#pragma export on
+EXPORT(sqInt) moduleUnloaded(char *aModuleName);
+#pragma export off
+static sqInt msg(char *s);
 static sqInt newPthreadTypeByteArray(sqInt aPthreadType);
 static sqInt newSQFileByteArray(void);
 static sqInt newSQSocketByteArray(void);
@@ -132,6 +135,7 @@ EXPORT(sqInt) primitiveCanReceiveSignals(sqInt anIntegerPid);
 EXPORT(sqInt) primitiveChdir(void);
 EXPORT(sqInt) primitiveCreatePipe(void);
 EXPORT(sqInt) primitiveCreatePipeWithSessionIdentifier(void);
+EXPORT(sqInt) primitiveDupTo(sqInt oldFileDescriptor, sqInt newFileDescriptor);
 EXPORT(sqInt) primitiveEnvironmentAt(void);
 EXPORT(sqInt) primitiveEnvironmentAtSymbol(void);
 EXPORT(sqInt) primitiveErrorMessageAt(void);
@@ -224,9 +228,9 @@ static unsigned char * semaphoreIndices(void);
 static sqInt sendSignaltoPid(sqInt sig, sqInt pid);
 static void sendSignalToPids(void);
 static SESSIONIDENTIFIERTYPE sessionIdentifierFrom(sqInt aByteArray);
-static SESSIONIDENTIFIERTYPE sessionIdentifierFromSqFile(SQFile * sqFile);
+static SESSIONIDENTIFIERTYPE sessionIdentifierFromSqFile(SQFile *sqFile);
 #pragma export on
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter);
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter);
 #pragma export off
 static void setSigChldDefaultHandler(void);
 static void setSigChldHandler(void);
@@ -235,7 +239,7 @@ static void setSigIntIgnore(void);
 static void setSigPipeDefaultHandler(void);
 static sqInt setSigPipeHandler(void);
 static void setSigPipeIgnore(void);
-static void * setSignalNumberhandler(sqInt anInteger, void * signalHandlerAddress);
+static void * setSignalNumberhandler(sqInt anInteger, void *signalHandlerAddress);
 #pragma export on
 EXPORT(sqInt) shutdownModule(void);
 #pragma export off
@@ -263,7 +267,7 @@ static sqInt sizeOfSession(void);
 static int socketDescriptorFrom(sqInt sqSocketOop);
 static sqInt socketRecordSize(void);
 static SQSocket * socketValueOf(sqInt anSQSocketRecord);
-static sqInt stringFromCString(const char * aCString);
+static sqInt stringFromCString(const char *aCString);
 static char * transientCStringFromString(sqInt aString);
 static int unixFileNumber(FILEHANDLETYPE fileHandle);
 static char * versionString(void);
@@ -275,9 +279,9 @@ extern
 struct VirtualMachine* interpreterProxy;
 static const char *moduleName =
 #ifdef SQUEAK_BUILTIN_PLUGIN
-	"UnixOSProcessPlugin 14 April 2008 (i)"
+	"UnixOSProcessPlugin 23 January 2011 (i)"
 #else
-	"UnixOSProcessPlugin 14 April 2008 (e)"
+	"UnixOSProcessPlugin 23 January 2011 (e)"
 #endif
 ;
 static void *originalSigHandlers[NSIG];
@@ -297,7 +301,7 @@ static pthread_t vmThread;
 	detected. When translated to C, the name of this method is aioForwardwithDataandFlags.
 	The event handler is set up by #primitiveAioHandle. */
 
-static void aioForwardwithDataandFlags(int fd, void * data, int flags) {
+static void aioForwardwithDataandFlags(int fd, void *data, int flags) {
     sqInt *pfd;
     sqInt semaIndex;
 
@@ -313,8 +317,8 @@ static void aioForwardwithDataandFlags(int fd, void * data, int flags) {
 	Caution: This may invoke the garbage collector. */
 
 static char * cStringFromString(sqInt aString) {
-    sqInt len;
     char *cString;
+    sqInt len;
     char *sPtr;
 
 	sPtr = interpreterProxy->arrayValueOf(aString);
@@ -340,7 +344,7 @@ static void * callocWrappersize(sqInt count, sqInt objectSize) {
 
 /*	self cCode: 'memcpy(charArray2, charArray1, len' */
 
-static sqInt copyBytesFromtolength(void * charArray1, void * charArray2, sqInt len) {
+static sqInt copyBytesFromtolength(void *charArray1, void *charArray2, sqInt len) {
 	memcpy(charArray2, charArray1, len);
 }
 
@@ -349,7 +353,7 @@ static sqInt copyBytesFromtolength(void * charArray1, void * charArray2, sqInt l
 	The SIGPIPE handler must have been set before creating the pipe. Answer true for
 	success, else false. */
 
-static sqInt createPipeForReaderwriter(FILEHANDLETYPE * readerIOStreamPtr, FILEHANDLETYPE * writerIOStreamPtr) {
+static sqInt createPipeForReaderwriter(FILEHANDLETYPE *readerIOStreamPtr, FILEHANDLETYPE *writerIOStreamPtr) {
     int filedes[2];
 
 	if ((pipe(filedes)) == -1) {
@@ -491,8 +495,8 @@ static SQFile * fileValueOf(sqInt anSQFileRecord) {
 	The result is a C array of pointers to char, used for argv and env vectors. */
 
 static sqInt fixPointersInArrayOfStringswithOffsetscount(char *flattenedArrayOfStrings, sqInt *offsetArray, sqInt count) {
-    char **ptr;
     sqInt idx;
+    char **ptr;
 
 	ptr = ((char **) flattenedArrayOfStrings);
 	idx = 0;
@@ -539,32 +543,32 @@ static sqInt fixPointersInArrayOfStringswithOffsetscount(char *flattenedArrayOfS
 		9: the sender */
 
 static sqInt forkAndExecInDirectory(sqInt useSignalHandler) {
-    sqInt executableFile;
-    extern char **envVec;
-    char *pwdPtr;
-    pid_t pid;
+    sqInt argCount;
+    sqInt *argOffsetPtr;
+    sqInt argOffsets;
     sqInt argVecBuffer;
-    sqInt *envOffsetPtr;
-    struct itimerval saveIntervalTimer;
+    char **args;
+    char *argsPtr;
+    char **env;
     sqInt envCount;
+    sqInt *envOffsetPtr;
+    sqInt envOffsets;
+    char *envPtr;
+    extern char **envVec;
+    sqInt envVecBuffer;
+    sqInt executableFile;
+    sqInt handleCount;
     sqInt idx;
     struct itimerval intervalTimer;
-    sqInt stdOut;
+    pid_t pid;
     char *progNamePtr;
-    char **args;
-    sqInt envOffsets;
-    sqInt envVecBuffer;
-    sqInt stdErr;
-    sqInt workingDir;
     sqInt pwd;
-    char *envPtr;
-    char *argsPtr;
-    sqInt *argOffsetPtr;
-    sqInt handleCount;
-    sqInt argCount;
-    char **env;
-    sqInt argOffsets;
+    char *pwdPtr;
+    struct itimerval saveIntervalTimer;
+    sqInt stdErr;
     sqInt stdIn;
+    sqInt stdOut;
+    sqInt workingDir;
     sqInt sigNum;
 
 	if (useSignalHandler) {
@@ -580,6 +584,9 @@ static sqInt forkAndExecInDirectory(sqInt useSignalHandler) {
 		intervalTimer.it_value.tv_usec = 0;
 		setitimer (ITIMER_REAL, &intervalTimer, &saveIntervalTimer);
 		if ((pid = vfork()) == 0) {
+
+			/* This is the new child process */
+
 			workingDir = interpreterProxy->stackObjectValue(0);
 			envOffsets = interpreterProxy->stackObjectValue(1);
 			envVecBuffer = interpreterProxy->stackObjectValue(2);
@@ -701,9 +708,9 @@ static sqInt forkAndExecInDirectory(sqInt useSignalHandler) {
 	the BSD programmers documentation for details. */
 
 EXPORT(pid_t) forkSqueak(sqInt useSignalHandler) {
+    struct itimerval intervalTimer;
     pid_t pid;
     struct itimerval saveIntervalTimer;
-    struct itimerval intervalTimer;
 
 	intervalTimer.it_interval.tv_sec = 0;
 	intervalTimer.it_interval.tv_usec = 0;
@@ -733,10 +740,13 @@ EXPORT(pid_t) forkSqueak(sqInt useSignalHandler) {
 	handler must be unregistered prior to unregistering the Smalltalk semaphore. */
 
 static void * forwardSignaltoSemaphoreAt(sqInt sigNum, sqInt semaphoreIndex) {
-    void * oldHandler;
+    void *oldHandler;
 
 	if (semaphoreIndex == 0) {
 		if ((semaIndices[sigNum]) > 0) {
+
+			/* Disable the handler */
+
 			oldHandler = originalSigHandlers[sigNum];
 			setSignalNumberhandler(sigNum, oldHandler);
 			semaIndices[sigNum] = 0;
@@ -824,8 +834,8 @@ static sqInt initializeModuleForPlatform(void) {
 /*	Check for the common failure mode of a SQFile record with all zeros. */
 
 static sqInt isNonNullSQFile(sqInt objectPointer) {
-    unsigned char * sqFileBytes;
     sqInt idx;
+    unsigned char *sqFileBytes;
 
 	sqFileBytes = interpreterProxy->arrayValueOf(objectPointer);
 	idx = 0;
@@ -843,7 +853,7 @@ static sqInt isNonNullSQFile(sqInt objectPointer) {
 
 static sqInt isNullSQSocket(sqInt objectPointer) {
     sqInt idx;
-    unsigned char * sqSocketBytes;
+    unsigned char *sqSocketBytes;
 
 	sqSocketBytes = interpreterProxy->arrayValueOf(objectPointer);
 	idx = 0;
@@ -897,7 +907,7 @@ static sqInt isVmThread(void) {
 	Make sure the SIGPIPE handler is set before creating the pipe. Answer true for
 	success, else false */
 
-static sqInt makePipeForReaderwriter(FILEHANDLETYPE * readerIOStreamPtr, FILEHANDLETYPE * writerIOStreamPtr) {
+static sqInt makePipeForReaderwriter(FILEHANDLETYPE *readerIOStreamPtr, FILEHANDLETYPE *writerIOStreamPtr) {
     int filedes[2];
 
 	/* begin setSigPipeHandler */
@@ -936,7 +946,14 @@ static sqInt maskSignalForThisThread(int sigNum) {
 	pthread_sigmask(SIG_BLOCK, &sigset, NULL);
 }
 
-static sqInt msg(char * s) {
+
+/*	The module with the given name was just unloaded.
+	Make sure we have no dangling references. */
+
+EXPORT(sqInt) moduleUnloaded(char *aModuleName) {
+}
+
+static sqInt msg(char *s) {
 	fprintf(stderr, "\n%s: %s", moduleName, s);
 }
 
@@ -947,8 +964,8 @@ static sqInt msg(char * s) {
 
 static sqInt newPthreadTypeByteArray(sqInt aPthreadType) {
     sqInt byteArray;
-    pthread_t *ptr;
     sqInt len;
+    pthread_t *ptr;
 
 	len = sizeof(pthread_t);
 	byteArray = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), len);
@@ -984,9 +1001,9 @@ static void ** originalSignalHandlers(void) {
 /*	Answer the pointer represented by aByteArray. */
 
 static void * pointerFrom(sqInt aByteArray) {
-    unsigned char *ptr;
     sqInt idx;
     union {void *address; unsigned char bytes[sizeof(void *)];} pointerUnion;
+    unsigned char *ptr;
 
 	if (!((interpreterProxy->isBytes(aByteArray)) && ((interpreterProxy->stSizeOf(aByteArray)) == (sizeOfPointer())))) {
 		return null;
@@ -1006,8 +1023,8 @@ static void * pointerFrom(sqInt aByteArray) {
 	parameter is a sqFile ByteArray representing the ioHandle for a file. */
 
 EXPORT(sqInt) primitiveAioDisable(void) {
-    sqInt sqFile;
     int fd;
+    sqInt sqFile;
 
 	sqFile = interpreterProxy->stackObjectValue(0);
 	/* begin fileDescriptorFrom: */
@@ -1034,12 +1051,12 @@ l1:	/* end fileDescriptorFrom: */;
 	aio handling. Answer the semaphore index. */
 
 EXPORT(sqInt) primitiveAioEnable(void) {
-    sqInt sqFile;
-    sqInt semaIndex;
+    static int eventSemaphoreIndices[FD_SETSIZE];
     sqInt externalObject;
     int fd;
     int flags;
-    static int eventSemaphoreIndices[FD_SETSIZE];
+    sqInt semaIndex;
+    sqInt sqFile;
 
 	sqFile = interpreterProxy->stackObjectValue(2);
 	if (!((interpreterProxy->isBytes(sqFile)) && ((interpreterProxy->stSizeOf(sqFile)) == (fileRecordSize())))) {
@@ -1080,12 +1097,12 @@ l1:	/* end fileDescriptorFrom: */;
 		AIO_W	(1<<2)	handle for write */
 
 EXPORT(sqInt) primitiveAioHandle(void) {
-    sqInt writeWatch;
-    sqInt readWatch;
     sqInt exceptionWatch;
-    sqInt sqFile;
     int fd;
     int flags;
+    sqInt readWatch;
+    sqInt sqFile;
+    sqInt writeWatch;
 
 	sqFile = interpreterProxy->stackObjectValue(3);
 	if (!((interpreterProxy->isBytes(sqFile)) && ((interpreterProxy->stSizeOf(sqFile)) == (fileRecordSize())))) {
@@ -1132,12 +1149,12 @@ l1:	/* end fileDescriptorFrom: */;
 		AIO_W	(1<<2)	handle for write */
 
 EXPORT(sqInt) primitiveAioSuspend(void) {
-    sqInt writeWatch;
-    sqInt readWatch;
     sqInt exceptionWatch;
-    sqInt sqFile;
     int fd;
     int flags;
+    sqInt readWatch;
+    sqInt sqFile;
+    sqInt writeWatch;
 
 	sqFile = interpreterProxy->stackObjectValue(3);
 	if (!((interpreterProxy->isBytes(sqFile)) && ((interpreterProxy->stSizeOf(sqFile)) == (fileRecordSize())))) {
@@ -1176,11 +1193,11 @@ l1:	/* end fileDescriptorFrom: */;
 	argument list. */
 
 EXPORT(sqInt) primitiveArgumentAt(void) {
-    extern char **argVec;
-    sqInt s;
-    sqInt index;
-    char *sPtr;
     extern int argCnt;
+    extern char **argVec;
+    sqInt index;
+    sqInt s;
+    char *sPtr;
 
 	index = interpreterProxy->stackIntegerValue(0);
 	if ((index > argCnt) || (index < 1)) {
@@ -1226,7 +1243,7 @@ EXPORT(sqInt) primitiveCanReceiveSignals(sqInt anIntegerPid) {
 
 EXPORT(sqInt) primitiveChdir(void) {
     extern int errno;
-    char * path;
+    char *path;
 
 	path = transientCStringFromString(interpreterProxy->stackObjectValue(0));
 	if (chdir(path)) {
@@ -1246,16 +1263,16 @@ EXPORT(sqInt) primitiveChdir(void) {
 	in the #declareCVarsIn: class method. */
 
 EXPORT(sqInt) primitiveCreatePipe(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt writer;
-    FILEHANDLETYPE writerIOStream;
-    SQFile *writerPtr;
-    FILEHANDLETYPE *writerIOStreamPtr;
-    SQFile *readerPtr;
     sqInt arrayResult;
     sqInt reader;
     FILEHANDLETYPE readerIOStream;
     FILEHANDLETYPE *readerIOStreamPtr;
+    SQFile *readerPtr;
+    SESSIONIDENTIFIERTYPE thisSession;
+    sqInt writer;
+    FILEHANDLETYPE writerIOStream;
+    FILEHANDLETYPE *writerIOStreamPtr;
+    SQFile *writerPtr;
 
 
 	/* Create the anonymous OS pipe */
@@ -1298,16 +1315,16 @@ EXPORT(sqInt) primitiveCreatePipe(void) {
 	in the #declareCVarsIn: class method. */
 
 EXPORT(sqInt) primitiveCreatePipeWithSessionIdentifier(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt writer;
-    FILEHANDLETYPE writerIOStream;
-    SQFile *writerPtr;
-    FILEHANDLETYPE *writerIOStreamPtr;
-    SQFile *readerPtr;
     sqInt arrayResult;
     sqInt reader;
     FILEHANDLETYPE readerIOStream;
     FILEHANDLETYPE *readerIOStreamPtr;
+    SQFile *readerPtr;
+    SESSIONIDENTIFIERTYPE thisSession;
+    sqInt writer;
+    FILEHANDLETYPE writerIOStream;
+    FILEHANDLETYPE *writerIOStreamPtr;
+    SQFile *writerPtr;
 
 
 	/* Create the anonymous OS pipe */
@@ -1340,15 +1357,31 @@ EXPORT(sqInt) primitiveCreatePipeWithSessionIdentifier(void) {
 }
 
 
+/*	Call dup2() to duplicate a file descriptor. Answer the duplicated file descriptor
+	or -1 on failure. */
+
+EXPORT(sqInt) primitiveDupTo(sqInt oldFileDescriptor, sqInt newFileDescriptor) {
+    int newfd;
+    int oldfd;
+    int result;
+
+	newfd = interpreterProxy->stackIntegerValue(0);
+	oldfd = interpreterProxy->stackIntegerValue(1);
+	result = dup2(oldfd, newfd);
+	interpreterProxy->pop(3);
+	interpreterProxy->pushInteger(result);
+}
+
+
 /*	Answer a string containing the OS process environment string at index (an Integer)
 	in the environment list. */
 
 EXPORT(sqInt) primitiveEnvironmentAt(void) {
-    extern char **envVec;
-    char **p;
     sqInt envCnt;
-    sqInt s;
+    extern char **envVec;
     sqInt index;
+    char **p;
+    sqInt s;
     char *sPtr;
 
 	p = envVec;
@@ -1385,9 +1418,9 @@ EXPORT(sqInt) primitiveEnvironmentAtSymbol(void) {
 /*	Answer a string describing an error message */
 
 EXPORT(sqInt) primitiveErrorMessageAt(void) {
-    char *p;
     sqInt errMessage;
     sqInt index;
+    char *p;
 
 	index = interpreterProxy->stackIntegerValue(0);
 	p = ((char *) (strerror(index)));
@@ -1409,10 +1442,10 @@ EXPORT(sqInt) primitiveErrorMessageAt(void) {
 EXPORT(sqInt) primitiveFileProtectionMask(void) {
     sqInt buffer;
     extern int errno;
-    char *path;
-    struct stat *statBuf;
     sqInt mode;
+    char *path;
     sqInt result;
+    struct stat *statBuf;
 
 	buffer = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), sizeof(struct stat));
 	statBuf = interpreterProxy->arrayValueOf(buffer);
@@ -1435,7 +1468,7 @@ EXPORT(sqInt) primitiveFileProtectionMask(void) {
 
 
 /*	Call stat(2) to obtain the file protection mask for a file. Answer errno on failure,
-	or on success answer an array with: UID with: GID with: protectionMask. The
+	or on success answer an array with: UID with: GID with: protectionMask. The	
 	protectionMask is an Array of four integers representing the protection mask, or
 	answer errno on failure. The protection mask is four Integers, each of which may
 	be considered an octal digit (0-7), with bit values 4, 2, and 1. The first digit selects
@@ -1447,14 +1480,14 @@ EXPORT(sqInt) primitiveFileProtectionMask(void) {
 
 EXPORT(sqInt) primitiveFileStat(void) {
     sqInt buffer;
-    sqInt uid;
-    char *path;
-    struct stat *statBuf;
-    sqInt gid;
-    sqInt mode;
     extern int errno;
-    sqInt result;
+    sqInt gid;
     sqInt mask;
+    sqInt mode;
+    char *path;
+    sqInt result;
+    struct stat *statBuf;
+    sqInt uid;
 
 	result = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classArray(), 3);
 	uid = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), sizeof(uid_t));
@@ -1490,9 +1523,9 @@ EXPORT(sqInt) primitiveFileStat(void) {
 
 EXPORT(sqInt) primitiveFixPointersInArrayOfStrings(void) {
     sqInt cStringArray;
-    sqInt offsetArray;
     sqInt count;
     char *flattenedArrayOfStrings;
+    sqInt offsetArray;
     sqInt *offsets;
 
 	count = interpreterProxy->stackIntegerValue(0);
@@ -1601,14 +1634,14 @@ EXPORT(sqInt) primitiveForkSqueakWithoutSigHandler(void) {
 	handler must be unregistered prior to unregistering the Smalltalk semaphore. */
 
 EXPORT(sqInt) primitiveForwardSignalToSemaphore(void) {
-    sqInt sigNum;
-    void *handler;
-    sqInt semaphoreIndex;
     char *hPtr;
+    void *handler;
     sqInt idx;
     sqInt index;
     union {void *handler; unsigned char bytes[sizeof(void *)];} priorHandler;
     sqInt priorHandlerObject;
+    sqInt semaphoreIndex;
+    sqInt sigNum;
 
 	index = interpreterProxy->stackValue(0);
 	if (index == (interpreterProxy->nilObject())) {
@@ -1640,12 +1673,12 @@ EXPORT(sqInt) primitiveForwardSignalToSemaphore(void) {
 /*	Answer a string containing the current working directory. */
 
 EXPORT(sqInt) primitiveGetCurrentWorkingDirectory(void) {
-    sqInt maxSize;
     char *buffer;
+    sqInt bufferSize;
+    char *cwd;
     sqInt cwdString;
     sqInt incrementBy;
-    char *cwd;
-    sqInt bufferSize;
+    sqInt maxSize;
 
 	bufferSize = 100;
 	incrementBy = 100;
@@ -1760,10 +1793,10 @@ EXPORT(sqInt) primitiveGetPid(void) {
 	the full range of possible values. */
 
 EXPORT(sqInt) primitiveGetSession(void) {
-    sqInt sessionOop;
-    SESSIONIDENTIFIERTYPE thisSessionID;
     unsigned char *sessionByteArrayPointer;
     sqInt sessionIDSize;
+    sqInt sessionOop;
+    SESSIONIDENTIFIERTYPE thisSessionID;
 
 	thisSessionID = interpreterProxy->getThisSessionID();
 	sessionIDSize = sizeof(thisSessionID);
@@ -1781,9 +1814,9 @@ EXPORT(sqInt) primitiveGetSession(void) {
 /*	Answer the file handle for standard error of my OS process */
 
 EXPORT(sqInt) primitiveGetStdErrHandle(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt fileOop;
     SQFile *file;
+    sqInt fileOop;
+    SESSIONIDENTIFIERTYPE thisSession;
 
 	fileOop = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), fileRecordSize());
 	file = interpreterProxy->arrayValueOf(fileOop);
@@ -1804,9 +1837,9 @@ EXPORT(sqInt) primitiveGetStdErrHandle(void) {
 	in the VM). */
 
 EXPORT(sqInt) primitiveGetStdErrHandleWithSessionIdentifier(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt fileOop;
     SQFile *file;
+    sqInt fileOop;
+    SESSIONIDENTIFIERTYPE thisSession;
 
 	fileOop = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), fileRecordSize());
 	file = interpreterProxy->arrayValueOf(fileOop);
@@ -1823,9 +1856,9 @@ EXPORT(sqInt) primitiveGetStdErrHandleWithSessionIdentifier(void) {
 /*	Answer the file handle for standard input of my OS process */
 
 EXPORT(sqInt) primitiveGetStdInHandle(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt fileOop;
     SQFile *file;
+    sqInt fileOop;
+    SESSIONIDENTIFIERTYPE thisSession;
 
 	fileOop = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), fileRecordSize());
 	file = interpreterProxy->arrayValueOf(fileOop);
@@ -1846,9 +1879,9 @@ EXPORT(sqInt) primitiveGetStdInHandle(void) {
 	in the VM). */
 
 EXPORT(sqInt) primitiveGetStdInHandleWithSessionIdentifier(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt fileOop;
     SQFile *file;
+    sqInt fileOop;
+    SESSIONIDENTIFIERTYPE thisSession;
 
 	fileOop = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), fileRecordSize());
 	file = interpreterProxy->arrayValueOf(fileOop);
@@ -1865,9 +1898,9 @@ EXPORT(sqInt) primitiveGetStdInHandleWithSessionIdentifier(void) {
 /*	Answer the file handle for standard output of my OS process */
 
 EXPORT(sqInt) primitiveGetStdOutHandle(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt fileOop;
     SQFile *file;
+    sqInt fileOop;
+    SESSIONIDENTIFIERTYPE thisSession;
 
 	fileOop = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), fileRecordSize());
 	file = interpreterProxy->arrayValueOf(fileOop);
@@ -1888,9 +1921,9 @@ EXPORT(sqInt) primitiveGetStdOutHandle(void) {
 	in the VM). */
 
 EXPORT(sqInt) primitiveGetStdOutHandleWithSessionIdentifier(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt fileOop;
     SQFile *file;
+    sqInt fileOop;
+    SESSIONIDENTIFIERTYPE thisSession;
 
 	fileOop = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classByteArray(), fileRecordSize());
 	file = interpreterProxy->arrayValueOf(fileOop);
@@ -1929,9 +1962,9 @@ EXPORT(sqInt) primitiveGetUid(void) {
 /*	Deprecated. The return values are reversed. Use primitiveTestEndOfFileFlag. */
 
 EXPORT(sqInt) primitiveIsAtEndOfFile(void) {
-    sqInt sqFileOop;
-    sqInt result;
     FILEHANDLETYPE file;
+    sqInt result;
+    sqInt sqFileOop;
 
 	sqFileOop = interpreterProxy->stackValue(0);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -1955,10 +1988,10 @@ EXPORT(sqInt) primitiveIsAtEndOfFile(void) {
 	parameter is nil, the default value of SIGTERM will be used. */
 
 EXPORT(sqInt) primitiveKillOnExit(void) {
-    pid_t * p;
     sqInt count;
+    pid_t *p;
     pid_t pid;
-    sqInt * pidPointer;
+    sqInt *pidPointer;
     sqInt pids;
     sqInt signum;
 
@@ -2004,13 +2037,13 @@ EXPORT(sqInt) primitiveKillOnExit(void) {
 	have not yet been allocated for the file. */
 
 EXPORT(sqInt) primitiveLockFileRegion(void) {
-    struct flock lockStruct;
     sqInt exclusive;
+    int fileNo;
+    sqInt len;
+    struct flock lockStruct;
+    int result;
     sqInt sqFileOop;
     sqInt start;
-    int result;
-    sqInt len;
-    int fileNo;
 
 	exclusive = (interpreterProxy->stackValue(0)) == (interpreterProxy->trueObject());
 	len = interpreterProxy->stackIntegerValue(1);
@@ -2045,16 +2078,16 @@ EXPORT(sqInt) primitiveLockFileRegion(void) {
 	in the #declareCVarsIn: class method. */
 
 EXPORT(sqInt) primitiveMakePipe(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt writer;
-    FILEHANDLETYPE writerIOStream;
-    SQFile *writerPtr;
-    FILEHANDLETYPE *writerIOStreamPtr;
-    SQFile *readerPtr;
     sqInt arrayResult;
     sqInt reader;
     FILEHANDLETYPE readerIOStream;
     FILEHANDLETYPE *readerIOStreamPtr;
+    SQFile *readerPtr;
+    SESSIONIDENTIFIERTYPE thisSession;
+    sqInt writer;
+    FILEHANDLETYPE writerIOStream;
+    FILEHANDLETYPE *writerIOStreamPtr;
+    SQFile *writerPtr;
 
 
 	/* Create the anonymous OS pipe */
@@ -2097,16 +2130,16 @@ EXPORT(sqInt) primitiveMakePipe(void) {
 	in the #declareCVarsIn: class method. */
 
 EXPORT(sqInt) primitiveMakePipeWithSessionIdentifier(void) {
-    SESSIONIDENTIFIERTYPE thisSession;
-    sqInt writer;
-    FILEHANDLETYPE writerIOStream;
-    SQFile *writerPtr;
-    FILEHANDLETYPE *writerIOStreamPtr;
-    SQFile *readerPtr;
     sqInt arrayResult;
     sqInt reader;
     FILEHANDLETYPE readerIOStream;
     FILEHANDLETYPE *readerIOStreamPtr;
+    SQFile *readerPtr;
+    SESSIONIDENTIFIERTYPE thisSession;
+    sqInt writer;
+    FILEHANDLETYPE writerIOStream;
+    FILEHANDLETYPE *writerIOStreamPtr;
+    SQFile *writerPtr;
 
 
 	/* Create the anonymous OS pipe */
@@ -2155,8 +2188,8 @@ EXPORT(sqInt) primitiveModuleName(void) {
 	if the result of nice() is -1. */
 
 EXPORT(sqInt) primitiveNice(void) {
-    int niceIncrement;
     extern int errno;
+    int niceIncrement;
     sqInt result;
 
 	niceIncrement = interpreterProxy->stackIntegerValue(0);
@@ -2196,12 +2229,12 @@ EXPORT(sqInt) primitivePutEnv(void) {
 /*	Answer the real path for a path string as determined by realpath(). */
 
 EXPORT(sqInt) primitiveRealpath(void) {
-    char *pathString;
-    sqInt newPathString;
     char *buffer;
-    sqInt s;
-    char * realpathResult;
     sqInt bufferSize;
+    sqInt newPathString;
+    char *pathString;
+    char * realpathResult;
+    sqInt s;
 
 	bufferSize = 1024;
 	newPathString = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classString(), bufferSize);
@@ -2228,11 +2261,11 @@ EXPORT(sqInt) primitiveRealpath(void) {
 	the exit status of the child process. Answer nil if the pidToHandle does not exist. */
 
 EXPORT(sqInt) primitiveReapChildProcess(void) {
-    pid_t pidResult;
-    sqInt resultArray;
     sqInt *arrayPtr;
     int exitStatus;
+    pid_t pidResult;
     sqInt pidToHandle;
+    sqInt resultArray;
 
 
 	/* Force C code translator to declare the variable */
@@ -2244,6 +2277,9 @@ EXPORT(sqInt) primitiveReapChildProcess(void) {
 		interpreterProxy->pop(2);
 		interpreterProxy->push(interpreterProxy->nilObject());
 	} else {
+
+		/* Answer an array with pid and result status  */
+
 		resultArray = interpreterProxy->instantiateClassindexableSize(interpreterProxy->classArray(), 2);
 		arrayPtr = interpreterProxy->firstIndexableField(resultArray);
 		arrayPtr[0] = integerObjectOf(pidResult);
@@ -2259,8 +2295,8 @@ EXPORT(sqInt) primitiveReapChildProcess(void) {
 	the OS stream (C library) to unbuffered output, and letting Smalltalk do all the buffering. */
 
 EXPORT(sqInt) primitiveSQFileFlush(void) {
-    sqInt sqFileOop;
     int result;
+    sqInt sqFileOop;
 
 	sqFileOop = interpreterProxy->stackValue(0);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -2280,8 +2316,8 @@ EXPORT(sqInt) primitiveSQFileFlush(void) {
 	this plugin to a variable elsewhere in the VM). */
 
 EXPORT(sqInt) primitiveSQFileFlushWithSessionIdentifier(void) {
-    sqInt sqFileOop;
     int result;
+    sqInt sqFileOop;
 
 	sqFileOop = interpreterProxy->stackValue(1);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -2296,10 +2332,10 @@ EXPORT(sqInt) primitiveSQFileFlushWithSessionIdentifier(void) {
 /*	Take a struct SQFile from the stack, and call fcntl() to set the file for blocking I/O. */
 
 EXPORT(sqInt) primitiveSQFileSetBlocking(void) {
-    sqInt sqFileOop;
     sqInt descriptor;
     int flags;
     sqInt retVal;
+    sqInt sqFileOop;
 
 	sqFileOop = interpreterProxy->stackValue(0);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -2327,12 +2363,12 @@ l1:	/* end fileDescriptorFrom: */;
 	the case if it is not possible to link from this plugin to a variable elsewhere in the VM). */
 
 EXPORT(sqInt) primitiveSQFileSetBlockingWithSessionIdentifier(void) {
-    sqInt sqFileOop;
     sqInt descriptor;
-    SESSIONIDENTIFIERTYPE thisSession;
-    SQFile *sqFile;
     sqInt flags;
     sqInt retVal;
+    SQFile *sqFile;
+    sqInt sqFileOop;
+    SESSIONIDENTIFIERTYPE thisSession;
 
 	sqFileOop = interpreterProxy->stackValue(1);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -2364,10 +2400,10 @@ EXPORT(sqInt) primitiveSQFileSetBlockingWithSessionIdentifier(void) {
 /*	Take a struct SQFile from the stack, and call fcntl() to set the file non-blocking I/O. */
 
 EXPORT(sqInt) primitiveSQFileSetNonBlocking(void) {
-    sqInt sqFileOop;
     sqInt descriptor;
-    sqInt flags;
+    int flags;
     sqInt retVal;
+    sqInt sqFileOop;
 
 	sqFileOop = interpreterProxy->stackValue(0);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -2395,12 +2431,12 @@ l1:	/* end fileDescriptorFrom: */;
 	the case if it is not possible to link from this plugin to a variable elsewhere in the VM). */
 
 EXPORT(sqInt) primitiveSQFileSetNonBlockingWithSessionIdentifier(void) {
-    sqInt sqFileOop;
     sqInt descriptor;
-    SESSIONIDENTIFIERTYPE thisSession;
-    SQFile *sqFile;
     sqInt flags;
     sqInt retVal;
+    SQFile *sqFile;
+    sqInt sqFileOop;
+    SESSIONIDENTIFIERTYPE thisSession;
 
 	sqFileOop = interpreterProxy->stackValue(1);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -2435,9 +2471,9 @@ EXPORT(sqInt) primitiveSQFileSetNonBlockingWithSessionIdentifier(void) {
 	but may at least provide an indicator that we are operating on a valid file stream. */
 
 EXPORT(sqInt) primitiveSQFileSetUnbuffered(void) {
-    sqInt sqFileOop;
-    sqInt retVal;
     FILEHANDLETYPE file;
+    sqInt retVal;
+    sqInt sqFileOop;
 
 	sqFileOop = interpreterProxy->stackValue(0);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -2459,10 +2495,10 @@ EXPORT(sqInt) primitiveSQFileSetUnbuffered(void) {
 	to a variable elsewhere in the VM). */
 
 EXPORT(sqInt) primitiveSQFileSetUnbufferedWithSessionIdentifier(void) {
+    sqInt retVal;
+    SQFile *sqFile;
     sqInt sqFileOop;
     SESSIONIDENTIFIERTYPE thisSession;
-    SQFile *sqFile;
-    sqInt retVal;
 
 	sqFileOop = interpreterProxy->stackValue(1);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -2485,12 +2521,12 @@ EXPORT(sqInt) primitiveSQFileSetUnbufferedWithSessionIdentifier(void) {
 	signal handler for sigNum. */
 
 EXPORT(sqInt) primitiveSemaIndexFor(void) {
-    sqInt sigNum;
     sqInt index;
+    sqInt sigNum;
 
 	sigNum = interpreterProxy->stackIntegerValue(0);
 	index = semaIndices[sigNum];
-	interpreterProxy->pop(2); // Squeak bug, was 1
+	interpreterProxy->pop(2);
 	interpreterProxy->pushInteger(index);
 }
 
@@ -3013,9 +3049,9 @@ EXPORT(sqInt) primitiveSizeOfPointer(void) {
 	file is not detected until an actual EOF condition has been detected by a read attempt. */
 
 EXPORT(sqInt) primitiveTestEndOfFileFlag(void) {
-    sqInt sqFileOop;
-    sqInt result;
     FILEHANDLETYPE file;
+    sqInt result;
+    sqInt sqFileOop;
 
 	sqFileOop = interpreterProxy->stackValue(0);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -3054,15 +3090,15 @@ EXPORT(sqInt) primitiveTestEndOfFileFlag(void) {
 		l_len (length of the region lock preventing this lock request) */
 
 EXPORT(sqInt) primitiveTestLockableFileRegion(void) {
-    struct flock lockStruct;
+    sqInt canObtainLock;
     sqInt exclusive;
+    int fileNo;
+    sqInt len;
+    struct flock lockStruct;
+    int result;
+    sqInt resultArray;
     sqInt sqFileOop;
     sqInt start;
-    sqInt resultArray;
-    int result;
-    sqInt len;
-    int fileNo;
-    sqInt canObtainLock;
 
 	exclusive = (interpreterProxy->stackValue(0)) == (interpreterProxy->trueObject());
 	len = interpreterProxy->stackIntegerValue(1);
@@ -3110,8 +3146,13 @@ EXPORT(sqInt) primitiveTestLockableFileRegion(void) {
 	#primitiveUnixFileNumber. */
 
 EXPORT(sqInt) primitiveUnixFileClose(sqInt anIntegerFileNumber) {
+    int handle;
+    int result;
+
+	handle = interpreterProxy->stackIntegerValue(0);
+	result = close(handle);
 	interpreterProxy->pop(2);
-	interpreterProxy->pushInteger(close(interpreterProxy->stackIntegerValue(0)));
+	interpreterProxy->pushInteger(result);
 }
 
 
@@ -3120,8 +3161,8 @@ EXPORT(sqInt) primitiveUnixFileClose(sqInt anIntegerFileNumber) {
 	debugging problems involving failure to close unused file handles. */
 
 EXPORT(sqInt) primitiveUnixFileNumber(void) {
-    sqInt sqFileOop;
     int fileNo;
+    sqInt sqFileOop;
 
 	sqFileOop = interpreterProxy->stackValue(0);
 	if (!((((interpreterProxy->isBytes(sqFileOop)) && ((interpreterProxy->byteSizeOf(sqFileOop)) == (fileRecordSize()))) && ((interpreterProxy->getThisSessionID()) == (sessionIdentifierFromSqFile(interpreterProxy->arrayValueOf(sqFileOop))))) && (isNonNullSQFile(sqFileOop)))) {
@@ -3141,12 +3182,12 @@ EXPORT(sqInt) primitiveUnixFileNumber(void) {
 	region has previously been locked. Answer the result of the call to fcntl(). */
 
 EXPORT(sqInt) primitiveUnlockFileRegion(void) {
+    int fileNo;
+    sqInt len;
     struct flock lockStruct;
+    int result;
     sqInt sqFileOop;
     sqInt start;
-    int result;
-    sqInt len;
-    int fileNo;
 
 	len = interpreterProxy->stackIntegerValue(0);
 	start = interpreterProxy->stackIntegerValue(1);
@@ -3254,12 +3295,12 @@ static sqInt sandboxSecurity(void) {
 /*	If the security plugin can be loaded, use it to check. If not, assume it's ok */
 
 static sqInt securityHeurisitic(void) {
-    sqInt hasSocketAccess;
-    void (*sHSAfn)(void);
     sqInt canWriteImage;
+    sqInt hasFileAccess;
+    sqInt hasSocketAccess;
     void (*sCWIfn)(void);
     void (*sHFAfn)(void);
-    sqInt hasFileAccess;
+    void (*sHSAfn)(void);
 
 	sCWIfn = interpreterProxy->ioLoadFunctionFrom("secCanWriteImage", "SecurityPlugin");
 	if (sCWIfn == 0) {
@@ -3322,9 +3363,9 @@ static void sendSignalToPids(void) {
 	warnings about type mismatch with SESSIONIDENTIFIERTYPE. */
 
 static SESSIONIDENTIFIERTYPE sessionIdentifierFrom(sqInt aByteArray) {
-    union {SESSIONIDENTIFIERTYPE session; unsigned char bytes[sizeof(SESSIONIDENTIFIERTYPE)];} sessionUnion;
-    unsigned char *session;
     sqInt idx;
+    unsigned char *session;
+    union {SESSIONIDENTIFIERTYPE session; unsigned char bytes[sizeof(SESSIONIDENTIFIERTYPE)];} sessionUnion;
 
 	if (!((interpreterProxy->isBytes(aByteArray)) && ((interpreterProxy->stSizeOf(aByteArray)) == (sizeOfSession())))) {
 		return null;
@@ -3343,14 +3384,14 @@ static SESSIONIDENTIFIERTYPE sessionIdentifierFrom(sqInt aByteArray) {
 	reference, this identifier will match the session identifier supplied by
 	the interpreter. */
 
-static SESSIONIDENTIFIERTYPE sessionIdentifierFromSqFile(SQFile * sqFile) {
+static SESSIONIDENTIFIERTYPE sessionIdentifierFromSqFile(SQFile *sqFile) {
 	return sqFile->sessionID;
 }
 
 
 /*	Note: This is coded so that is can be run from Squeak. */
 
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter) {
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter) {
     sqInt ok;
 
 	interpreterProxy = anInterpreter;
@@ -3411,7 +3452,7 @@ static void setSigPipeIgnore(void) {
 
 /*	Set a signal handler. The C code translator will convert #sig:nal: into 'signal(parm1, parm2)' */
 
-static void * setSignalNumberhandler(sqInt anInteger, void * signalHandlerAddress) {
+static void * setSignalNumberhandler(sqInt anInteger, void *signalHandlerAddress) {
 	return signal(anInteger, signalHandlerAddress);
 }
 
@@ -3590,8 +3631,8 @@ static sqInt sizeOfSession(void) {
 	advantage of this, and will break if anyone ever redefines the data structure. */
 
 static int socketDescriptorFrom(sqInt sqSocketOop) {
-    SQSocket *sqSocket;
     void *privateSocketStruct;
+    SQSocket *sqSocket;
 
 	sqSocket = interpreterProxy->arrayValueOf(sqSocketOop);
 	privateSocketStruct = sqSocket->privateSocketPtr;
@@ -3620,7 +3661,7 @@ static SQSocket * socketValueOf(sqInt anSQSocketRecord) {
 /*	Answer a new String copied from a null-terminated C string.
 	Caution: This may invoke the garbage collector. */
 
-static sqInt stringFromCString(const char * aCString) {
+static sqInt stringFromCString(const char *aCString) {
     sqInt len;
     sqInt newString;
 
@@ -3647,10 +3688,10 @@ static sqInt stringFromCString(const char * aCString) {
 	twice to obtain two string pointers. */
 
 static char * transientCStringFromString(sqInt aString) {
-    sqInt len;
     char *cString;
-    char *stringPtr;
+    sqInt len;
     sqInt newString;
+    char *stringPtr;
 
 
 	/* Allocate space for a null terminated C string. */
@@ -3685,7 +3726,7 @@ static int unixFileNumber(FILEHANDLETYPE fileHandle) {
 /*	4.0 supports 64bit code base */
 
 static char * versionString(void) {
-    static char version[]= "4.2.6";
+    static char version[]= "4.3.3";
 
 	return version;
 }
@@ -3695,102 +3736,104 @@ static char * versionString(void) {
 
 
 void* UnixOSProcessPlugin_exports[][3] = {
-	{"UnixOSProcessPlugin", "primitiveSendSigalrmTo", (void*)primitiveSendSigalrmTo},
-	{"UnixOSProcessPlugin", "primitiveSendSigchldTo", (void*)primitiveSendSigchldTo},
-	{"UnixOSProcessPlugin", "primitiveCanReceiveSignals", (void*)primitiveCanReceiveSignals},
-	{"UnixOSProcessPlugin", "primitiveSendSigquitTo", (void*)primitiveSendSigquitTo},
-	{"UnixOSProcessPlugin", "primitiveGetStdInHandle", (void*)primitiveGetStdInHandle},
-	{"UnixOSProcessPlugin", "primitiveLockFileRegion", (void*)primitiveLockFileRegion},
-	{"UnixOSProcessPlugin", "primitiveEnvironmentAt", (void*)primitiveEnvironmentAt},
-	{"UnixOSProcessPlugin", "setInterpreter", (void*)setInterpreter},
-	{"UnixOSProcessPlugin", "primitiveGetUid", (void*)primitiveGetUid},
-	{"UnixOSProcessPlugin", "primitiveForkSqueakWithoutSigHandler", (void*)primitiveForkSqueakWithoutSigHandler},
-	{"UnixOSProcessPlugin", "primitiveSetSid", (void*)primitiveSetSid},
-	{"UnixOSProcessPlugin", "primitiveCreatePipeWithSessionIdentifier", (void*)primitiveCreatePipeWithSessionIdentifier},
-	{"UnixOSProcessPlugin", "primitiveGetStdOutHandleWithSessionIdentifier", (void*)primitiveGetStdOutHandleWithSessionIdentifier},
-	{"UnixOSProcessPlugin", "primitiveSigKillNumber", (void*)primitiveSigKillNumber},
-	{"UnixOSProcessPlugin", "primitiveArgumentAt", (void*)primitiveArgumentAt},
-	{"UnixOSProcessPlugin", "primitiveAioHandle", (void*)primitiveAioHandle},
-	{"UnixOSProcessPlugin", "primitiveAioSuspend", (void*)primitiveAioSuspend},
-	{"UnixOSProcessPlugin", "primitiveModuleName", (void*)primitiveModuleName},
-	{"UnixOSProcessPlugin", "primitiveTestLockableFileRegion", (void*)primitiveTestLockableFileRegion},
-	{"UnixOSProcessPlugin", "primitiveSetPGrp", (void*)primitiveSetPGrp},
 	{"UnixOSProcessPlugin", "primitiveSQFileSetBlocking", (void*)primitiveSQFileSetBlocking},
-	{"UnixOSProcessPlugin", "primitiveGetEUid", (void*)primitiveGetEUid},
+	{"UnixOSProcessPlugin", "moduleUnloaded", (void*)moduleUnloaded},
+	{"UnixOSProcessPlugin", "primitiveSigTermNumber", (void*)primitiveSigTermNumber},
 	{"UnixOSProcessPlugin", "primitiveSigQuitNumber", (void*)primitiveSigQuitNumber},
-	{"UnixOSProcessPlugin", "primitiveGetPGrp", (void*)primitiveGetPGrp},
-	{"UnixOSProcessPlugin", "primitiveSendSigcontTo", (void*)primitiveSendSigcontTo},
-	{"UnixOSProcessPlugin", "primitiveFixPointersInArrayOfStrings", (void*)primitiveFixPointersInArrayOfStrings},
-	{"UnixOSProcessPlugin", "initialiseModule", (void*)initialiseModule},
-	{"UnixOSProcessPlugin", "primitiveSendSigstopTo", (void*)primitiveSendSigstopTo},
-	{"UnixOSProcessPlugin", "primitiveGetGid", (void*)primitiveGetGid},
-	{"UnixOSProcessPlugin", "primitiveSizeOfInt", (void*)primitiveSizeOfInt},
-	{"UnixOSProcessPlugin", "primitiveTestEndOfFileFlag", (void*)primitiveTestEndOfFileFlag},
-	{"UnixOSProcessPlugin", "primitiveSetSemaIndex", (void*)primitiveSetSemaIndex},
-	{"UnixOSProcessPlugin", "primitiveCreatePipe", (void*)primitiveCreatePipe},
-	{"UnixOSProcessPlugin", "primitiveFileStat", (void*)primitiveFileStat},
-	{"UnixOSProcessPlugin", "primitiveSQFileSetUnbuffered", (void*)primitiveSQFileSetUnbuffered},
-	{"UnixOSProcessPlugin", "primitiveSQFileSetNonBlockingWithSessionIdentifier", (void*)primitiveSQFileSetNonBlockingWithSessionIdentifier},
-	{"UnixOSProcessPlugin", "primitiveNice", (void*)primitiveNice},
-	{"UnixOSProcessPlugin", "primitiveSQFileFlushWithSessionIdentifier", (void*)primitiveSQFileFlushWithSessionIdentifier},
-	{"UnixOSProcessPlugin", "primitiveGetCurrentWorkingDirectory", (void*)primitiveGetCurrentWorkingDirectory},
 	{"UnixOSProcessPlugin", "primitiveSigHupNumber", (void*)primitiveSigHupNumber},
-	{"UnixOSProcessPlugin", "primitiveSigUsr1Number", (void*)primitiveSigUsr1Number},
-	{"UnixOSProcessPlugin", "primitiveMakePipe", (void*)primitiveMakePipe},
-	{"UnixOSProcessPlugin", "primitiveGetStdErrHandleWithSessionIdentifier", (void*)primitiveGetStdErrHandleWithSessionIdentifier},
-	{"UnixOSProcessPlugin", "primitiveSQFileSetBlockingWithSessionIdentifier", (void*)primitiveSQFileSetBlockingWithSessionIdentifier},
-	{"UnixOSProcessPlugin", "primitiveForkExec", (void*)primitiveForkExec},
-	{"UnixOSProcessPlugin", "primitiveErrorMessageAt", (void*)primitiveErrorMessageAt},
-	{"UnixOSProcessPlugin", "primitiveGetPid", (void*)primitiveGetPid},
-	{"UnixOSProcessPlugin", "primitiveRealpath", (void*)primitiveRealpath},
-	{"UnixOSProcessPlugin", "primitiveSendSigusr2To", (void*)primitiveSendSigusr2To},
-	{"UnixOSProcessPlugin", "primitiveReapChildProcess", (void*)primitiveReapChildProcess},
-	{"UnixOSProcessPlugin", "primitiveSendSigkillTo", (void*)primitiveSendSigkillTo},
-	{"UnixOSProcessPlugin", "primitiveSQFileSetUnbufferedWithSessionIdentifier", (void*)primitiveSQFileSetUnbufferedWithSessionIdentifier},
-	{"UnixOSProcessPlugin", "primitiveForkAndExecInDirectory", (void*)primitiveForkAndExecInDirectory},
-	{"UnixOSProcessPlugin", "primitiveGetStdErrHandle", (void*)primitiveGetStdErrHandle},
-	{"UnixOSProcessPlugin", "primitiveUnixFileClose", (void*)primitiveUnixFileClose},
-	{"UnixOSProcessPlugin", "primitiveUnlockFileRegion", (void*)primitiveUnlockFileRegion},
-	{"UnixOSProcessPlugin", "shutdownModule", (void*)shutdownModule},
-	{"UnixOSProcessPlugin", "primitiveSizeOfPointer", (void*)primitiveSizeOfPointer},
-	{"UnixOSProcessPlugin", "primitiveGetThreadID", (void*)primitiveGetThreadID},
+	{"UnixOSProcessPlugin", "primitiveSendSigquitTo", (void*)primitiveSendSigquitTo},
+	{"UnixOSProcessPlugin", "forkSqueak", (void*)forkSqueak},
+	{"UnixOSProcessPlugin", "primitiveFileStat", (void*)primitiveFileStat},
+	{"UnixOSProcessPlugin", "primitiveFileProtectionMask", (void*)primitiveFileProtectionMask},
 	{"UnixOSProcessPlugin", "primitiveSQFileFlush", (void*)primitiveSQFileFlush},
+	{"UnixOSProcessPlugin", "primitiveForkSqueak", (void*)primitiveForkSqueak},
+	{"UnixOSProcessPlugin", "primitiveGetPid", (void*)primitiveGetPid},
+	{"UnixOSProcessPlugin", "shutdownModule", (void*)shutdownModule},
+	{"UnixOSProcessPlugin", "primitiveVersionString", (void*)primitiveVersionString},
+	{"UnixOSProcessPlugin", "primitiveGetCurrentWorkingDirectory", (void*)primitiveGetCurrentWorkingDirectory},
+	{"UnixOSProcessPlugin", "primitiveForkExec", (void*)primitiveForkExec},
+	{"UnixOSProcessPlugin", "primitiveTestEndOfFileFlag", (void*)primitiveTestEndOfFileFlag},
+	{"UnixOSProcessPlugin", "primitiveGetPGrp", (void*)primitiveGetPGrp},
+	{"UnixOSProcessPlugin", "primitiveGetStdOutHandleWithSessionIdentifier", (void*)primitiveGetStdOutHandleWithSessionIdentifier},
+	{"UnixOSProcessPlugin", "primitiveGetStdInHandleWithSessionIdentifier", (void*)primitiveGetStdInHandleWithSessionIdentifier},
+	{"UnixOSProcessPlugin", "primitiveSigUsr1Number", (void*)primitiveSigUsr1Number},
+	{"UnixOSProcessPlugin", "primitiveGetGid", (void*)primitiveGetGid},
+	{"UnixOSProcessPlugin", "primitiveForkSqueakWithoutSigHandler", (void*)primitiveForkSqueakWithoutSigHandler},
 	{"UnixOSProcessPlugin", "primitiveSendSigabrtTo", (void*)primitiveSendSigabrtTo},
 	{"UnixOSProcessPlugin", "primitivePutEnv", (void*)primitivePutEnv},
-	{"UnixOSProcessPlugin", "primitiveKillOnExit", (void*)primitiveKillOnExit},
-	{"UnixOSProcessPlugin", "primitiveUnsetEnv", (void*)primitiveUnsetEnv},
-	{"UnixOSProcessPlugin", "primitiveForkSqueak", (void*)primitiveForkSqueak},
-	{"UnixOSProcessPlugin", "primitiveSetPGid", (void*)primitiveSetPGid},
-	{"UnixOSProcessPlugin", "primitiveSigIntNumber", (void*)primitiveSigIntNumber},
-	{"UnixOSProcessPlugin", "primitiveGetPGid", (void*)primitiveGetPGid},
-	{"UnixOSProcessPlugin", "primitiveGetSession", (void*)primitiveGetSession},
-	{"UnixOSProcessPlugin", "primitiveSendSighupTo", (void*)primitiveSendSighupTo},
 	{"UnixOSProcessPlugin", "primitiveGetEGid", (void*)primitiveGetEGid},
-	{"UnixOSProcessPlugin", "primitiveFileProtectionMask", (void*)primitiveFileProtectionMask},
-	{"UnixOSProcessPlugin", "primitiveMakePipeWithSessionIdentifier", (void*)primitiveMakePipeWithSessionIdentifier},
-	{"UnixOSProcessPlugin", "primitiveGetStdInHandleWithSessionIdentifier", (void*)primitiveGetStdInHandleWithSessionIdentifier},
-	{"UnixOSProcessPlugin", "primitiveVersionString", (void*)primitiveVersionString},
-	{"UnixOSProcessPlugin", "primitiveChdir", (void*)primitiveChdir},
-	{"UnixOSProcessPlugin", "primitiveGetStdOutHandle", (void*)primitiveGetStdOutHandle},
-	{"UnixOSProcessPlugin", "primitiveSQFileSetNonBlocking", (void*)primitiveSQFileSetNonBlocking},
-	{"UnixOSProcessPlugin", "primitiveSendSigintTo", (void*)primitiveSendSigintTo},
-	{"UnixOSProcessPlugin", "primitiveSemaIndexFor", (void*)primitiveSemaIndexFor},
-	{"UnixOSProcessPlugin", "primitiveSigChldNumber", (void*)primitiveSigChldNumber},
-	{"UnixOSProcessPlugin", "primitiveSendSigpipeTo", (void*)primitiveSendSigpipeTo},
-	{"UnixOSProcessPlugin", "getModuleName", (void*)getModuleName},
-	{"UnixOSProcessPlugin", "primitiveForwardSignalToSemaphore", (void*)primitiveForwardSignalToSemaphore},
-	{"UnixOSProcessPlugin", "primitiveSigTermNumber", (void*)primitiveSigTermNumber},
-	{"UnixOSProcessPlugin", "primitiveAioDisable", (void*)primitiveAioDisable},
-	{"UnixOSProcessPlugin", "primitiveGetPPid", (void*)primitiveGetPPid},
-	{"UnixOSProcessPlugin", "primitiveAioEnable", (void*)primitiveAioEnable},
-	{"UnixOSProcessPlugin", "primitiveSigPipeNumber", (void*)primitiveSigPipeNumber},
-	{"UnixOSProcessPlugin", "primitiveSendSigtermTo", (void*)primitiveSendSigtermTo},
+	{"UnixOSProcessPlugin", "primitiveSigIntNumber", (void*)primitiveSigIntNumber},
+	{"UnixOSProcessPlugin", "primitiveSigKillNumber", (void*)primitiveSigKillNumber},
+	{"UnixOSProcessPlugin", "primitiveTestLockableFileRegion", (void*)primitiveTestLockableFileRegion},
+	{"UnixOSProcessPlugin", "primitiveSetPGid", (void*)primitiveSetPGid},
+	{"UnixOSProcessPlugin", "primitiveSetSemaIndex", (void*)primitiveSetSemaIndex},
+	{"UnixOSProcessPlugin", "primitiveLockFileRegion", (void*)primitiveLockFileRegion},
 	{"UnixOSProcessPlugin", "primitiveSendSigusr1To", (void*)primitiveSendSigusr1To},
-	{"UnixOSProcessPlugin", "primitiveUnixFileNumber", (void*)primitiveUnixFileNumber},
-	{"UnixOSProcessPlugin", "primitiveIsAtEndOfFile", (void*)primitiveIsAtEndOfFile},
-	{"UnixOSProcessPlugin", "primitiveEnvironmentAtSymbol", (void*)primitiveEnvironmentAtSymbol},
+	{"UnixOSProcessPlugin", "primitiveAioHandle", (void*)primitiveAioHandle},
+	{"UnixOSProcessPlugin", "primitiveGetThreadID", (void*)primitiveGetThreadID},
+	{"UnixOSProcessPlugin", "primitiveSendSigalrmTo", (void*)primitiveSendSigalrmTo},
+	{"UnixOSProcessPlugin", "primitiveMakePipe", (void*)primitiveMakePipe},
+	{"UnixOSProcessPlugin", "primitiveGetSession", (void*)primitiveGetSession},
+	{"UnixOSProcessPlugin", "primitiveForkAndExecInDirectory", (void*)primitiveForkAndExecInDirectory},
+	{"UnixOSProcessPlugin", "primitiveGetUid", (void*)primitiveGetUid},
+	{"UnixOSProcessPlugin", "primitiveSigPipeNumber", (void*)primitiveSigPipeNumber},
+	{"UnixOSProcessPlugin", "primitiveSizeOfInt", (void*)primitiveSizeOfInt},
+	{"UnixOSProcessPlugin", "primitiveChdir", (void*)primitiveChdir},
+	{"UnixOSProcessPlugin", "primitiveSendSighupTo", (void*)primitiveSendSighupTo},
+	{"UnixOSProcessPlugin", "primitiveSendSigchldTo", (void*)primitiveSendSigchldTo},
+	{"UnixOSProcessPlugin", "primitiveForwardSignalToSemaphore", (void*)primitiveForwardSignalToSemaphore},
+	{"UnixOSProcessPlugin", "primitiveSQFileSetNonBlocking", (void*)primitiveSQFileSetNonBlocking},
+	{"UnixOSProcessPlugin", "primitiveSetSid", (void*)primitiveSetSid},
+	{"UnixOSProcessPlugin", "primitiveRealpath", (void*)primitiveRealpath},
+	{"UnixOSProcessPlugin", "primitiveSendSigpipeTo", (void*)primitiveSendSigpipeTo},
+	{"UnixOSProcessPlugin", "primitiveGetStdOutHandle", (void*)primitiveGetStdOutHandle},
+	{"UnixOSProcessPlugin", "primitiveSendSigintTo", (void*)primitiveSendSigintTo},
+	{"UnixOSProcessPlugin", "primitiveAioSuspend", (void*)primitiveAioSuspend},
+	{"UnixOSProcessPlugin", "primitiveSendSigtermTo", (void*)primitiveSendSigtermTo},
+	{"UnixOSProcessPlugin", "setInterpreter", (void*)setInterpreter},
+	{"UnixOSProcessPlugin", "primitiveSQFileSetBlockingWithSessionIdentifier", (void*)primitiveSQFileSetBlockingWithSessionIdentifier},
+	{"UnixOSProcessPlugin", "primitiveGetPPid", (void*)primitiveGetPPid},
+	{"UnixOSProcessPlugin", "initialiseModule", (void*)initialiseModule},
 	{"UnixOSProcessPlugin", "primitiveSigUsr2Number", (void*)primitiveSigUsr2Number},
-	{"UnixOSProcessPlugin", "forkSqueak", (void*)forkSqueak},
+	{"UnixOSProcessPlugin", "primitiveSendSigusr2To", (void*)primitiveSendSigusr2To},
+	{"UnixOSProcessPlugin", "primitiveSendSigkillTo", (void*)primitiveSendSigkillTo},
+	{"UnixOSProcessPlugin", "primitiveSemaIndexFor", (void*)primitiveSemaIndexFor},
+	{"UnixOSProcessPlugin", "primitiveReapChildProcess", (void*)primitiveReapChildProcess},
+	{"UnixOSProcessPlugin", "primitiveErrorMessageAt", (void*)primitiveErrorMessageAt},
+	{"UnixOSProcessPlugin", "primitiveArgumentAt", (void*)primitiveArgumentAt},
+	{"UnixOSProcessPlugin", "primitiveGetPGid", (void*)primitiveGetPGid},
+	{"UnixOSProcessPlugin", "primitiveGetStdErrHandle", (void*)primitiveGetStdErrHandle},
+	{"UnixOSProcessPlugin", "primitiveUnixFileClose", (void*)primitiveUnixFileClose},
+	{"UnixOSProcessPlugin", "primitiveSQFileSetNonBlockingWithSessionIdentifier", (void*)primitiveSQFileSetNonBlockingWithSessionIdentifier},
+	{"UnixOSProcessPlugin", "primitiveAioEnable", (void*)primitiveAioEnable},
+	{"UnixOSProcessPlugin", "primitiveSQFileSetUnbuffered", (void*)primitiveSQFileSetUnbuffered},
+	{"UnixOSProcessPlugin", "primitiveUnixFileNumber", (void*)primitiveUnixFileNumber},
+	{"UnixOSProcessPlugin", "primitiveGetStdErrHandleWithSessionIdentifier", (void*)primitiveGetStdErrHandleWithSessionIdentifier},
+	{"UnixOSProcessPlugin", "primitiveKillOnExit", (void*)primitiveKillOnExit},
+	{"UnixOSProcessPlugin", "primitiveCanReceiveSignals", (void*)primitiveCanReceiveSignals},
+	{"UnixOSProcessPlugin", "primitiveMakePipeWithSessionIdentifier", (void*)primitiveMakePipeWithSessionIdentifier},
+	{"UnixOSProcessPlugin", "primitiveGetEUid", (void*)primitiveGetEUid},
+	{"UnixOSProcessPlugin", "primitiveSQFileSetUnbufferedWithSessionIdentifier", (void*)primitiveSQFileSetUnbufferedWithSessionIdentifier},
+	{"UnixOSProcessPlugin", "primitiveSizeOfPointer", (void*)primitiveSizeOfPointer},
+	{"UnixOSProcessPlugin", "primitiveDupTo", (void*)primitiveDupTo},
+	{"UnixOSProcessPlugin", "primitiveSigChldNumber", (void*)primitiveSigChldNumber},
+	{"UnixOSProcessPlugin", "primitiveGetStdInHandle", (void*)primitiveGetStdInHandle},
+	{"UnixOSProcessPlugin", "primitiveCreatePipe", (void*)primitiveCreatePipe},
+	{"UnixOSProcessPlugin", "primitiveUnlockFileRegion", (void*)primitiveUnlockFileRegion},
+	{"UnixOSProcessPlugin", "primitiveModuleName", (void*)primitiveModuleName},
+	{"UnixOSProcessPlugin", "primitiveFixPointersInArrayOfStrings", (void*)primitiveFixPointersInArrayOfStrings},
+	{"UnixOSProcessPlugin", "primitiveUnsetEnv", (void*)primitiveUnsetEnv},
+	{"UnixOSProcessPlugin", "primitiveNice", (void*)primitiveNice},
+	{"UnixOSProcessPlugin", "primitiveSendSigcontTo", (void*)primitiveSendSigcontTo},
+	{"UnixOSProcessPlugin", "primitiveEnvironmentAt", (void*)primitiveEnvironmentAt},
+	{"UnixOSProcessPlugin", "primitiveSendSigstopTo", (void*)primitiveSendSigstopTo},
+	{"UnixOSProcessPlugin", "primitiveEnvironmentAtSymbol", (void*)primitiveEnvironmentAtSymbol},
+	{"UnixOSProcessPlugin", "primitiveSetPGrp", (void*)primitiveSetPGrp},
+	{"UnixOSProcessPlugin", "primitiveCreatePipeWithSessionIdentifier", (void*)primitiveCreatePipeWithSessionIdentifier},
+	{"UnixOSProcessPlugin", "primitiveIsAtEndOfFile", (void*)primitiveIsAtEndOfFile},
+	{"UnixOSProcessPlugin", "getModuleName", (void*)getModuleName},
+	{"UnixOSProcessPlugin", "primitiveAioDisable", (void*)primitiveAioDisable},
+	{"UnixOSProcessPlugin", "primitiveSQFileFlushWithSessionIdentifier", (void*)primitiveSQFileFlushWithSessionIdentifier},
 	{NULL, NULL, NULL}
 };
 

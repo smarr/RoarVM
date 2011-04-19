@@ -1,5 +1,5 @@
-/* Automatically generated from Squeak on an Array(14 April 2008 3:48:51 pm)
-by VMMaker 3.8b6
+/* Automatically generated from Squeak on 23 January 2011 3:55:44 pm 
+   by VMMaker 4.4.7
  */
 
 #include <math.h>
@@ -64,9 +64,9 @@ extern
 struct VirtualMachine* interpreterProxy;
 static const char *moduleName =
 #ifdef SQUEAK_BUILTIN_PLUGIN
-	"MiscPrimitivePlugin 14 April 2008 (i)"
+	"MiscPrimitivePlugin 23 January 2011 (i)"
 #else
-	"MiscPrimitivePlugin 14 April 2008 (e)"
+	"MiscPrimitivePlugin 23 January 2011 (e)"
 #endif
 ;
 
@@ -78,7 +78,7 @@ static VirtualMachine * getInterpreter(void);
 EXPORT(const char*) getModuleName(void);
 #pragma export off
 static sqInt halt(void);
-static sqInt msg(char * s);
+static sqInt msg(char *s);
 #pragma export on
 EXPORT(sqInt) primitiveCompareString(void);
 EXPORT(sqInt) primitiveCompressToByteArray(void);
@@ -89,7 +89,7 @@ EXPORT(sqInt) primitiveFindSubstring(void);
 EXPORT(sqInt) primitiveIndexOfAsciiInString(void);
 EXPORT(sqInt) primitiveStringHash(void);
 EXPORT(sqInt) primitiveTranslateStringWithTable(void);
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter);
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter);
 #pragma export off
 
 
@@ -112,6 +112,8 @@ static sqInt encodeBytesOfinat(sqInt anInt, unsigned char *ba, sqInt i) {
 		255		next 4 bytes */
 
 static sqInt encodeIntinat(sqInt anInt, unsigned char *ba, sqInt i) {
+    sqInt j;
+
 	if (anInt <= 223) {
 		ba[i] = anInt;
 		return i + 1;
@@ -122,7 +124,11 @@ static sqInt encodeIntinat(sqInt anInt, unsigned char *ba, sqInt i) {
 		return i + 2;
 	}
 	ba[i] = 255;
-	return encodeBytesOfinat(anInt, ba, i + 1);
+	/* begin encodeBytesOf:in:at: */
+	for (j = 0; j <= 3; j += 1) {
+		ba[(i + 1) + j] = ((((usqInt) anInt) >> ((3 - j) * 8)) & 255);
+	}
+	return (i + 1) + 4;
 }
 
 
@@ -146,7 +152,7 @@ static sqInt halt(void) {
 	;
 }
 
-static sqInt msg(char * s) {
+static sqInt msg(char *s) {
 	fprintf(stderr, "\n%s: %s", moduleName, s);
 }
 
@@ -158,17 +164,26 @@ EXPORT(sqInt) primitiveCompareString(void) {
     unsigned char *string1;
     unsigned char *string2;
     unsigned char *order;
-    sqInt len2;
-    sqInt len1;
+    sqInt c1;
     sqInt c2;
     sqInt i;
-    sqInt c1;
+    sqInt len1;
+    sqInt len2;
 
 	rcvr = stackValue(3);
+	if (!(isBytes(stackValue(2)))) {
+		return primitiveFail();
+	}
 	string1 = arrayValueOf(stackValue(2));
 	string1 -= 1;
+	if (!(isBytes(stackValue(1)))) {
+		return primitiveFail();
+	}
 	string2 = arrayValueOf(stackValue(1));
 	string2 -= 1;
+	if (!(isBytes(stackValue(0)))) {
+		return primitiveFail();
+	}
 	order = arrayValueOf(stackValue(0));
 	order -= 1;
 	if (!(successFlag)) {
@@ -247,25 +262,53 @@ EXPORT(sqInt) primitiveCompressToByteArray(void) {
     sqInt rcvr;
     int *bm;
     unsigned char *ba;
-    sqInt k;
-    sqInt size;
-    sqInt word;
-    sqInt j;
     sqInt eqBytes;
     sqInt i;
+    sqInt j;
+    sqInt k;
     sqInt lowByte;
     sqInt m;
+    sqInt size;
+    sqInt word;
+    sqInt j1;
+    sqInt j2;
+    sqInt j3;
+    sqInt j4;
+    sqInt j5;
+    sqInt j6;
+    sqInt j7;
 
 	rcvr = stackValue(2);
 	bm = arrayValueOf(stackValue(1));
 	bm -= 1;
+	if (!(isBytes(stackValue(0)))) {
+		return primitiveFail();
+	}
 	ba = arrayValueOf(stackValue(0));
 	ba -= 1;
 	if (!(successFlag)) {
 		return null;
 	}
 	size = sizeOfSTArrayFromCPrimitive(bm + 1);
-	i = encodeIntinat(size, ba, 1);
+	/* begin encodeInt:in:at: */
+	if (size <= 223) {
+		ba[1] = size;
+		i = 1 + 1;
+		goto l5;
+	}
+	if (size <= 7935) {
+		ba[1] = ((((sqInt) size >> 8)) + 224);
+		ba[1 + 1] = (size % 256);
+		i = 1 + 2;
+		goto l5;
+	}
+	ba[1] = 255;
+	/* begin encodeBytesOf:in:at: */
+	for (j7 = 0; j7 <= 3; j7 += 1) {
+		ba[(1 + 1) + j7] = ((((usqInt) size) >> ((3 - j7) * 8)) & 255);
+	}
+	i = (1 + 1) + 4;
+l5:	/* end encodeInt:in:at: */;
 	k = 1;
 	while (k <= size) {
 		word = bm[k];
@@ -277,17 +320,75 @@ EXPORT(sqInt) primitiveCompressToByteArray(void) {
 		}
 		if (j > k) {
 			if (eqBytes) {
-				i = encodeIntinat((((j - k) + 1) * 4) + 1, ba, i);
+				/* begin encodeInt:in:at: */
+				if (((((j - k) + 1) * 4) + 1) <= 223) {
+					ba[i] = ((((j - k) + 1) * 4) + 1);
+					i += 1;
+					goto l1;
+				}
+				if (((((j - k) + 1) * 4) + 1) <= 7935) {
+					ba[i] = ((((sqInt) ((((j - k) + 1) * 4) + 1) >> 8)) + 224);
+					ba[i + 1] = (((((j - k) + 1) * 4) + 1) % 256);
+					i += 2;
+					goto l1;
+				}
+				ba[i] = 255;
+				/* begin encodeBytesOf:in:at: */
+				for (j3 = 0; j3 <= 3; j3 += 1) {
+					ba[(i + 1) + j3] = ((((usqInt) ((((j - k) + 1) * 4) + 1)) >> ((3 - j3) * 8)) & 255);
+				}
+				i = (i + 1) + 4;
+			l1:	/* end encodeInt:in:at: */;
 				ba[i] = lowByte;
 				i += 1;
 			} else {
-				i = encodeIntinat((((j - k) + 1) * 4) + 2, ba, i);
-				i = encodeBytesOfinat(word, ba, i);
+				/* begin encodeInt:in:at: */
+				if (((((j - k) + 1) * 4) + 2) <= 223) {
+					ba[i] = ((((j - k) + 1) * 4) + 2);
+					i += 1;
+					goto l2;
+				}
+				if (((((j - k) + 1) * 4) + 2) <= 7935) {
+					ba[i] = ((((sqInt) ((((j - k) + 1) * 4) + 2) >> 8)) + 224);
+					ba[i + 1] = (((((j - k) + 1) * 4) + 2) % 256);
+					i += 2;
+					goto l2;
+				}
+				ba[i] = 255;
+				/* begin encodeBytesOf:in:at: */
+				for (j4 = 0; j4 <= 3; j4 += 1) {
+					ba[(i + 1) + j4] = ((((usqInt) ((((j - k) + 1) * 4) + 2)) >> ((3 - j4) * 8)) & 255);
+				}
+				i = (i + 1) + 4;
+			l2:	/* end encodeInt:in:at: */;
+				/* begin encodeBytesOf:in:at: */
+				for (j1 = 0; j1 <= 3; j1 += 1) {
+					ba[i + j1] = ((((usqInt) word) >> ((3 - j1) * 8)) & 255);
+				}
+				i += 4;
 			}
 			k = j + 1;
 		} else {
 			if (eqBytes) {
-				i = encodeIntinat((1 * 4) + 1, ba, i);
+				/* begin encodeInt:in:at: */
+				if (((1 * 4) + 1) <= 223) {
+					ba[i] = ((1 * 4) + 1);
+					i += 1;
+					goto l3;
+				}
+				if (((1 * 4) + 1) <= 7935) {
+					ba[i] = ((((sqInt) ((1 * 4) + 1) >> 8)) + 224);
+					ba[i + 1] = (((1 * 4) + 1) % 256);
+					i += 2;
+					goto l3;
+				}
+				ba[i] = 255;
+				/* begin encodeBytesOf:in:at: */
+				for (j5 = 0; j5 <= 3; j5 += 1) {
+					ba[(i + 1) + j5] = ((((usqInt) ((1 * 4) + 1)) >> ((3 - j5) * 8)) & 255);
+				}
+				i = (i + 1) + 4;
+			l3:	/* end encodeInt:in:at: */;
 				ba[i] = lowByte;
 				i += 1;
 				k += 1;
@@ -298,9 +399,31 @@ EXPORT(sqInt) primitiveCompressToByteArray(void) {
 				if (j == size) {
 					j += 1;
 				}
-				i = encodeIntinat(((j - k) * 4) + 3, ba, i);
+				/* begin encodeInt:in:at: */
+				if ((((j - k) * 4) + 3) <= 223) {
+					ba[i] = (((j - k) * 4) + 3);
+					i += 1;
+					goto l4;
+				}
+				if ((((j - k) * 4) + 3) <= 7935) {
+					ba[i] = ((((sqInt) (((j - k) * 4) + 3) >> 8)) + 224);
+					ba[i + 1] = ((((j - k) * 4) + 3) % 256);
+					i += 2;
+					goto l4;
+				}
+				ba[i] = 255;
+				/* begin encodeBytesOf:in:at: */
+				for (j6 = 0; j6 <= 3; j6 += 1) {
+					ba[(i + 1) + j6] = ((((usqInt) (((j - k) * 4) + 3)) >> ((3 - j6) * 8)) & 255);
+				}
+				i = (i + 1) + 4;
+			l4:	/* end encodeInt:in:at: */;
 				for (m = k; m <= (j - 1); m += 1) {
-					i = encodeBytesOfinat(bm[m], ba, i);
+					/* begin encodeBytesOf:in:at: */
+					for (j2 = 0; j2 <= 3; j2 += 1) {
+						ba[i + j2] = ((((usqInt) (bm[m])) >> ((3 - j2) * 8)) & 255);
+					}
+					i += 4;
 				}
 				k = j;
 			}
@@ -326,6 +449,9 @@ EXPORT(sqInt) primitiveConvert8BitSigned(void) {
     sqInt s;
 
 	rcvr = stackValue(2);
+	if (!(isBytes(stackValue(1)))) {
+		return primitiveFail();
+	}
 	aByteArray = arrayValueOf(stackValue(1));
 	aByteArray -= 1;
 	aSoundBuffer = arrayValueOf(stackValue(0));
@@ -370,19 +496,22 @@ EXPORT(sqInt) primitiveDecompressFromByteArray(void) {
     unsigned char *ba;
     sqInt index;
     sqInt anInt;
-    sqInt pastEnd;
     sqInt code;
-    sqInt end;
-    sqInt k;
-    sqInt j;
-    sqInt i;
-    sqInt n;
-    sqInt m;
     sqInt data;
+    sqInt end;
+    sqInt i;
+    sqInt j;
+    sqInt k;
+    sqInt m;
+    sqInt n;
+    sqInt pastEnd;
 
 	rcvr = stackValue(3);
 	bm = arrayValueOf(stackValue(2));
 	bm -= 1;
+	if (!(isBytes(stackValue(1)))) {
+		return primitiveFail();
+	}
 	ba = arrayValueOf(stackValue(1));
 	ba -= 1;
 	index = stackIntegerValue(0);
@@ -400,6 +529,9 @@ EXPORT(sqInt) primitiveDecompressFromByteArray(void) {
 	k = 1;
 	pastEnd = (sizeOfSTArrayFromCPrimitive(bm + 1)) + 1;
 	while (i <= end) {
+
+		/* Decode next run start N */
+
 		anInt = ba[i];
 		i += 1;
 		if (!(anInt <= 223)) {
@@ -424,6 +556,9 @@ EXPORT(sqInt) primitiveDecompressFromByteArray(void) {
 			null;
 		}
 		if (code == 1) {
+
+			/* n consecutive words of 4 bytes = the following byte */
+
 			data = ba[i];
 			i += 1;
 			data = data | (((usqInt) data << 8));
@@ -434,6 +569,9 @@ EXPORT(sqInt) primitiveDecompressFromByteArray(void) {
 			}
 		}
 		if (code == 2) {
+
+			/* n consecutive words = 4 following bytes */
+
 			data = 0;
 			for (j = 1; j <= 4; j += 1) {
 				data = (((usqInt) data << 8)) | (ba[i]);
@@ -446,6 +584,9 @@ EXPORT(sqInt) primitiveDecompressFromByteArray(void) {
 		}
 		if (code == 3) {
 			for (m = 1; m <= n; m += 1) {
+
+				/* n consecutive words from the data... */
+
 				data = 0;
 				for (j = 1; j <= 4; j += 1) {
 					data = (((usqInt) data << 8)) | (ba[i]);
@@ -471,8 +612,14 @@ EXPORT(sqInt) primitiveFindFirstInString(void) {
     sqInt stringSize;
 
 	rcvr = stackValue(3);
+	if (!(isBytes(stackValue(2)))) {
+		return primitiveFail();
+	}
 	aString = arrayValueOf(stackValue(2));
 	aString -= 1;
+	if (!(isBytes(stackValue(1)))) {
+		return primitiveFail();
+	}
 	inclusionMap = arrayValueOf(stackValue(1));
 	inclusionMap -= 1;
 	start = stackIntegerValue(0);
@@ -519,15 +666,24 @@ EXPORT(sqInt) primitiveFindSubstring(void) {
     unsigned char *body;
     sqInt start;
     unsigned char *matchTable;
-    sqInt startIndex;
     sqInt index;
+    sqInt startIndex;
 
 	rcvr = stackValue(4);
+	if (!(isBytes(stackValue(3)))) {
+		return primitiveFail();
+	}
 	key = arrayValueOf(stackValue(3));
 	key -= 1;
+	if (!(isBytes(stackValue(2)))) {
+		return primitiveFail();
+	}
 	body = arrayValueOf(stackValue(2));
 	body -= 1;
 	start = stackIntegerValue(1);
+	if (!(isBytes(stackValue(0)))) {
+		return primitiveFail();
+	}
 	matchTable = arrayValueOf(stackValue(0));
 	matchTable -= 1;
 	if (!(successFlag)) {
@@ -573,6 +729,9 @@ EXPORT(sqInt) primitiveIndexOfAsciiInString(void) {
 
 	rcvr = stackValue(3);
 	anInteger = stackIntegerValue(2);
+	if (!(isBytes(stackValue(1)))) {
+		return primitiveFail();
+	}
 	aString = arrayValueOf(stackValue(1));
 	aString -= 1;
 	start = stackIntegerValue(0);
@@ -610,12 +769,15 @@ EXPORT(sqInt) primitiveStringHash(void) {
     sqInt rcvr;
     unsigned char *aByteArray;
     sqInt speciesHash;
-    sqInt pos;
-    sqInt low;
     sqInt byteArraySize;
     sqInt hash;
+    sqInt low;
+    sqInt pos;
 
 	rcvr = stackValue(2);
+	if (!(isBytes(stackValue(1)))) {
+		return primitiveFail();
+	}
 	aByteArray = arrayValueOf(stackValue(1));
 	aByteArray -= 1;
 	speciesHash = stackIntegerValue(0);
@@ -652,10 +814,16 @@ EXPORT(sqInt) primitiveTranslateStringWithTable(void) {
     sqInt i;
 
 	rcvr = stackValue(4);
+	if (!(isBytes(stackValue(3)))) {
+		return primitiveFail();
+	}
 	aString = arrayValueOf(stackValue(3));
 	aString -= 1;
 	start = stackIntegerValue(2);
 	stop = stackIntegerValue(1);
+	if (!(isBytes(stackValue(0)))) {
+		return primitiveFail();
+	}
 	table = arrayValueOf(stackValue(0));
 	table -= 1;
 	if (!(successFlag)) {
@@ -673,7 +841,7 @@ EXPORT(sqInt) primitiveTranslateStringWithTable(void) {
 
 /*	Note: This is coded so that is can be run from Squeak. */
 
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter) {
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter) {
     sqInt ok;
 
 	interpreterProxy = anInterpreter;
@@ -690,17 +858,17 @@ EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter) {
 
 
 void* MiscPrimitivePlugin_exports[][3] = {
-	{"MiscPrimitivePlugin", "primitiveCompareString", (void*)primitiveCompareString},
-	{"MiscPrimitivePlugin", "primitiveCompressToByteArray", (void*)primitiveCompressToByteArray},
-	{"MiscPrimitivePlugin", "primitiveDecompressFromByteArray", (void*)primitiveDecompressFromByteArray},
 	{"MiscPrimitivePlugin", "primitiveConvert8BitSigned", (void*)primitiveConvert8BitSigned},
-	{"MiscPrimitivePlugin", "primitiveFindFirstInString", (void*)primitiveFindFirstInString},
+	{"MiscPrimitivePlugin", "primitiveCompareString", (void*)primitiveCompareString},
+	{"MiscPrimitivePlugin", "primitiveTranslateStringWithTable", (void*)primitiveTranslateStringWithTable},
+	{"MiscPrimitivePlugin", "primitiveStringHash", (void*)primitiveStringHash},
+	{"MiscPrimitivePlugin", "primitiveCompressToByteArray", (void*)primitiveCompressToByteArray},
+	{"MiscPrimitivePlugin", "primitiveFindSubstring", (void*)primitiveFindSubstring},
 	{"MiscPrimitivePlugin", "primitiveIndexOfAsciiInString", (void*)primitiveIndexOfAsciiInString},
 	{"MiscPrimitivePlugin", "setInterpreter", (void*)setInterpreter},
-	{"MiscPrimitivePlugin", "primitiveFindSubstring", (void*)primitiveFindSubstring},
-	{"MiscPrimitivePlugin", "primitiveStringHash", (void*)primitiveStringHash},
+	{"MiscPrimitivePlugin", "primitiveDecompressFromByteArray", (void*)primitiveDecompressFromByteArray},
 	{"MiscPrimitivePlugin", "getModuleName", (void*)getModuleName},
-	{"MiscPrimitivePlugin", "primitiveTranslateStringWithTable", (void*)primitiveTranslateStringWithTable},
+	{"MiscPrimitivePlugin", "primitiveFindFirstInString", (void*)primitiveFindFirstInString},
 	{NULL, NULL, NULL}
 };
 
