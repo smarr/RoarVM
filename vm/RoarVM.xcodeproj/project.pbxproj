@@ -1325,6 +1325,10 @@
 				OTHER_CFLAGS = (
 					"-DLSB_FIRST",
 					"-DROAR_VM",
+					"-Dcheck_assertions=1",
+					"-Dcheck_many_assertions=1",
+					"-DTrack_OnStackPointer=1",
+					"-DTrace_Execution=1",
 				);
 				OTHER_LDFLAGS = (
 					"-lX11",
