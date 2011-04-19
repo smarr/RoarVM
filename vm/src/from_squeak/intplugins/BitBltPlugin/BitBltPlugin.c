@@ -813,7 +813,7 @@ static sqInt alphaSourceBlendBits16(void) {
 		}
 		while ((deltaX -= 1) != 0) {
 			ditherThreshold = ditherMatrix4x4[ditherBase + (ditherIndex = (ditherIndex + 1) & 3)];
-			sourceWord = long32At(srcIndex);
+			sourceWord = long32AtPointer(srcIndex);
 			srcAlpha = ((usqInt) sourceWord) >> 24;
 			if (srcAlpha == 255) {
 				/* begin dither32To16:threshold: */
@@ -825,10 +825,10 @@ static sqInt alphaSourceBlendBits16(void) {
 					sourceWord = sourceWord << srcShift;
 				}
 				/* begin dstLongAt:put:mask: */
-				dstValue = long32At(dstIndex);
+				dstValue = long32AtPointer(dstIndex);
 				dstValue = dstValue & dstMask;
 				dstValue = dstValue | sourceWord;
-				long32Atput(dstIndex, dstValue);
+				long32AtPointerput(dstIndex, dstValue);
 			} else {
 				if (!(srcAlpha == 0)) {
 
@@ -836,7 +836,7 @@ static sqInt alphaSourceBlendBits16(void) {
 					/* 0 < srcAlpha < 255 */
 					/* If we have to mix colors then just copy a single word */
 
-					destWord = long32At(dstIndex);
+					destWord = long32AtPointer(dstIndex);
 					destWord = destWord & (~dstMask);
 
 					/* Expand from 16 to 32 bit by adding zero bits */
@@ -859,10 +859,10 @@ static sqInt alphaSourceBlendBits16(void) {
 						sourceWord = sourceWord << srcShift;
 					}
 					/* begin dstLongAt:put:mask: */
-					dstValue1 = long32At(dstIndex);
+					dstValue1 = long32AtPointer(dstIndex);
 					dstValue1 = dstValue1 & dstMask;
 					dstValue1 = dstValue1 | sourceWord;
-					long32Atput(dstIndex, dstValue1);
+					long32AtPointerput(dstIndex, dstValue1);
 				}
 			}
 			srcIndex += 4;
@@ -931,17 +931,17 @@ static sqInt alphaSourceBlendBits32(void) {
 
 		deltaX = bbW + 1;
 		while ((deltaX -= 1) != 0) {
-			sourceWord = long32At(srcIndex);
+			sourceWord = long32AtPointer(srcIndex);
 			srcAlpha = ((usqInt) sourceWord) >> 24;
 			if (srcAlpha == 255) {
-				long32Atput(dstIndex, sourceWord);
+				long32AtPointerput(dstIndex, sourceWord);
 				srcIndex += 4;
 
 				/* Now copy as many words as possible with alpha = 255 */
 
 				dstIndex += 4;
-				while (((deltaX -= 1) != 0) && ((((usqInt) (sourceWord = long32At(srcIndex))) >> 24) == 255)) {
-					long32Atput(dstIndex, sourceWord);
+				while (((deltaX -= 1) != 0) && ((((usqInt) (sourceWord = long32AtPointer(srcIndex))) >> 24) == 255)) {
+					long32AtPointerput(dstIndex, sourceWord);
 					srcIndex += 4;
 					dstIndex += 4;
 				}
@@ -956,7 +956,7 @@ static sqInt alphaSourceBlendBits32(void) {
 					/* Now skip as many words as possible, */
 
 					dstIndex += 4;
-					while (((deltaX -= 1) != 0) && ((((usqInt) (sourceWord = long32At(srcIndex))) >> 24) == 0)) {
+					while (((deltaX -= 1) != 0) && ((((usqInt) (sourceWord = long32AtPointer(srcIndex))) >> 24) == 0)) {
 						srcIndex += 4;
 						dstIndex += 4;
 					}
@@ -966,9 +966,9 @@ static sqInt alphaSourceBlendBits32(void) {
 					/* 0 < srcAlpha < 255 */
 					/* If we have to mix colors then just copy a single word */
 
-					destWord = long32At(dstIndex);
+					destWord = long32AtPointer(dstIndex);
 					destWord = alphaBlendScaledwith(sourceWord, destWord);
-					long32Atput(dstIndex, destWord);
+					long32AtPointerput(dstIndex, destWord);
 					srcIndex += 4;
 					dstIndex += 4;
 				}
@@ -1042,7 +1042,7 @@ static sqInt alphaSourceBlendBits8(void) {
 
 		dstMask = mask2;
 		while ((deltaX -= 1) != 0) {
-			sourceWord = ((long32At(srcIndex)) & (~adjust)) + adjust;
+			sourceWord = ((long32AtPointer(srcIndex)) & (~adjust)) + adjust;
 			srcAlpha = ((usqInt) sourceWord) >> 24;
 			if (srcAlpha > 31) {
 				if (srcAlpha < 224) {
@@ -1050,7 +1050,7 @@ static sqInt alphaSourceBlendBits8(void) {
 					/* Everything below 31 is transparent */
 					/* Everything above 224 is opaque */
 
-					destWord = long32At(dstIndex);
+					destWord = long32AtPointer(dstIndex);
 					destWord = destWord & (~dstMask);
 					destWord = ((usqInt) destWord) >> srcShift;
 					destWord = mappingTable[destWord];
@@ -1079,10 +1079,10 @@ static sqInt alphaSourceBlendBits8(void) {
 
 				sourceWord = sourceWord << srcShift;
 				/* begin dstLongAt:put:mask: */
-				dstValue = long32At(dstIndex);
+				dstValue = long32AtPointer(dstIndex);
 				dstValue = dstValue & dstMask;
 				dstValue = dstValue | sourceWord;
-				long32Atput(dstIndex, dstValue);
+				long32AtPointerput(dstIndex, dstValue);
 			}
 			srcIndex += 4;
 			if (destMSB) {
@@ -1695,7 +1695,7 @@ static sqInt copyLoop(void) {
 		halftoneWord = AllOnes;
 		halftoneHeight = 0;
 	} else {
-		halftoneWord = long32At(halftoneBase + ((0 % halftoneHeight) * 4));
+		halftoneWord = long32AtPointer(halftoneBase + ((0 % halftoneHeight) * 4));
 	}
 	y = dy;
 	for (i = 1; i <= bbH; i += 1) {
@@ -1704,13 +1704,13 @@ static sqInt copyLoop(void) {
 			/* here is the vertical loop */
 			/* Otherwise, its always the same */
 
-			halftoneWord = long32At(halftoneBase + ((y % halftoneHeight) * 4));
+			halftoneWord = long32AtPointer(halftoneBase + ((y % halftoneHeight) * 4));
 			y += vDir;
 		}
 		if (preload) {
 			/* begin srcLongAt: */
 			idx = sourceIndex;
-			prevWord = long32At(idx);
+			prevWord = long32AtPointer(idx);
 			sourceIndex += hInc;
 		} else {
 			prevWord = 0;
@@ -1718,7 +1718,7 @@ static sqInt copyLoop(void) {
 		destMask = mask1;
 		/* begin srcLongAt: */
 		idx12 = sourceIndex;
-		thisWord = long32At(idx12);
+		thisWord = long32AtPointer(idx12);
 		sourceIndex += hInc;
 
 		/* 32-bit rotate */
@@ -1727,12 +1727,12 @@ static sqInt copyLoop(void) {
 		prevWord = thisWord;
 		/* begin dstLongAt: */
 		idx13 = destIndex;
-		destWord = long32At(idx13);
+		destWord = long32AtPointer(idx13);
 		mergeWord = mergeFnwith(skewWord & halftoneWord, destWord);
 		destWord = (destMask & mergeWord) | (destWord & (~destMask));
 		/* begin dstLongAt:put: */
 		idx14 = destIndex;
-		long32Atput(idx14, destWord);
+		long32AtPointerput(idx14, destWord);
 
 		/* This central horizontal loop requires no store masking */
 
@@ -1744,22 +1744,22 @@ static sqInt copyLoop(void) {
 					for (word = 2; word <= (nWords - 1); word += 1) {
 						/* begin srcLongAt: */
 						idx1 = sourceIndex;
-						thisWord = long32At(idx1);
+						thisWord = long32AtPointer(idx1);
 						sourceIndex += hInc;
 						/* begin dstLongAt:put: */
 						idx2 = destIndex;
-						long32Atput(idx2, thisWord);
+						long32AtPointerput(idx2, thisWord);
 						destIndex += hInc;
 					}
 				} else {
 					for (word = 2; word <= (nWords - 1); word += 1) {
 						/* begin dstLongAt:put: */
 						idx3 = destIndex;
-						long32Atput(idx3, prevWord);
+						long32AtPointerput(idx3, prevWord);
 						destIndex += hInc;
 						/* begin srcLongAt: */
 						idx4 = sourceIndex;
-						prevWord = long32At(idx4);
+						prevWord = long32AtPointer(idx4);
 						sourceIndex += hInc;
 					}
 				}
@@ -1767,7 +1767,7 @@ static sqInt copyLoop(void) {
 				for (word = 2; word <= (nWords - 1); word += 1) {
 					/* begin srcLongAt: */
 					idx5 = sourceIndex;
-					thisWord = long32At(idx5);
+					thisWord = long32AtPointer(idx5);
 					sourceIndex += hInc;
 
 					/* 32-bit rotate */
@@ -1776,7 +1776,7 @@ static sqInt copyLoop(void) {
 					prevWord = thisWord;
 					/* begin dstLongAt:put: */
 					idx6 = destIndex;
-					long32Atput(idx6, skewWord & halftoneWord);
+					long32AtPointerput(idx6, skewWord & halftoneWord);
 					destIndex += hInc;
 				}
 			}
@@ -1784,7 +1784,7 @@ static sqInt copyLoop(void) {
 			for (word = 2; word <= (nWords - 1); word += 1) {
 				/* begin srcLongAt: */
 				idx7 = sourceIndex;
-				thisWord = long32At(idx7);
+				thisWord = long32AtPointer(idx7);
 				sourceIndex += hInc;
 
 				/* 32-bit rotate */
@@ -1794,7 +1794,7 @@ static sqInt copyLoop(void) {
 				mergeWord = mergeFnwith(skewWord & halftoneWord, dstLongAt(destIndex));
 				/* begin dstLongAt:put: */
 				idx8 = destIndex;
-				long32Atput(idx8, mergeWord);
+				long32AtPointerput(idx8, mergeWord);
 				destIndex += hInc;
 			}
 		}
@@ -1802,7 +1802,7 @@ static sqInt copyLoop(void) {
 			destMask = mask2;
 			/* begin srcLongAt: */
 			idx9 = sourceIndex;
-			thisWord = long32At(idx9);
+			thisWord = long32AtPointer(idx9);
 			sourceIndex += hInc;
 
 			/* 32-bit rotate */
@@ -1810,12 +1810,12 @@ static sqInt copyLoop(void) {
 			skewWord = (((unskew < 0) ? ((usqInt) (prevWord & notSkewMask) >> -unskew) : ((usqInt) (prevWord & notSkewMask) << unskew))) | (((skew < 0) ? ((usqInt) (thisWord & skewMask) >> -skew) : ((usqInt) (thisWord & skewMask) << skew)));
 			/* begin dstLongAt: */
 			idx10 = destIndex;
-			destWord = long32At(idx10);
+			destWord = long32AtPointer(idx10);
 			mergeWord = mergeFnwith(skewWord & halftoneWord, destWord);
 			destWord = (destMask & mergeWord) | (destWord & (~destMask));
 			/* begin dstLongAt:put: */
 			idx11 = destIndex;
-			long32Atput(idx11, destWord);
+			long32AtPointerput(idx11, destWord);
 			destIndex += hInc;
 		}
 		sourceIndex += sourceDelta;
@@ -1854,17 +1854,17 @@ static sqInt copyLoopNoSource(void) {
 		} else {
 			/* begin halftoneAt: */
 			idx = (dy + i) - 1;
-			halftoneWord = long32At(halftoneBase + ((idx % halftoneHeight) * 4));
+			halftoneWord = long32AtPointer(halftoneBase + ((idx % halftoneHeight) * 4));
 		}
 		destMask = mask1;
 		/* begin dstLongAt: */
 		idx6 = destIndex;
-		destWord = long32At(idx6);
+		destWord = long32AtPointer(idx6);
 		mergeWord = mergeFnwith(halftoneWord, destWord);
 		destWord = (destMask & mergeWord) | (destWord & (~destMask));
 		/* begin dstLongAt:put: */
 		idx7 = destIndex;
-		long32Atput(idx7, destWord);
+		long32AtPointerput(idx7, destWord);
 
 		/* This central horizontal loop requires no store masking */
 
@@ -1878,18 +1878,18 @@ static sqInt copyLoopNoSource(void) {
 			for (word = 2; word <= (nWords - 1); word += 1) {
 				/* begin dstLongAt:put: */
 				idx1 = destIndex;
-				long32Atput(idx1, destWord);
+				long32AtPointerput(idx1, destWord);
 				destIndex += 4;
 			}
 		} else {
 			for (word = 2; word <= (nWords - 1); word += 1) {
 				/* begin dstLongAt: */
 				idx2 = destIndex;
-				destWord = long32At(idx2);
+				destWord = long32AtPointer(idx2);
 				mergeWord = mergeFnwith(halftoneWord, destWord);
 				/* begin dstLongAt:put: */
 				idx3 = destIndex;
-				long32Atput(idx3, mergeWord);
+				long32AtPointerput(idx3, mergeWord);
 				destIndex += 4;
 			}
 		}
@@ -1897,12 +1897,12 @@ static sqInt copyLoopNoSource(void) {
 			destMask = mask2;
 			/* begin dstLongAt: */
 			idx4 = destIndex;
-			destWord = long32At(idx4);
+			destWord = long32AtPointer(idx4);
 			mergeWord = mergeFnwith(halftoneWord, destWord);
 			destWord = (destMask & mergeWord) | (destWord & (~destMask));
 			/* begin dstLongAt:put: */
 			idx5 = destIndex;
-			long32Atput(idx5, destWord);
+			long32AtPointerput(idx5, destWord);
 			destIndex += 4;
 		}
 		destIndex += destDelta;
@@ -2007,7 +2007,7 @@ static sqInt copyLoopPixMap(void) {
 		} else {
 			/* begin halftoneAt: */
 			idx = (dy + i) - 1;
-			halftoneWord = long32At(halftoneBase + ((idx % halftoneHeight) * 4));
+			halftoneWord = long32AtPointer(halftoneBase + ((idx % halftoneHeight) * 4));
 		}
 		srcBitShift = srcShift;
 		dstBitShift = dstShift;
@@ -2021,7 +2021,7 @@ static sqInt copyLoopPixMap(void) {
 			/* begin pickSourcePixels:flags:srcMask:destMask:srcShiftInc:dstShiftInc: */
 			/* begin srcLongAt: */
 			idx21 = sourceIndex;
-			sourceWord = long32At(idx21);
+			sourceWord = long32AtPointer(idx21);
 			destWord1 = 0;
 			srcShift1 = srcBitShift;
 			dstShift1 = dstBitShift;
@@ -2040,7 +2040,7 @@ static sqInt copyLoopPixMap(void) {
 						}
 						/* begin srcLongAt: */
 						idx4 = sourceIndex += 4;
-						sourceWord = long32At(idx4);
+						sourceWord = long32AtPointer(idx4);
 					}
 				} while(!((nPix1 -= 1) == 0));
 			} else {
@@ -2074,7 +2074,7 @@ static sqInt copyLoopPixMap(void) {
 						}
 						/* begin srcLongAt: */
 						idx11 = sourceIndex += 4;
-						sourceWord = long32At(idx11);
+						sourceWord = long32AtPointer(idx11);
 					}
 				} while(!((nPix1 -= 1) == 0));
 			}
@@ -2089,16 +2089,16 @@ static sqInt copyLoopPixMap(void) {
 				/* begin dstLongAt:put: */
 				idx1 = destIndex;
 				value = destMask & mergeWord;
-				long32Atput(idx1, value);
+				long32AtPointerput(idx1, value);
 			} else {
 				/* begin dstLongAt: */
 				idx2 = destIndex;
-				destWord = long32At(idx2);
+				destWord = long32AtPointer(idx2);
 				mergeWord = mergeFnwith(skewWord & halftoneWord, destWord & destMask);
 				destWord = (destMask & mergeWord) | (destWord & (~destMask));
 				/* begin dstLongAt:put: */
 				idx3 = destIndex;
-				long32Atput(idx3, destWord);
+				long32AtPointerput(idx3, destWord);
 			}
 			destIndex += 4;
 			if (words == 2) {
@@ -2389,11 +2389,11 @@ static sqInt drawLoopXY(sqInt xDelta, sqInt yDelta) {
 }
 
 static sqInt dstLongAt(sqInt idx) {
-	return long32At(idx);
+	return long32AtPointer(idx);
 }
 
 static sqInt dstLongAtput(sqInt idx, sqInt value) {
-	return long32Atput(idx, value);
+	return long32AtPointerput(idx, value);
 }
 
 
@@ -2404,10 +2404,10 @@ static sqInt dstLongAtput(sqInt idx, sqInt value) {
 static sqInt dstLongAtputmask(sqInt idx, sqInt srcValue, sqInt dstMask) {
     sqInt dstValue;
 
-	dstValue = long32At(idx);
+	dstValue = long32AtPointer(idx);
 	dstValue = dstValue & dstMask;
 	dstValue = dstValue | srcValue;
-	long32Atput(idx, dstValue);
+	long32AtPointerput(idx, dstValue);
 }
 
 
@@ -2527,7 +2527,7 @@ EXPORT(const char*) getModuleName(void) {
 /*	Return a value from the halftone pattern. */
 
 static sqInt halftoneAt(sqInt idx) {
-	return long32At(halftoneBase + ((idx % halftoneHeight) * 4));
+	return long32AtPointer(halftoneBase + ((idx % halftoneHeight) * 4));
 }
 
 static sqInt halt(void) {
@@ -3713,7 +3713,7 @@ static sqInt pickSourcePixelsflagssrcMaskdestMasksrcShiftIncdstShiftInc(sqInt nP
 
 	/* begin srcLongAt: */
 	idx2 = sourceIndex;
-	sourceWord = long32At(idx2);
+	sourceWord = long32AtPointer(idx2);
 	destWord = 0;
 
 	/* Hint: Keep in register */
@@ -3751,7 +3751,7 @@ static sqInt pickSourcePixelsflagssrcMaskdestMasksrcShiftIncdstShiftInc(sqInt nP
 				}
 				/* begin srcLongAt: */
 				idx = sourceIndex += 4;
-				sourceWord = long32At(idx);
+				sourceWord = long32AtPointer(idx);
 			}
 		} while(!((nPix -= 1) == 0));
 	} else {
@@ -3794,7 +3794,7 @@ static sqInt pickSourcePixelsflagssrcMaskdestMasksrcShiftIncdstShiftInc(sqInt nP
 				}
 				/* begin srcLongAt: */
 				idx1 = sourceIndex += 4;
-				sourceWord = long32At(idx1);
+				sourceWord = long32AtPointer(idx1);
 			}
 		} while(!((nPix -= 1) == 0));
 	}
@@ -3824,7 +3824,7 @@ static sqInt pickWarpPixelAtXy(sqInt xx, sqInt yy) {
 
 	/* Extract pixel from word */
 
-	sourceWord = long32At(srcIndex);
+	sourceWord = long32AtPointer(srcIndex);
 	srcBitShift = warpBitShiftTable[x & warpAlignMask];
 	sourcePix = (((usqInt) sourceWord) >> srcBitShift) & warpSrcMask;
 	return sourcePix;
@@ -4661,7 +4661,7 @@ static sqInt sourceWordwith(sqInt sourceWord, sqInt destinationWord) {
 }
 
 static sqInt srcLongAt(sqInt idx) {
-	return long32At(idx);
+	return long32AtPointer(idx);
 }
 
 static sqInt subWordwith(sqInt sourceWord, sqInt destinationWord) {
@@ -5240,7 +5240,7 @@ l6:	/* end deltaFrom:to:nSteps: */;
 		} else {
 			/* begin halftoneAt: */
 			idx = (dy + i) - 1;
-			halftoneWord = long32At(halftoneBase + ((idx % halftoneHeight) * 4));
+			halftoneWord = long32AtPointer(halftoneBase + ((idx % halftoneHeight) * 4));
 		}
 		destMask = mask1;
 
@@ -5264,7 +5264,7 @@ l6:	/* end deltaFrom:to:nSteps: */;
 							goto l7;
 						}
 						srcIndex = (sourceBits + (y * sourcePitch)) + ((((usqInt) x) >> warpAlignShift) * 4);
-						sourceWord = long32At(srcIndex);
+						sourceWord = long32AtPointer(srcIndex);
 						srcBitShift = warpBitShiftTable[x & warpAlignMask];
 						sourcePix1 = (((usqInt) sourceWord) >> srcBitShift) & warpSrcMask;
 						sourcePix = sourcePix1;
@@ -5285,7 +5285,7 @@ l6:	/* end deltaFrom:to:nSteps: */;
 							goto l8;
 						}
 						srcIndex1 = (sourceBits + (y1 * sourcePitch)) + ((((usqInt) x1) >> warpAlignShift) * 4);
-						sourceWord1 = long32At(srcIndex1);
+						sourceWord1 = long32AtPointer(srcIndex1);
 						srcBitShift = warpBitShiftTable[x1 & warpAlignMask];
 						sourcePix2 = (((usqInt) sourceWord1) >> srcBitShift) & warpSrcMask;
 						sourcePix = sourcePix2;
@@ -5327,16 +5327,16 @@ l6:	/* end deltaFrom:to:nSteps: */;
 				/* begin dstLongAt:put: */
 				idx1 = destIndex;
 				value = destMask & mergeWord;
-				long32Atput(idx1, value);
+				long32AtPointerput(idx1, value);
 			} else {
 				/* begin dstLongAt: */
 				idx2 = destIndex;
-				destWord = long32At(idx2);
+				destWord = long32AtPointer(idx2);
 				mergeWord = mergeFnwith(skewWord & halftoneWord, destWord & destMask);
 				destWord = (destMask & mergeWord) | (destWord & (~destMask));
 				/* begin dstLongAt:put: */
 				idx3 = destIndex;
-				long32Atput(idx3, destWord);
+				long32AtPointerput(idx3, destWord);
 			}
 			destIndex += 4;
 			if (words == 2) {
@@ -5479,7 +5479,7 @@ static sqInt warpPickSmoothPixelsxDeltahyDeltahxDeltavyDeltavsourceMapsmoothingd
 					goto l1;
 				}
 				srcIndex = (sourceBits + (y1 * sourcePitch)) + ((((usqInt) x1) >> warpAlignShift) * 4);
-				sourceWord = long32At(srcIndex);
+				sourceWord = long32AtPointer(srcIndex);
 				srcBitShift = warpBitShiftTable[x1 & warpAlignMask];
 				sourcePix = (((usqInt) sourceWord) >> srcBitShift) & warpSrcMask;
 				rgb = sourcePix;
@@ -5490,7 +5490,7 @@ static sqInt warpPickSmoothPixelsxDeltahyDeltahxDeltavyDeltavsourceMapsmoothingd
 
 					nPix += 1;
 					if (sourceDepth < 16) {
-						rgb = long32At(sourceMap + (rgb << 2));
+						rgb = long32AtPointer(sourceMap + (rgb << 2));
 					} else {
 						if (sourceDepth == 16) {
 
@@ -5616,7 +5616,7 @@ static sqInt warpPickSourcePixelsxDeltahyDeltahxDeltavyDeltavdstShiftIncflags(sq
 				goto l1;
 			}
 			srcIndex = (sourceBits + (y * sourcePitch)) + ((((usqInt) x) >> warpAlignShift) * 4);
-			sourceWord = long32At(srcIndex);
+			sourceWord = long32AtPointer(srcIndex);
 			srcBitShift = warpBitShiftTable[x & warpAlignMask];
 			sourcePix1 = (((usqInt) sourceWord) >> srcBitShift) & warpSrcMask;
 			sourcePix = sourcePix1;
@@ -5637,7 +5637,7 @@ static sqInt warpPickSourcePixelsxDeltahyDeltahxDeltavyDeltavdstShiftIncflags(sq
 				goto l2;
 			}
 			srcIndex1 = (sourceBits + (y1 * sourcePitch)) + ((((usqInt) x1) >> warpAlignShift) * 4);
-			sourceWord1 = long32At(srcIndex1);
+			sourceWord1 = long32AtPointer(srcIndex1);
 			srcBitShift = warpBitShiftTable[x1 & warpAlignMask];
 			sourcePix2 = (((usqInt) sourceWord1) >> srcBitShift) & warpSrcMask;
 			sourcePix = sourcePix2;
