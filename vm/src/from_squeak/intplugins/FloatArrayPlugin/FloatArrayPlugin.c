@@ -1,5 +1,5 @@
-/* Automatically generated from Squeak on an Array(14 April 2008 3:48:47 pm)
-by VMMaker 3.8b6
+/* Automatically generated from Squeak on 23 January 2011 3:55:37 pm 
+   by VMMaker 4.4.7
  */
 
 #include <math.h>
@@ -41,7 +41,7 @@ static VirtualMachine * getInterpreter(void);
 EXPORT(const char*) getModuleName(void);
 #pragma export off
 static sqInt halt(void);
-static sqInt msg(char * s);
+static sqInt msg(char *s);
 #pragma export on
 EXPORT(sqInt) primitiveAddFloatArray(void);
 EXPORT(sqInt) primitiveAddScalar(void);
@@ -57,7 +57,7 @@ EXPORT(sqInt) primitiveMulScalar(void);
 EXPORT(sqInt) primitiveSubFloatArray(void);
 EXPORT(sqInt) primitiveSubScalar(void);
 EXPORT(sqInt) primitiveSum(void);
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter);
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter);
 #pragma export off
 /*** Variables ***/
 
@@ -67,9 +67,9 @@ extern
 struct VirtualMachine* interpreterProxy;
 static const char *moduleName =
 #ifdef SQUEAK_BUILTIN_PLUGIN
-	"FloatArrayPlugin 14 April 2008 (i)"
+	"FloatArrayPlugin 23 January 2011 (i)"
 #else
-	"FloatArrayPlugin 14 April 2008 (e)"
+	"FloatArrayPlugin 23 January 2011 (e)"
 #endif
 ;
 
@@ -95,7 +95,7 @@ static sqInt halt(void) {
 	;
 }
 
-static sqInt msg(char * s) {
+static sqInt msg(char *s) {
 	fprintf(stderr, "\n%s: %s", moduleName, s);
 }
 
@@ -103,12 +103,12 @@ static sqInt msg(char * s) {
 /*	Primitive. Add the receiver and the argument, both FloatArrays and store the result into the receiver. */
 
 EXPORT(sqInt) primitiveAddFloatArray(void) {
-    sqInt length;
-    sqInt i;
-    sqInt rcvr;
-    float * argPtr;
-    float * rcvrPtr;
     sqInt arg;
+    float *argPtr;
+    sqInt i;
+    sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
 
 	arg = interpreterProxy->stackObjectValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -138,10 +138,10 @@ EXPORT(sqInt) primitiveAddFloatArray(void) {
 
 EXPORT(sqInt) primitiveAddScalar(void) {
     sqInt i;
-    sqInt rcvr;
-    float * rcvrPtr;
-    double  value;
     sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
+    double  value;
 
 	value = interpreterProxy->stackFloatValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -161,10 +161,10 @@ EXPORT(sqInt) primitiveAddScalar(void) {
 }
 
 EXPORT(sqInt) primitiveAt(void) {
-    sqInt rcvr;
+    float *floatPtr;
     double  floatValue;
     sqInt index;
-    float * floatPtr;
+    sqInt rcvr;
 
 	index = interpreterProxy->stackIntegerValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -183,11 +183,11 @@ EXPORT(sqInt) primitiveAt(void) {
 }
 
 EXPORT(sqInt) primitiveAtPut(void) {
+    float *floatPtr;
     double  floatValue;
-    sqInt rcvr;
     sqInt index;
+    sqInt rcvr;
     sqInt value;
-    float * floatPtr;
 
 	value = interpreterProxy->stackValue(0);
 	if ((value & 1)) {
@@ -216,12 +216,12 @@ EXPORT(sqInt) primitiveAtPut(void) {
 /*	Primitive. Add the receiver and the argument, both FloatArrays and store the result into the receiver. */
 
 EXPORT(sqInt) primitiveDivFloatArray(void) {
-    sqInt length;
-    sqInt i;
-    sqInt rcvr;
-    float * argPtr;
-    float * rcvrPtr;
     sqInt arg;
+    float *argPtr;
+    sqInt i;
+    sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
 
 	arg = interpreterProxy->stackObjectValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -258,12 +258,12 @@ EXPORT(sqInt) primitiveDivFloatArray(void) {
 /*	Primitive. Add the argument, a scalar value to the receiver, a FloatArray */
 
 EXPORT(sqInt) primitiveDivScalar(void) {
-    double  value;
-    sqInt length;
     sqInt i;
-    sqInt rcvr;
     double  inverse;
-    float * rcvrPtr;
+    sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
+    double  value;
 
 	value = interpreterProxy->stackFloatValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -291,13 +291,13 @@ EXPORT(sqInt) primitiveDivScalar(void) {
 	The dot product is defined as the sum of the products of the individual elements. */
 
 EXPORT(sqInt) primitiveDotProduct(void) {
-    sqInt length;
-    double  result;
-    sqInt i;
-    sqInt rcvr;
-    float * argPtr;
-    float * rcvrPtr;
     sqInt arg;
+    float *argPtr;
+    sqInt i;
+    sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
+    double  result;
 
 	arg = interpreterProxy->stackObjectValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -325,12 +325,12 @@ EXPORT(sqInt) primitiveDotProduct(void) {
 }
 
 EXPORT(sqInt) primitiveEqual(void) {
-    sqInt length;
-    sqInt i;
-    sqInt rcvr;
-    float * argPtr;
-    float * rcvrPtr;
     sqInt arg;
+    float *argPtr;
+    sqInt i;
+    sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
 
 	arg = interpreterProxy->stackObjectValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -359,9 +359,9 @@ EXPORT(sqInt) primitiveEqual(void) {
 
 EXPORT(sqInt) primitiveHashArray(void) {
     sqInt i;
-    sqInt rcvr;
-    int * rcvrPtr;
     sqInt length;
+    sqInt rcvr;
+    int *rcvrPtr;
     sqInt result;
 
 	rcvr = interpreterProxy->stackObjectValue(0);
@@ -386,12 +386,12 @@ EXPORT(sqInt) primitiveHashArray(void) {
 /*	Primitive. Add the receiver and the argument, both FloatArrays and store the result into the receiver. */
 
 EXPORT(sqInt) primitiveMulFloatArray(void) {
-    sqInt length;
-    sqInt i;
-    sqInt rcvr;
-    float * argPtr;
-    float * rcvrPtr;
     sqInt arg;
+    float *argPtr;
+    sqInt i;
+    sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
 
 	arg = interpreterProxy->stackObjectValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -421,10 +421,10 @@ EXPORT(sqInt) primitiveMulFloatArray(void) {
 
 EXPORT(sqInt) primitiveMulScalar(void) {
     sqInt i;
-    sqInt rcvr;
-    float * rcvrPtr;
-    double  value;
     sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
+    double  value;
 
 	value = interpreterProxy->stackFloatValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -447,12 +447,12 @@ EXPORT(sqInt) primitiveMulScalar(void) {
 /*	Primitive. Add the receiver and the argument, both FloatArrays and store the result into the receiver. */
 
 EXPORT(sqInt) primitiveSubFloatArray(void) {
-    sqInt length;
-    sqInt i;
-    sqInt rcvr;
-    float * argPtr;
-    float * rcvrPtr;
     sqInt arg;
+    float *argPtr;
+    sqInt i;
+    sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
 
 	arg = interpreterProxy->stackObjectValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -482,10 +482,10 @@ EXPORT(sqInt) primitiveSubFloatArray(void) {
 
 EXPORT(sqInt) primitiveSubScalar(void) {
     sqInt i;
-    sqInt rcvr;
-    float * rcvrPtr;
-    double  value;
     sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
+    double  value;
 
 	value = interpreterProxy->stackFloatValue(0);
 	rcvr = interpreterProxy->stackObjectValue(1);
@@ -509,10 +509,10 @@ EXPORT(sqInt) primitiveSubScalar(void) {
 
 EXPORT(sqInt) primitiveSum(void) {
     sqInt i;
-    double  sum;
-    sqInt rcvr;
-    float * rcvrPtr;
     sqInt length;
+    sqInt rcvr;
+    float *rcvrPtr;
+    double  sum;
 
 	rcvr = interpreterProxy->stackObjectValue(0);
 	if (interpreterProxy->failed()) {
@@ -534,7 +534,7 @@ EXPORT(sqInt) primitiveSum(void) {
 
 /*	Note: This is coded so that is can be run from Squeak. */
 
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter) {
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter) {
     sqInt ok;
 
 	interpreterProxy = anInterpreter;
@@ -551,22 +551,22 @@ EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter) {
 
 
 void* FloatArrayPlugin_exports[][3] = {
-	{"FloatArrayPlugin", "primitiveAtPut", (void*)primitiveAtPut},
+	{"FloatArrayPlugin", "getModuleName", (void*)getModuleName},
+	{"FloatArrayPlugin", "primitiveEqual", (void*)primitiveEqual},
+	{"FloatArrayPlugin", "primitiveDivFloatArray", (void*)primitiveDivFloatArray},
+	{"FloatArrayPlugin", "primitiveAddFloatArray", (void*)primitiveAddFloatArray},
+	{"FloatArrayPlugin", "primitiveAddScalar", (void*)primitiveAddScalar},
+	{"FloatArrayPlugin", "primitiveSubFloatArray", (void*)primitiveSubFloatArray},
+	{"FloatArrayPlugin", "primitiveSum", (void*)primitiveSum},
+	{"FloatArrayPlugin", "primitiveMulScalar", (void*)primitiveMulScalar},
 	{"FloatArrayPlugin", "setInterpreter", (void*)setInterpreter},
 	{"FloatArrayPlugin", "primitiveDivScalar", (void*)primitiveDivScalar},
-	{"FloatArrayPlugin", "getModuleName", (void*)getModuleName},
-	{"FloatArrayPlugin", "primitiveSubScalar", (void*)primitiveSubScalar},
-	{"FloatArrayPlugin", "primitiveMulFloatArray", (void*)primitiveMulFloatArray},
-	{"FloatArrayPlugin", "primitiveMulScalar", (void*)primitiveMulScalar},
-	{"FloatArrayPlugin", "primitiveSum", (void*)primitiveSum},
 	{"FloatArrayPlugin", "primitiveAt", (void*)primitiveAt},
-	{"FloatArrayPlugin", "primitiveAddScalar", (void*)primitiveAddScalar},
+	{"FloatArrayPlugin", "primitiveMulFloatArray", (void*)primitiveMulFloatArray},
 	{"FloatArrayPlugin", "primitiveHashArray", (void*)primitiveHashArray},
-	{"FloatArrayPlugin", "primitiveSubFloatArray", (void*)primitiveSubFloatArray},
-	{"FloatArrayPlugin", "primitiveDivFloatArray", (void*)primitiveDivFloatArray},
+	{"FloatArrayPlugin", "primitiveSubScalar", (void*)primitiveSubScalar},
+	{"FloatArrayPlugin", "primitiveAtPut", (void*)primitiveAtPut},
 	{"FloatArrayPlugin", "primitiveDotProduct", (void*)primitiveDotProduct},
-	{"FloatArrayPlugin", "primitiveAddFloatArray", (void*)primitiveAddFloatArray},
-	{"FloatArrayPlugin", "primitiveEqual", (void*)primitiveEqual},
 	{NULL, NULL, NULL}
 };
 

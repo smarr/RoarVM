@@ -1,5 +1,5 @@
-/* Automatically generated from Squeak on an Array(14 April 2008 3:48:40 pm)
-by VMMaker 3.8b6
+/* Automatically generated from Squeak on 23 January 2011 3:55:28 pm 
+   by VMMaker 4.4.7
  */
 
 #include <math.h>
@@ -249,9 +249,9 @@ static sqInt aetUsedPut(sqInt value);
 static sqInt allocateAETEntry(sqInt nSlots);
 static sqInt allocateBezier(void);
 static sqInt allocateBezierStackEntry(void);
-static sqInt allocateBitmapFillcolormap(sqInt cmSize, int * cmBits);
+static sqInt allocateBitmapFillcolormap(sqInt cmSize, int *cmBits);
 static sqInt allocateGETEntry(sqInt nSlots);
-static sqInt allocateGradientFillrampWidthisRadial(int * ramp, sqInt rampWidth, sqInt isRadial);
+static sqInt allocateGradientFillrampWidthisRadial(int *ramp, sqInt rampWidth, sqInt isRadial);
 static sqInt allocateLine(void);
 static sqInt allocateObjEntry(sqInt nSlots);
 static sqInt allocateStackEntry(sqInt nSlots);
@@ -358,7 +358,7 @@ static sqInt errorWrongIndex(void);
 static sqInt estimatedLengthOfwith(sqInt deltaX, sqInt deltaY);
 static sqInt fillAllFromto(sqInt leftX, sqInt rightX);
 static sqInt fillBitmapSpan(void);
-static sqInt fillBitmapSpanfromto(int * bits, sqInt leftX, sqInt rightX);
+static sqInt fillBitmapSpanfromto(int *bits, sqInt leftX, sqInt rightX);
 static sqInt fillBitmapSpanfromtoat(sqInt bmFill, sqInt leftX, sqInt rightX, sqInt yValue);
 static sqInt fillBitmapSpanAAfromtoat(sqInt bmFill, sqInt leftX, sqInt rightX, sqInt yValue);
 static sqInt fillColorSpanfromto(sqInt pixelValue32, sqInt leftX, sqInt rightX);
@@ -369,7 +369,7 @@ static sqInt fillDirectionYOf(sqInt fill);
 static sqInt fillDirectionYOfput(sqInt fill, sqInt value);
 static sqInt fillLinearGradient(void);
 static sqInt fillLinearGradientfromtoat(sqInt fill, sqInt leftX, sqInt rightX, sqInt yValue);
-static sqInt fillLinearGradientAArampdsdsXfromto(sqInt fill, int * ramp, sqInt deltaS, sqInt dsX, sqInt leftX, sqInt rightX);
+static sqInt fillLinearGradientAArampdsdsXfromto(sqInt fill, int *ramp, sqInt deltaS, sqInt dsX, sqInt leftX, sqInt rightX);
 static sqInt fillMaxXGet(void);
 static sqInt fillMaxXPut(sqInt value);
 static sqInt fillMaxYGet(void);
@@ -391,11 +391,11 @@ static sqInt fillOriginXOfput(sqInt fill, sqInt value);
 static sqInt fillOriginYOf(sqInt fill);
 static sqInt fillOriginYOfput(sqInt fill, sqInt value);
 static sqInt fillRadialDecreasingrampdeltaSTdsXdtXfromto(sqInt fill, sqInt ramp, sqInt deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX);
-static sqInt fillRadialDecreasingAArampdeltaSTdsXdtXfromto(sqInt fill, int * ramp,  int * deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX);
+static sqInt fillRadialDecreasingAArampdeltaSTdsXdtXfromto(sqInt fill, int *ramp,  int *deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX);
 static sqInt fillRadialGradient(void);
 static sqInt fillRadialGradientfromtoat(sqInt fill, sqInt leftX, sqInt rightX, sqInt yValue);
 static sqInt fillRadialIncreasingrampdeltaSTdsXdtXfromto(sqInt fill, sqInt ramp, sqInt deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX);
-static sqInt fillRadialIncreasingAArampdeltaSTdsXdtXfromto(sqInt fill, int * ramp,  int * deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX);
+static sqInt fillRadialIncreasingAArampdeltaSTdsXdtXfromto(sqInt fill, int *ramp,  int *deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX);
 static sqInt fillSortsbefore(sqInt fillEntry1, sqInt fillEntry2);
 static sqInt fillSpanfromto(unsigned int fill, sqInt leftX, sqInt rightX);
 static sqInt fillTypeOf(sqInt fill);
@@ -428,7 +428,7 @@ static sqInt hasEdgeTransform(void);
 static sqInt hasEdgeTransformGet(void);
 static sqInt hasEdgeTransformPut(sqInt value);
 static sqInt hideFilldepth(sqInt fillIndex, sqInt depth);
-static sqInt incrementPointby(int * point, sqInt delta);
+static sqInt incrementPointby(int *point, sqInt delta);
 static sqInt incrementStatby(sqInt statIndex, sqInt value);
 static sqInt indexForInsertingIntoAET(sqInt edge);
 static sqInt initColorTransform(void);
@@ -476,47 +476,47 @@ static sqInt lineXIncrementOf(sqInt line);
 static sqInt lineXIncrementOfput(sqInt line, sqInt value);
 static sqInt lineYDirectionOf(sqInt line);
 static sqInt lineYDirectionOfput(sqInt line, sqInt value);
-static sqInt loadAndSubdivideBezierFromviatoisWide(int * point1, int * point2, int * point3, sqInt wideFlag);
+static sqInt loadAndSubdivideBezierFromviatoisWide(int *point1, int *point2, int *point3, sqInt wideFlag);
 static sqInt loadArrayPolygonnPointsfilllineWidthlineFill(sqInt points, sqInt nPoints, sqInt fillIndex, sqInt lineWidth, sqInt lineFill);
 static sqInt loadArrayShapenSegmentsfilllineWidthlineFill(sqInt points, sqInt nSegments, sqInt fillIndex, sqInt lineWidth, sqInt lineFill);
-static sqInt loadArrayTransformFromintolength(sqInt transformOop, float * destPtr, sqInt n);
+static sqInt loadArrayTransformFromintolength(sqInt transformOop, float *destPtr, sqInt n);
 static sqInt loadBeziersegmentleftFillrightFilloffset(sqInt bezier, sqInt index, sqInt leftFillIndex, sqInt rightFillIndex, sqInt yOffset);
 static sqInt loadBitBltFrom(sqInt bbObj);
-static sqInt loadBitmapFillcolormaptilefromalongnormalxIndex(sqInt formOop, sqInt cmOop, sqInt tileFlag, int * point1, int * point2, int * point3, sqInt xIndex);
+static sqInt loadBitmapFillcolormaptilefromalongnormalxIndex(sqInt formOop, sqInt cmOop, sqInt tileFlag, int *point1, int *point2, int *point3, sqInt xIndex);
 static int * loadBitsFrom(sqInt bmFill);
 static sqInt loadColorTransformFrom(sqInt transformOop);
 static sqInt loadCompressedSegmentfromshortleftFillrightFilllineWidthlineColor(sqInt segmentIndex, sqInt points, sqInt pointsShort, sqInt leftFill, sqInt rightFill, sqInt lineWidth, sqInt lineFill);
-static sqInt loadCompressedShapesegmentsleftFillsrightFillslineWidthslineFillsfillIndexListpointShort(int * points, sqInt nSegments, int * leftFills, int * rightFills, int * lineWidths, int * lineFills, int * fillIndexList, sqInt pointsShort);
+static sqInt loadCompressedShapesegmentsleftFillsrightFillslineWidthslineFillsfillIndexListpointShort(int *points, sqInt nSegments, int *leftFills, int *rightFills, int *lineWidths, int *lineFills, int *fillIndexList, sqInt pointsShort);
 static sqInt loadEdgeStateFrom(sqInt edgeOop);
 static sqInt loadEdgeTransformFrom(sqInt transformOop);
-static sqInt loadFillOrientationfromalongnormalwidthheight(sqInt fill, int * point1, int * point2, int * point3, sqInt fillWidth, sqInt fillHeight);
+static sqInt loadFillOrientationfromalongnormalwidthheight(sqInt fill, int *point1, int *point2, int *point3, sqInt fillWidth, sqInt fillHeight);
 static sqInt loadFormsFrom(sqInt arrayOop);
-static sqInt loadGradientFillfromalongnormalisRadial(sqInt rampOop, int * point1, int * point2, int * point3, sqInt isRadial);
-static sqInt loadLinefromtooffsetleftFillrightFill(sqInt line, int * point1, int * point2, sqInt yOffset, sqInt leftFill, sqInt rightFill);
+static sqInt loadGradientFillfromalongnormalisRadial(sqInt rampOop, int *point1, int *point2, int *point3, sqInt isRadial);
+static sqInt loadLinefromtooffsetleftFillrightFill(sqInt line, int *point1, int *point2, sqInt yOffset, sqInt leftFill, sqInt rightFill);
 static sqInt loadOvallineFillleftFillrightFill(sqInt lineWidth, sqInt lineFill, sqInt leftFill, sqInt rightFill);
 static sqInt loadOvalSegmentwhcxcy(sqInt seg, sqInt w, sqInt h, sqInt cx, sqInt cy);
-static sqInt loadPointfrom(int * pointArray, sqInt pointOop);
+static sqInt loadPointfrom(int *pointArray, sqInt pointOop);
 static sqInt loadPointIntAtfrom(sqInt index, sqInt intArray);
 static short loadPointShortAtfrom(sqInt index, sqInt shortArray);
-static sqInt loadPolygonnPointsfilllineWidthlineFillpointsShort(int * points, sqInt nPoints, sqInt fillIndex, sqInt lineWidth, sqInt lineFill, sqInt isShort);
+static sqInt loadPolygonnPointsfilllineWidthlineFillpointsShort(int *points, sqInt nPoints, sqInt fillIndex, sqInt lineWidth, sqInt lineFill, sqInt isShort);
 static sqInt loadRectanglelineFillleftFillrightFill(sqInt lineWidth, sqInt lineFill, sqInt leftFill, sqInt rightFill);
 static sqInt loadRenderingState(void);
-static sqInt loadShapenSegmentsfilllineWidthlineFillpointsShort(int * points, sqInt nSegments, sqInt fillIndex, sqInt lineWidth, sqInt lineFill, sqInt pointsShort);
+static sqInt loadShapenSegmentsfilllineWidthlineFillpointsShort(int *points, sqInt nSegments, sqInt fillIndex, sqInt lineWidth, sqInt lineFill, sqInt pointsShort);
 static sqInt loadSpanBufferFrom(sqInt spanOop);
-static sqInt loadTransformFromintolength(sqInt transformOop, float * destPtr, sqInt n);
+static sqInt loadTransformFromintolength(sqInt transformOop, float *destPtr, sqInt n);
 static sqInt loadWideBezierlineFillleftFillrightFilln(sqInt lineWidth, sqInt lineFill, sqInt leftFill, sqInt rightFill, sqInt nSegments);
-static sqInt loadWideLinefromtolineFillleftFillrightFill(sqInt lineWidth, int * p1, int * p2, sqInt lineFill, sqInt leftFill, sqInt rightFill);
-static sqInt loadWordTransformFromintolength(sqInt transformOop, float * destPtr, sqInt n);
+static sqInt loadWideLinefromtolineFillleftFillrightFill(sqInt lineWidth, int *p1, int *p2, sqInt lineFill, sqInt leftFill, sqInt rightFill);
+static sqInt loadWordTransformFromintolength(sqInt transformOop, float *destPtr, sqInt n);
 static sqInt loadWorkBufferFrom(sqInt wbOop);
 static sqInt magicNumberGet(void);
 static sqInt magicNumberPut(sqInt value);
 static sqInt makeRectFromPoints(void);
 static sqInt makeUnsignedFrom(sqInt someIntegerValue);
 #pragma export on
-EXPORT(sqInt) moduleUnloaded(char * aModuleName);
+EXPORT(sqInt) moduleUnloaded(char *aModuleName);
 #pragma export off
 static sqInt moveAETEntryFromedgex(sqInt index, sqInt edge, sqInt xValue);
-static sqInt msg(char * s);
+static sqInt msg(char *s);
 static sqInt needAvailableSpace(sqInt nSlots);
 static sqInt needsFlush(void);
 static sqInt needsFlushGet(void);
@@ -591,7 +591,7 @@ static sqInt quickLoadEngineFrom(sqInt engineOop);
 static sqInt quickLoadEngineFromrequiredState(sqInt oop, sqInt requiredState);
 static sqInt quickLoadEngineFromrequiredStateor(sqInt oop, sqInt requiredState, sqInt alternativeState);
 static sqInt quickRemoveInvalidFillsAt(sqInt leftX);
-static sqInt quickSortGlobalEdgeTablefromto(int * array, sqInt i, sqInt j);
+static sqInt quickSortGlobalEdgeTablefromto(int *array, sqInt i, sqInt j);
 static int * rShiftTable(void);
 static sqInt removeFirstAETEntry(void);
 static sqInt repeatValuemax(sqInt delta, sqInt maxValue);
@@ -603,7 +603,7 @@ static sqInt returnWideLineFill(void);
 static sqInt returnWideLineWidth(void);
 static sqInt setAALevel(sqInt level);
 #pragma export on
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter);
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter);
 #pragma export off
 static sqInt shortRunLengthAtfrom(sqInt i, sqInt runArray);
 static sqInt shortRunValueAtfrom(sqInt i, sqInt runArray);
@@ -672,9 +672,9 @@ static sqInt topFillValue(void);
 static sqInt topFillValuePut(sqInt value);
 static sqInt topRightX(void);
 static sqInt transformColor(sqInt fillIndex);
-static sqInt transformPoint(int * point);
+static sqInt transformPoint(int *point);
 static sqInt transformPointinto(sqInt srcPoint, sqInt dstPoint);
-static sqInt transformPointXyinto(double  xValue, double  yValue, int * dstPoint);
+static sqInt transformPointXyinto(double  xValue, double  yValue, int *dstPoint);
 static sqInt transformPoints(sqInt n);
 static sqInt transformWidth(sqInt w);
 static sqInt uncheckedTransformColor(sqInt fillIndex);
@@ -730,9 +730,9 @@ struct VirtualMachine* interpreterProxy;
 static void * loadBBFn;
 static const char *moduleName =
 #ifdef SQUEAK_BUILTIN_PLUGIN
-	"B2DPlugin 14 April 2008 (i)"
+	"B2DPlugin 23 January 2011 (i)"
 #else
-	"B2DPlugin 14 April 2008 (e)"
+	"B2DPlugin 23 January 2011 (e)"
 #endif
 ;
 static int* objBuffer;
@@ -815,8 +815,8 @@ static sqInt aaShiftPut(sqInt value) {
 	e.g., compute (value * value) bitShift: -24 */
 
 static sqInt absoluteSquared8Dot24(sqInt value) {
-    sqInt word2;
     sqInt word1;
+    sqInt word2;
 
 	word1 = value & 65535;
 	word2 = (((usqInt) value >> 16)) & 255;
@@ -848,7 +848,7 @@ static sqInt accurateLengthOfwith(sqInt deltaX, sqInt deltaY) {
 	if (length2 < 32) {
 		return (smallSqrtTable())[length2];
 	} else {
-		return ((sqInt) ((sqrt(((double) length2 ))) + 0.5) );
+		return ((sqInt)((sqrt(((double) length2 ))) + 0.5));
 	}
 	return null;
 }
@@ -862,17 +862,17 @@ static sqInt addEdgeToGET(sqInt edge) {
 }
 
 
-/*	NOTE: 	This method is (hopefully) obsolete due to unrolling
+/*	NOTE: 	This method is (hopefully) obsolete due to unrolling 
 				the fill loops to deal with full pixels. */
 /*	Adjust the span buffers values by the appropriate color offset for anti-aliasing.
 	We do this by replicating the top bits of each color in the lower bits. The idea is that we can scale each color value uniquely from 0 to 255 and thus fill the entire range of colors. */
 
 static sqInt adjustAALevel(void) {
-    sqInt pixelValue;
-    sqInt x1;
-    sqInt adjustShift;
     sqInt adjustMask;
+    sqInt adjustShift;
+    sqInt pixelValue;
     sqInt x0;
+    sqInt x1;
 
 	adjustShift = 8 - (workBuffer[GWAAColorShift]);
 	adjustMask = ~(workBuffer[GWAAColorMask]);
@@ -924,13 +924,17 @@ static sqInt adjustWideBezierRightwidthoffsetendX(sqInt bezier, sqInt lineWidth,
 	to simulate a rectangular brush */
 
 static sqInt adjustWideLineafterSteppingFromto(sqInt line, sqInt lastX, sqInt nextX) {
-    sqInt yEntry;
+    sqInt baseWidth;
+    sqInt deltaX;
     sqInt lineOffset;
     sqInt lineWidth;
     sqInt xDir;
-    sqInt deltaX;
-    sqInt baseWidth;
+    sqInt yEntry;
     sqInt yExit;
+
+
+	/* Don't inline this */
+	/* Fetch the values the adjustment decisions are based on */
 
 	yEntry = objBuffer[line + GLWideEntry];
 	yExit = objBuffer[line + GLWideExit];
@@ -1032,11 +1036,11 @@ l1:	/* end wbStackPush: */;
 	return (workBuffer[GWSize]) - (workBuffer[GWBufferTop]);
 }
 
-static sqInt allocateBitmapFillcolormap(sqInt cmSize, int * cmBits) {
-    sqInt i;
+static sqInt allocateBitmapFillcolormap(sqInt cmSize, int *cmBits) {
+    int *cm;
     sqInt fill;
-    int * cm;
     sqInt fillSize;
+    sqInt i;
 
 	fillSize = GBMBaseSize + cmSize;
 	if (!(allocateObjEntry(fillSize))) {
@@ -1073,21 +1077,24 @@ static sqInt allocateGETEntry(sqInt nSlots) {
 		return 0;
 	}
 	if (!((workBuffer[GWAETUsed]) == 0)) {
+
+		/* Then move the AET upwards */
+
 		srcIndex = workBuffer[GWAETUsed];
 		dstIndex = (workBuffer[GWAETUsed]) + nSlots;
 		for (i = 1; i <= (workBuffer[GWAETUsed]); i += 1) {
-			aetBuffer[dstIndex -= 1] = (aetBuffer[srcIndex -= 1]);
+			aetBuffer[(dstIndex -= 1)] = (aetBuffer[(srcIndex -= 1)]);
 		}
 	}
 	aetBuffer += nSlots;
 	return 1;
 }
 
-static sqInt allocateGradientFillrampWidthisRadial(int * ramp, sqInt rampWidth, sqInt isRadial) {
+static sqInt allocateGradientFillrampWidthisRadial(int *ramp, sqInt rampWidth, sqInt isRadial) {
+    sqInt fill;
     sqInt fillSize;
     sqInt i;
-    int * rampPtr;
-    sqInt fill;
+    int *rampPtr;
 
 	fillSize = GGBaseSize + rampWidth;
 	if (!(allocateObjEntry(fillSize))) {
@@ -1142,10 +1149,13 @@ static sqInt allocateObjEntry(sqInt nSlots) {
 		return 0;
 	}
 	if (!((workBuffer[GWGETUsed]) == 0)) {
+
+		/* Then move the GET upwards */
+
 		srcIndex = workBuffer[GWGETUsed];
 		dstIndex = (workBuffer[GWGETUsed]) + nSlots;
 		for (i = 1; i <= (workBuffer[GWGETUsed]); i += 1) {
-			getBuffer[dstIndex -= 1] = (getBuffer[srcIndex -= 1]);
+			getBuffer[(dstIndex -= 1)] = (getBuffer[(srcIndex -= 1)]);
 		}
 	}
 	getBuffer += nSlots;
@@ -1322,15 +1332,15 @@ static sqInt bitmapTileFlagOfput(sqInt bmFill, sqInt value) {
 }
 
 static sqInt bitmapValuebitsatXy(sqInt bmFill, sqInt bits, sqInt xp, sqInt yp) {
-    sqInt bmDepth;
     sqInt a;
-    sqInt cMask;
-    sqInt bmRaster;
-    sqInt g;
     sqInt b;
-    sqInt value;
-    sqInt rShift;
+    sqInt bmDepth;
+    sqInt bmRaster;
+    sqInt cMask;
+    sqInt g;
     sqInt r;
+    sqInt rShift;
+    sqInt value;
 
 	bmDepth = objBuffer[bmFill + GBBitmapDepth];
 	bmRaster = objBuffer[bmFill + GBBitmapRaster];
@@ -1354,6 +1364,9 @@ static sqInt bitmapValuebitsatXy(sqInt bmFill, sqInt bits, sqInt xp, sqInt yp) {
 	value = (((usqInt) value) >> rShift) & cMask;
 	if (bmDepth == 16) {
 		if (!(value == 0)) {
+
+			/* Must convert by expanding bits */
+
 			b = (value & 31) << 3;
 			b += ((usqInt) b) >> 5;
 			g = ((((usqInt) value) >> 5) & 31) << 3;
@@ -1365,6 +1378,9 @@ static sqInt bitmapValuebitsatXy(sqInt bmFill, sqInt bits, sqInt xp, sqInt yp) {
 		}
 	} else {
 		if ((objBuffer[bmFill + GBColormapSize]) == 0) {
+
+			/* Must convert by using color map */
+
 			value = 0;
 		} else {
 			value = ((objBuffer + bmFill) + GBColormapOffset)[value];
@@ -1433,12 +1449,12 @@ static sqInt bzViaYput(sqInt index, sqInt value) {
 /*	Check the fill indexes in the run-length encoded fillList */
 
 static sqInt checkCompressedFillIndexListmaxsegments(sqInt fillList, sqInt maxIndex, sqInt nSegs) {
-    sqInt length;
-    int * fillPtr;
+    int *fillPtr;
     sqInt i;
-    sqInt runValue;
+    sqInt length;
     sqInt nFills;
     sqInt runLength;
+    sqInt runValue;
 
 	length = interpreterProxy->slotSizeOf(fillList);
 	fillPtr = interpreterProxy->firstIndexableField(fillList);
@@ -1458,10 +1474,10 @@ static sqInt checkCompressedFillIndexListmaxsegments(sqInt fillList, sqInt maxIn
 /*	Check if the indexList (containing fill handles) is okay. */
 
 static sqInt checkCompressedFills(sqInt indexList) {
-    int * fillPtr;
-    sqInt length;
-    sqInt i;
     sqInt fillIndex;
+    int *fillPtr;
+    sqInt i;
+    sqInt length;
 
 	if (!(interpreterProxy->isWords(indexList))) {
 		return 0;
@@ -1484,10 +1500,10 @@ static sqInt checkCompressedFills(sqInt indexList) {
 /*	Check the run-length encoded lineWidthList matches nSegments */
 
 static sqInt checkCompressedLineWidthssegments(sqInt lineWidthList, sqInt nSegments) {
-    int * ptr;
-    sqInt length;
     sqInt i;
+    sqInt length;
     sqInt nItems;
+    int *ptr;
     sqInt runLength;
 
 	length = interpreterProxy->slotSizeOf(lineWidthList);
@@ -1523,7 +1539,7 @@ static sqInt checkCompressedPointssegments(sqInt points, sqInt nSegments) {
 }
 
 
-/*	Check if the given shape can be handled by the engine.
+/*	Check if the given shape can be handled by the engine. 
 	Since there are a number of requirements this is an extra method. */
 
 static sqInt checkCompressedShapesegmentsleftFillsrightFillslineWidthslineFillsfillIndexList(sqInt points, sqInt nSegments, sqInt leftFills, sqInt rightFills, sqInt lineWidths, sqInt lineFills, sqInt fillIndexList) {
@@ -1582,14 +1598,14 @@ static sqInt checkedAddEdgeToGET(sqInt edge) {
 	if ((((objBuffer[edge + GEObjectType]) & GEPrimitiveTypeMask) & GEPrimitiveWideMask) == GEPrimitiveLine) {
 		/* begin checkedAddLineToGET: */
 		if ((((objBuffer[edge + GEObjectType]) & GEPrimitiveTypeMask) & GEPrimitiveWide) != 0) {
-			lineWidth = objBuffer[edge + GLWideExtent];
+			lineWidth1 = objBuffer[edge + GLWideExtent];
 		} else {
-			lineWidth = 0;
+			lineWidth1 = 0;
 		}
-		if (((objBuffer[edge + GLEndY]) + lineWidth) < (workBuffer[GWFillMinY])) {
+		if (((objBuffer[edge + GLEndY]) + lineWidth1) < (workBuffer[GWFillMinY])) {
 			return 0;
 		}
-		if ((((objBuffer[edge + GEXValue]) - lineWidth) >= (workBuffer[GWFillMaxX])) && (((objBuffer[edge + GLEndX]) - lineWidth) >= (workBuffer[GWFillMaxX]))) {
+		if ((((objBuffer[edge + GEXValue]) - lineWidth1) >= (workBuffer[GWFillMaxX])) && (((objBuffer[edge + GLEndX]) - lineWidth1) >= (workBuffer[GWFillMaxX]))) {
 			return 0;
 		}
 		addEdgeToGET(edge);
@@ -1598,14 +1614,14 @@ static sqInt checkedAddEdgeToGET(sqInt edge) {
 	if ((((objBuffer[edge + GEObjectType]) & GEPrimitiveTypeMask) & GEPrimitiveWideMask) == GEPrimitiveBezier) {
 		/* begin checkedAddBezierToGET: */
 		if ((((objBuffer[edge + GEObjectType]) & GEPrimitiveTypeMask) & GEPrimitiveWide) != 0) {
-			lineWidth1 = objBuffer[edge + GBWideExtent];
+			lineWidth = objBuffer[edge + GBWideExtent];
 		} else {
-			lineWidth1 = 0;
+			lineWidth = 0;
 		}
-		if (((objBuffer[edge + GBEndY]) + lineWidth1) < (workBuffer[GWFillMinY])) {
+		if (((objBuffer[edge + GBEndY]) + lineWidth) < (workBuffer[GWFillMinY])) {
 			return 0;
 		}
-		if ((((objBuffer[edge + GEXValue]) - lineWidth1) >= (workBuffer[GWFillMaxX])) && (((objBuffer[edge + GBEndX]) - lineWidth1) >= (workBuffer[GWFillMaxX]))) {
+		if ((((objBuffer[edge + GEXValue]) - lineWidth) >= (workBuffer[GWFillMaxX])) && (((objBuffer[edge + GBEndX]) - lineWidth) >= (workBuffer[GWFillMaxX]))) {
 			return 0;
 		}
 		addEdgeToGET(edge);
@@ -1681,8 +1697,8 @@ static sqInt clampValuemax(sqInt value, sqInt maxValue) {
 	The span buffer is only cleared in the area that has been used by the previous scan line. */
 
 static sqInt clearSpanBuffer(void) {
-    sqInt x1;
     sqInt x0;
+    sqInt x1;
 
 	x0 = ((usqInt) (workBuffer[GWSpanStart])) >> (workBuffer[GWAAShift]);
 	x1 = (((usqInt) (workBuffer[GWSpanEnd])) >> (workBuffer[GWAAShift])) + 1;
@@ -1756,18 +1772,18 @@ static int * colormapOf(sqInt bmFill) {
 
 static sqInt computeBeziersplitAt(sqInt index, double  param) {
     sqInt endX;
-    sqInt sharedY;
-    sqInt leftViaY;
-    sqInt rightViaX;
-    sqInt viaY;
-    sqInt startX;
     sqInt endY;
+    sqInt leftViaX;
+    sqInt leftViaY;
+    sqInt newIndex;
+    sqInt rightViaX;
     sqInt rightViaY;
     sqInt sharedX;
-    sqInt newIndex;
+    sqInt sharedY;
+    sqInt startX;
     sqInt startY;
-    sqInt leftViaX;
     sqInt viaX;
+    sqInt viaY;
 
 	leftViaX = startX = workBuffer[(workBuffer[GWBufferTop]) + ((((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - index) + 0)];
 	leftViaY = startY = workBuffer[(workBuffer[GWBufferTop]) + ((((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - index) + 1)];
@@ -1778,18 +1794,18 @@ static sqInt computeBeziersplitAt(sqInt index, double  param) {
 	/* Compute intermediate points */
 
 	endY = workBuffer[(workBuffer[GWBufferTop]) + ((((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - index) + 5)];
-	sharedX = leftViaX += ((sqInt) ((((double) (viaX - startX) )) * param) );
-	sharedY = leftViaY += ((sqInt) ((((double) (viaY - startY) )) * param) );
-	rightViaX += ((sqInt) ((((double) (endX - viaX) )) * param) );
+	sharedX = leftViaX += ((sqInt)((((double) (viaX - startX) )) * param));
+	sharedY = leftViaY += ((sqInt)((((double) (viaY - startY) )) * param));
+	rightViaX += ((sqInt)((((double) (endX - viaX) )) * param));
 
 	/* Compute new shared point */
 
-	rightViaY += ((sqInt) ((((double) (endY - viaY) )) * param) );
-	sharedX += ((sqInt) ((((double) (rightViaX - leftViaX) )) * param) );
+	rightViaY += ((sqInt)((((double) (endY - viaY) )) * param));
+	sharedX += ((sqInt)((((double) (rightViaX - leftViaX) )) * param));
 
 	/* Check the new via points */
 
-	sharedY += ((sqInt) ((((double) (rightViaY - leftViaY) )) * param) );
+	sharedY += ((sqInt)((((double) (rightViaY - leftViaY) )) * param));
 	/* begin assureValue:between:and: */
 	if (startY > sharedY) {
 		if (leftViaY > startY) {
@@ -1863,18 +1879,18 @@ l3:	/* end wbStackPush: */;
 
 static sqInt computeBezierSplitAtHalf(sqInt index) {
     sqInt endX;
-    sqInt sharedY;
-    sqInt leftViaY;
-    sqInt rightViaX;
-    sqInt viaY;
-    sqInt startX;
     sqInt endY;
+    sqInt leftViaX;
+    sqInt leftViaY;
+    sqInt newIndex;
+    sqInt rightViaX;
     sqInt rightViaY;
     sqInt sharedX;
-    sqInt newIndex;
+    sqInt sharedY;
+    sqInt startX;
     sqInt startY;
-    sqInt leftViaX;
     sqInt viaX;
+    sqInt viaY;
 
 	/* begin allocateBezierStackEntry */
 	/* begin wbStackPush: */
@@ -1922,7 +1938,7 @@ l1:	/* end wbStackPush: */;
 }
 
 
-/*	Get both values from the two boundaries of the given bezier
+/*	Get both values from the two boundaries of the given bezier 
 	and compute the actual position/width of the line */
 
 static sqInt computeFinalWideBezierValueswidth(sqInt bezier, sqInt lineWidth) {
@@ -1949,7 +1965,7 @@ static sqInt computeSqrt(sqInt length2) {
 	if (length2 < 32) {
 		return (smallSqrtTable())[length2];
 	} else {
-		return ((sqInt) ((sqrt(((double) length2 ))) + 0.5) );
+		return ((sqInt)((sqrt(((double) length2 ))) + 0.5));
 	}
 }
 
@@ -1966,8 +1982,8 @@ static sqInt copyBitsFromtoat(sqInt x0, sqInt x1, sqInt yValue) {
 /*	Create the global edge table */
 
 static sqInt createGlobalEdgeTable(void) {
-    sqInt object;
     sqInt end;
+    sqInt object;
     sqInt lineWidth;
     sqInt lineWidth1;
 
@@ -1980,35 +1996,33 @@ static sqInt createGlobalEdgeTable(void) {
 				if ((((objBuffer[object + GEObjectType]) & GEPrimitiveTypeMask) & GEPrimitiveWideMask) == GEPrimitiveLine) {
 					/* begin checkedAddLineToGET: */
 					if ((((objBuffer[object + GEObjectType]) & GEPrimitiveTypeMask) & GEPrimitiveWide) != 0) {
-						lineWidth = objBuffer[object + GLWideExtent];
+						lineWidth1 = objBuffer[object + GLWideExtent];
 					} else {
-						lineWidth = 0;
+						lineWidth1 = 0;
 					}
-					if (((objBuffer[object + GLEndY]) + lineWidth) < (workBuffer[GWFillMinY])) {
-						goto l2;
+					if (((objBuffer[object + GLEndY]) + lineWidth1) < (workBuffer[GWFillMinY])) {
+						goto l1;
 					}
-					if ((((objBuffer[object + GEXValue]) - lineWidth) >= (workBuffer[GWFillMaxX])) && (((objBuffer[object + GLEndX]) - lineWidth) >= (workBuffer[GWFillMaxX]))) {
-						goto l2;
+					if ((((objBuffer[object + GEXValue]) - lineWidth1) >= (workBuffer[GWFillMaxX])) && (((objBuffer[object + GLEndX]) - lineWidth1) >= (workBuffer[GWFillMaxX]))) {
+						goto l1;
 					}
 					addEdgeToGET(object);
-				l2:	/* end checkedAddLineToGET: */;
 					goto l1;
 				}
 				if ((((objBuffer[object + GEObjectType]) & GEPrimitiveTypeMask) & GEPrimitiveWideMask) == GEPrimitiveBezier) {
 					/* begin checkedAddBezierToGET: */
 					if ((((objBuffer[object + GEObjectType]) & GEPrimitiveTypeMask) & GEPrimitiveWide) != 0) {
-						lineWidth1 = objBuffer[object + GBWideExtent];
+						lineWidth = objBuffer[object + GBWideExtent];
 					} else {
-						lineWidth1 = 0;
+						lineWidth = 0;
 					}
-					if (((objBuffer[object + GBEndY]) + lineWidth1) < (workBuffer[GWFillMinY])) {
-						goto l3;
+					if (((objBuffer[object + GBEndY]) + lineWidth) < (workBuffer[GWFillMinY])) {
+						goto l1;
 					}
-					if ((((objBuffer[object + GEXValue]) - lineWidth1) >= (workBuffer[GWFillMaxX])) && (((objBuffer[object + GBEndX]) - lineWidth1) >= (workBuffer[GWFillMaxX]))) {
-						goto l3;
+					if ((((objBuffer[object + GEXValue]) - lineWidth) >= (workBuffer[GWFillMaxX])) && (((objBuffer[object + GBEndX]) - lineWidth) >= (workBuffer[GWFillMaxX]))) {
+						goto l1;
 					}
 					addEdgeToGET(object);
-				l3:	/* end checkedAddBezierToGET: */;
 					goto l1;
 				}
 				addEdgeToGET(object);
@@ -2055,9 +2069,12 @@ static sqInt destOffsetYPut(sqInt value) {
 /*	Display the span buffer at the current scan line. */
 
 static sqInt displaySpanBufferAt(sqInt y) {
+    sqInt targetX0;
     sqInt targetX1;
     sqInt targetY;
-    sqInt targetX0;
+
+
+	/* self aaLevelGet > 1 ifTrue:[self adjustAALevel]. */
 
 	targetX0 = ((usqInt) (workBuffer[GWSpanStart])) >> (workBuffer[GWAAShift]);
 	if (targetX0 < (workBuffer[GWClipMinX])) {
@@ -2079,10 +2096,13 @@ static sqInt displaySpanBufferAt(sqInt y) {
 	Return the end value of the drawing operation. */
 
 static sqInt drawWideEdgefrom(sqInt edge, sqInt leftX) {
+    sqInt fill;
     sqInt lineWidth;
     sqInt rightX;
-    sqInt fill;
     sqInt type;
+
+
+	/* Not for the moment */
 
 	type = ((usqInt) ((objBuffer[edge + GEObjectType]) & GEPrimitiveTypeMask)) >> 1;
 	dispatchedValue = edge;
@@ -2202,8 +2222,8 @@ static sqInt errorWrongIndex(void) {
 	use #accurateLengthOf:width: */
 
 static sqInt estimatedLengthOfwith(sqInt deltaX, sqInt deltaY) {
-    sqInt absDy;
     sqInt absDx;
+    sqInt absDy;
 
 	if (deltaX >= 0) {
 		absDx = deltaX;
@@ -2226,42 +2246,42 @@ static sqInt estimatedLengthOfwith(sqInt deltaX, sqInt deltaY) {
 /*	Fill the span buffer from leftX to rightX with the given fill. */
 
 static sqInt fillAllFromto(sqInt leftX, sqInt rightX) {
+    sqInt fill;
     sqInt startX;
     sqInt stopX;
-    sqInt fill;
     sqInt someIntegerValue;
     sqInt someIntegerValue1;
 
 	/* begin topFill */
 	if (((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) == 0) {
 		fill = 0;
-		goto l5;
+		goto l4;
 	} else {
 		fill = workBuffer[(workBuffer[GWBufferTop]) + (((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - 3)];
-		goto l5;
+		goto l4;
 	}
-l5:	/* end topFill */;
+l4:	/* end topFill */;
 	startX = leftX;
 	/* begin topRightX */
 	if (((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) == 0) {
 		stopX = 999999999;
-		goto l3;
+		goto l5;
 	} else {
 		stopX = workBuffer[(workBuffer[GWBufferTop]) + ((((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - 3) + 2)];
-		goto l3;
+		goto l5;
 	}
-l3:	/* end topRightX */;
+l5:	/* end topRightX */;
 	while (stopX < rightX) {
 		/* begin makeUnsignedFrom: */
 		/* begin topFill */
 		if (((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) == 0) {
 			someIntegerValue = 0;
-			goto l4;
+			goto l2;
 		} else {
 			someIntegerValue = workBuffer[(workBuffer[GWBufferTop]) + (((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - 3)];
-			goto l4;
+			goto l2;
 		}
-	l4:	/* end topFill */;
+	l2:	/* end topFill */;
 		fill = someIntegerValue;
 		if (!(fill == 0)) {
 			if (fillSpanfromto(fill, startX, stopX)) {
@@ -2283,12 +2303,12 @@ l3:	/* end topRightX */;
 		/* begin topRightX */
 		if (((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) == 0) {
 			stopX = 999999999;
-			goto l2;
+			goto l3;
 		} else {
 			stopX = workBuffer[(workBuffer[GWBufferTop]) + ((((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - 3) + 2)];
-			goto l2;
+			goto l3;
 		}
-	l2:	/* end topRightX */;
+	l3:	/* end topRightX */;
 	}
 	/* begin makeUnsignedFrom: */
 	/* begin topFill */
@@ -2315,15 +2335,15 @@ static sqInt fillBitmapSpan(void) {
 /*	Fill the span buffer between leftEdge and rightEdge using the given bits.
 	Note: We always start from zero - this avoids using huge bitmap buffers if the bitmap is to be displayed at the very far right hand side and also gives us a chance of using certain bitmaps (e.g., those with depth 32) directly. */
 
-static sqInt fillBitmapSpanfromto(int * bits, sqInt leftX, sqInt rightX) {
+static sqInt fillBitmapSpanfromto(int *bits, sqInt leftX, sqInt rightX) {
+    sqInt baseShift;
+    sqInt bitX;
+    sqInt colorMask;
     sqInt colorShift;
-    sqInt x1;
     sqInt fillValue;
     sqInt x;
-    sqInt bitX;
     sqInt x0;
-    sqInt baseShift;
-    sqInt colorMask;
+    sqInt x1;
 
 	x0 = leftX;
 	x1 = rightX;
@@ -2333,17 +2353,20 @@ static sqInt fillBitmapSpanfromto(int * bits, sqInt leftX, sqInt rightX) {
 	bitX = -1;
 	if ((workBuffer[GWAALevel]) == 1) {
 		while (x0 < x1) {
-			fillValue = (((int *) bits))[bitX += 1];
+			fillValue = (((int *) bits))[(bitX += 1)];
 			spanBuffer[x0] = fillValue;
 			x0 += 1;
 		}
 	} else {
+
+		/* Generic version with anti-aliasing */
+
 		colorMask = workBuffer[GWAAColorMask];
 		colorShift = workBuffer[GWAAColorShift];
 		baseShift = workBuffer[GWAAShift];
 		while (x0 < x1) {
 			x = ((usqInt) x0) >> baseShift;
-			fillValue = (((int *) bits))[bitX += 1];
+			fillValue = (((int *) bits))[(bitX += 1)];
 			fillValue = ((usqInt) (fillValue & colorMask)) >> colorShift;
 			spanBuffer[x] = ((spanBuffer[x]) + fillValue);
 			x0 += 1;
@@ -2358,32 +2381,32 @@ static sqInt fillBitmapSpanfromto(int * bits, sqInt leftX, sqInt rightX) {
 }
 
 static sqInt fillBitmapSpanfromtoat(sqInt bmFill, sqInt leftX, sqInt rightX, sqInt yValue) {
-    sqInt dtX;
-    sqInt x1;
-    int * bits;
-    sqInt fillValue;
-    sqInt ds;
-    sqInt x;
-    sqInt deltaX;
+    int *bits;
     sqInt bmHeight;
-    sqInt yp;
-    sqInt tileFlag;
-    sqInt xp;
-    sqInt dt;
-    sqInt deltaY;
     sqInt bmWidth;
+    sqInt deltaX;
+    sqInt deltaY;
+    sqInt ds;
     sqInt dsX;
+    sqInt dt;
+    sqInt dtX;
+    sqInt fillValue;
+    sqInt tileFlag;
+    sqInt x;
+    sqInt x1;
+    sqInt xp;
+    sqInt yp;
     sqInt newDelta;
     sqInt newDelta1;
-    sqInt bmDepth;
     sqInt a;
-    sqInt cMask;
-    sqInt bmRaster;
-    sqInt g;
     sqInt b;
-    sqInt value;
-    sqInt rShift;
+    sqInt bmDepth;
+    sqInt bmRaster;
+    sqInt cMask;
+    sqInt g;
     sqInt r;
+    sqInt rShift;
+    sqInt value;
 
 	if (!((workBuffer[GWAALevel]) == 1)) {
 		return fillBitmapSpanAAfromtoat(bmFill, leftX, rightX, yValue);
@@ -2502,61 +2525,61 @@ static sqInt fillBitmapSpanfromtoat(sqInt bmFill, sqInt leftX, sqInt rightX, sqI
 }
 
 static sqInt fillBitmapSpanAAfromtoat(sqInt bmFill, sqInt leftX, sqInt rightX, sqInt yValue) {
-    sqInt cShift;
-    sqInt dtX;
-    sqInt firstPixel;
-    int * bits;
-    sqInt fillValue;
-    sqInt cMask;
-    sqInt ds;
-    sqInt x;
-    sqInt deltaX;
-    sqInt bmHeight;
-    sqInt idx;
-    sqInt yp;
-    sqInt tileFlag;
-    sqInt xp;
-    sqInt lastPixel;
-    sqInt dt;
-    sqInt deltaY;
-    sqInt bmWidth;
-    sqInt baseShift;
-    sqInt dsX;
     sqInt aaLevel;
+    sqInt baseShift;
+    int *bits;
+    sqInt bmHeight;
+    sqInt bmWidth;
+    sqInt cMask;
+    sqInt cShift;
+    sqInt deltaX;
+    sqInt deltaY;
+    sqInt ds;
+    sqInt dsX;
+    sqInt dt;
+    sqInt dtX;
+    sqInt fillValue;
+    sqInt firstPixel;
+    sqInt idx;
+    sqInt lastPixel;
+    sqInt tileFlag;
+    sqInt x;
+    sqInt xp;
+    sqInt yp;
     sqInt newDelta;
     sqInt newDelta1;
+    sqInt a;
+    sqInt b;
+    sqInt bmDepth;
+    sqInt bmRaster;
+    sqInt cMask1;
+    sqInt g;
+    sqInt r;
+    sqInt rShift;
+    sqInt value;
     sqInt newDelta2;
     sqInt newDelta3;
+    sqInt a1;
+    sqInt b1;
+    sqInt bmDepth1;
+    sqInt bmRaster1;
+    sqInt cMask2;
+    sqInt g1;
+    sqInt r1;
+    sqInt rShift1;
+    sqInt value1;
     sqInt newDelta4;
     sqInt newDelta5;
-    sqInt firstPixel1;
-    sqInt bmDepth;
-    sqInt a;
-    sqInt cMask1;
-    sqInt bmRaster;
-    sqInt g;
-    sqInt b;
-    sqInt value;
-    sqInt rShift;
-    sqInt r;
-    sqInt bmDepth1;
-    sqInt a1;
-    sqInt cMask2;
-    sqInt bmRaster1;
-    sqInt g1;
-    sqInt b1;
-    sqInt value1;
-    sqInt rShift1;
-    sqInt r1;
-    sqInt bmDepth2;
     sqInt a2;
-    sqInt cMask3;
-    sqInt bmRaster2;
-    sqInt g2;
     sqInt b2;
-    sqInt value2;
-    sqInt rShift2;
+    sqInt bmDepth2;
+    sqInt bmRaster2;
+    sqInt cMask3;
+    sqInt g2;
     sqInt r2;
+    sqInt rShift2;
+    sqInt value2;
+    sqInt firstPixel1;
 
 	bits = loadBitsFrom(bmFill);
 	if (bits == null) {
@@ -2576,12 +2599,12 @@ static sqInt fillBitmapSpanAAfromtoat(sqInt bmFill, sqInt leftX, sqInt rightX, s
 	firstPixel1 = ((leftX + (workBuffer[GWAALevel])) - 1) & (~((workBuffer[GWAALevel]) - 1));
 	if (firstPixel1 > rightX) {
 		firstPixel = rightX;
-		goto l7;
+		goto l10;
 	} else {
 		firstPixel = firstPixel1;
-		goto l7;
+		goto l10;
 	}
-l7:	/* end aaFirstPixelFrom:to: */;
+l10:	/* end aaFirstPixelFrom:to: */;
 	lastPixel = (rightX - 1) & (~((workBuffer[GWAALevel]) - 1));
 	baseShift = workBuffer[GWAAShift];
 	cMask = workBuffer[GWAAColorMask];
@@ -2650,7 +2673,7 @@ l7:	/* end aaFirstPixelFrom:to: */;
 					value = value | 4278190080U;
 				}
 				fillValue = uncheckedTransformColor(value);
-				goto l8;
+				goto l3;
 			}
 			rShift = (rShiftTable())[bmDepth];
 			value = (((int*) bits))[(bmRaster * yp) + (((usqInt) xp) >> rShift)];
@@ -2676,7 +2699,7 @@ l7:	/* end aaFirstPixelFrom:to: */;
 				}
 			}
 			fillValue = uncheckedTransformColor(value);
-		l8:	/* end bitmapValue:bits:atX:y: */;
+		l3:	/* end bitmapValue:bits:atX:y: */;
 			fillValue = ((usqInt) (fillValue & cMask)) >> cShift;
 			idx = ((usqInt) x) >> baseShift;
 			spanBuffer[idx] = ((spanBuffer[idx]) + fillValue);
@@ -2714,31 +2737,31 @@ l7:	/* end aaFirstPixelFrom:to: */;
 			/* begin clampValue:max: */
 			if (xp < 0) {
 				xp = 0;
-				goto l3;
+				goto l4;
 			} else {
 				if (xp >= bmWidth) {
 					xp = bmWidth - 1;
-					goto l3;
-				} else {
-					xp = xp;
-					goto l3;
-				}
-			}
-		l3:	/* end clampValue:max: */;
-			/* begin clampValue:max: */
-			if (yp < 0) {
-				yp = 0;
-				goto l4;
-			} else {
-				if (yp >= bmHeight) {
-					yp = bmHeight - 1;
 					goto l4;
 				} else {
-					yp = yp;
+					xp = xp;
 					goto l4;
 				}
 			}
 		l4:	/* end clampValue:max: */;
+			/* begin clampValue:max: */
+			if (yp < 0) {
+				yp = 0;
+				goto l5;
+			} else {
+				if (yp >= bmHeight) {
+					yp = bmHeight - 1;
+					goto l5;
+				} else {
+					yp = yp;
+					goto l5;
+				}
+			}
+		l5:	/* end clampValue:max: */;
 		}
 		if ((xp >= 0) && ((yp >= 0) && ((xp < bmWidth) && (yp < bmHeight)))) {
 			/* begin bitmapValue:bits:atX:y: */
@@ -2750,7 +2773,7 @@ l7:	/* end aaFirstPixelFrom:to: */;
 					value1 = value1 | 4278190080U;
 				}
 				fillValue = uncheckedTransformColor(value1);
-				goto l9;
+				goto l6;
 			}
 			rShift1 = (rShiftTable())[bmDepth1];
 			value1 = (((int*) bits))[(bmRaster1 * yp) + (((usqInt) xp) >> rShift1)];
@@ -2776,7 +2799,7 @@ l7:	/* end aaFirstPixelFrom:to: */;
 				}
 			}
 			fillValue = uncheckedTransformColor(value1);
-		l9:	/* end bitmapValue:bits:atX:y: */;
+		l6:	/* end bitmapValue:bits:atX:y: */;
 			fillValue = ((usqInt) (fillValue & cMask)) >> cShift;
 			idx = ((usqInt) x) >> baseShift;
 			spanBuffer[idx] = ((spanBuffer[idx]) + fillValue);
@@ -2814,31 +2837,31 @@ l7:	/* end aaFirstPixelFrom:to: */;
 			/* begin clampValue:max: */
 			if (xp < 0) {
 				xp = 0;
-				goto l5;
+				goto l7;
 			} else {
 				if (xp >= bmWidth) {
 					xp = bmWidth - 1;
-					goto l5;
+					goto l7;
 				} else {
 					xp = xp;
-					goto l5;
+					goto l7;
 				}
 			}
-		l5:	/* end clampValue:max: */;
+		l7:	/* end clampValue:max: */;
 			/* begin clampValue:max: */
 			if (yp < 0) {
 				yp = 0;
-				goto l6;
+				goto l8;
 			} else {
 				if (yp >= bmHeight) {
 					yp = bmHeight - 1;
-					goto l6;
+					goto l8;
 				} else {
 					yp = yp;
-					goto l6;
+					goto l8;
 				}
 			}
-		l6:	/* end clampValue:max: */;
+		l8:	/* end clampValue:max: */;
 		}
 		if ((xp >= 0) && ((yp >= 0) && ((xp < bmWidth) && (yp < bmHeight)))) {
 			/* begin bitmapValue:bits:atX:y: */
@@ -2850,7 +2873,7 @@ l7:	/* end aaFirstPixelFrom:to: */;
 					value2 = value2 | 4278190080U;
 				}
 				fillValue = uncheckedTransformColor(value2);
-				goto l10;
+				goto l9;
 			}
 			rShift2 = (rShiftTable())[bmDepth2];
 			value2 = (((int*) bits))[(bmRaster2 * yp) + (((usqInt) xp) >> rShift2)];
@@ -2876,7 +2899,7 @@ l7:	/* end aaFirstPixelFrom:to: */;
 				}
 			}
 			fillValue = uncheckedTransformColor(value2);
-		l10:	/* end bitmapValue:bits:atX:y: */;
+		l9:	/* end bitmapValue:bits:atX:y: */;
 			fillValue = ((usqInt) (fillValue & cMask)) >> cShift;
 			idx = ((usqInt) x) >> baseShift;
 			spanBuffer[idx] = ((spanBuffer[idx]) + fillValue);
@@ -2891,8 +2914,8 @@ l7:	/* end aaFirstPixelFrom:to: */;
 /*	Fill the span buffer between leftEdge and rightEdge with the given pixel value. */
 
 static sqInt fillColorSpanfromto(sqInt pixelValue32, sqInt leftX, sqInt rightX) {
-    sqInt x1;
     sqInt x0;
+    sqInt x1;
 
 	if (!((workBuffer[GWAALevel]) == 1)) {
 		return fillColorSpanAAx0x1(pixelValue32, leftX, rightX);
@@ -2923,14 +2946,14 @@ static sqInt fillColorSpanfromto(sqInt pixelValue32, sqInt leftX, sqInt rightX) 
 		c) copy all pixels that fall in the last full pixel */
 
 static sqInt fillColorSpanAAx0x1(sqInt pixelValue32, sqInt leftX, sqInt rightX) {
-    sqInt firstPixel;
-    sqInt x;
-    sqInt idx;
-    sqInt pv32;
-    sqInt lastPixel;
+    sqInt aaLevel;
     sqInt baseShift;
     sqInt colorMask;
-    sqInt aaLevel;
+    sqInt firstPixel;
+    sqInt idx;
+    sqInt lastPixel;
+    sqInt pv32;
+    sqInt x;
     sqInt firstPixel1;
 
 	/* begin aaFirstPixelFrom:to: */
@@ -3001,18 +3024,18 @@ static sqInt fillLinearGradient(void) {
 /*	Draw a linear gradient fill. */
 
 static sqInt fillLinearGradientfromtoat(sqInt fill, sqInt leftX, sqInt rightX, sqInt yValue) {
-    sqInt x1;
     sqInt ds;
-    sqInt x;
+    sqInt dsX;
+    int *ramp;
     sqInt rampIndex;
     sqInt rampSize;
+    sqInt x;
     sqInt x0;
-    int * ramp;
-    sqInt dsX;
-    sqInt x11;
+    sqInt x1;
     sqInt x01;
-    sqInt x12;
+    sqInt x11;
     sqInt x02;
+    sqInt x12;
 
 	ramp = (objBuffer + fill) + GFRampOffset;
 	rampSize = objBuffer[fill + GFRampLength];
@@ -3096,19 +3119,19 @@ static sqInt fillLinearGradientfromtoat(sqInt fill, sqInt leftX, sqInt rightX, s
 
 /*	This is the AA version of linear gradient filling. */
 
-static sqInt fillLinearGradientAArampdsdsXfromto(sqInt fill, int * ramp, sqInt deltaS, sqInt dsX, sqInt leftX, sqInt rightX) {
+static sqInt fillLinearGradientAArampdsdsXfromto(sqInt fill, int *ramp, sqInt deltaS, sqInt dsX, sqInt leftX, sqInt rightX) {
     sqInt aaLevel;
-    sqInt firstPixel;
-    sqInt colorShift;
-    sqInt ds;
-    sqInt x;
-    sqInt idx;
-    sqInt rampIndex;
-    sqInt lastPixel;
-    sqInt rampSize;
-    sqInt rampValue;
     sqInt baseShift;
     sqInt colorMask;
+    sqInt colorShift;
+    sqInt ds;
+    sqInt firstPixel;
+    sqInt idx;
+    sqInt lastPixel;
+    sqInt rampIndex;
+    sqInt rampSize;
+    sqInt rampValue;
+    sqInt x;
     sqInt firstPixel1;
 
 	aaLevel = workBuffer[GWAALevel];
@@ -3266,14 +3289,14 @@ static sqInt fillOriginYOfput(sqInt fill, sqInt value) {
 /*	Part 2a) Compute the decreasing part of the ramp */
 
 static sqInt fillRadialDecreasingrampdeltaSTdsXdtXfromto(sqInt fill, sqInt ramp, sqInt deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX) {
-    sqInt x1;
     sqInt ds;
-    sqInt x;
-    sqInt rampIndex;
     sqInt dt;
     sqInt length2;
-    sqInt rampValue;
     sqInt nextLength;
+    sqInt rampIndex;
+    sqInt rampValue;
+    sqInt x;
+    sqInt x1;
 
 	ds = (((int*) deltaST))[0];
 	dt = (((int*) deltaST))[1];
@@ -3307,22 +3330,22 @@ static sqInt fillRadialDecreasingrampdeltaSTdsXdtXfromto(sqInt fill, sqInt ramp,
 
 /*	Part 2a) Compute the decreasing part of the ramp */
 
-static sqInt fillRadialDecreasingAArampdeltaSTdsXdtXfromto(sqInt fill, int * ramp,  int * deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX) {
-    sqInt colorShift;
-    sqInt baseShift;
-    sqInt x1;
-    sqInt firstPixel;
-    sqInt ds;
-    sqInt x;
-    sqInt index;
-    sqInt rampIndex;
-    sqInt lastPixel;
-    sqInt dt;
-    sqInt length2;
-    sqInt rampValue;
-    sqInt nextLength;
+static sqInt fillRadialDecreasingAArampdeltaSTdsXdtXfromto(sqInt fill, int *ramp,  int *deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX) {
     sqInt aaLevel;
+    sqInt baseShift;
     sqInt colorMask;
+    sqInt colorShift;
+    sqInt ds;
+    sqInt dt;
+    sqInt firstPixel;
+    sqInt index;
+    sqInt lastPixel;
+    sqInt length2;
+    sqInt nextLength;
+    sqInt rampIndex;
+    sqInt rampValue;
+    sqInt x;
+    sqInt x1;
     sqInt firstPixel1;
 
 	ds = (((int*) deltaST))[0];
@@ -3429,40 +3452,40 @@ static sqInt fillRadialGradient(void) {
 /*	Draw a radial gradient fill. */
 
 static sqInt fillRadialGradientfromtoat(sqInt fill, sqInt leftX, sqInt rightX, sqInt yValue) {
-    int * deltaST;
-    sqInt dtX;
-    sqInt x1;
-    sqInt ds;
-    sqInt x;
+    int *deltaST;
     sqInt deltaX;
-    sqInt dt;
     sqInt deltaY;
-    sqInt rampSize;
-    sqInt length2;
-    int * ramp;
+    sqInt ds;
     sqInt dsX;
-    sqInt x11;
+    sqInt dt;
+    sqInt dtX;
+    sqInt length2;
+    int *ramp;
+    sqInt rampSize;
+    sqInt x;
+    sqInt x1;
     sqInt x0;
-    sqInt x12;
+    sqInt x11;
     sqInt ds1;
-    sqInt x2;
-    sqInt rampIndex;
     sqInt dt1;
     sqInt length21;
-    sqInt rampValue;
     sqInt nextLength;
-    sqInt x13;
-    sqInt lastLength;
-    sqInt ds2;
-    sqInt x3;
-    sqInt rampIndex1;
-    sqInt dt2;
-    sqInt rampSize1;
-    sqInt length22;
-    sqInt rampValue1;
-    sqInt nextLength1;
-    sqInt x14;
+    sqInt rampIndex;
+    sqInt rampValue;
+    sqInt x2;
+    sqInt x12;
     sqInt x01;
+    sqInt x13;
+    sqInt ds2;
+    sqInt dt2;
+    sqInt lastLength;
+    sqInt length22;
+    sqInt nextLength1;
+    sqInt rampIndex1;
+    sqInt rampSize1;
+    sqInt rampValue1;
+    sqInt x3;
+    sqInt x14;
 
 	ramp = (objBuffer + fill) + GFRampOffset;
 	rampSize = objBuffer[fill + GFRampLength];
@@ -3557,9 +3580,9 @@ static sqInt fillRadialGradientfromtoat(sqInt fill, sqInt leftX, sqInt rightX, s
 			nextLength1 = (rampIndex1 + 1) * (rampIndex1 + 1);
 			lastLength = ((((sqInt) ds2 >> 16)) * (((sqInt) ds2 >> 16))) + ((((sqInt) dt2 >> 16)) * (((sqInt) dt2 >> 16)));
 			x3 = x;
-			x13 = x1;
-			while ((x3 < x13) && (lastLength < length22)) {
-				while ((x3 < x13) && ((((((sqInt) ds2 >> 16)) * (((sqInt) ds2 >> 16))) + ((((sqInt) dt2 >> 16)) * (((sqInt) dt2 >> 16)))) <= nextLength1)) {
+			x14 = x1;
+			while ((x3 < x14) && (lastLength < length22)) {
+				while ((x3 < x14) && ((((((sqInt) ds2 >> 16)) * (((sqInt) ds2 >> 16))) + ((((sqInt) dt2 >> 16)) * (((sqInt) dt2 >> 16)))) <= nextLength1)) {
 					spanBuffer[x3] = rampValue1;
 					x3 += 1;
 					ds2 += dsX;
@@ -3586,15 +3609,15 @@ static sqInt fillRadialGradientfromtoat(sqInt fill, sqInt leftX, sqInt rightX, s
 			goto l2;
 		}
 		x01 = x;
-		x14 = rightX;
-		while ((x01 + 4) < x14) {
+		x13 = rightX;
+		while ((x01 + 4) < x13) {
 			spanBuffer[x01] = (ramp[rampSize - 1]);
 			spanBuffer[x01 + 1] = (ramp[rampSize - 1]);
 			spanBuffer[x01 + 2] = (ramp[rampSize - 1]);
 			spanBuffer[x01 + 3] = (ramp[rampSize - 1]);
 			x01 += 4;
 		}
-		while (x01 < x14) {
+		while (x01 < x13) {
 			spanBuffer[x01] = (ramp[rampSize - 1]);
 			x01 += 1;
 		}
@@ -3606,16 +3629,16 @@ static sqInt fillRadialGradientfromtoat(sqInt fill, sqInt leftX, sqInt rightX, s
 /*	Part 2b) Compute the increasing part of the ramp */
 
 static sqInt fillRadialIncreasingrampdeltaSTdsXdtXfromto(sqInt fill, sqInt ramp, sqInt deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX) {
-    sqInt x1;
-    sqInt lastLength;
     sqInt ds;
-    sqInt x;
-    sqInt rampIndex;
     sqInt dt;
-    sqInt rampSize;
+    sqInt lastLength;
     sqInt length2;
-    sqInt rampValue;
     sqInt nextLength;
+    sqInt rampIndex;
+    sqInt rampSize;
+    sqInt rampValue;
+    sqInt x;
+    sqInt x1;
 
 	ds = (((int*) deltaST))[0];
 	dt = (((int*) deltaST))[1];
@@ -3652,23 +3675,23 @@ static sqInt fillRadialIncreasingrampdeltaSTdsXdtXfromto(sqInt fill, sqInt ramp,
 
 /*	Part 2b) Compute the increasing part of the ramp */
 
-static sqInt fillRadialIncreasingAArampdeltaSTdsXdtXfromto(sqInt fill, int * ramp,  int * deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX) {
-    sqInt colorShift;
-    sqInt baseShift;
-    sqInt lastLength;
-    sqInt firstPixel;
-    sqInt ds;
-    sqInt x;
-    sqInt index;
-    sqInt rampIndex;
-    sqInt lastPixel;
-    sqInt dt;
-    sqInt rampSize;
-    sqInt length2;
-    sqInt rampValue;
-    sqInt nextLength;
+static sqInt fillRadialIncreasingAArampdeltaSTdsXdtXfromto(sqInt fill, int *ramp,  int *deltaST, sqInt dsX, sqInt dtX, sqInt leftX, sqInt rightX) {
     sqInt aaLevel;
+    sqInt baseShift;
     sqInt colorMask;
+    sqInt colorShift;
+    sqInt ds;
+    sqInt dt;
+    sqInt firstPixel;
+    sqInt index;
+    sqInt lastLength;
+    sqInt lastPixel;
+    sqInt length2;
+    sqInt nextLength;
+    sqInt rampIndex;
+    sqInt rampSize;
+    sqInt rampValue;
+    sqInt x;
     sqInt firstPixel1;
 
 	ds = (((int*) deltaST))[0];
@@ -3775,6 +3798,9 @@ l1:	/* end aaFirstPixelFrom:to: */;
 static sqInt fillSortsbefore(sqInt fillEntry1, sqInt fillEntry2) {
     sqInt diff;
 
+
+	/* First check the depth value */
+
 	diff = (workBuffer[(workBuffer[GWBufferTop]) + (fillEntry1 + 1)]) - (workBuffer[(workBuffer[GWBufferTop]) + (fillEntry2 + 1)]);
 	if (!(diff == 0)) {
 		return diff > 0;
@@ -3788,11 +3814,11 @@ static sqInt fillSortsbefore(sqInt fillEntry1, sqInt fillEntry2) {
 	be handled by some Smalltalk code. */
 
 static sqInt fillSpanfromto(unsigned int fill, sqInt leftX, sqInt rightX) {
-    sqInt x1;
-    sqInt x0;
     sqInt type;
-    sqInt x11;
+    sqInt x0;
+    sqInt x1;
     sqInt x01;
+    sqInt x11;
 
 	if (fill == 0) {
 		return 0;
@@ -3878,8 +3904,8 @@ static sqInt fillTypeOf(sqInt fill) {
 }
 
 static sqInt findNextAETEdgeFrom(sqInt leftEdge) {
-    sqInt rightEdge;
     sqInt depth;
+    sqInt rightEdge;
 
 	depth = objBuffer[leftEdge + GEZValue];
 	while ((workBuffer[GWAETStart]) < (workBuffer[GWAETUsed])) {
@@ -3897,9 +3923,9 @@ static sqInt findNextAETEdgeFrom(sqInt leftEdge) {
 	If there are any, return true. Otherwise, initialize the the edge and add it to the AET */
 
 static sqInt findNextExternalEntryFromGET(void) {
-    sqInt yValue;
     sqInt edge;
     sqInt type;
+    sqInt yValue;
 
 
 	/* As long as we have entries in the GET */
@@ -3951,26 +3977,26 @@ self halt.
 ]. */
 
 static sqInt findNextExternalFillFromAET(void) {
-    sqInt rightEdge;
-    sqInt leftX;
-    sqInt rightX;
     sqInt leftEdge;
+    sqInt leftX;
+    sqInt rightEdge;
+    sqInt rightX;
+    sqInt fill;
     sqInt startX;
     sqInt stopX;
-    sqInt fill;
     sqInt someIntegerValue;
     sqInt someIntegerValue1;
     sqInt rightX1;
+    sqInt fill1;
     sqInt startX1;
     sqInt stopX1;
-    sqInt fill1;
     sqInt someIntegerValue2;
     sqInt someIntegerValue11;
 
 	leftX = rightX = workBuffer[GWFillMaxX];
 	while ((workBuffer[GWAETStart]) < (workBuffer[GWAETUsed])) {
 
-		/* TODO: We should check if leftX from last operation
+		/* TODO: We should check if leftX from last operation 
 			is  greater than leftX from next edge.
 			Currently, we rely here on spanEndAA
 			from the span buffer fill. */
@@ -4169,8 +4195,8 @@ static sqInt findNextExternalFillFromAET(void) {
 	If there are any, return true. Otherwise, step the the edge to the next y value. */
 
 static sqInt findNextExternalUpdateFromAET(void) {
-    sqInt edge;
     sqInt count;
+    sqInt edge;
     sqInt type;
 
 	while ((workBuffer[GWAETStart]) < (workBuffer[GWAETUsed])) {
@@ -4340,10 +4366,10 @@ static sqInt hasEdgeTransformPut(sqInt value) {
 
 static sqInt hideFilldepth(sqInt fillIndex, sqInt depth) {
     sqInt index;
+    sqInt newDepth;
+    sqInt newRightX;
     sqInt newTop;
     sqInt newTopIndex;
-    sqInt newRightX;
-    sqInt newDepth;
 
 	index = findStackFilldepth(fillIndex, depth);
 	if (index == -1) {
@@ -4387,7 +4413,7 @@ static sqInt hideFilldepth(sqInt fillIndex, sqInt depth) {
 	return 1;
 }
 
-static sqInt incrementPointby(int * point, sqInt delta) {
+static sqInt incrementPointby(int *point, sqInt delta) {
 	point[0] = ((point[0]) + delta);
 	point[1] = ((point[1]) + delta);
 }
@@ -4400,8 +4426,8 @@ static sqInt incrementStatby(sqInt statIndex, sqInt value) {
 /*	Find insertion point for the given edge in the AET */
 
 static sqInt indexForInsertingIntoAET(sqInt edge) {
-    sqInt initialX;
     sqInt index;
+    sqInt initialX;
 
 	initialX = objBuffer[edge + GEXValue];
 	index = 0;
@@ -4415,7 +4441,7 @@ static sqInt indexForInsertingIntoAET(sqInt edge) {
 }
 
 static sqInt initColorTransform(void) {
-    float * transform;
+    float *transform;
 
 	transform = ((float *) (workBuffer + GWColorTransform));
 	transform[0] = (((float) 1.0));
@@ -4430,7 +4456,7 @@ static sqInt initColorTransform(void) {
 }
 
 static sqInt initEdgeTransform(void) {
-    float * transform;
+    float *transform;
 
 	transform = ((float *) (workBuffer + GWEdgeTransform));
 	transform[0] = (((float) 1.0));
@@ -4450,6 +4476,7 @@ EXPORT(sqInt) initialiseModule(void) {
 
 
 /*	Initialization stuff that needs to be done before any processing can take place. */
+/*	Make sure aaLevel is initialized */
 
 static sqInt initializeGETProcessing(void) {
 	setAALevel(workBuffer[GWAALevel]);
@@ -4683,12 +4710,12 @@ static sqInt lineYDirectionOfput(sqInt line, sqInt value) {
 /*	Load and subdivide the bezier curve from point1/point2/point3.
 	If wideFlag is set then make sure the curve is monoton in X. */
 
-static sqInt loadAndSubdivideBezierFromviatoisWide(int * point1, int * point2, int * point3, sqInt wideFlag) {
-    sqInt index2;
-    sqInt index;
+static sqInt loadAndSubdivideBezierFromviatoisWide(int *point1, int *point2, int *point3, sqInt wideFlag) {
     sqInt bz1;
-    sqInt index1;
     sqInt bz2;
+    sqInt index;
+    sqInt index1;
+    sqInt index2;
 
 	/* begin allocateBezierStackEntry */
 	/* begin wbStackPush: */
@@ -4721,11 +4748,11 @@ l1:	/* end wbStackPush: */;
 }
 
 static sqInt loadArrayPolygonnPointsfilllineWidthlineFill(sqInt points, sqInt nPoints, sqInt fillIndex, sqInt lineWidth, sqInt lineFill) {
-    sqInt x1;
     sqInt i;
-    sqInt y1;
     sqInt x0;
+    sqInt x1;
     sqInt y0;
+    sqInt y1;
 
 	loadPointfrom(((int *) (workBuffer + GWPoint1)), interpreterProxy->fetchPointerofObject(0, points));
 	if (interpreterProxy->failed()) {
@@ -4767,15 +4794,15 @@ static sqInt loadArrayPolygonnPointsfilllineWidthlineFill(sqInt points, sqInt nP
 }
 
 static sqInt loadArrayShapenSegmentsfilllineWidthlineFill(sqInt points, sqInt nSegments, sqInt fillIndex, sqInt lineWidth, sqInt lineFill) {
-    sqInt pointOop;
-    sqInt x1;
     sqInt i;
-    sqInt y1;
-    sqInt x2;
-    sqInt y2;
-    sqInt x0;
+    sqInt pointOop;
     sqInt segs;
+    sqInt x0;
+    sqInt x1;
+    sqInt x2;
     sqInt y0;
+    sqInt y1;
+    sqInt y2;
 
 	for (i = 0; i <= (nSegments - 1); i += 1) {
 		pointOop = interpreterProxy->fetchPointerofObject(i * 3, points);
@@ -4827,7 +4854,7 @@ static sqInt loadArrayShapenSegmentsfilllineWidthlineFill(sqInt points, sqInt nS
 
 /*	Load a transformation from the given array. */
 
-static sqInt loadArrayTransformFromintolength(sqInt transformOop, float * destPtr, sqInt n) {
+static sqInt loadArrayTransformFromintolength(sqInt transformOop, float *destPtr, sqInt n) {
     sqInt i;
     sqInt value;
 
@@ -4880,17 +4907,17 @@ static sqInt loadBitBltFrom(sqInt bbObj) {
 
 /*	Load the bitmap fill. */
 
-static sqInt loadBitmapFillcolormaptilefromalongnormalxIndex(sqInt formOop, sqInt cmOop, sqInt tileFlag, int * point1, int * point2, int * point3, sqInt xIndex) {
-    sqInt bmDepth;
-    sqInt ppw;
-    sqInt bmFill;
-    sqInt bmRaster;
-    sqInt bmHeight;
-    int * cmBits;
+static sqInt loadBitmapFillcolormaptilefromalongnormalxIndex(sqInt formOop, sqInt cmOop, sqInt tileFlag, int *point1, int *point2, int *point3, sqInt xIndex) {
     sqInt bmBits;
-    sqInt bmWidth;
     sqInt bmBitsSize;
+    sqInt bmDepth;
+    sqInt bmFill;
+    sqInt bmHeight;
+    sqInt bmRaster;
+    sqInt bmWidth;
+    int *cmBits;
     sqInt cmSize;
+    sqInt ppw;
 
 	if (cmOop == (interpreterProxy->nilObject())) {
 		cmSize = 0;
@@ -4955,10 +4982,10 @@ static sqInt loadBitmapFillcolormaptilefromalongnormalxIndex(sqInt formOop, sqIn
 /*	Note: Assumes that the contents of formArray has been checked before */
 
 static int * loadBitsFrom(sqInt bmFill) {
+    sqInt bitsLen;
+    sqInt bitsOop;
     sqInt formOop;
     sqInt xIndex;
-    sqInt bitsOop;
-    sqInt bitsLen;
 
 	xIndex = objBuffer[bmFill + GEObjectIndex];
 	if (xIndex > (interpreterProxy->slotSizeOf(formArray))) {
@@ -4979,7 +5006,7 @@ static int * loadBitsFrom(sqInt bmFill) {
 
 static sqInt loadColorTransformFrom(sqInt transformOop) {
     sqInt okay;
-    float * transform;
+    float *transform;
 
 	transform = ((float *) (workBuffer + GWColorTransform));
 	workBuffer[GWHasColorTransform] = 0;
@@ -4999,14 +5026,14 @@ static sqInt loadColorTransformFrom(sqInt transformOop) {
 /*	Load the compressed segment identified by segment index */
 
 static sqInt loadCompressedSegmentfromshortleftFillrightFilllineWidthlineColor(sqInt segmentIndex, sqInt points, sqInt pointsShort, sqInt leftFill, sqInt rightFill, sqInt lineWidth, sqInt lineFill) {
-    sqInt x1;
-    sqInt y1;
     sqInt index;
-    sqInt x2;
-    sqInt y2;
-    sqInt x0;
     sqInt segs;
+    sqInt x0;
+    sqInt x1;
+    sqInt x2;
     sqInt y0;
+    sqInt y1;
+    sqInt y2;
 
 	if ((leftFill == rightFill) && ((lineWidth == 0) || (lineFill == 0))) {
 		return null;
@@ -5016,6 +5043,9 @@ static sqInt loadCompressedSegmentfromshortleftFillrightFilllineWidthlineColor(s
 
 	index = segmentIndex * 6;
 	if (pointsShort) {
+
+		/* Load short points */
+
 		x0 = (((short *) points))[index + 0];
 		y0 = (((short *) points))[index + 1];
 		x1 = (((short *) points))[index + 2];
@@ -5084,28 +5114,28 @@ static sqInt loadCompressedSegmentfromshortleftFillrightFilllineWidthlineColor(s
 		WARNING: THIS METHOD NEEDS THE FULL FRAME SIZE!!!!
 	 */
 
-static sqInt loadCompressedShapesegmentsleftFillsrightFillslineWidthslineFillsfillIndexListpointShort(int * points, sqInt nSegments, int * leftFills, int * rightFills, int * lineWidths, int * lineFills, int * fillIndexList, sqInt pointsShort) {
-    sqInt widthLength;
+static sqInt loadCompressedShapesegmentsleftFillsrightFillslineWidthslineFillsfillIndexListpointShort(int *points, sqInt nSegments, int *leftFills, int *rightFills, int *lineWidths, int *lineFills, int *fillIndexList, sqInt pointsShort) {
+    sqInt i;
+    sqInt leftLength;
+    sqInt leftRun;
+    sqInt leftValue;
     sqInt lineFillLength;
+    sqInt lineFillRun;
+    sqInt lineFillValue;
+    sqInt rightLength;
     sqInt rightRun;
     sqInt rightValue;
-    sqInt i;
-    sqInt leftValue;
-    sqInt leftLength;
-    sqInt lineFillRun;
-    sqInt leftRun;
-    sqInt widthValue;
-    sqInt lineFillValue;
+    sqInt widthLength;
     sqInt widthRun;
-    sqInt rightLength;
-    sqInt x1;
-    sqInt y1;
+    sqInt widthValue;
     sqInt index;
-    sqInt x2;
-    sqInt y2;
-    sqInt x0;
     sqInt segs;
+    sqInt x0;
+    sqInt x1;
+    sqInt x2;
     sqInt y0;
+    sqInt y1;
+    sqInt y2;
 
 	if (nSegments == 0) {
 		return 0;
@@ -5115,6 +5145,9 @@ static sqInt loadCompressedShapesegmentsleftFillsrightFillslineWidthslineFillsfi
 	leftValue = rightValue = widthValue = lineFillValue = 0;
 	for (i = 1; i <= nSegments; i += 1) {
 		if ((leftLength -= 1) <= 0) {
+
+			/* Decrement current run length and load new stuff */
+
 			leftRun += 1;
 			leftLength = ((usqInt) ((((int *) leftFills))[leftRun]) >> 16);
 			leftValue = ((((int *) leftFills))[leftRun]) & 65535;
@@ -5241,14 +5274,14 @@ static sqInt loadEdgeStateFrom(sqInt edgeOop) {
 	value = interpreterProxy->fetchIntegerofObject(ETXValueIndex, edgeOop);
 	objBuffer[edge + GEXValue] = value;
 	/* begin edgeYValueOf:put: */
-	value2 = interpreterProxy->fetchIntegerofObject(ETYValueIndex, edgeOop);
-	objBuffer[edge + GEYValue] = value2;
+	value1 = interpreterProxy->fetchIntegerofObject(ETYValueIndex, edgeOop);
+	objBuffer[edge + GEYValue] = value1;
 	/* begin edgeZValueOf:put: */
-	value3 = interpreterProxy->fetchIntegerofObject(ETZValueIndex, edgeOop);
-	objBuffer[edge + GEZValue] = value3;
+	value2 = interpreterProxy->fetchIntegerofObject(ETZValueIndex, edgeOop);
+	objBuffer[edge + GEZValue] = value2;
 	/* begin edgeNumLinesOf:put: */
-	value1 = interpreterProxy->fetchIntegerofObject(ETLinesIndex, edgeOop);
-	objBuffer[edge + GENumLines] = value1;
+	value3 = interpreterProxy->fetchIntegerofObject(ETLinesIndex, edgeOop);
+	objBuffer[edge + GENumLines] = value3;
 	return edge;
 }
 
@@ -5258,7 +5291,7 @@ static sqInt loadEdgeStateFrom(sqInt edgeOop) {
 
 static sqInt loadEdgeTransformFrom(sqInt transformOop) {
     sqInt okay;
-    float * transform;
+    float *transform;
 
 	workBuffer[GWHasEdgeTransform] = 0;
 	transform = ((float *) (workBuffer + GWEdgeTransform));
@@ -5278,17 +5311,17 @@ static sqInt loadEdgeTransformFrom(sqInt transformOop) {
 
 /*	Transform the points */
 
-static sqInt loadFillOrientationfromalongnormalwidthheight(sqInt fill, int * point1, int * point2, int * point3, sqInt fillWidth, sqInt fillHeight) {
-    sqInt dsLength2;
-    sqInt dtX;
-    sqInt nrmX;
-    sqInt dsY;
-    sqInt dtY;
+static sqInt loadFillOrientationfromalongnormalwidthheight(sqInt fill, int *point1, int *point2, int *point3, sqInt fillWidth, sqInt fillHeight) {
     sqInt dirX;
-    sqInt nrmY;
-    sqInt dtLength2;
     sqInt dirY;
+    sqInt dsLength2;
     sqInt dsX;
+    sqInt dsY;
+    sqInt dtLength2;
+    sqInt dtX;
+    sqInt dtY;
+    sqInt nrmX;
+    sqInt nrmY;
 
 	point2[0] = ((point2[0]) + (point1[0]));
 	point2[1] = ((point2[1]) + (point1[1]));
@@ -5306,16 +5339,16 @@ static sqInt loadFillOrientationfromalongnormalwidthheight(sqInt fill, int * poi
 	nrmY = (point3[1]) - (point1[1]);
 	dsLength2 = (dirX * dirX) + (dirY * dirY);
 	if (dsLength2 > 0) {
-		dsX = ((sqInt) ((((((double) dirX )) * (((double) fillWidth ))) * 65536.0) / (((double) dsLength2 ))) );
-		dsY = ((sqInt) ((((((double) dirY )) * (((double) fillWidth ))) * 65536.0) / (((double) dsLength2 ))) );
+		dsX = ((sqInt)((((((double) dirX )) * (((double) fillWidth ))) * 65536.0) / (((double) dsLength2 ))));
+		dsY = ((sqInt)((((((double) dirY )) * (((double) fillWidth ))) * 65536.0) / (((double) dsLength2 ))));
 	} else {
 		dsX = 0;
 		dsY = 0;
 	}
 	dtLength2 = (nrmX * nrmX) + (nrmY * nrmY);
 	if (dtLength2 > 0) {
-		dtX = ((sqInt) ((((((double) nrmX )) * (((double) fillHeight ))) * 65536.0) / (((double) dtLength2 ))) );
-		dtY = ((sqInt) ((((((double) nrmY )) * (((double) fillHeight ))) * 65536.0) / (((double) dtLength2 ))) );
+		dtX = ((sqInt)((((((double) nrmX )) * (((double) fillHeight ))) * 65536.0) / (((double) dtLength2 ))));
+		dtY = ((sqInt)((((((double) nrmY )) * (((double) fillHeight ))) * 65536.0) / (((double) dtLength2 ))));
 	} else {
 		dtX = 0;
 		dtY = 0;
@@ -5332,15 +5365,15 @@ static sqInt loadFillOrientationfromalongnormalwidthheight(sqInt fill, int * poi
 /*	Check all the forms from arrayOop. */
 
 static sqInt loadFormsFrom(sqInt arrayOop) {
-    sqInt bmDepth;
-    sqInt ppw;
-    sqInt bmRaster;
-    sqInt i;
-    sqInt bmHeight;
     sqInt bmBits;
-    sqInt formOop;
-    sqInt bmWidth;
     sqInt bmBitsSize;
+    sqInt bmDepth;
+    sqInt bmHeight;
+    sqInt bmRaster;
+    sqInt bmWidth;
+    sqInt formOop;
+    sqInt i;
+    sqInt ppw;
 
 	if (!(interpreterProxy->isArray(arrayOop))) {
 		return 0;
@@ -5383,9 +5416,9 @@ static sqInt loadFormsFrom(sqInt arrayOop) {
 
 /*	Load the gradient fill as defined by the color ramp. */
 
-static sqInt loadGradientFillfromalongnormalisRadial(sqInt rampOop, int * point1, int * point2, int * point3, sqInt isRadial) {
-    sqInt rampWidth;
+static sqInt loadGradientFillfromalongnormalisRadial(sqInt rampOop, int *point1, int *point2, int *point3, sqInt isRadial) {
     sqInt fill;
+    sqInt rampWidth;
 
 	if (!((interpreterProxy->fetchClassOf(rampOop)) == (interpreterProxy->classBitmap()))) {
 		return interpreterProxy->primitiveFail();
@@ -5402,10 +5435,10 @@ static sqInt loadGradientFillfromalongnormalisRadial(sqInt rampOop, int * point1
 
 /*	Load the line defined by point1 and point2. */
 
-static sqInt loadLinefromtooffsetleftFillrightFill(sqInt line, int * point1, int * point2, sqInt yOffset, sqInt leftFill, sqInt rightFill) {
-    int * p1;
+static sqInt loadLinefromtooffsetleftFillrightFill(sqInt line, int *point1, int *point2, sqInt yOffset, sqInt leftFill, sqInt rightFill) {
+    int *p1;
+    int *p2;
     sqInt yDir;
-    int * p2;
 
 	if ((point1[1]) <= (point2[1])) {
 		p1 = point1;
@@ -5431,11 +5464,11 @@ static sqInt loadLinefromtooffsetleftFillrightFill(sqInt line, int * point1, int
 
 static sqInt loadOvallineFillleftFillrightFill(sqInt lineWidth, sqInt lineFill, sqInt leftFill, sqInt rightFill) {
     sqInt cx;
-    sqInt i;
     sqInt cy;
     sqInt h;
-    sqInt w;
+    sqInt i;
     sqInt nSegments;
+    sqInt w;
 
 	w = ((sqInt) (((((int *) (workBuffer + GWPoint2)))[0]) - ((((int *) (workBuffer + GWPoint1)))[0])) >> 1);
 	h = ((sqInt) (((((int *) (workBuffer + GWPoint2)))[1]) - ((((int *) (workBuffer + GWPoint1)))[1])) >> 1);
@@ -5468,27 +5501,30 @@ static sqInt loadOvallineFillleftFillrightFill(sqInt lineWidth, sqInt lineFill, 
 }
 
 static sqInt loadOvalSegmentwhcxcy(sqInt seg, sqInt w, sqInt h, sqInt cx, sqInt cy) {
-    sqInt x1;
-    sqInt y1;
-    sqInt x2;
-    sqInt y2;
     sqInt x0;
+    sqInt x1;
+    sqInt x2;
     sqInt y0;
+    sqInt y1;
+    sqInt y2;
 
-	x0 = ((sqInt) ((((circleCosTable())[(seg * 2) + 0]) * (((double) w ))) + cx) );
-	y0 = ((sqInt) ((((circleSinTable())[(seg * 2) + 0]) * (((double) h ))) + cy) );
+
+	/* Load start point of segment */
+
+	x0 = ((sqInt)((((circleCosTable())[(seg * 2) + 0]) * (((double) w ))) + cx));
+	y0 = ((sqInt)((((circleSinTable())[(seg * 2) + 0]) * (((double) h ))) + cy));
 	(((int *) (workBuffer + GWPoint1)))[0] = x0;
 	(((int *) (workBuffer + GWPoint1)))[1] = y0;
-	x2 = ((sqInt) ((((circleCosTable())[(seg * 2) + 2]) * (((double) w ))) + cx) );
-	y2 = ((sqInt) ((((circleSinTable())[(seg * 2) + 2]) * (((double) h ))) + cy) );
+	x2 = ((sqInt)((((circleCosTable())[(seg * 2) + 2]) * (((double) w ))) + cx));
+	y2 = ((sqInt)((((circleSinTable())[(seg * 2) + 2]) * (((double) h ))) + cy));
 	(((int *) (workBuffer + GWPoint3)))[0] = x2;
 	(((int *) (workBuffer + GWPoint3)))[1] = y2;
-	x1 = ((sqInt) ((((circleCosTable())[(seg * 2) + 1]) * (((double) w ))) + cx) );
+	x1 = ((sqInt)((((circleCosTable())[(seg * 2) + 1]) * (((double) w ))) + cx));
 
 	/* NOTE: The intermediate point is the point ON the curve
 	and not yet the control point (which is OFF the curve) */
 
-	y1 = ((sqInt) ((((circleSinTable())[(seg * 2) + 1]) * (((double) h ))) + cy) );
+	y1 = ((sqInt)((((circleSinTable())[(seg * 2) + 1]) * (((double) h ))) + cy));
 	x1 = (x1 * 2) - (((sqInt) (x0 + x2) >> 1));
 	y1 = (y1 * 2) - (((sqInt) (y0 + y2) >> 1));
 	(((int *) (workBuffer + GWPoint2)))[0] = x1;
@@ -5498,7 +5534,7 @@ static sqInt loadOvalSegmentwhcxcy(sqInt seg, sqInt w, sqInt h, sqInt cx, sqInt 
 
 /*	Load the contents of pointOop into pointArray */
 
-static sqInt loadPointfrom(int * pointArray, sqInt pointOop) {
+static sqInt loadPointfrom(int *pointArray, sqInt pointOop) {
     sqInt value;
 
 	if (!((interpreterProxy->fetchClassOf(pointOop)) == (interpreterProxy->classPoint()))) {
@@ -5511,7 +5547,7 @@ static sqInt loadPointfrom(int * pointArray, sqInt pointOop) {
 	if ((value & 1)) {
 		pointArray[0] = ((value >> 1));
 	} else {
-		pointArray[0] = (((sqInt) (interpreterProxy->floatValueOf(value)) ));
+		pointArray[0] = (((sqInt)(interpreterProxy->floatValueOf(value))));
 	}
 	value = interpreterProxy->fetchPointerofObject(1, pointOop);
 	if (!(((value & 1)) || (interpreterProxy->isFloatObject(value)))) {
@@ -5520,7 +5556,7 @@ static sqInt loadPointfrom(int * pointArray, sqInt pointOop) {
 	if ((value & 1)) {
 		pointArray[1] = ((value >> 1));
 	} else {
-		pointArray[1] = (((sqInt) (interpreterProxy->floatValueOf(value)) ));
+		pointArray[1] = (((sqInt)(interpreterProxy->floatValueOf(value))));
 	}
 }
 
@@ -5538,12 +5574,12 @@ static short loadPointShortAtfrom(sqInt index, sqInt shortArray) {
 	return (((short *) shortArray))[index];
 }
 
-static sqInt loadPolygonnPointsfilllineWidthlineFillpointsShort(int * points, sqInt nPoints, sqInt fillIndex, sqInt lineWidth, sqInt lineFill, sqInt isShort) {
-    sqInt x1;
+static sqInt loadPolygonnPointsfilllineWidthlineFillpointsShort(int *points, sqInt nPoints, sqInt fillIndex, sqInt lineWidth, sqInt lineFill, sqInt isShort) {
     sqInt i;
-    sqInt y1;
     sqInt x0;
+    sqInt x1;
     sqInt y0;
+    sqInt y1;
 
 	if (isShort) {
 		x0 = (((short *) points))[0];
@@ -5601,8 +5637,8 @@ static sqInt loadRectanglelineFillleftFillrightFill(sqInt lineWidth, sqInt lineF
 
 static sqInt loadRenderingState(void) {
     sqInt edgeOop;
-    sqInt state;
     sqInt fillOop;
+    sqInt state;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 2)) {
 		return interpreterProxy->primitiveFail();
@@ -5638,16 +5674,16 @@ static sqInt loadRenderingState(void) {
 	return 1;
 }
 
-static sqInt loadShapenSegmentsfilllineWidthlineFillpointsShort(int * points, sqInt nSegments, sqInt fillIndex, sqInt lineWidth, sqInt lineFill, sqInt pointsShort) {
+static sqInt loadShapenSegmentsfilllineWidthlineFillpointsShort(int *points, sqInt nSegments, sqInt fillIndex, sqInt lineWidth, sqInt lineFill, sqInt pointsShort) {
     sqInt i;
-    sqInt x1;
-    sqInt y1;
     sqInt index;
-    sqInt x2;
-    sqInt y2;
-    sqInt x0;
     sqInt segs;
+    sqInt x0;
+    sqInt x1;
+    sqInt x2;
     sqInt y0;
+    sqInt y1;
+    sqInt y2;
 
 	for (i = 1; i <= nSegments; i += 1) {
 		/* begin loadCompressedSegment:from:short:leftFill:rightFill:lineWidth:lineColor: */
@@ -5749,7 +5785,7 @@ static sqInt loadSpanBufferFrom(sqInt spanOop) {
 	defined by destPtr. The transformation is assumed to be either
 	an array or a FloatArray of length n. */
 
-static sqInt loadTransformFromintolength(sqInt transformOop, float * destPtr, sqInt n) {
+static sqInt loadTransformFromintolength(sqInt transformOop, float *destPtr, sqInt n) {
 	if (transformOop == (interpreterProxy->nilObject())) {
 		return 0;
 	}
@@ -5771,10 +5807,10 @@ static sqInt loadTransformFromintolength(sqInt transformOop, float * destPtr, sq
 /*	Load the (possibly wide) bezier from the segments currently on the bezier stack. */
 
 static sqInt loadWideBezierlineFillleftFillrightFilln(sqInt lineWidth, sqInt lineFill, sqInt leftFill, sqInt rightFill, sqInt nSegments) {
-    sqInt index;
-    sqInt wide;
-    sqInt offset;
     sqInt bezier;
+    sqInt index;
+    sqInt offset;
+    sqInt wide;
     sqInt bezier1;
     sqInt bezier2;
 
@@ -5791,28 +5827,28 @@ static sqInt loadWideBezierlineFillleftFillrightFilln(sqInt lineWidth, sqInt lin
 			/* begin allocateWideBezier */
 			if (!(allocateObjEntry(GBWideSize))) {
 				bezier = 0;
-				goto l2;
+				goto l1;
 			}
-			bezier2 = objUsed;
-			objUsed = bezier2 + GBWideSize;
-			objBuffer[bezier2 + GEObjectType] = GEPrimitiveWideBezier;
-			objBuffer[bezier2 + GEObjectIndex] = 0;
-			objBuffer[bezier2 + GEObjectLength] = GBWideSize;
-			bezier = bezier2;
-		l2:	/* end allocateWideBezier */;
+			bezier1 = objUsed;
+			objUsed = bezier1 + GBWideSize;
+			objBuffer[bezier1 + GEObjectType] = GEPrimitiveWideBezier;
+			objBuffer[bezier1 + GEObjectIndex] = 0;
+			objBuffer[bezier1 + GEObjectLength] = GBWideSize;
+			bezier = bezier1;
+		l1:	/* end allocateWideBezier */;
 		} else {
 			/* begin allocateBezier */
 			if (!(allocateObjEntry(GBBaseSize))) {
 				bezier = 0;
-				goto l1;
+				goto l2;
 			}
-			bezier1 = objUsed;
-			objUsed = bezier1 + GBBaseSize;
-			objBuffer[bezier1 + GEObjectType] = GEPrimitiveBezier;
-			objBuffer[bezier1 + GEObjectIndex] = 0;
-			objBuffer[bezier1 + GEObjectLength] = GBBaseSize;
-			bezier = bezier1;
-		l1:	/* end allocateBezier */;
+			bezier2 = objUsed;
+			objUsed = bezier2 + GBBaseSize;
+			objBuffer[bezier2 + GEObjectType] = GEPrimitiveBezier;
+			objBuffer[bezier2 + GEObjectIndex] = 0;
+			objBuffer[bezier2 + GEObjectLength] = GBBaseSize;
+			bezier = bezier2;
+		l2:	/* end allocateBezier */;
 		}
 		if (engineStopped) {
 			return 0;
@@ -5832,7 +5868,7 @@ static sqInt loadWideBezierlineFillleftFillrightFilln(sqInt lineWidth, sqInt lin
 
 /*	Load a (possibly wide) line defined by the points p1 and p2 */
 
-static sqInt loadWideLinefromtolineFillleftFillrightFill(sqInt lineWidth, int * p1, int * p2, sqInt lineFill, sqInt leftFill, sqInt rightFill) {
+static sqInt loadWideLinefromtolineFillleftFillrightFill(sqInt lineWidth, int *p1, int *p2, sqInt lineFill, sqInt leftFill, sqInt rightFill) {
     sqInt line;
     sqInt offset;
     sqInt line1;
@@ -5881,9 +5917,9 @@ static sqInt loadWideLinefromtolineFillleftFillrightFill(sqInt lineWidth, int * 
 
 /*	Load a float array transformation from the given oop */
 
-static sqInt loadWordTransformFromintolength(sqInt transformOop, float * destPtr, sqInt n) {
+static sqInt loadWordTransformFromintolength(sqInt transformOop, float *destPtr, sqInt n) {
     sqInt i;
-    float * srcPtr;
+    float *srcPtr;
 
 	srcPtr = ((float *) (interpreterProxy->firstIndexableField(transformOop)));
 	for (i = 0; i <= (n - 1); i += 1) {
@@ -5950,15 +5986,18 @@ static sqInt makeUnsignedFrom(sqInt someIntegerValue) {
 /*	The module with the given name was just unloaded.
 	Make sure we have no dangling references. */
 
-EXPORT(sqInt) moduleUnloaded(char * aModuleName) {
+EXPORT(sqInt) moduleUnloaded(char *aModuleName) {
 	if ((strcmp(aModuleName, bbPluginName)) == 0) {
+
+		/* BitBlt just shut down. How nasty. */
+
 		loadBBFn = 0;
 		copyBitsFn = 0;
 	}
 }
 
 
-/*	The entry at index is not in the right position of the AET.
+/*	The entry at index is not in the right position of the AET. 
 	Move it to the left until the position is okay. */
 
 static sqInt moveAETEntryFromedgex(sqInt index, sqInt edge, sqInt xValue) {
@@ -5972,7 +6011,7 @@ static sqInt moveAETEntryFromedgex(sqInt index, sqInt edge, sqInt xValue) {
 	aetBuffer[newIndex] = edge;
 }
 
-static sqInt msg(char * s) {
+static sqInt msg(char *s) {
 	fprintf(stderr, "\n%s: %s", moduleName, s);
 }
 
@@ -6081,6 +6120,7 @@ static int * point4Get(void) {
 /*	We have just blitted a scan line to the screen.
 	Do whatever seems to be a good idea here. */
 /*	Note: In the future we may check the time needed for this scan line and interrupt processing to give the Smalltalk code a chance to run at a certain time. */
+/*	Check if there is any more work to do. */
 
 static sqInt postDisplayAction(void) {
 	if (((workBuffer[GWGETStart]) >= (workBuffer[GWGETUsed])) && ((workBuffer[GWAETUsed]) == 0)) {
@@ -6111,8 +6151,8 @@ EXPORT(sqInt) primitiveAbortProcessing(void) {
 /*	Note: No need to load either bitBlt or spanBuffer */
 
 EXPORT(sqInt) primitiveAddActiveEdgeEntry(void) {
-    sqInt edgeOop;
     sqInt edge;
+    sqInt edgeOop;
     sqInt value;
 
 	if (doProfileStats) {
@@ -6155,12 +6195,12 @@ EXPORT(sqInt) primitiveAddActiveEdgeEntry(void) {
 }
 
 EXPORT(sqInt) primitiveAddBezier(void) {
-    sqInt rightFill;
-    sqInt viaOop;
-    sqInt startOop;
+    sqInt endOop;
     sqInt leftFill;
     sqInt nSegments;
-    sqInt endOop;
+    sqInt rightFill;
+    sqInt startOop;
+    sqInt viaOop;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 5)) {
 		return interpreterProxy->primitiveFail();
@@ -6230,14 +6270,14 @@ l1:	/* end needAvailableSpace: */;
 }
 
 EXPORT(sqInt) primitiveAddBezierShape(void) {
-    sqInt lineWidth;
+    sqInt fillIndex;
+    sqInt isArray;
     sqInt length;
+    sqInt lineFill;
+    sqInt lineWidth;
+    sqInt nSegments;
     sqInt points;
     sqInt segSize;
-    sqInt lineFill;
-    sqInt isArray;
-    sqInt nSegments;
-    sqInt fillIndex;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 5)) {
 		return interpreterProxy->primitiveFail();
@@ -6315,12 +6355,12 @@ EXPORT(sqInt) primitiveAddBezierShape(void) {
 EXPORT(sqInt) primitiveAddBitmapFill(void) {
     sqInt cmOop;
     sqInt dirOop;
+    sqInt fill;
+    sqInt formOop;
+    sqInt nrmOop;
     sqInt originOop;
     sqInt tileFlag;
-    sqInt formOop;
-    sqInt fill;
     sqInt xIndex;
-    sqInt nrmOop;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 7)) {
 		return interpreterProxy->primitiveFail();
@@ -6365,14 +6405,14 @@ EXPORT(sqInt) primitiveAddBitmapFill(void) {
 }
 
 EXPORT(sqInt) primitiveAddCompressedShape(void) {
-    sqInt leftFills;
     sqInt fillIndexList;
-    sqInt lineWidths;
-    sqInt points;
-    sqInt rightFills;
-    sqInt nSegments;
-    sqInt pointsShort;
+    sqInt leftFills;
     sqInt lineFills;
+    sqInt lineWidths;
+    sqInt nSegments;
+    sqInt points;
+    sqInt pointsShort;
+    sqInt rightFills;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 7)) {
 		return interpreterProxy->primitiveFail();
@@ -6414,11 +6454,11 @@ EXPORT(sqInt) primitiveAddCompressedShape(void) {
 
 EXPORT(sqInt) primitiveAddGradientFill(void) {
     sqInt dirOop;
-    sqInt originOop;
-    sqInt rampOop;
     sqInt fill;
     sqInt isRadial;
     sqInt nrmOop;
+    sqInt originOop;
+    sqInt rampOop;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 5)) {
 		return interpreterProxy->primitiveFail();
@@ -6453,10 +6493,10 @@ EXPORT(sqInt) primitiveAddGradientFill(void) {
 }
 
 EXPORT(sqInt) primitiveAddLine(void) {
+    sqInt endOop;
+    sqInt leftFill;
     sqInt rightFill;
     sqInt startOop;
-    sqInt leftFill;
-    sqInt endOop;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 4)) {
 		return interpreterProxy->primitiveFail();
@@ -6509,11 +6549,11 @@ EXPORT(sqInt) primitiveAddLine(void) {
 }
 
 EXPORT(sqInt) primitiveAddOval(void) {
-    sqInt startOop;
     sqInt borderIndex;
     sqInt borderWidth;
-    sqInt fillIndex;
     sqInt endOop;
+    sqInt fillIndex;
+    sqInt startOop;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 5)) {
 		return interpreterProxy->primitiveFail();
@@ -6568,19 +6608,19 @@ EXPORT(sqInt) primitiveAddOval(void) {
 }
 
 EXPORT(sqInt) primitiveAddPolygon(void) {
-    sqInt lineWidth;
+    sqInt fillIndex;
+    sqInt isArray;
     sqInt length;
+    sqInt lineFill;
+    sqInt lineWidth;
+    sqInt nPoints;
     sqInt points;
     sqInt segSize;
-    sqInt lineFill;
-    sqInt isArray;
-    sqInt nPoints;
-    sqInt fillIndex;
-    sqInt x1;
     sqInt i;
-    sqInt y1;
     sqInt x0;
+    sqInt x1;
     sqInt y0;
+    sqInt y1;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 5)) {
 		return interpreterProxy->primitiveFail();
@@ -6691,11 +6731,11 @@ EXPORT(sqInt) primitiveAddPolygon(void) {
 }
 
 EXPORT(sqInt) primitiveAddRect(void) {
-    sqInt startOop;
     sqInt borderIndex;
     sqInt borderWidth;
-    sqInt fillIndex;
     sqInt endOop;
+    sqInt fillIndex;
+    sqInt startOop;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 5)) {
 		return interpreterProxy->primitiveFail();
@@ -6769,8 +6809,8 @@ EXPORT(sqInt) primitiveAddRect(void) {
 /*	Note: No need to load either bitBlt or spanBuffer */
 
 EXPORT(sqInt) primitiveChangedActiveEdgeEntry(void) {
-    sqInt edgeOop;
     sqInt edge;
+    sqInt edgeOop;
     sqInt value;
 
 	if (doProfileStats) {
@@ -6811,11 +6851,11 @@ EXPORT(sqInt) primitiveChangedActiveEdgeEntry(void) {
 
 EXPORT(sqInt) primitiveCopyBuffer(void) {
     sqInt buf1;
+    sqInt buf2;
+    sqInt diff;
     int *  dst;
     sqInt i;
-    sqInt buf2;
     int *  src;
-    sqInt diff;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 2)) {
 		return interpreterProxy->primitiveFail();
@@ -6961,7 +7001,7 @@ EXPORT(sqInt) primitiveGetAALevel(void) {
 
 EXPORT(sqInt) primitiveGetBezierStats(void) {
     sqInt statOop;
-    int * stats;
+    int *stats;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 1)) {
 		return interpreterProxy->primitiveFail();
@@ -6989,8 +7029,8 @@ EXPORT(sqInt) primitiveGetBezierStats(void) {
 }
 
 EXPORT(sqInt) primitiveGetClipRect(void) {
-    sqInt rectOop;
     sqInt pointOop;
+    sqInt rectOop;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 1)) {
 		return interpreterProxy->primitiveFail();
@@ -7023,7 +7063,7 @@ EXPORT(sqInt) primitiveGetClipRect(void) {
 
 EXPORT(sqInt) primitiveGetCounts(void) {
     sqInt statOop;
-    int * stats;
+    int *stats;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 1)) {
 		return interpreterProxy->primitiveFail();
@@ -7117,7 +7157,7 @@ EXPORT(sqInt) primitiveGetOffset(void) {
 
 EXPORT(sqInt) primitiveGetTimes(void) {
     sqInt statOop;
-    int * stats;
+    int *stats;
 
 	if (!((interpreterProxy->methodArgumentCount()) == 1)) {
 		return interpreterProxy->primitiveFail();
@@ -7239,9 +7279,9 @@ EXPORT(sqInt) primitiveInitializeProcessing(void) {
 /*	Note: No need to load bitBlt but must load spanBuffer */
 
 EXPORT(sqInt) primitiveMergeFillFrom(void) {
+    sqInt bitsOop;
     sqInt fillOop;
     sqInt value;
-    sqInt bitsOop;
     sqInt value1;
 
 	if (doProfileStats) {
@@ -7351,8 +7391,8 @@ EXPORT(sqInt) primitiveNeedsFlushPut(void) {
 /*	Note: No need to load either bitBlt or spanBuffer */
 
 EXPORT(sqInt) primitiveNextActiveEdgeEntry(void) {
-    sqInt edgeOop;
     sqInt edge;
+    sqInt edgeOop;
     sqInt hasEdge;
     sqInt value;
 
@@ -7463,8 +7503,8 @@ EXPORT(sqInt) primitiveNextFillEntry(void) {
 /*	Note: No need to load either bitBlt or spanBuffer */
 
 EXPORT(sqInt) primitiveNextGlobalEdgeEntry(void) {
-    sqInt edgeOop;
     sqInt edge;
+    sqInt edgeOop;
     sqInt hasEdge;
     sqInt value;
 
@@ -7513,10 +7553,10 @@ EXPORT(sqInt) primitiveNextGlobalEdgeEntry(void) {
 }
 
 EXPORT(sqInt) primitiveRegisterExternalEdge(void) {
-    sqInt initialX;
-    sqInt index;
-    sqInt initialY;
     sqInt edge;
+    sqInt index;
+    sqInt initialX;
+    sqInt initialY;
     sqInt initialZ;
     sqInt leftFillIndex;
     sqInt rightFillIndex;
@@ -7662,11 +7702,11 @@ EXPORT(sqInt) primitiveSetAALevel(void) {
 /*	Primitive. Set the BitBlt plugin to use. */
 
 EXPORT(sqInt) primitiveSetBitBltPlugin(void) {
-    char * ptr;
-    sqInt length;
     sqInt i;
-    sqInt pluginName;
+    sqInt length;
     sqInt needReload;
+    sqInt pluginName;
+    char *ptr;
 
 
 	/* Must be string to work */
@@ -7937,8 +7977,8 @@ static sqInt proceedRenderingImage(void) {
 /*	This is the main rendering entry */
 
 static sqInt proceedRenderingScanline(void) {
-    sqInt state;
     sqInt external;
+    sqInt state;
     sqInt value;
     sqInt value1;
     sqInt value2;
@@ -8129,18 +8169,18 @@ static sqInt quickRemoveInvalidFillsAt(sqInt leftX) {
 	sortBlock. */
 /*	Note: The original loop has been heavily re-written for C translation */
 
-static sqInt quickSortGlobalEdgeTablefromto(int * array, sqInt i, sqInt j) {
-    sqInt k;
+static sqInt quickSortGlobalEdgeTablefromto(int *array, sqInt i, sqInt j) {
     sqInt again;
-    sqInt tt;
-    sqInt di;
-    sqInt n;
-    sqInt l;
-    sqInt dj;
     sqInt before;
+    sqInt di;
     sqInt dij;
+    sqInt dj;
     sqInt ij;
+    sqInt k;
+    sqInt l;
+    sqInt n;
     sqInt tmp;
+    sqInt tt;
 
 	if ((n = (j + 1) - i) <= 1) {
 		return 0;
@@ -8180,12 +8220,18 @@ static sqInt quickSortGlobalEdgeTablefromto(int * array, sqInt i, sqInt j) {
 
 		before = getSortsbefore(dij, dj);
 		if (!(before)) {
+
+			/* i.e., should dij precede dj? */
+
 			tmp = array[j];
 			array[j] = (array[ij]);
 			array[ij] = tmp;
 			dij = dj;
 		}
 	} else {
+
+		/* i.e. di should come after dij */
+
 		tmp = array[i];
 		array[i] = (array[ij]);
 		array[ij] = tmp;
@@ -8284,8 +8330,8 @@ static sqInt resetGraphicsEngineStats(void) {
 }
 
 static sqInt resortFirstAETEntry(void) {
-    sqInt leftEdge;
     sqInt edge;
+    sqInt leftEdge;
     sqInt xValue;
 
 	if ((workBuffer[GWAETStart]) == 0) {
@@ -8364,7 +8410,7 @@ static sqInt setAALevel(sqInt level) {
 
 /*	Note: This is coded so that is can be run from Squeak. */
 
-EXPORT(sqInt) setInterpreter(struct VirtualMachine* anInterpreter) {
+EXPORT(sqInt) setInterpreter(struct VirtualMachine*anInterpreter) {
     sqInt ok;
 
 	interpreterProxy = anInterpreter;
@@ -8413,7 +8459,7 @@ static sqInt showFilldepthrightX(sqInt fillIndex, sqInt depth, sqInt rightX) {
 }
 
 static int * smallSqrtTable(void) {
-    static int theTable[32] =
+    static int theTable[32] = 
 	{0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6};
 
 	return theTable;
@@ -8511,40 +8557,40 @@ static sqInt stepToFirstBezier(void) {
 
 
 /*	Initialize the bezier at yValue.
-	TODO: Check if reducing maxSteps from 2*deltaY to deltaY
+	TODO: Check if reducing maxSteps from 2*deltaY to deltaY 
 		brings a *significant* performance improvement.
 		In theory this should make for double step performance
 		but will cost in quality. Might be that the AA stuff will
 		compensate for this - but I'm not really sure. */
 
 static sqInt stepToFirstBezierInat(sqInt bezier, sqInt yValue) {
-    sqInt fwY1;
-    sqInt fwDDx;
-    sqInt fwX1;
-    sqInt endX;
-    int * updateData;
-    sqInt viaY;
-    sqInt fwDy;
-    sqInt fwY2;
-    sqInt scaledStepSize;
-    sqInt startX;
-    sqInt fwDDy;
-    sqInt fwX2;
-    sqInt endY;
     sqInt deltaY;
-    sqInt maxSteps;
-    sqInt squaredStepSize;
-    sqInt startY;
-    sqInt viaX;
+    sqInt endX;
+    sqInt endY;
+    sqInt fwDDx;
+    sqInt fwDDy;
     sqInt fwDx;
+    sqInt fwDy;
+    sqInt fwX1;
+    sqInt fwX2;
+    sqInt fwY1;
+    sqInt fwY2;
+    sqInt maxSteps;
+    sqInt scaledStepSize;
+    sqInt squaredStepSize;
+    sqInt startX;
+    sqInt startY;
+    int *updateData;
+    sqInt viaX;
+    sqInt viaY;
     sqInt xValue;
+    sqInt fwDx1;
     sqInt fwDy1;
     sqInt lastX;
-    sqInt minY;
     sqInt lastY;
-    sqInt fwDx1;
-    sqInt word2;
+    sqInt minY;
     sqInt word1;
+    sqInt word2;
 
 	if ((!((((objBuffer[bezier + GEObjectType]) & GEPrimitiveTypeMask) & GEPrimitiveWide) != 0)) && (yValue >= (objBuffer[bezier + GBEndY]))) {
 		return objBuffer[bezier + GENumLines] = 0;
@@ -8624,15 +8670,15 @@ static sqInt stepToFirstLine(void) {
 /*	Initialize the line at yValue */
 
 static sqInt stepToFirstLineInat(sqInt line, sqInt yValue) {
-    sqInt xInc;
-    sqInt xDir;
-    sqInt error;
-    sqInt i;
     sqInt deltaX;
-    sqInt errorAdjUp;
     sqInt deltaY;
+    sqInt error;
+    sqInt errorAdjUp;
+    sqInt i;
     sqInt startY;
     sqInt widthX;
+    sqInt xDir;
+    sqInt xInc;
     sqInt err;
     sqInt x;
 
@@ -8665,6 +8711,10 @@ static sqInt stepToFirstLineInat(sqInt line, sqInt yValue) {
 		errorAdjUp = 0;
 	} else {
 		if (deltaY > widthX) {
+
+			/* Check if edge is y-major */
+			/* Note: The '>' instead of '>=' could be important here... */
+
 			xInc = 0;
 			errorAdjUp = widthX;
 		} else {
@@ -8705,15 +8755,18 @@ static sqInt stepToFirstWideBezier(void) {
 /*	Initialize the bezier at yValue */
 
 static sqInt stepToFirstWideBezierInat(sqInt bezier, sqInt yValue) {
-    sqInt yEntry;
+    sqInt endX;
+    sqInt i;
     sqInt lineOffset;
     sqInt lineWidth;
-    sqInt endX;
-    sqInt xDir;
-    sqInt i;
     sqInt nLines;
-    sqInt yExit;
     sqInt startY;
+    sqInt xDir;
+    sqInt yEntry;
+    sqInt yExit;
+
+
+	/* Get some values */
 
 	lineWidth = objBuffer[bezier + GBWideExtent];
 
@@ -8783,23 +8836,26 @@ static sqInt stepToFirstWideLine(void) {
 /*	Initialize the wide line at yValue. */
 
 static sqInt stepToFirstWideLineInat(sqInt line, sqInt yValue) {
-    sqInt yEntry;
+    sqInt i;
     sqInt lineOffset;
     sqInt lineWidth;
-    sqInt xDir;
-    sqInt i;
     sqInt nLines;
     sqInt startX;
-    sqInt yExit;
     sqInt startY;
-    sqInt yEntry1;
+    sqInt xDir;
+    sqInt yEntry;
+    sqInt yExit;
+    sqInt lastX;
     sqInt lineOffset1;
     sqInt lineWidth1;
-    sqInt lastX;
-    sqInt yExit1;
     sqInt nextX;
+    sqInt yEntry1;
+    sqInt yExit1;
     sqInt err;
     sqInt x;
+
+
+	/* Get some values */
 
 	lineWidth = objBuffer[line + GLWideExtent];
 
@@ -8876,11 +8932,11 @@ static sqInt stepToFirstWideLineInat(sqInt line, sqInt yValue) {
 
 static sqInt stepToNextBezier(void) {
     sqInt xValue;
+    sqInt fwDx;
     sqInt fwDy;
     sqInt lastX;
-    sqInt minY;
     sqInt lastY;
-    sqInt fwDx;
+    sqInt minY;
 
 	/* begin stepToNextBezierIn:at: */
 	/* begin stepToNextBezierForward:at: */
@@ -8910,11 +8966,11 @@ static sqInt stepToNextBezier(void) {
 		not declaring updateData as 'int*' but casting it on every use. */
 
 static sqInt stepToNextBezierForwardat(sqInt updateData, sqInt yValue) {
+    sqInt fwDx;
     sqInt fwDy;
     sqInt lastX;
-    sqInt minY;
     sqInt lastY;
-    sqInt fwDx;
+    sqInt minY;
 
 	lastX = (((int*) updateData))[GBUpdateX];
 	lastY = (((int*) updateData))[GBUpdateY];
@@ -8945,11 +9001,11 @@ static sqInt stepToNextBezierForwardat(sqInt updateData, sqInt yValue) {
 
 static sqInt stepToNextBezierInat(sqInt bezier, sqInt yValue) {
     sqInt xValue;
+    sqInt fwDx;
     sqInt fwDy;
     sqInt lastX;
-    sqInt minY;
     sqInt lastY;
-    sqInt fwDx;
+    sqInt minY;
 
 	/* begin stepToNextBezierForward:at: */
 	lastX = (((int*) ((objBuffer + bezier) + GBUpdateData)))[GBUpdateX];
@@ -9018,20 +9074,23 @@ static sqInt stepToNextWideBezier(void) {
 /*	Incrementally step to the next scan line in the given wide bezier */
 
 static sqInt stepToNextWideBezierInat(sqInt bezier, sqInt yValue) {
-    sqInt yEntry;
     sqInt lineOffset;
     sqInt lineWidth;
+    sqInt yEntry;
     sqInt yExit;
+    sqInt fwDx;
     sqInt fwDy;
     sqInt lastX;
-    sqInt minY;
     sqInt lastY;
-    sqInt fwDx;
+    sqInt minY;
+    sqInt fwDx1;
     sqInt fwDy1;
     sqInt lastX1;
-    sqInt minY1;
     sqInt lastY1;
-    sqInt fwDx1;
+    sqInt minY1;
+
+
+	/* Don't inline this */
 
 	lineWidth = objBuffer[bezier + GBWideExtent];
 	lineOffset = ((sqInt) lineWidth >> 1);
@@ -9092,12 +9151,12 @@ static sqInt stepToNextWideBezierInat(sqInt bezier, sqInt yValue) {
 static sqInt stepToNextWideLine(void) {
     sqInt line;
     sqInt yValue;
-    sqInt yEntry;
+    sqInt lastX;
     sqInt lineOffset;
     sqInt lineWidth;
-    sqInt lastX;
-    sqInt yExit;
     sqInt nextX;
+    sqInt yEntry;
+    sqInt yExit;
     sqInt err;
     sqInt x;
 
@@ -9137,14 +9196,17 @@ static sqInt stepToNextWideLine(void) {
 /*	Incrementally step to the next scan line in the given wide line */
 
 static sqInt stepToNextWideLineInat(sqInt line, sqInt yValue) {
-    sqInt yEntry;
+    sqInt lastX;
     sqInt lineOffset;
     sqInt lineWidth;
-    sqInt lastX;
-    sqInt yExit;
     sqInt nextX;
+    sqInt yEntry;
+    sqInt yExit;
     sqInt err;
     sqInt x;
+
+
+	/* Adjust entry/exit values */
 
 	yEntry = (objBuffer[line + GLWideEntry]) + 1;
 	yExit = (objBuffer[line + GLWideExit]) + 1;
@@ -9207,9 +9269,9 @@ static sqInt storeEngineStateInto(sqInt oop) {
 }
 
 static sqInt storeFillStateInto(sqInt fillOop) {
+    sqInt fillIndex;
     sqInt leftX;
     sqInt rightX;
-    sqInt fillIndex;
 
 	fillIndex = workBuffer[GWLastExportedFill];
 	leftX = workBuffer[GWLastExportedLeftX];
@@ -9226,8 +9288,8 @@ static sqInt storeFillStateInto(sqInt fillOop) {
 static sqInt storeRenderingState(void) {
     sqInt edgeOop;
     sqInt fillOop;
-    sqInt reason;
     sqInt edge;
+    sqInt reason;
 
 	if (interpreterProxy->failed()) {
 		return null;
@@ -9257,8 +9319,8 @@ static sqInt storeRenderingState(void) {
 }
 
 static sqInt storeStopStateIntoEdgefill(sqInt edgeOop, sqInt fillOop) {
-    sqInt reason;
     sqInt edge;
+    sqInt reason;
 
 	reason = workBuffer[GWStopReason];
 	if (reason == GErrorGETEntry) {
@@ -9279,11 +9341,11 @@ static sqInt storeStopStateIntoEdgefill(sqInt edgeOop, sqInt fillOop) {
 /*	Subdivide the given bezier curve if necessary */
 
 static sqInt subdivideBezier(sqInt index) {
-    sqInt endX;
     sqInt deltaX;
-    sqInt startX;
-    sqInt endY;
     sqInt deltaY;
+    sqInt endX;
+    sqInt endY;
+    sqInt startX;
     sqInt startY;
 
 	startY = workBuffer[(workBuffer[GWBufferTop]) + ((((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - index) + 1)];
@@ -9319,9 +9381,9 @@ static sqInt subdivideBezier(sqInt index) {
 /*	Recursively subdivide the curve on the bezier stack. */
 
 static sqInt subdivideBezierFrom(sqInt index) {
+    sqInt index1;
     sqInt index2;
     sqInt otherIndex;
-    sqInt index1;
 
 	otherIndex = subdivideBezier(index);
 	if (!(otherIndex == index)) {
@@ -9343,13 +9405,13 @@ static sqInt subdivideBezierFrom(sqInt index) {
 }
 
 
-/*	Check if the given bezier curve is monoton in Y, and, if desired in X.
+/*	Check if the given bezier curve is monoton in Y, and, if desired in X. 
 	If not, subdivide it */
 
 static sqInt subdivideToBeMonotoninX(sqInt base, sqInt doTestX) {
     sqInt base2;
-    sqInt index2;
     sqInt index1;
+    sqInt index2;
 
 	base2 = index1 = index2 = subdivideToBeMonotonInY(base);
 	if (doTestX) {
@@ -9371,12 +9433,12 @@ static sqInt subdivideToBeMonotoninX(sqInt base, sqInt doTestX) {
 /*	Check if the given bezier curve is monoton in X. If not, subdivide it */
 
 static sqInt subdivideToBeMonotonInX(sqInt index) {
-    sqInt num;
-    sqInt endX;
-    sqInt dx1;
-    sqInt startX;
     sqInt denom;
+    sqInt dx1;
     sqInt dx2;
+    sqInt endX;
+    sqInt num;
+    sqInt startX;
     sqInt viaX;
 
 	startX = workBuffer[(workBuffer[GWBufferTop]) + ((((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - index) + 0)];
@@ -9403,13 +9465,13 @@ static sqInt subdivideToBeMonotonInX(sqInt index) {
 /*	Check if the given bezier curve is monoton in Y. If not, subdivide it */
 
 static sqInt subdivideToBeMonotonInY(sqInt index) {
-    sqInt num;
-    sqInt viaY;
-    sqInt endY;
-    sqInt dy1;
     sqInt denom;
-    sqInt startY;
+    sqInt dy1;
     sqInt dy2;
+    sqInt endY;
+    sqInt num;
+    sqInt startY;
+    sqInt viaY;
 
 	startY = workBuffer[(workBuffer[GWBufferTop]) + ((((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - index) + 1)];
 	viaY = workBuffer[(workBuffer[GWBufferTop]) + ((((workBuffer[GWSize]) - (workBuffer[GWBufferTop])) - index) + 3)];
@@ -9452,8 +9514,8 @@ static sqInt toggleFilldepthrightX(sqInt fillIndex, sqInt depth, sqInt rightX) {
 }
 
 static sqInt toggleFillsOf(sqInt edge) {
-    sqInt fillIndex;
     sqInt depth;
+    sqInt fillIndex;
     sqInt leftX;
 
 	if (!(needAvailableSpace(3 * 2))) {
@@ -9483,11 +9545,11 @@ l1:	/* end quickRemoveInvalidFillsAt: */;
 }
 
 static sqInt toggleWideFillOf(sqInt edge) {
-    sqInt lineWidth;
-    sqInt index;
-    sqInt rightX;
     sqInt depth;
     sqInt fill;
+    sqInt index;
+    sqInt lineWidth;
+    sqInt rightX;
     sqInt type;
     sqInt leftX;
 
@@ -9602,11 +9664,11 @@ static sqInt topRightX(void) {
 
 static sqInt transformColor(sqInt fillIndex) {
     sqInt a;
-    float * transform;
+    double  alphaScale;
     sqInt b;
     sqInt g;
-    double  alphaScale;
     sqInt r;
+    float *transform;
 
 	if (!((fillIndex == 0) || ((fillIndex & 4278190080U) != 0))) {
 		return fillIndex;
@@ -9618,9 +9680,9 @@ static sqInt transformColor(sqInt fillIndex) {
 	if ((workBuffer[GWHasColorTransform]) != 0) {
 		transform = ((float *) (workBuffer + GWColorTransform));
 		alphaScale = ((a * (transform[6])) + (transform[7])) / a;
-		r = ((sqInt) (((r * (transform[0])) + (transform[1])) * alphaScale) );
-		g = ((sqInt) (((g * (transform[2])) + (transform[3])) * alphaScale) );
-		b = ((sqInt) (((b * (transform[4])) + (transform[5])) * alphaScale) );
+		r = ((sqInt)(((r * (transform[0])) + (transform[1])) * alphaScale));
+		g = ((sqInt)(((g * (transform[2])) + (transform[3])) * alphaScale));
+		b = ((sqInt)(((b * (transform[4])) + (transform[5])) * alphaScale));
 		a = a * alphaScale;
 		r = ((r < 0) ? 0 : r);
 		r = ((r < 255) ? r : 255);
@@ -9645,10 +9707,19 @@ static sqInt transformColor(sqInt fillIndex) {
 
 /*	Transform the given point. If haveMatrix is true then use the current transformation. */
 
-static sqInt transformPoint(int * point) {
+static sqInt transformPoint(int *point) {
+    float *transform;
+    sqInt x;
+    sqInt y;
+
 	if ((workBuffer[GWHasEdgeTransform]) != 0) {
 		/* begin transformPoint:into: */
-		transformPointXyinto(((double) ((((int *) point))[0]) ), ((double) ((((int *) point))[1]) ), ((int *) point));
+		/* begin transformPointX:y:into: */
+		transform = ((float *) (workBuffer + GWEdgeTransform));
+		x = ((sqInt)(((((transform[0]) * (((double) ((((int *) point))[0]) ))) + ((transform[1]) * (((double) ((((int *) point))[1]) )))) + (transform[2])) * (((double) (workBuffer[GWAALevel]) ))));
+		y = ((sqInt)(((((transform[3]) * (((double) ((((int *) point))[0]) ))) + ((transform[4]) * (((double) ((((int *) point))[1]) )))) + (transform[5])) * (((double) (workBuffer[GWAALevel]) ))));
+		(((int *) point))[0] = x;
+		(((int *) point))[1] = y;
 	} else {
 		point[0] = (((point[0]) + (workBuffer[GWDestOffsetX])) * (workBuffer[GWAALevel]));
 		point[1] = (((point[1]) + (workBuffer[GWDestOffsetY])) * (workBuffer[GWAALevel]));
@@ -9661,7 +9732,16 @@ static sqInt transformPoint(int * point) {
 	the declarations and adding argument coercions at the appropriate points) */
 
 static sqInt transformPointinto(sqInt srcPoint, sqInt dstPoint) {
-	transformPointXyinto(((double) ((((int *) srcPoint))[0]) ), ((double) ((((int *) srcPoint))[1]) ), ((int *) dstPoint));
+    float *transform;
+    sqInt x;
+    sqInt y;
+
+	/* begin transformPointX:y:into: */
+	transform = ((float *) (workBuffer + GWEdgeTransform));
+	x = ((sqInt)(((((transform[0]) * (((double) ((((int *) srcPoint))[0]) ))) + ((transform[1]) * (((double) ((((int *) srcPoint))[1]) )))) + (transform[2])) * (((double) (workBuffer[GWAALevel]) ))));
+	y = ((sqInt)(((((transform[3]) * (((double) ((((int *) srcPoint))[0]) ))) + ((transform[4]) * (((double) ((((int *) srcPoint))[1]) )))) + (transform[5])) * (((double) (workBuffer[GWAALevel]) ))));
+	(((int *) dstPoint))[0] = x;
+	(((int *) dstPoint))[1] = y;
 }
 
 
@@ -9669,14 +9749,14 @@ static sqInt transformPointinto(sqInt srcPoint, sqInt dstPoint) {
 /*	Note: This should be rewritten so that inlining works (e.g., removing
 	the declarations and adding argument coercions at the appropriate points) */
 
-static sqInt transformPointXyinto(double  xValue, double  yValue, int * dstPoint) {
+static sqInt transformPointXyinto(double  xValue, double  yValue, int *dstPoint) {
+    float *transform;
     sqInt x;
-    float * transform;
     sqInt y;
 
 	transform = ((float *) (workBuffer + GWEdgeTransform));
-	x = ((sqInt) (((((transform[0]) * xValue) + ((transform[1]) * yValue)) + (transform[2])) * (((double) (workBuffer[GWAALevel]) ))) );
-	y = ((sqInt) (((((transform[3]) * xValue) + ((transform[4]) * yValue)) + (transform[5])) * (((double) (workBuffer[GWAALevel]) ))) );
+	x = ((sqInt)(((((transform[0]) * xValue) + ((transform[1]) * yValue)) + (transform[2])) * (((double) (workBuffer[GWAALevel]) ))));
+	y = ((sqInt)(((((transform[3]) * xValue) + ((transform[4]) * yValue)) + (transform[5])) * (((double) (workBuffer[GWAALevel]) ))));
 	dstPoint[0] = x;
 	dstPoint[1] = y;
 }
@@ -9704,9 +9784,9 @@ static sqInt transformPoints(sqInt n) {
 /*	Transform the given width */
 
 static sqInt transformWidth(sqInt w) {
-    sqInt dstWidth;
     double  deltaX;
     double  deltaY;
+    sqInt dstWidth;
     sqInt dstWidth2;
 
 	if (w == 0) {
@@ -9733,10 +9813,10 @@ static sqInt transformWidth(sqInt w) {
 	}
 	deltaX = ((double) (((((int *) (workBuffer + GWPoint2)))[0]) - ((((int *) (workBuffer + GWPoint1)))[0])) );
 	deltaY = ((double) (((((int *) (workBuffer + GWPoint2)))[1]) - ((((int *) (workBuffer + GWPoint1)))[1])) );
-	dstWidth = ((sqInt) ((((sqInt) (sqrt((deltaX * deltaX) + (deltaY * deltaY))) )) + 128) >> 8);
+	dstWidth = ((sqInt) ((((sqInt)(sqrt((deltaX * deltaX) + (deltaY * deltaY))))) + 128) >> 8);
 	deltaX = ((double) (((((int *) (workBuffer + GWPoint3)))[0]) - ((((int *) (workBuffer + GWPoint1)))[0])) );
 	deltaY = ((double) (((((int *) (workBuffer + GWPoint3)))[1]) - ((((int *) (workBuffer + GWPoint1)))[1])) );
-	dstWidth2 = ((sqInt) ((((sqInt) (sqrt((deltaX * deltaX) + (deltaY * deltaY))) )) + 128) >> 8);
+	dstWidth2 = ((sqInt) ((((sqInt)(sqrt((deltaX * deltaX) + (deltaY * deltaY))))) + 128) >> 8);
 	if (dstWidth2 < dstWidth) {
 		dstWidth = dstWidth2;
 	}
@@ -9749,10 +9829,10 @@ static sqInt transformWidth(sqInt w) {
 
 static sqInt uncheckedTransformColor(sqInt fillIndex) {
     sqInt a;
-    float * transform;
     sqInt b;
     sqInt g;
     sqInt r;
+    float *transform;
 
 	if (!((workBuffer[GWHasColorTransform]) != 0)) {
 		return fillIndex;
@@ -9762,10 +9842,10 @@ static sqInt uncheckedTransformColor(sqInt fillIndex) {
 	r = (((usqInt) fillIndex) >> 16) & 255;
 	a = (((usqInt) fillIndex) >> 24) & 255;
 	transform = ((float *) (workBuffer + GWColorTransform));
-	r = ((sqInt) ((r * (transform[0])) + (transform[1])) );
-	g = ((sqInt) ((g * (transform[2])) + (transform[3])) );
-	b = ((sqInt) ((b * (transform[4])) + (transform[5])) );
-	a = ((sqInt) ((a * (transform[6])) + (transform[7])) );
+	r = ((sqInt)((r * (transform[0])) + (transform[1])));
+	g = ((sqInt)((g * (transform[2])) + (transform[3])));
+	b = ((sqInt)((b * (transform[4])) + (transform[5])));
+	a = ((sqInt)((a * (transform[6])) + (transform[7])));
 	r = ((r < 0) ? 0 : r);
 	r = ((r < 255) ? r : 255);
 	g = ((g < 0) ? 0 : g);
@@ -9918,52 +9998,52 @@ static sqInt workBufferPut(sqInt wbOop) {
 
 void* B2DPlugin_exports[][3] = {
 	{"B2DPlugin", "primitiveMergeFillFrom", (void*)primitiveMergeFillFrom},
-	{"B2DPlugin", "primitiveAbortProcessing", (void*)primitiveAbortProcessing},
-	{"B2DPlugin", "setInterpreter", (void*)setInterpreter},
-	{"B2DPlugin", "primitiveGetClipRect", (void*)primitiveGetClipRect},
-	{"B2DPlugin", "primitiveRenderImage", (void*)primitiveRenderImage},
-	{"B2DPlugin", "primitiveGetBezierStats", (void*)primitiveGetBezierStats},
-	{"B2DPlugin", "primitiveDisplaySpanBuffer", (void*)primitiveDisplaySpanBuffer},
-	{"B2DPlugin", "primitiveAddGradientFill", (void*)primitiveAddGradientFill},
-	{"B2DPlugin", "primitiveSetOffset", (void*)primitiveSetOffset},
-	{"B2DPlugin", "moduleUnloaded", (void*)moduleUnloaded},
-	{"B2DPlugin", "initialiseModule", (void*)initialiseModule},
-	{"B2DPlugin", "primitiveRenderScanline", (void*)primitiveRenderScanline},
-	{"B2DPlugin", "primitiveRegisterExternalFill", (void*)primitiveRegisterExternalFill},
-	{"B2DPlugin", "primitiveGetFailureReason", (void*)primitiveGetFailureReason},
 	{"B2DPlugin", "primitiveCopyBuffer", (void*)primitiveCopyBuffer},
-	{"B2DPlugin", "primitiveInitializeProcessing", (void*)primitiveInitializeProcessing},
-	{"B2DPlugin", "primitiveNextGlobalEdgeEntry", (void*)primitiveNextGlobalEdgeEntry},
-	{"B2DPlugin", "primitiveNextActiveEdgeEntry", (void*)primitiveNextActiveEdgeEntry},
 	{"B2DPlugin", "primitiveAddRect", (void*)primitiveAddRect},
-	{"B2DPlugin", "primitiveSetBitBltPlugin", (void*)primitiveSetBitBltPlugin},
-	{"B2DPlugin", "primitiveAddCompressedShape", (void*)primitiveAddCompressedShape},
-	{"B2DPlugin", "primitiveSetAALevel", (void*)primitiveSetAALevel},
-	{"B2DPlugin", "primitiveGetTimes", (void*)primitiveGetTimes},
-	{"B2DPlugin", "primitiveNeedsFlushPut", (void*)primitiveNeedsFlushPut},
-	{"B2DPlugin", "primitiveGetAALevel", (void*)primitiveGetAALevel},
-	{"B2DPlugin", "primitiveSetColorTransform", (void*)primitiveSetColorTransform},
-	{"B2DPlugin", "primitiveAddBitmapFill", (void*)primitiveAddBitmapFill},
-	{"B2DPlugin", "primitiveAddPolygon", (void*)primitiveAddPolygon},
-	{"B2DPlugin", "getModuleName", (void*)getModuleName},
+	{"B2DPlugin", "primitiveAddGradientFill", (void*)primitiveAddGradientFill},
 	{"B2DPlugin", "primitiveSetClipRect", (void*)primitiveSetClipRect},
-	{"B2DPlugin", "primitiveDoProfileStats", (void*)primitiveDoProfileStats},
-	{"B2DPlugin", "primitiveInitializeBuffer", (void*)primitiveInitializeBuffer},
-	{"B2DPlugin", "primitiveFinishedProcessing", (void*)primitiveFinishedProcessing},
-	{"B2DPlugin", "primitiveNextFillEntry", (void*)primitiveNextFillEntry},
-	{"B2DPlugin", "primitiveGetOffset", (void*)primitiveGetOffset},
-	{"B2DPlugin", "primitiveAddOval", (void*)primitiveAddOval},
-	{"B2DPlugin", "primitiveGetDepth", (void*)primitiveGetDepth},
-	{"B2DPlugin", "primitiveAddLine", (void*)primitiveAddLine},
-	{"B2DPlugin", "primitiveAddBezier", (void*)primitiveAddBezier},
-	{"B2DPlugin", "primitiveGetCounts", (void*)primitiveGetCounts},
-	{"B2DPlugin", "primitiveSetEdgeTransform", (void*)primitiveSetEdgeTransform},
-	{"B2DPlugin", "primitiveAddBezierShape", (void*)primitiveAddBezierShape},
-	{"B2DPlugin", "primitiveChangedActiveEdgeEntry", (void*)primitiveChangedActiveEdgeEntry},
+	{"B2DPlugin", "initialiseModule", (void*)initialiseModule},
+	{"B2DPlugin", "primitiveSetBitBltPlugin", (void*)primitiveSetBitBltPlugin},
 	{"B2DPlugin", "primitiveRegisterExternalEdge", (void*)primitiveRegisterExternalEdge},
+	{"B2DPlugin", "primitiveGetClipRect", (void*)primitiveGetClipRect},
+	{"B2DPlugin", "primitiveAddBezier", (void*)primitiveAddBezier},
+	{"B2DPlugin", "primitiveInitializeProcessing", (void*)primitiveInitializeProcessing},
+	{"B2DPlugin", "primitiveRenderImage", (void*)primitiveRenderImage},
+	{"B2DPlugin", "primitiveGetOffset", (void*)primitiveGetOffset},
 	{"B2DPlugin", "primitiveSetDepth", (void*)primitiveSetDepth},
-	{"B2DPlugin", "primitiveAddActiveEdgeEntry", (void*)primitiveAddActiveEdgeEntry},
+	{"B2DPlugin", "primitiveAddBezierShape", (void*)primitiveAddBezierShape},
+	{"B2DPlugin", "primitiveSetEdgeTransform", (void*)primitiveSetEdgeTransform},
+	{"B2DPlugin", "getModuleName", (void*)getModuleName},
+	{"B2DPlugin", "primitiveGetTimes", (void*)primitiveGetTimes},
+	{"B2DPlugin", "primitiveNextActiveEdgeEntry", (void*)primitiveNextActiveEdgeEntry},
+	{"B2DPlugin", "primitiveAddBitmapFill", (void*)primitiveAddBitmapFill},
+	{"B2DPlugin", "primitiveGetDepth", (void*)primitiveGetDepth},
+	{"B2DPlugin", "primitiveAbortProcessing", (void*)primitiveAbortProcessing},
+	{"B2DPlugin", "primitiveNextGlobalEdgeEntry", (void*)primitiveNextGlobalEdgeEntry},
+	{"B2DPlugin", "primitiveGetFailureReason", (void*)primitiveGetFailureReason},
+	{"B2DPlugin", "primitiveDisplaySpanBuffer", (void*)primitiveDisplaySpanBuffer},
+	{"B2DPlugin", "moduleUnloaded", (void*)moduleUnloaded},
+	{"B2DPlugin", "primitiveGetCounts", (void*)primitiveGetCounts},
+	{"B2DPlugin", "primitiveChangedActiveEdgeEntry", (void*)primitiveChangedActiveEdgeEntry},
+	{"B2DPlugin", "primitiveRenderScanline", (void*)primitiveRenderScanline},
+	{"B2DPlugin", "primitiveGetBezierStats", (void*)primitiveGetBezierStats},
+	{"B2DPlugin", "primitiveFinishedProcessing", (void*)primitiveFinishedProcessing},
+	{"B2DPlugin", "setInterpreter", (void*)setInterpreter},
 	{"B2DPlugin", "primitiveNeedsFlush", (void*)primitiveNeedsFlush},
+	{"B2DPlugin", "primitiveAddLine", (void*)primitiveAddLine},
+	{"B2DPlugin", "primitiveSetOffset", (void*)primitiveSetOffset},
+	{"B2DPlugin", "primitiveNextFillEntry", (void*)primitiveNextFillEntry},
+	{"B2DPlugin", "primitiveInitializeBuffer", (void*)primitiveInitializeBuffer},
+	{"B2DPlugin", "primitiveDoProfileStats", (void*)primitiveDoProfileStats},
+	{"B2DPlugin", "primitiveAddActiveEdgeEntry", (void*)primitiveAddActiveEdgeEntry},
+	{"B2DPlugin", "primitiveSetAALevel", (void*)primitiveSetAALevel},
+	{"B2DPlugin", "primitiveNeedsFlushPut", (void*)primitiveNeedsFlushPut},
+	{"B2DPlugin", "primitiveAddCompressedShape", (void*)primitiveAddCompressedShape},
+	{"B2DPlugin", "primitiveSetColorTransform", (void*)primitiveSetColorTransform},
+	{"B2DPlugin", "primitiveAddOval", (void*)primitiveAddOval},
+	{"B2DPlugin", "primitiveRegisterExternalFill", (void*)primitiveRegisterExternalFill},
+	{"B2DPlugin", "primitiveAddPolygon", (void*)primitiveAddPolygon},
+	{"B2DPlugin", "primitiveGetAALevel", (void*)primitiveGetAALevel},
 	{NULL, NULL, NULL}
 };
 

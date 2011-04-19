@@ -16,6 +16,10 @@
 
 # define clone sqr_clone
 
+
+# include "types.h"
+# define BASE_HEADER_SIZE  /* BaseHeaderSize */ sizeof(int32)
+
 // STEFAN: added this and set it to 7 since that seems to be the
 //         verion the original RVM/RoarVM was start of with
 # define VM_PROXY_MINOR 7
