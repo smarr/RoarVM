@@ -39,6 +39,12 @@
 #include "sqUnixCharConv.h"
 #include "debug.h"
 
+# ifdef ROAR_VM
+  # if __tile__
+    # include <arch/cycle.h>
+  # endif
+# endif // ROAR_VM
+
 #ifdef ioMSecs
 # undef ioMSecs
 #endif
@@ -215,6 +221,8 @@ ioHighResClock(void)
 			|| defined(i486) || defined(__i486) || defined (__i486__) \
 			|| defined(intel) || defined(x86) || defined(i86pc) )
     __asm__ __volatile__ ("rdtsc" : "=A"(value));
+#elif __tile__
+  value = get_cycle_count();
 #else
 # error "no high res clock defined"
 #endif
