@@ -94,7 +94,7 @@
 # endif
 #endif
 
-#if (DEBUG)
+#if (DEBUG) || defined(ROAR_VM)
 # define sqIgnorePluginErrors 0
 #else
   extern int sqIgnorePluginErrors;
@@ -102,8 +102,12 @@
 
 /*** options ***/
 
-extern char *squeakPlugins;
-
+# ifndef ROAR_VM
+  extern char *squeakPlugins;
+# else
+         char *squeakPlugins = NULL;
+# endif
+    
 /*** configured variables ***/
 
 extern char vmLibDir[];
@@ -112,6 +116,15 @@ extern char vmPath[];
 /*** local functions ***/
 
 #if 1 /* simplified plugin logic */
+
+# ifdef ROAR_VM
+  # ifndef MODULE_PREFIX
+    # define MODULE_PREFIX ""
+    # define MODULE_SUFFIX ""
+    # define LIBRARY_PREFIX "lib"
+    # define LIBRARY_SUFFIX ".so"
+  # endif // !MODULE_PREFIX
+# endif // ROAR_VM
 
 
 static void *tryLoadModule(const char *in, char *name)
