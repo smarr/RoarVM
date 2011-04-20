@@ -160,34 +160,36 @@
 		0AA32C17135EC70F00B97FB8 /* sqMacSecurity.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C11135EC70F00B97FB8 /* sqMacSecurity.c */; };
 		0AA32C18135EC70F00B97FB8 /* sqSqueakSoundCoreAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C14135EC70F00B97FB8 /* sqSqueakSoundCoreAudio.m */; };
 		0AA32C19135EC70F00B97FB8 /* sqSqueakSoundCoreAudioAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C16135EC70F00B97FB8 /* sqSqueakSoundCoreAudioAPI.m */; };
-		0AA32C5A135EC81E00B97FB8 /* AsynchFilePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C22135EC81E00B97FB8 /* AsynchFilePlugin.c */; };
-		0AA32C5B135EC81E00B97FB8 /* B2DPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C24135EC81E00B97FB8 /* B2DPlugin.c */; };
-		0AA32C5C135EC81E00B97FB8 /* BitBltPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C26135EC81E00B97FB8 /* BitBltPlugin.c */; };
-		0AA32C5D135EC81E00B97FB8 /* BMPReadWriterPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C28135EC81E00B97FB8 /* BMPReadWriterPlugin.c */; };
-		0AA32C5E135EC81E00B97FB8 /* DSAPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C2A135EC81E00B97FB8 /* DSAPrims.c */; };
-		0AA32C5F135EC81E00B97FB8 /* FFTPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C2C135EC81E00B97FB8 /* FFTPlugin.c */; };
-		0AA32C60135EC81E00B97FB8 /* FilePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C2E135EC81E00B97FB8 /* FilePlugin.c */; };
-		0AA32C61135EC81E00B97FB8 /* FloatArrayPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C30135EC81E00B97FB8 /* FloatArrayPlugin.c */; };
-		0AA32C62135EC81E00B97FB8 /* GeniePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C32135EC81E00B97FB8 /* GeniePlugin.c */; };
-		0AA32C63135EC81E00B97FB8 /* HostWindowPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C34135EC81E00B97FB8 /* HostWindowPlugin.c */; };
-		0AA32C64135EC81E00B97FB8 /* JPEGReaderPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C36135EC81E00B97FB8 /* JPEGReaderPlugin.c */; };
-		0AA32C65135EC81E00B97FB8 /* JPEGReadWriter2Plugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C38135EC81E00B97FB8 /* JPEGReadWriter2Plugin.c */; };
-		0AA32C66135EC81E00B97FB8 /* Klatt.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C3A135EC81E00B97FB8 /* Klatt.c */; };
-		0AA32C67135EC81E00B97FB8 /* LargeIntegers.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C3C135EC81E00B97FB8 /* LargeIntegers.c */; };
-		0AA32C68135EC81E00B97FB8 /* Matrix2x3Plugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C3E135EC81E00B97FB8 /* Matrix2x3Plugin.c */; };
-		0AA32C69135EC81E00B97FB8 /* MiscPrimitivePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C40135EC81E00B97FB8 /* MiscPrimitivePlugin.c */; };
-		0AA32C6A135EC81E00B97FB8 /* ObjectiveCPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C42135EC81E00B97FB8 /* ObjectiveCPlugin.c */; };
-		0AA32C6B135EC81E00B97FB8 /* RePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C44135EC81E00B97FB8 /* RePlugin.c */; };
-		0AA32C6C135EC81E00B97FB8 /* SecurityPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C46135EC81E00B97FB8 /* SecurityPlugin.c */; };
-		0AA32C6E135EC81E00B97FB8 /* SoundCodecPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C4A135EC81E00B97FB8 /* SoundCodecPrims.c */; };
-		0AA32C6F135EC81E00B97FB8 /* SoundGenerationPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C4C135EC81E00B97FB8 /* SoundGenerationPlugin.c */; };
-		0AA32C70135EC81E00B97FB8 /* SoundPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C4E135EC81E00B97FB8 /* SoundPlugin.c */; };
-		0AA32C71135EC81E00B97FB8 /* Squeak3D.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C50135EC81E00B97FB8 /* Squeak3D.c */; };
-		0AA32C72135EC81E00B97FB8 /* SqueakFFIPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C52135EC81E00B97FB8 /* SqueakFFIPrims.c */; };
-		0AA32C73135EC81E00B97FB8 /* StarSqueakPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C54135EC81E00B97FB8 /* StarSqueakPlugin.c */; };
-		0AA32C74135EC81E00B97FB8 /* UUIDPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C57135EC81E00B97FB8 /* UUIDPlugin.c */; };
-		0AA32C75135EC81E00B97FB8 /* ZipPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C59135EC81E00B97FB8 /* ZipPlugin.c */; };
 		0AA32C7B135ECFDD00B97FB8 /* sqUnixExternalPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C1B135EC76600B97FB8 /* sqUnixExternalPrims.c */; };
+		0ADE8A8F135F38B200D37EAD /* AsynchFilePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A7C135F38B200D37EAD /* AsynchFilePlugin.c */; };
+		0ADE8A90135F38B200D37EAD /* B2DPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A7E135F38B200D37EAD /* B2DPlugin.c */; };
+		0ADE8A91135F38B200D37EAD /* BitBltPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A80135F38B200D37EAD /* BitBltPlugin.c */; };
+		0ADE8A92135F38B200D37EAD /* BMPReadWriterPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A82135F38B200D37EAD /* BMPReadWriterPlugin.c */; };
+		0ADE8A93135F38B200D37EAD /* DSAPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A84135F38B200D37EAD /* DSAPrims.c */; };
+		0ADE8A94135F38B200D37EAD /* FFTPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A86135F38B200D37EAD /* FFTPlugin.c */; };
+		0ADE8A95135F38B200D37EAD /* FilePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A88135F38B200D37EAD /* FilePlugin.c */; };
+		0ADE8A96135F38B200D37EAD /* FloatArrayPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A8A135F38B200D37EAD /* FloatArrayPlugin.c */; };
+		0ADE8A97135F38B200D37EAD /* GeniePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A8C135F38B200D37EAD /* GeniePlugin.c */; };
+		0ADE8A98135F38B200D37EAD /* HostWindowPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A8E135F38B200D37EAD /* HostWindowPlugin.c */; };
+		0ADE8AB5135F38FE00D37EAD /* JPEGReaderPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A9A135F38FE00D37EAD /* JPEGReaderPlugin.c */; };
+		0ADE8AB6135F38FE00D37EAD /* JPEGReadWriter2Plugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A9C135F38FE00D37EAD /* JPEGReadWriter2Plugin.c */; };
+		0ADE8AB7135F38FE00D37EAD /* Klatt.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A9E135F38FE00D37EAD /* Klatt.c */; };
+		0ADE8AB8135F38FE00D37EAD /* LargeIntegers.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AA0135F38FE00D37EAD /* LargeIntegers.c */; };
+		0ADE8AB9135F38FE00D37EAD /* Matrix2x3Plugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AA2135F38FE00D37EAD /* Matrix2x3Plugin.c */; };
+		0ADE8ABA135F38FE00D37EAD /* MiscPrimitivePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AA4135F38FE00D37EAD /* MiscPrimitivePlugin.c */; };
+		0ADE8ABB135F38FE00D37EAD /* ObjectiveCPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AA6135F38FE00D37EAD /* ObjectiveCPlugin.c */; };
+		0ADE8ABC135F38FE00D37EAD /* RePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AA8135F38FE00D37EAD /* RePlugin.c */; };
+		0ADE8ABD135F38FE00D37EAD /* SecurityPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AAA135F38FE00D37EAD /* SecurityPlugin.c */; };
+		0ADE8ABE135F38FE00D37EAD /* SocketPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AAC135F38FE00D37EAD /* SocketPlugin.c */; };
+		0ADE8ABF135F38FE00D37EAD /* SoundCodecPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AAE135F38FE00D37EAD /* SoundCodecPrims.c */; };
+		0ADE8AC0135F38FE00D37EAD /* SoundGenerationPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AB0135F38FE00D37EAD /* SoundGenerationPlugin.c */; };
+		0ADE8AC1135F38FE00D37EAD /* SoundPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AB2135F38FE00D37EAD /* SoundPlugin.c */; };
+		0ADE8AC2135F38FE00D37EAD /* Squeak3D.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AB4135F38FE00D37EAD /* Squeak3D.c */; };
+		0ADE8ACB135F392E00D37EAD /* SqueakFFIPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AC4135F392E00D37EAD /* SqueakFFIPrims.c */; };
+		0ADE8ACC135F392E00D37EAD /* StarSqueakPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AC6135F392E00D37EAD /* StarSqueakPlugin.c */; };
+		0ADE8ACD135F392E00D37EAD /* UUIDPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AC8135F392E00D37EAD /* UUIDPlugin.c */; };
+		0ADE8ACE135F392E00D37EAD /* ZipPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8ACA135F392E00D37EAD /* ZipPlugin.c */; };
+		0ADE8ACF135F399D00D37EAD /* sqUnixSocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 94883B400E0C2B9C005A4738 /* sqUnixSocket.c */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
@@ -562,35 +564,35 @@
 		0AA32C15135EC70F00B97FB8 /* sqSqueakSoundCoreAudioAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqSqueakSoundCoreAudioAPI.h; sourceTree = "<group>"; };
 		0AA32C16135EC70F00B97FB8 /* sqSqueakSoundCoreAudioAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = sqSqueakSoundCoreAudioAPI.m; sourceTree = "<group>"; };
 		0AA32C1B135EC76600B97FB8 /* sqUnixExternalPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqUnixExternalPrims.c; path = ../../unix/vm/sqUnixExternalPrims.c; sourceTree = "<group>"; };
-		0AA32C22135EC81E00B97FB8 /* AsynchFilePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AsynchFilePlugin.c; sourceTree = "<group>"; };
-		0AA32C24135EC81E00B97FB8 /* B2DPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = B2DPlugin.c; sourceTree = "<group>"; };
-		0AA32C26135EC81E00B97FB8 /* BitBltPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = BitBltPlugin.c; sourceTree = "<group>"; };
-		0AA32C28135EC81E00B97FB8 /* BMPReadWriterPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = BMPReadWriterPlugin.c; sourceTree = "<group>"; };
-		0AA32C2A135EC81E00B97FB8 /* DSAPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DSAPrims.c; sourceTree = "<group>"; };
-		0AA32C2C135EC81E00B97FB8 /* FFTPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FFTPlugin.c; sourceTree = "<group>"; };
-		0AA32C2E135EC81E00B97FB8 /* FilePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FilePlugin.c; sourceTree = "<group>"; };
-		0AA32C30135EC81E00B97FB8 /* FloatArrayPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FloatArrayPlugin.c; sourceTree = "<group>"; };
-		0AA32C32135EC81E00B97FB8 /* GeniePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GeniePlugin.c; sourceTree = "<group>"; };
-		0AA32C34135EC81E00B97FB8 /* HostWindowPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = HostWindowPlugin.c; sourceTree = "<group>"; };
-		0AA32C36135EC81E00B97FB8 /* JPEGReaderPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = JPEGReaderPlugin.c; sourceTree = "<group>"; };
-		0AA32C38135EC81E00B97FB8 /* JPEGReadWriter2Plugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = JPEGReadWriter2Plugin.c; sourceTree = "<group>"; };
-		0AA32C3A135EC81E00B97FB8 /* Klatt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Klatt.c; sourceTree = "<group>"; };
-		0AA32C3C135EC81E00B97FB8 /* LargeIntegers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = LargeIntegers.c; sourceTree = "<group>"; };
-		0AA32C3E135EC81E00B97FB8 /* Matrix2x3Plugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Matrix2x3Plugin.c; sourceTree = "<group>"; };
-		0AA32C40135EC81E00B97FB8 /* MiscPrimitivePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MiscPrimitivePlugin.c; sourceTree = "<group>"; };
-		0AA32C42135EC81E00B97FB8 /* ObjectiveCPlugin.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = ObjectiveCPlugin.c; sourceTree = "<group>"; };
-		0AA32C44135EC81E00B97FB8 /* RePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = RePlugin.c; sourceTree = "<group>"; };
-		0AA32C46135EC81E00B97FB8 /* SecurityPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SecurityPlugin.c; sourceTree = "<group>"; };
-		0AA32C48135EC81E00B97FB8 /* SocketPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SocketPlugin.c; sourceTree = "<group>"; };
-		0AA32C4A135EC81E00B97FB8 /* SoundCodecPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SoundCodecPrims.c; sourceTree = "<group>"; };
-		0AA32C4C135EC81E00B97FB8 /* SoundGenerationPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SoundGenerationPlugin.c; sourceTree = "<group>"; };
-		0AA32C4E135EC81E00B97FB8 /* SoundPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SoundPlugin.c; sourceTree = "<group>"; };
-		0AA32C50135EC81E00B97FB8 /* Squeak3D.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Squeak3D.c; sourceTree = "<group>"; };
-		0AA32C52135EC81E00B97FB8 /* SqueakFFIPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SqueakFFIPrims.c; sourceTree = "<group>"; };
-		0AA32C54135EC81E00B97FB8 /* StarSqueakPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = StarSqueakPlugin.c; sourceTree = "<group>"; };
-		0AA32C57135EC81E00B97FB8 /* UUIDPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = UUIDPlugin.c; sourceTree = "<group>"; };
-		0AA32C59135EC81E00B97FB8 /* ZipPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZipPlugin.c; sourceTree = "<group>"; };
 		0AB173FB135F2A2F0095BF89 /* sqVirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqVirtualMachine.h; sourceTree = "<group>"; };
+		0ADE8A7C135F38B200D37EAD /* AsynchFilePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AsynchFilePlugin.c; sourceTree = "<group>"; };
+		0ADE8A7E135F38B200D37EAD /* B2DPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = B2DPlugin.c; sourceTree = "<group>"; };
+		0ADE8A80135F38B200D37EAD /* BitBltPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = BitBltPlugin.c; sourceTree = "<group>"; };
+		0ADE8A82135F38B200D37EAD /* BMPReadWriterPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = BMPReadWriterPlugin.c; sourceTree = "<group>"; };
+		0ADE8A84135F38B200D37EAD /* DSAPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = DSAPrims.c; sourceTree = "<group>"; };
+		0ADE8A86135F38B200D37EAD /* FFTPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FFTPlugin.c; sourceTree = "<group>"; };
+		0ADE8A88135F38B200D37EAD /* FilePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FilePlugin.c; sourceTree = "<group>"; };
+		0ADE8A8A135F38B200D37EAD /* FloatArrayPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FloatArrayPlugin.c; sourceTree = "<group>"; };
+		0ADE8A8C135F38B200D37EAD /* GeniePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = GeniePlugin.c; sourceTree = "<group>"; };
+		0ADE8A8E135F38B200D37EAD /* HostWindowPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = HostWindowPlugin.c; sourceTree = "<group>"; };
+		0ADE8A9A135F38FE00D37EAD /* JPEGReaderPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = JPEGReaderPlugin.c; sourceTree = "<group>"; };
+		0ADE8A9C135F38FE00D37EAD /* JPEGReadWriter2Plugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = JPEGReadWriter2Plugin.c; sourceTree = "<group>"; };
+		0ADE8A9E135F38FE00D37EAD /* Klatt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Klatt.c; sourceTree = "<group>"; };
+		0ADE8AA0135F38FE00D37EAD /* LargeIntegers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = LargeIntegers.c; sourceTree = "<group>"; };
+		0ADE8AA2135F38FE00D37EAD /* Matrix2x3Plugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Matrix2x3Plugin.c; sourceTree = "<group>"; };
+		0ADE8AA4135F38FE00D37EAD /* MiscPrimitivePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MiscPrimitivePlugin.c; sourceTree = "<group>"; };
+		0ADE8AA6135F38FE00D37EAD /* ObjectiveCPlugin.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = ObjectiveCPlugin.c; sourceTree = "<group>"; };
+		0ADE8AA8135F38FE00D37EAD /* RePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = RePlugin.c; sourceTree = "<group>"; };
+		0ADE8AAA135F38FE00D37EAD /* SecurityPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SecurityPlugin.c; sourceTree = "<group>"; };
+		0ADE8AAC135F38FE00D37EAD /* SocketPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SocketPlugin.c; sourceTree = "<group>"; };
+		0ADE8AAE135F38FE00D37EAD /* SoundCodecPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SoundCodecPrims.c; sourceTree = "<group>"; };
+		0ADE8AB0135F38FE00D37EAD /* SoundGenerationPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SoundGenerationPlugin.c; sourceTree = "<group>"; };
+		0ADE8AB2135F38FE00D37EAD /* SoundPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SoundPlugin.c; sourceTree = "<group>"; };
+		0ADE8AB4135F38FE00D37EAD /* Squeak3D.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Squeak3D.c; sourceTree = "<group>"; };
+		0ADE8AC4135F392E00D37EAD /* SqueakFFIPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SqueakFFIPrims.c; sourceTree = "<group>"; };
+		0ADE8AC6135F392E00D37EAD /* StarSqueakPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = StarSqueakPlugin.c; sourceTree = "<group>"; };
+		0ADE8AC8135F392E00D37EAD /* UUIDPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = UUIDPlugin.c; sourceTree = "<group>"; };
+		0ADE8ACA135F392E00D37EAD /* ZipPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZipPlugin.c; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* SqueakNoOGLIPhoneAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SqueakNoOGLIPhoneAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* SqueakNoOGLIPhoneAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SqueakNoOGLIPhoneAppDelegate.m; sourceTree = "<group>"; };
@@ -1125,6 +1127,7 @@
 		0AA32B28135EC55400B97FB8 /* from_squeak */ = {
 			isa = PBXGroup;
 			children = (
+				0ADE8A79135F389000D37EAD /* intplugins */,
 				0AA32C06135EC6BF00B97FB8 /* unix */,
 				0AA32BF4135EC68800B97FB8 /* iOS */,
 				0AA32B2A135EC5B700B97FB8 /* Cross */,
@@ -1552,321 +1555,8 @@
 			isa = PBXGroup;
 			children = (
 				0AA32C77135ECEBF00B97FB8 /* iPhone */,
-				0AA32C1E135EC7E700B97FB8 /* src */,
 			);
 			name = vm;
-			sourceTree = "<group>";
-		};
-		0AA32C1E135EC7E700B97FB8 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C1F135EC7F100B97FB8 /* vm */,
-			);
-			name = src;
-			sourceTree = "<group>";
-		};
-		0AA32C1F135EC7F100B97FB8 /* vm */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C20135EC7FE00B97FB8 /* intplugins */,
-			);
-			name = vm;
-			sourceTree = "<group>";
-		};
-		0AA32C20135EC7FE00B97FB8 /* intplugins */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C21135EC81E00B97FB8 /* AsynchFilePlugin */,
-				0AA32C23135EC81E00B97FB8 /* B2DPlugin */,
-				0AA32C25135EC81E00B97FB8 /* BitBltPlugin */,
-				0AA32C27135EC81E00B97FB8 /* BMPReadWriterPlugin */,
-				0AA32C29135EC81E00B97FB8 /* DSAPrims */,
-				0AA32C2B135EC81E00B97FB8 /* FFTPlugin */,
-				0AA32C2D135EC81E00B97FB8 /* FilePlugin */,
-				0AA32C2F135EC81E00B97FB8 /* FloatArrayPlugin */,
-				0AA32C31135EC81E00B97FB8 /* GeniePlugin */,
-				0AA32C33135EC81E00B97FB8 /* HostWindowPlugin */,
-				0AA32C35135EC81E00B97FB8 /* JPEGReaderPlugin */,
-				0AA32C37135EC81E00B97FB8 /* JPEGReadWriter2Plugin */,
-				0AA32C39135EC81E00B97FB8 /* Klatt */,
-				0AA32C3B135EC81E00B97FB8 /* LargeIntegers */,
-				0AA32C3D135EC81E00B97FB8 /* Matrix2x3Plugin */,
-				0AA32C3F135EC81E00B97FB8 /* MiscPrimitivePlugin */,
-				0AA32C41135EC81E00B97FB8 /* ObjectiveCPlugin */,
-				0AA32C43135EC81E00B97FB8 /* RePlugin */,
-				0AA32C45135EC81E00B97FB8 /* SecurityPlugin */,
-				0AA32C47135EC81E00B97FB8 /* SocketPlugin */,
-				0AA32C49135EC81E00B97FB8 /* SoundCodecPrims */,
-				0AA32C4B135EC81E00B97FB8 /* SoundGenerationPlugin */,
-				0AA32C4D135EC81E00B97FB8 /* SoundPlugin */,
-				0AA32C4F135EC81E00B97FB8 /* Squeak3D */,
-				0AA32C51135EC81E00B97FB8 /* SqueakFFIPrims */,
-				0AA32C53135EC81E00B97FB8 /* StarSqueakPlugin */,
-				0AA32C55135EC81E00B97FB8 /* SurfacePlugin */,
-				0AA32C56135EC81E00B97FB8 /* UUIDPlugin */,
-				0AA32C58135EC81E00B97FB8 /* ZipPlugin */,
-			);
-			name = intplugins;
-			sourceTree = "<group>";
-		};
-		0AA32C21135EC81E00B97FB8 /* AsynchFilePlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C22135EC81E00B97FB8 /* AsynchFilePlugin.c */,
-			);
-			name = AsynchFilePlugin;
-			path = src/vm/intplugins/AsynchFilePlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C23135EC81E00B97FB8 /* B2DPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C24135EC81E00B97FB8 /* B2DPlugin.c */,
-			);
-			name = B2DPlugin;
-			path = src/vm/intplugins/B2DPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C25135EC81E00B97FB8 /* BitBltPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C26135EC81E00B97FB8 /* BitBltPlugin.c */,
-			);
-			name = BitBltPlugin;
-			path = src/vm/intplugins/BitBltPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C27135EC81E00B97FB8 /* BMPReadWriterPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C28135EC81E00B97FB8 /* BMPReadWriterPlugin.c */,
-			);
-			name = BMPReadWriterPlugin;
-			path = src/vm/intplugins/BMPReadWriterPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C29135EC81E00B97FB8 /* DSAPrims */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C2A135EC81E00B97FB8 /* DSAPrims.c */,
-			);
-			name = DSAPrims;
-			path = src/vm/intplugins/DSAPrims;
-			sourceTree = "<group>";
-		};
-		0AA32C2B135EC81E00B97FB8 /* FFTPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C2C135EC81E00B97FB8 /* FFTPlugin.c */,
-			);
-			name = FFTPlugin;
-			path = src/vm/intplugins/FFTPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C2D135EC81E00B97FB8 /* FilePlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C2E135EC81E00B97FB8 /* FilePlugin.c */,
-			);
-			name = FilePlugin;
-			path = src/vm/intplugins/FilePlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C2F135EC81E00B97FB8 /* FloatArrayPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C30135EC81E00B97FB8 /* FloatArrayPlugin.c */,
-			);
-			name = FloatArrayPlugin;
-			path = src/vm/intplugins/FloatArrayPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C31135EC81E00B97FB8 /* GeniePlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C32135EC81E00B97FB8 /* GeniePlugin.c */,
-			);
-			name = GeniePlugin;
-			path = src/vm/intplugins/GeniePlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C33135EC81E00B97FB8 /* HostWindowPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C34135EC81E00B97FB8 /* HostWindowPlugin.c */,
-			);
-			name = HostWindowPlugin;
-			path = src/vm/intplugins/HostWindowPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C35135EC81E00B97FB8 /* JPEGReaderPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C36135EC81E00B97FB8 /* JPEGReaderPlugin.c */,
-			);
-			name = JPEGReaderPlugin;
-			path = src/vm/intplugins/JPEGReaderPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C37135EC81E00B97FB8 /* JPEGReadWriter2Plugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C38135EC81E00B97FB8 /* JPEGReadWriter2Plugin.c */,
-			);
-			name = JPEGReadWriter2Plugin;
-			path = src/vm/intplugins/JPEGReadWriter2Plugin;
-			sourceTree = "<group>";
-		};
-		0AA32C39135EC81E00B97FB8 /* Klatt */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C3A135EC81E00B97FB8 /* Klatt.c */,
-			);
-			name = Klatt;
-			path = src/vm/intplugins/Klatt;
-			sourceTree = "<group>";
-		};
-		0AA32C3B135EC81E00B97FB8 /* LargeIntegers */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C3C135EC81E00B97FB8 /* LargeIntegers.c */,
-			);
-			name = LargeIntegers;
-			path = src/vm/intplugins/LargeIntegers;
-			sourceTree = "<group>";
-		};
-		0AA32C3D135EC81E00B97FB8 /* Matrix2x3Plugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C3E135EC81E00B97FB8 /* Matrix2x3Plugin.c */,
-			);
-			name = Matrix2x3Plugin;
-			path = src/vm/intplugins/Matrix2x3Plugin;
-			sourceTree = "<group>";
-		};
-		0AA32C3F135EC81E00B97FB8 /* MiscPrimitivePlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C40135EC81E00B97FB8 /* MiscPrimitivePlugin.c */,
-			);
-			name = MiscPrimitivePlugin;
-			path = src/vm/intplugins/MiscPrimitivePlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C41135EC81E00B97FB8 /* ObjectiveCPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C42135EC81E00B97FB8 /* ObjectiveCPlugin.c */,
-			);
-			name = ObjectiveCPlugin;
-			path = src/vm/intplugins/ObjectiveCPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C43135EC81E00B97FB8 /* RePlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C44135EC81E00B97FB8 /* RePlugin.c */,
-			);
-			name = RePlugin;
-			path = src/vm/intplugins/RePlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C45135EC81E00B97FB8 /* SecurityPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C46135EC81E00B97FB8 /* SecurityPlugin.c */,
-			);
-			name = SecurityPlugin;
-			path = src/vm/intplugins/SecurityPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C47135EC81E00B97FB8 /* SocketPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C48135EC81E00B97FB8 /* SocketPlugin.c */,
-			);
-			name = SocketPlugin;
-			path = src/vm/intplugins/SocketPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C49135EC81E00B97FB8 /* SoundCodecPrims */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C4A135EC81E00B97FB8 /* SoundCodecPrims.c */,
-			);
-			name = SoundCodecPrims;
-			path = src/vm/intplugins/SoundCodecPrims;
-			sourceTree = "<group>";
-		};
-		0AA32C4B135EC81E00B97FB8 /* SoundGenerationPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C4C135EC81E00B97FB8 /* SoundGenerationPlugin.c */,
-			);
-			name = SoundGenerationPlugin;
-			path = src/vm/intplugins/SoundGenerationPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C4D135EC81E00B97FB8 /* SoundPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C4E135EC81E00B97FB8 /* SoundPlugin.c */,
-			);
-			name = SoundPlugin;
-			path = src/vm/intplugins/SoundPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C4F135EC81E00B97FB8 /* Squeak3D */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C50135EC81E00B97FB8 /* Squeak3D.c */,
-			);
-			name = Squeak3D;
-			path = src/vm/intplugins/Squeak3D;
-			sourceTree = "<group>";
-		};
-		0AA32C51135EC81E00B97FB8 /* SqueakFFIPrims */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C52135EC81E00B97FB8 /* SqueakFFIPrims.c */,
-			);
-			name = SqueakFFIPrims;
-			path = src/vm/intplugins/SqueakFFIPrims;
-			sourceTree = "<group>";
-		};
-		0AA32C53135EC81E00B97FB8 /* StarSqueakPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C54135EC81E00B97FB8 /* StarSqueakPlugin.c */,
-			);
-			name = StarSqueakPlugin;
-			path = src/vm/intplugins/StarSqueakPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C55135EC81E00B97FB8 /* SurfacePlugin */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = SurfacePlugin;
-			path = src/vm/intplugins/SurfacePlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C56135EC81E00B97FB8 /* UUIDPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C57135EC81E00B97FB8 /* UUIDPlugin.c */,
-			);
-			name = UUIDPlugin;
-			path = src/vm/intplugins/UUIDPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32C58135EC81E00B97FB8 /* ZipPlugin */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32C59135EC81E00B97FB8 /* ZipPlugin.c */,
-			);
-			name = ZipPlugin;
-			path = src/vm/intplugins/ZipPlugin;
 			sourceTree = "<group>";
 		};
 		0AA32C77135ECEBF00B97FB8 /* iPhone */ = {
@@ -1874,6 +1564,293 @@
 			children = (
 			);
 			name = iPhone;
+			sourceTree = "<group>";
+		};
+		0ADE8A79135F389000D37EAD /* intplugins */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A99135F38FE00D37EAD /* JPEGReaderPlugin */,
+				0ADE8A9B135F38FE00D37EAD /* JPEGReadWriter2Plugin */,
+				0ADE8A9D135F38FE00D37EAD /* Klatt */,
+				0ADE8A9F135F38FE00D37EAD /* LargeIntegers */,
+				0ADE8AA1135F38FE00D37EAD /* Matrix2x3Plugin */,
+				0ADE8AA3135F38FE00D37EAD /* MiscPrimitivePlugin */,
+				0ADE8AA5135F38FE00D37EAD /* ObjectiveCPlugin */,
+				0ADE8AA7135F38FE00D37EAD /* RePlugin */,
+				0ADE8AA9135F38FE00D37EAD /* SecurityPlugin */,
+				0ADE8AAB135F38FE00D37EAD /* SocketPlugin */,
+				0ADE8AAD135F38FE00D37EAD /* SoundCodecPrims */,
+				0ADE8AAF135F38FE00D37EAD /* SoundGenerationPlugin */,
+				0ADE8AB1135F38FE00D37EAD /* SoundPlugin */,
+				0ADE8AB3135F38FE00D37EAD /* Squeak3D */,
+				0ADE8A7B135F38B200D37EAD /* AsynchFilePlugin */,
+				0ADE8A7D135F38B200D37EAD /* B2DPlugin */,
+				0ADE8A7F135F38B200D37EAD /* BitBltPlugin */,
+				0ADE8A81135F38B200D37EAD /* BMPReadWriterPlugin */,
+				0ADE8A83135F38B200D37EAD /* DSAPrims */,
+				0ADE8A85135F38B200D37EAD /* FFTPlugin */,
+				0ADE8A87135F38B200D37EAD /* FilePlugin */,
+				0ADE8A89135F38B200D37EAD /* FloatArrayPlugin */,
+				0ADE8A8B135F38B200D37EAD /* GeniePlugin */,
+				0ADE8A8D135F38B200D37EAD /* HostWindowPlugin */,
+				0ADE8AC3135F392E00D37EAD /* SqueakFFIPrims */,
+				0ADE8AC5135F392E00D37EAD /* StarSqueakPlugin */,
+				0ADE8AC7135F392E00D37EAD /* UUIDPlugin */,
+				0ADE8AC9135F392E00D37EAD /* ZipPlugin */,
+			);
+			name = intplugins;
+			sourceTree = "<group>";
+		};
+		0ADE8A7B135F38B200D37EAD /* AsynchFilePlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A7C135F38B200D37EAD /* AsynchFilePlugin.c */,
+			);
+			name = AsynchFilePlugin;
+			path = ../../intplugins/AsynchFilePlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A7D135F38B200D37EAD /* B2DPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A7E135F38B200D37EAD /* B2DPlugin.c */,
+			);
+			name = B2DPlugin;
+			path = ../../intplugins/B2DPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A7F135F38B200D37EAD /* BitBltPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A80135F38B200D37EAD /* BitBltPlugin.c */,
+			);
+			name = BitBltPlugin;
+			path = ../../intplugins/BitBltPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A81135F38B200D37EAD /* BMPReadWriterPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A82135F38B200D37EAD /* BMPReadWriterPlugin.c */,
+			);
+			name = BMPReadWriterPlugin;
+			path = ../../intplugins/BMPReadWriterPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A83135F38B200D37EAD /* DSAPrims */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A84135F38B200D37EAD /* DSAPrims.c */,
+			);
+			name = DSAPrims;
+			path = ../../intplugins/DSAPrims;
+			sourceTree = "<group>";
+		};
+		0ADE8A85135F38B200D37EAD /* FFTPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A86135F38B200D37EAD /* FFTPlugin.c */,
+			);
+			name = FFTPlugin;
+			path = ../../intplugins/FFTPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A87135F38B200D37EAD /* FilePlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A88135F38B200D37EAD /* FilePlugin.c */,
+			);
+			name = FilePlugin;
+			path = ../../intplugins/FilePlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A89135F38B200D37EAD /* FloatArrayPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A8A135F38B200D37EAD /* FloatArrayPlugin.c */,
+			);
+			name = FloatArrayPlugin;
+			path = ../../intplugins/FloatArrayPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A8B135F38B200D37EAD /* GeniePlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A8C135F38B200D37EAD /* GeniePlugin.c */,
+			);
+			name = GeniePlugin;
+			path = ../../intplugins/GeniePlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A8D135F38B200D37EAD /* HostWindowPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A8E135F38B200D37EAD /* HostWindowPlugin.c */,
+			);
+			name = HostWindowPlugin;
+			path = ../../intplugins/HostWindowPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A99135F38FE00D37EAD /* JPEGReaderPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A9A135F38FE00D37EAD /* JPEGReaderPlugin.c */,
+			);
+			name = JPEGReaderPlugin;
+			path = ../../intplugins/JPEGReaderPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A9B135F38FE00D37EAD /* JPEGReadWriter2Plugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A9C135F38FE00D37EAD /* JPEGReadWriter2Plugin.c */,
+			);
+			name = JPEGReadWriter2Plugin;
+			path = ../../intplugins/JPEGReadWriter2Plugin;
+			sourceTree = "<group>";
+		};
+		0ADE8A9D135F38FE00D37EAD /* Klatt */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8A9E135F38FE00D37EAD /* Klatt.c */,
+			);
+			name = Klatt;
+			path = ../../intplugins/Klatt;
+			sourceTree = "<group>";
+		};
+		0ADE8A9F135F38FE00D37EAD /* LargeIntegers */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AA0135F38FE00D37EAD /* LargeIntegers.c */,
+			);
+			name = LargeIntegers;
+			path = ../../intplugins/LargeIntegers;
+			sourceTree = "<group>";
+		};
+		0ADE8AA1135F38FE00D37EAD /* Matrix2x3Plugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AA2135F38FE00D37EAD /* Matrix2x3Plugin.c */,
+			);
+			name = Matrix2x3Plugin;
+			path = ../../intplugins/Matrix2x3Plugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AA3135F38FE00D37EAD /* MiscPrimitivePlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AA4135F38FE00D37EAD /* MiscPrimitivePlugin.c */,
+			);
+			name = MiscPrimitivePlugin;
+			path = ../../intplugins/MiscPrimitivePlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AA5135F38FE00D37EAD /* ObjectiveCPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AA6135F38FE00D37EAD /* ObjectiveCPlugin.c */,
+			);
+			name = ObjectiveCPlugin;
+			path = ../../intplugins/ObjectiveCPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AA7135F38FE00D37EAD /* RePlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AA8135F38FE00D37EAD /* RePlugin.c */,
+			);
+			name = RePlugin;
+			path = ../../intplugins/RePlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AA9135F38FE00D37EAD /* SecurityPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AAA135F38FE00D37EAD /* SecurityPlugin.c */,
+			);
+			name = SecurityPlugin;
+			path = ../../intplugins/SecurityPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AAB135F38FE00D37EAD /* SocketPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AAC135F38FE00D37EAD /* SocketPlugin.c */,
+			);
+			name = SocketPlugin;
+			path = ../../intplugins/SocketPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AAD135F38FE00D37EAD /* SoundCodecPrims */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AAE135F38FE00D37EAD /* SoundCodecPrims.c */,
+			);
+			name = SoundCodecPrims;
+			path = ../../intplugins/SoundCodecPrims;
+			sourceTree = "<group>";
+		};
+		0ADE8AAF135F38FE00D37EAD /* SoundGenerationPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AB0135F38FE00D37EAD /* SoundGenerationPlugin.c */,
+			);
+			name = SoundGenerationPlugin;
+			path = ../../intplugins/SoundGenerationPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AB1135F38FE00D37EAD /* SoundPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AB2135F38FE00D37EAD /* SoundPlugin.c */,
+			);
+			name = SoundPlugin;
+			path = ../../intplugins/SoundPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AB3135F38FE00D37EAD /* Squeak3D */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AB4135F38FE00D37EAD /* Squeak3D.c */,
+			);
+			name = Squeak3D;
+			path = ../../intplugins/Squeak3D;
+			sourceTree = "<group>";
+		};
+		0ADE8AC3135F392E00D37EAD /* SqueakFFIPrims */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AC4135F392E00D37EAD /* SqueakFFIPrims.c */,
+			);
+			name = SqueakFFIPrims;
+			path = ../../intplugins/SqueakFFIPrims;
+			sourceTree = "<group>";
+		};
+		0ADE8AC5135F392E00D37EAD /* StarSqueakPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AC6135F392E00D37EAD /* StarSqueakPlugin.c */,
+			);
+			name = StarSqueakPlugin;
+			path = ../../intplugins/StarSqueakPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AC7135F392E00D37EAD /* UUIDPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8AC8135F392E00D37EAD /* UUIDPlugin.c */,
+			);
+			name = UUIDPlugin;
+			path = ../../intplugins/UUIDPlugin;
+			sourceTree = "<group>";
+		};
+		0ADE8AC9135F392E00D37EAD /* ZipPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0ADE8ACA135F392E00D37EAD /* ZipPlugin.c */,
+			);
+			name = ZipPlugin;
+			path = ../../intplugins/ZipPlugin;
 			sourceTree = "<group>";
 		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
@@ -2504,34 +2481,36 @@
 				0AA32C17135EC70F00B97FB8 /* sqMacSecurity.c in Sources */,
 				0AA32C18135EC70F00B97FB8 /* sqSqueakSoundCoreAudio.m in Sources */,
 				0AA32C19135EC70F00B97FB8 /* sqSqueakSoundCoreAudioAPI.m in Sources */,
-				0AA32C5A135EC81E00B97FB8 /* AsynchFilePlugin.c in Sources */,
-				0AA32C5B135EC81E00B97FB8 /* B2DPlugin.c in Sources */,
-				0AA32C5C135EC81E00B97FB8 /* BitBltPlugin.c in Sources */,
-				0AA32C5D135EC81E00B97FB8 /* BMPReadWriterPlugin.c in Sources */,
-				0AA32C5E135EC81E00B97FB8 /* DSAPrims.c in Sources */,
-				0AA32C5F135EC81E00B97FB8 /* FFTPlugin.c in Sources */,
-				0AA32C60135EC81E00B97FB8 /* FilePlugin.c in Sources */,
-				0AA32C61135EC81E00B97FB8 /* FloatArrayPlugin.c in Sources */,
-				0AA32C62135EC81E00B97FB8 /* GeniePlugin.c in Sources */,
-				0AA32C63135EC81E00B97FB8 /* HostWindowPlugin.c in Sources */,
-				0AA32C64135EC81E00B97FB8 /* JPEGReaderPlugin.c in Sources */,
-				0AA32C65135EC81E00B97FB8 /* JPEGReadWriter2Plugin.c in Sources */,
-				0AA32C66135EC81E00B97FB8 /* Klatt.c in Sources */,
-				0AA32C67135EC81E00B97FB8 /* LargeIntegers.c in Sources */,
-				0AA32C68135EC81E00B97FB8 /* Matrix2x3Plugin.c in Sources */,
-				0AA32C69135EC81E00B97FB8 /* MiscPrimitivePlugin.c in Sources */,
-				0AA32C6A135EC81E00B97FB8 /* ObjectiveCPlugin.c in Sources */,
-				0AA32C6B135EC81E00B97FB8 /* RePlugin.c in Sources */,
-				0AA32C6C135EC81E00B97FB8 /* SecurityPlugin.c in Sources */,
-				0AA32C6E135EC81E00B97FB8 /* SoundCodecPrims.c in Sources */,
-				0AA32C6F135EC81E00B97FB8 /* SoundGenerationPlugin.c in Sources */,
-				0AA32C70135EC81E00B97FB8 /* SoundPlugin.c in Sources */,
-				0AA32C71135EC81E00B97FB8 /* Squeak3D.c in Sources */,
-				0AA32C72135EC81E00B97FB8 /* SqueakFFIPrims.c in Sources */,
-				0AA32C73135EC81E00B97FB8 /* StarSqueakPlugin.c in Sources */,
-				0AA32C74135EC81E00B97FB8 /* UUIDPlugin.c in Sources */,
-				0AA32C75135EC81E00B97FB8 /* ZipPlugin.c in Sources */,
 				0AA32C7B135ECFDD00B97FB8 /* sqUnixExternalPrims.c in Sources */,
+				0ADE8A8F135F38B200D37EAD /* AsynchFilePlugin.c in Sources */,
+				0ADE8A90135F38B200D37EAD /* B2DPlugin.c in Sources */,
+				0ADE8A91135F38B200D37EAD /* BitBltPlugin.c in Sources */,
+				0ADE8A92135F38B200D37EAD /* BMPReadWriterPlugin.c in Sources */,
+				0ADE8A93135F38B200D37EAD /* DSAPrims.c in Sources */,
+				0ADE8A94135F38B200D37EAD /* FFTPlugin.c in Sources */,
+				0ADE8A95135F38B200D37EAD /* FilePlugin.c in Sources */,
+				0ADE8A96135F38B200D37EAD /* FloatArrayPlugin.c in Sources */,
+				0ADE8A97135F38B200D37EAD /* GeniePlugin.c in Sources */,
+				0ADE8A98135F38B200D37EAD /* HostWindowPlugin.c in Sources */,
+				0ADE8AB5135F38FE00D37EAD /* JPEGReaderPlugin.c in Sources */,
+				0ADE8AB6135F38FE00D37EAD /* JPEGReadWriter2Plugin.c in Sources */,
+				0ADE8AB7135F38FE00D37EAD /* Klatt.c in Sources */,
+				0ADE8AB8135F38FE00D37EAD /* LargeIntegers.c in Sources */,
+				0ADE8AB9135F38FE00D37EAD /* Matrix2x3Plugin.c in Sources */,
+				0ADE8ABA135F38FE00D37EAD /* MiscPrimitivePlugin.c in Sources */,
+				0ADE8ABB135F38FE00D37EAD /* ObjectiveCPlugin.c in Sources */,
+				0ADE8ABC135F38FE00D37EAD /* RePlugin.c in Sources */,
+				0ADE8ABD135F38FE00D37EAD /* SecurityPlugin.c in Sources */,
+				0ADE8ABE135F38FE00D37EAD /* SocketPlugin.c in Sources */,
+				0ADE8ABF135F38FE00D37EAD /* SoundCodecPrims.c in Sources */,
+				0ADE8AC0135F38FE00D37EAD /* SoundGenerationPlugin.c in Sources */,
+				0ADE8AC1135F38FE00D37EAD /* SoundPlugin.c in Sources */,
+				0ADE8AC2135F38FE00D37EAD /* Squeak3D.c in Sources */,
+				0ADE8ACB135F392E00D37EAD /* SqueakFFIPrims.c in Sources */,
+				0ADE8ACC135F392E00D37EAD /* StarSqueakPlugin.c in Sources */,
+				0ADE8ACD135F392E00D37EAD /* UUIDPlugin.c in Sources */,
+				0ADE8ACE135F392E00D37EAD /* ZipPlugin.c in Sources */,
+				0ADE8ACF135F399D00D37EAD /* sqUnixSocket.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
