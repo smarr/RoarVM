@@ -6,14 +6,14 @@
 *   AUTHOR:  John McIntosh.
 *   ADDRESS: 
 *   EMAIL:   johnmci@smalltalkconsulting.com
-*   RCSID:   $Id$
+*   RCSID:   $Id: sqMacUUID.c 1708 2007-06-10 00:40:04Z johnmci $
 *
 *   Feb 5 2002, JMM cleanup for windows port
 *
 */
 
-#include "sq.h"
 #include "UUIDPlugin.h"
+#include "sq.h"
 
 extern struct VirtualMachine *interpreterProxy;
 

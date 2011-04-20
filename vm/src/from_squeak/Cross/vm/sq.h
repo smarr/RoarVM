@@ -6,7 +6,7 @@
 *   AUTHOR:  
 *   ADDRESS: 
 *   EMAIL:   
-*   RCSID:   $Id$
+*   RCSID:   $Id: sq.h 1283 2005-12-31 00:51:12Z rowledge $
 *
 */
 #include <math.h>
@@ -15,18 +15,7 @@
 #include <string.h>
 #include <time.h>
 
-typedef long int      int32;
-typedef long long int int64;
-typedef short int     int16;
-
-typedef unsigned int           u_int1;   // used for 1-bit fields, Tilera compiler complains if its not unsigned
-typedef unsigned long int      u_int32;
-typedef unsigned long long int u_int64;
-
-typedef unsigned char u_char;
-
-typedef   int32   oop_int_t;
-typedef u_int32 u_oop_int_t;
+# include "squeak_adapters.h"
 
 #include "sqConfig.h"
 #include "sqMemoryAccess.h"

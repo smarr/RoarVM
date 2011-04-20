@@ -82,4 +82,3 @@ sqInt sqSocketLocalAddressSize(SocketPtr s);
 void  sqSocketLocalAddressResultSize(SocketPtr s, char *addr, int addrSize);
 sqInt sqSocketRemoteAddressSize(SocketPtr s);
 void  sqSocketRemoteAddressResultSize(SocketPtr s, char *addr, int addrSize);
-

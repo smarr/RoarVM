@@ -946,7 +946,7 @@ OSErr	MySndDoImmediate (SndChannelPtr chan, SndCommand * cmd) {
 
 	return (SndDoImmediate (chan, cmd));
 }
-#endif UNNECESSARY_FOR_SQUEAK
+#endif /* UNNECESSARY_FOR_SQUEAK */
 
 
 // This must be called at task time.
@@ -1077,7 +1077,7 @@ OSErr	CarbonSndPlayDoubleBuffer (SndChannelPtr chan, SndDoubleBufferHeaderPtr th
 	if (gCarbonSndPlayDoubleBufferCleanUpUPP == nil) {
 			gCarbonSndPlayDoubleBufferCleanUpUPP = NewSndCallBackProc (CarbonSndPlayDoubleBufferCleanUpProc);
 	}
-#endif
+#endif /* UNNECESSARY_FOR_SQUEAK */
 
 	err = SndDoCommand (chan, &playCmd, true);
 	if (noErr != err) goto exitDispose;
@@ -1114,7 +1114,7 @@ static pascal void	CarbonSndPlayDoubleBufferCleanUpProc(
 	// Have to put the user's callback proc back so they get called when the next buffer finishes
 	theChannel->callBack = perChanInfoPtr->usersCallBack;
 }
-#endif
+#endif /* UNNECESSARY_FOR_SQUEAK */
 
 
 static pascal void	CarbonSndPlayDoubleBufferCallBackProc (SndChannelPtr theChannel, SndCommand * theCallBackCmd) {
@@ -1223,4 +1223,4 @@ static pascal void NMResponseProc (NMRecPtr nmReqPtr) {
 	} while (nil != perChanInfoPtr && noErr == err);
 }
 
-#endif
+#endif /* TARGET_API_MAC_CARBON */

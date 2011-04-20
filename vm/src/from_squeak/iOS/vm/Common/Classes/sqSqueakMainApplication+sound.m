@@ -39,5 +39,6 @@
 
 @implementation sqSqueakMainApplication (sound)
 - (void) ioBeep {
+//	SysBeep(1000);
 }
 @end
