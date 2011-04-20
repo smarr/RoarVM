@@ -114,7 +114,7 @@ extern char vmPath[];
 #if 1 /* simplified plugin logic */
 
 
-static void *tryLoadModule(char *in, char *name)
+static void *tryLoadModule(const char *in, char *name)
 {
   char path[PATH_MAX], *out= path;
   void *handle= 0;
@@ -151,7 +151,7 @@ static void *tryLoadModule(char *in, char *name)
 }
 
 
-void *ioLoadModule(char *pluginName)
+void *ioLoadModule(const char *pluginName)
 {
   char  path[PATH_MAX];
   char *dir= squeakPlugins;
@@ -205,7 +205,7 @@ void *ioLoadModule(char *pluginName)
  *  moduleName and suffix.  Answer the new module entry, or 0 if the shared
  *  library could not be loaded.
  */
-static void *tryLoading(char *dirName, char *moduleName)
+static void *tryLoading(const char *dirName, const char *moduleName)
 {
   static char *prefixes[]= { "", "lib", 0 };
   static char *suffixes[]= { "", ".so", ".dylib", 0 };
@@ -248,7 +248,7 @@ static void *tryLoading(char *dirName, char *moduleName)
 }
 
 
-static void *tryLoadingPath(char *varName, char *pluginName)
+static void *tryLoadingPath(const char *varName, const char *pluginName)
 {
   char *path= getenv(varName);
   void *handle= 0;
@@ -277,7 +277,7 @@ static void *tryLoadingPath(char *varName, char *pluginName)
 /*  Find and load the named module.  Answer 0 if not found (do NOT fail
  *  the primitive!).
  */
-void *ioLoadModule(char *pluginName)
+void *ioLoadModule(const char *pluginName)
 {
   void *handle= 0;
 
@@ -396,7 +396,7 @@ void *ioLoadModule(char *pluginName)
 /*  Find a function in a loaded module.  Answer 0 if not found (do NOT
  *  fail the primitive!).
  */
-void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle)
+void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle)
 {
   void *fn= dlsym(moduleHandle, lookupName);
   fdebugf((stderr, "ioFindExternalFunctionIn(%s, %p) = %p\n", lookupName, moduleHandle, fn));
@@ -429,12 +429,12 @@ sqInt ioFreeModule(void *moduleHandle)
 
 
 
-void *ioLoadModule(char *pluginName)
+void *ioLoadModule(const char *pluginName)
 {
   return 0;
 }
 
-void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle)
+void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle)
 {
   return 0;
 }
