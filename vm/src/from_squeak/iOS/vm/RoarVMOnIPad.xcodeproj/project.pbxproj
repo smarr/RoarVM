@@ -440,7 +440,6 @@
 		0AA32B31135EC5EE00B97FB8 /* FilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilePlugin.h; sourceTree = "<group>"; };
 		0AA32B32135EC5EE00B97FB8 /* sqFilePluginBasicPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqFilePluginBasicPrims.c; sourceTree = "<group>"; };
 		0AA32B34135EC5EE00B97FB8 /* HostWindowPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HostWindowPlugin.h; sourceTree = "<group>"; };
-		0AA32B36135EC5EE00B97FB8 /* sqVirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqVirtualMachine.h; sourceTree = "<group>"; };
 		0AA32B38135EC5EE00B97FB8 /* Error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Error.c; sourceTree = "<group>"; };
 		0AA32B39135EC5EE00B97FB8 /* jcapimin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jcapimin.c; sourceTree = "<group>"; };
 		0AA32B3A135EC5EE00B97FB8 /* jcapistd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jcapistd.c; sourceTree = "<group>"; };
@@ -591,6 +590,7 @@
 		0AA32C54135EC81E00B97FB8 /* StarSqueakPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = StarSqueakPlugin.c; sourceTree = "<group>"; };
 		0AA32C57135EC81E00B97FB8 /* UUIDPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = UUIDPlugin.c; sourceTree = "<group>"; };
 		0AA32C59135EC81E00B97FB8 /* ZipPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ZipPlugin.c; sourceTree = "<group>"; };
+		0AB173FB135F2A2F0095BF89 /* sqVirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqVirtualMachine.h; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D3623240D0F684500981E51 /* SqueakNoOGLIPhoneAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SqueakNoOGLIPhoneAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* SqueakNoOGLIPhoneAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SqueakNoOGLIPhoneAppDelegate.m; sourceTree = "<group>"; };
@@ -1148,7 +1148,6 @@
 				0AA32B2E135EC5EE00B97FB8 /* FileCopyPlugin */,
 				0AA32B30135EC5EE00B97FB8 /* FilePlugin */,
 				0AA32B33135EC5EE00B97FB8 /* HostWindowPlugin */,
-				0AA32B35135EC5EE00B97FB8 /* IA32ABI */,
 				0AA32B37135EC5EE00B97FB8 /* JPEGReadWriter2Plugin */,
 				0AA32B76135EC5EE00B97FB8 /* LocalePlugin */,
 				0AA32B78135EC5EE00B97FB8 /* MIDIPlugin */,
@@ -1204,15 +1203,6 @@
 			);
 			name = HostWindowPlugin;
 			path = ../../Cross/plugins/HostWindowPlugin;
-			sourceTree = "<group>";
-		};
-		0AA32B35135EC5EE00B97FB8 /* IA32ABI */ = {
-			isa = PBXGroup;
-			children = (
-				0AA32B36135EC5EE00B97FB8 /* sqVirtualMachine.h */,
-			);
-			name = IA32ABI;
-			path = ../../Cross/plugins/IA32ABI;
 			sourceTree = "<group>";
 		};
 		0AA32B37135EC5EE00B97FB8 /* JPEGReadWriter2Plugin */ = {
@@ -1448,6 +1438,7 @@
 				0AA32BEE135EC61300B97FB8 /* sq.h */,
 				0AA32BEF135EC61300B97FB8 /* sqMemoryAccess.h */,
 				0AA32BF0135EC61300B97FB8 /* sqNamedPrims.c */,
+				0AB173FB135F2A2F0095BF89 /* sqVirtualMachine.h */,
 				0AA32BF1135EC61300B97FB8 /* sqVirtualMachine.c */,
 			);
 			name = vm;
