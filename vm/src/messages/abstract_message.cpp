@@ -120,8 +120,7 @@ void abstractMessage_class::handle_me_or_maybe_delay() {
   else  { 
     u_int64 start = OS_Interface::get_cycle_count(); 
     handle_me(); 
-    u_int64 end = OS_Interface::get_cycle_count();
-    Message_Stats::record_receive_cycles(get_message_type(), end - start);
+    Message_Stats::stats[rank_on_threads_or_zero_on_processes()].receive_cycles[get_message_type()] += OS_Interface::get_cycle_count() - start; 
   } 
 }
 
