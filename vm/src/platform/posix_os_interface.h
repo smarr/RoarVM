@@ -31,7 +31,7 @@ public:
   
   static inline void abort() { ::abort(); }
   static inline void die(const char* err_msg) {
-    warnx(err_msg);
+    warnx("%s", err_msg);
     abort();
   }
   static inline void exit()  { ::exit(0); }

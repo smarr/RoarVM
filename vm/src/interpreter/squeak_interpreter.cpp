@@ -1752,7 +1752,8 @@ void Squeak_Interpreter::commonAtPut(bool stringy) {
   oop_int_t index = positive32BitValueOf(stackValue(1));
   Oop rcvr = stackValue(2);
   if (!successFlag || !rcvr.is_mem()) {
-    primitiveFail();  return;
+    primitiveFail();
+    return;
   }
   Object_p ro = rcvr.as_object();
   if (roots.messageSelector == specialSelector(17)  &&  roots.lkupClass == ro->fetchClass()) {
