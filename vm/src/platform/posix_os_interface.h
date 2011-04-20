@@ -70,11 +70,11 @@ public:
   static inline int  mutex_trylock(Mutex*)     { return 0; }
   static inline int  mutex_unlock(Mutex*)      { return 0; }
   
-# elif Use_PThread_Spin_Lock
+# elif Use_Spin_Locks && !On_Apple 
   
   typedef pthread_spinlock_t Mutex;
   
-  static inline void mutex_init(Mutex* mutex, const void*) {
+  static inline void mutex_init(Mutex* mutex, const void* _ = NULL) {
     pthread_spin_init(mutex, 0);
   }
   
@@ -118,11 +118,28 @@ public:
     return pthread_mutex_unlock(mutex);
   }
   
+# endif // Omit_PThread_Locks elif Use_Spin_Locks
   static inline int atomic_fetch_and_add(int* mem, int increment) {
     return __sync_fetch_and_add(mem, increment);
   }
   
-# endif // Omit_PThread_Locks
+  /**
+   * Atomically compare the memory location with the old value, and 
+   * if they are equal set the new value and return true, false otherwise.
+   */
+  static inline bool atomic_compare_and_swap(int* ptr, int old_value, int new_value) {
+    return __sync_bool_compare_and_swap(ptr, old_value, new_value);
+  }
+
+  /**
+   * Atomically compare the memory location with the old value, and 
+   * if they are equal set the new value, otherwise don't set anything.
+   * 
+   * Returns the initial value at ptr.
+   */
+  static inline int atomic_compare_and_swap_val(int* ptr, int old_value, int new_value) {
+    return __sync_val_compare_and_swap(ptr, old_value, new_value);
+  }
   
   
 # ifdef __GNUC__

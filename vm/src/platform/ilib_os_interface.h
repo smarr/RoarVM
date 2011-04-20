@@ -78,6 +78,25 @@ public:
     return atomic_add_val(mem, increment);
   }
     
+  /**
+   * Atomically compare the memory location with the old value, and 
+   * if they are equal set the new value and return true, false otherwise.
+   */
+  static inline bool atomic_compare_and_swap(int* ptr, int old_value, int new_value) {
+    return (0 == atomic_compare_and_exchange_bool_acq(ptr, new_value, old_value)); // Not sure whether that is stable, this API is unintuitive for me, got it wrong twice!! make sure the test cases are rerun on new lib versions
+  }
+  
+  /**
+   * Atomically compare the memory location with the old value, and 
+   * if they are equal set the new value, otherwise don't set anything.
+   * 
+   * Returns the initial value at ptr.
+   */
+  static inline int atomic_compare_and_swap_val(int* ptr, int old_value, int new_value) {
+    return atomic_compare_and_exchange_val_acq(ptr, new_value, old_value);
+  }
+  
+    
   static inline uint32_t leading_zeros(uint32_t x)    { return __insn_clz(x);  }
   static inline uint32_t population_count(uint32_t x) { return __insn_pcnt(x); }
   

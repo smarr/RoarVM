@@ -11,6 +11,8 @@
  *    Stefan Marr, Vrije Universiteit Brussel - Port to x86 Multi-Core Systems
  ******************************************************************************/
 
+# ifndef __ROARVM_TYPES__
+# define __ROARVM_TYPES__
 
 typedef long int      int32;
 typedef long long int int64;
@@ -24,6 +26,7 @@ typedef unsigned char u_char;
 
 typedef   int32   oop_int_t;
 typedef u_int32 u_oop_int_t;
+# ifdef __cplusplus
 
 typedef void* (*fn_t)(...);
 
@@ -58,3 +61,6 @@ static const int MaxSmallInt = ~MinSmallInt;
 
 static const int Mega = 1024 * 1024;
 
+# endif // __cplusplus
+
+# endif // __ROARVM_TYPES__
