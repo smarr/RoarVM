@@ -205,9 +205,6 @@ then
     fi
 fi
 
-# for now suppress a number of known warnings
-CONFIG_FLAGS="$CONFIG_FLAGS  -fdiagnostics-show-option -Wno-unused-variable -Wno-unused-value"
-
 if [ $USE_TILERA -eq 1 ]
 then
     echo "TILERA_ROOT=$TILERA_ROOT"   >> Makefile
@@ -219,6 +216,10 @@ else
     echo "CONFIG_FLAGS = $CONFIG_FLAGS -DMeasure=0 \
  -DWork_Around_Barrier_Bug=1"         >> Makefile
     echo "PLATFORM=Intel"             >> Makefile
+    
+    # for now suppress a number of known warnings
+    # won't work with the tile-cc
+    CONFIG_FLAGS="$CONFIG_FLAGS  -fdiagnostics-show-option -Wno-unused-variable -Wno-unused-value"
 fi
 
 echo "CC = $CC"                >> Makefile
