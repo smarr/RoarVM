@@ -69,8 +69,8 @@ SqueakOSXAppDelegate *gDelegateApp;
 	self.window.contentResizeIncrements = NSMakeSize(8.0f,8.0f);
 	[self.squeakApplication setupEventQueue];
 	
-	[self singleThreadStart];
-//	[self workerThreadStart];
+//	[self singleThreadStart];
+	[self workerThreadStart];
 	
 	[pool drain];
 	
