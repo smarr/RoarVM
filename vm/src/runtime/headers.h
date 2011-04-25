@@ -57,6 +57,7 @@
 # endif
 
 # if On_iOS
+#  include <libkern/OSAtomic.h>
 # elif On_Apple
 #  include <monitor.h>
 #  include <libkern/OSAtomic.h>

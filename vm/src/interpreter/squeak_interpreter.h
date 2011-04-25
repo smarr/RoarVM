@@ -69,7 +69,8 @@ public:
   void set_run_mask_and_request_yield(u_int64);
 
   oop_int_t reclaimableContextCount;
-  bool successFlag;
+  bool  successFlag;
+  int32 primFailCode;
 
 
 # define FOR_ALL_BROADCAST(template) \
@@ -302,7 +303,7 @@ public:
   void pushRemappableOop(Oop x) { remapBuffer[remapBufferCount++] = x; }
   Oop  popRemappableOop()       {return remapBuffer[--remapBufferCount]; }
   void popRemappableOops(int n) { remapBufferCount -= n; assert(remapBufferCount >= 0); }
-
+  Oop  topRemappableOop()       {return remapBuffer[remapBufferCount]; }
 
   void do_all_roots(Oop_Closure* oc);
 
@@ -390,6 +391,7 @@ public:
   void flushExternalPrimitiveTable();
 
   void primitiveFail() { successFlag = false; }
+  void primitiveFailFor(int32 reasonCode) { successFlag = false; primFailCode = reasonCode; }
   bool failed() { return !successFlag; }
   void success(bool b) { successFlag = successFlag && b; }
 

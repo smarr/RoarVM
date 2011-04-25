@@ -251,6 +251,18 @@ Oop Object::signed64BitIntegerFor(int64 integerValue) {
 }
 
 
+/*	Answer the number of slots in a class. For example the instanceSizeOf: 
+    ClassPoint is 2, for the x & y slots. The instance size of non-pointer
+    classes is 0. */
+oop_int_t Object::instanceSizeOfClass() {
+  // STEFAN: this is extracted from below, needs testing!!
+#warning Untested and to many magic numbers here. Please fix!
+  
+  oop_int_t classFormat = formatOfClass();
+  oop_int_t sizeHiBits = (classFormat & 0x60000) >> 9;
+  oop_int_t byteSize = (classFormat & (SizeMask | Size4Bit)) | sizeHiBits; // low bits 0
+  return ((byteSize - BaseHeaderSize) >> 2);
+}
 
 
 Object_p Object::instantiateClass(oop_int_t size, Logical_Core* where) {

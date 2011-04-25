@@ -468,6 +468,7 @@ public:
 
   Object_p instantiateSmallClass(oop_int_t sizeInBytes);
   Object_p instantiateClass(oop_int_t sizeInBytes, Logical_Core* where = NULL);
+  oop_int_t instanceSizeOfClass();
 
   inline void set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB);
 
