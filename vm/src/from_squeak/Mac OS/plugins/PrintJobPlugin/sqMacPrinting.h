@@ -6,7 +6,7 @@
 *   AUTHOR:  John McIntosh.
 *   ADDRESS: 
 *   EMAIL:   johnmci@smalltalkconsulting.com
-*   RCSID:   $Id$
+*   RCSID:   $Id: sqMacPrinting.h 210 2002-02-20 21:02:40Z johnmci $
 *
 *   NOTES: 
 *
@@ -41,9 +41,6 @@ typedef struct {
         PMPrintSession printSession;
         PMPageFormat	pageFormat;
         PMPrintSettings printSettings;
-		GWorldPtr   aGWorld;
-		PMRect		pageRect;
-		PMRect		paperRect;
 #else
 	    THPrint		thePrRecHdl;
 		TPPrPort	thePrPort;

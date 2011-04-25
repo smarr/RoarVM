@@ -6,7 +6,7 @@
 *   AUTHOR:  John Maloney, John McIntosh, and others.
 *   ADDRESS: 
 *   EMAIL:   johnmci@smalltalkconsulting.com
-*   RCSID:   $Id$
+*   RCSID:   $Id: sqMacUIMenuBar.c 1238 2005-08-16 12:36:18Z johnmci $
 *
 *   NOTES: 
 *  Feb 22nd, 2002, JMM moved code into 10 other files, see sqMacMain.c for comments
@@ -104,13 +104,13 @@ void SetUpMenus(void) {
 #if TARGET_API_MAC_CARBON
     Gestalt( gestaltMenuMgrAttr, &decideOnQuitMenu);
     if (!(decideOnQuitMenu & gestaltMenuMgrAquaLayoutMask) || true)	
-        AppendMenu(fileMenu, "\pQuit do not save");
+        AppendMenu(fileMenu, "\pQuit Without Saving");
     if (RunningOnCarbonX()) {
         DisableMenuCommand(NULL,'quit');
 	}
 #else
 	AppendResMenu(appleMenu, 'DRVR');
-    AppendMenu(fileMenu, "\pQuit do not save");
+    AppendMenu(fileMenu, "\pQuit Without Saving");
 #endif
  	AppendMenu(editMenu, "\pUndo/Z;(-;Cut/X;Copy/C;Paste/V;Clear");
 	/* Disable items in the Edit menu */

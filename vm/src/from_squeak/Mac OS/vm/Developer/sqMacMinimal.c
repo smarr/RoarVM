@@ -879,12 +879,6 @@ dir_SetMacFileTypeAndCreator(char *filename, int filenameSize,
   char *fType, char *fCreator)												DO_NOTHING
 int dir_Delete(char *pathString, int pathStringLength)						STUBBED_OUT
 
-/*** Profiling Stubs ***/
-
-int clearProfile(void)														STUBBED_OUT
-int dumpProfile(void)														STUBBED_OUT
-int startProfiling(void)													STUBBED_OUT
-int stopProfiling(void)														STUBBED_OUT
 
 /*** External Primitive Support (No-ops) ***/
 
@@ -941,7 +935,7 @@ void main(void) {
 		printf("Aborting...\n");
 		ioExit();
 	}
-	readImageFromFileHeapSize(f, availableMemory);
+	readImageFromFileHeapSizeStartingAt(f, availableMemory, 0);
 	sqImageFileClose(f);
 
 	/* run Squeak */

@@ -16,6 +16,9 @@
 #include "sq.h"
 #include "sqFFI.h"
 
+#if !defined(PATH_MAX)
+# include <sys/syslimits.h>
+#endif
 extern struct VirtualMachine *interpreterProxy;
 #define primitiveFail() interpreterProxy->primitiveFail();
 
@@ -45,6 +48,40 @@ static void*    structReturnValue;
 
 #define ARG_CHECK() if(ffiArgIndex >= FFI_MAX_ARGS) return primitiveFail();
 #define ARG_PUSH(value) { ARG_CHECK(); ffiArgs[ffiArgIndex++] = value; }
+#define MAX_PATH  PATH_MAX
+
+/*****************************************************************************/
+/*****************************************************************************/
+static FILE *ffiLogFile = NULL;
+
+int ffiLogFileNameOfLength(void *nameIndex, int nameLength) {
+  char fileName[MAX_PATH];
+  FILE *fp;
+
+  if(nameIndex && nameLength) {
+    if(nameLength >= MAX_PATH) return 0;
+    strncpy(fileName, nameIndex, nameLength);
+    fileName[nameLength] = 0;
+    /* attempt to open the file and if we can't fail */
+    fp = fopen(fileName, "at");
+    if(fp == NULL) return 0;
+    /* close the old log file if needed and use the new one */
+    if(ffiLogFile) fclose(ffiLogFile);
+    ffiLogFile = fp;
+    fprintf(ffiLogFile, "------- Log started -------\n");
+    fflush(fp);
+  } else {
+    if(ffiLogFile) fclose(ffiLogFile);
+    ffiLogFile = NULL;
+  }
+  return 1;
+}
+
+int ffiLogCallOfLength(void *nameIndex, int nameLength) {
+    if(ffiLogFile == NULL) return 0;
+    fprintf(ffiLogFile, "%.*s\n", nameIndex, nameLength);
+    fflush(ffiLogFile);
+}
 
 /*****************************************************************************/
 /*****************************************************************************/

@@ -36,6 +36,8 @@
  * Last edited: Fri Aug 11 08:20:28 2000 by piumarta (Ian Piumarta) on emilia
  * April 17th, 2002, John M McIntosh use jumptable register logic for PPC
  * Feb 23rd, 2006, John M McIntosh watch usage of __Apple__ also Ian's changes for GCC i386
+ * December 10th 2008, Eliot Miranda, updated with FP_REG and use of GIV() for
+ *      the global struct.
  *
  * NOTES:
  *	this file is #included IN PLACE OF sq.h
@@ -51,7 +53,7 @@
     #define BREAK		goto *jumpTable[currentBytecode]
     #define PPC_REG_JUMP	
 #endif
-#define PRIM_DISPATCH	goto *jumpTable[foo->primitiveIndex]
+#define PRIM_DISPATCH	goto *jumpTable[GIV(primitiveIndex)]
 #define JUMP_TABLE \
    void *jumpTable[256]= { \
       &&_0,   &&_1,   &&_2,   &&_3,   &&_4,   &&_5,   &&_6,   &&_7,   &&_8,   &&_9, \
@@ -156,8 +158,8 @@
   }
 
   /*
-     IP_REG, SP_REG, CB_REG
-        the machine registers in which to place localIP, localSP and
+     IP_REG, FP_REG, SP_REG, CB_REG
+        the machine registers in which to place localIP, localFP, localSP and
         currentBytecode.  Wins big on register-deficient architectures --
         especially Intel.
   */
@@ -179,11 +181,7 @@
 #if defined(__i386__)
 # define IP_REG asm("%esi")
 # define SP_REG asm("%edi")
-//# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
 #   define CB_REG asm("%ebx")
-//# else
-//#   define CB_REG /* avoid undue register pressure */
-//# endif
 #endif
 #if defined(__powerpc__) || defined(PPC) || defined(_POWER) || defined(_IBMR2) || defined(__ppc__)
 # define FOO_REG asm("13")
@@ -203,3 +201,10 @@
 # define CB_REG asm("d7")
 #endif
 
+
+#if !defined(FOO_REG)
+# define FOO_REG /* nada */
+#endif
+#if !defined(FP_REG)
+# define FP_REG /* nada */
+#endif

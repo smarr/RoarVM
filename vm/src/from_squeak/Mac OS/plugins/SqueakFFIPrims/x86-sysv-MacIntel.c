@@ -16,32 +16,23 @@
  *   
  *   This file is part of Unix Squeak.
  * 
- *      You are NOT ALLOWED to distribute modified versions of this file
- *      under its original name.  If you modify this file then you MUST
- *      rename it before making your modifications available publicly.
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
- *   This file is distributed in the hope that it will be useful, but WITHOUT
- *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- *   FITNESS FOR A PARTICULAR PURPOSE.
- *   
- *   You may use and/or distribute this file ONLY as part of Squeak, under
- *   the terms of the Squeak License as described in `LICENSE' in the base of
- *   this distribution, subject to the following additional restrictions:
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
  * 
- *   1. The origin of this software must not be misrepresented; you must not
- *      claim that you wrote the original software.  If you use this software
- *      in a product, an acknowledgment to the original author(s) (and any
- *      other contributors mentioned herein) in the product documentation
- *      would be appreciated but is not required.
- * 
- *   2. You must not distribute (or make publicly available by any
- *      means) a modified copy of this file unless you first rename it.
- * 
- *   3. This notice must not be removed or altered in any source distribution.
- * 
- *   Using (or modifying this file for use) in any context other than Squeak
- *   changes these copyright conditions.  Read the file `COPYING' in the
- *   directory `platforms/unix/doc' before proceeding with any such use.
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  *
  * BUGS:
  * 
@@ -60,9 +51,9 @@
 #endif
 
 #if 1
-# define dprintf(ARGS)printf ARGS
+# define DPRINTF(ARGS)printf ARGS
 #else
-# define dprintf(ARGS)
+# define DPRINTF(ARGS)
 #endif
 
 #if defined(FFI_TEST)
@@ -91,6 +82,36 @@ volatile int	*ffiStructReturnValue;
 
 extern int ffiCallAddressOf(void *addr, void *stack, int size);
 
+static FILE *ffiLogFile = NULL;
+
+int ffiLogFileNameOfLength(void *nameIndex, int nameLength) {
+  char fileName[MAX_PATH];
+  FILE *fp;
+
+  if(nameIndex && nameLength) {
+    if(nameLength >= MAX_PATH) return 0;
+    strncpy(fileName, nameIndex, nameLength);
+    fileName[nameLength] = 0;
+    /* attempt to open the file and if we can't fail */
+    fp = fopen(fileName, "at");
+    if(fp == NULL) return 0;
+    /* close the old log file if needed and use the new one */
+    if(ffiLogFile) fclose(ffiLogFile);
+    ffiLogFile = fp;
+    fprintf(ffiLogFile, "------- Log started -------\n");
+    fflush(fp);
+  } else {
+    if(ffiLogFile) fclose(ffiLogFile);
+    ffiLogFile = NULL;
+  }
+  return 1;
+}
+
+int ffiLogCallOfLength(void *nameIndex, int nameLength) {
+    if(ffiLogFile == NULL) return 0;
+    fprintf(ffiLogFile, "%.*s\n", nameIndex, nameLength);
+    fflush(ffiLogFile);
+}
 
 int ffiInitialize(void)
 {
@@ -132,7 +153,7 @@ int ffiFree(int ptr)
 int ffiCanReturn(int *structSpec, int specSize)
 {
   int header= *structSpec;
-  dprintf(("ffiCanReturn structSpec %d specSize %d\n", structSpec, specSize));
+  DPRINTF(("ffiCanReturn structSpec %d specSize %d\n", structSpec, specSize));
   if (header & FFIFlagPointer)
     return 1;
   if (header & FFIFlagStructure)
@@ -142,7 +163,7 @@ int ffiCanReturn(int *structSpec, int specSize)
       ffiStructReturnValue= malloc(structSize);
       if (!ffiStructReturnValue)
 		return 0;
-	  dprintf(("ffiCanReturn allocated Spec %d \n", ffiStructReturnValue));
+	  DPRINTF(("ffiCanReturn allocated Spec %d \n", ffiStructReturnValue));
       pushInt((int)ffiStructReturnValue);
     }
   return 1;
@@ -151,63 +172,63 @@ int ffiCanReturn(int *structSpec, int specSize)
 
 int ffiPushSignedChar(int value)
 { 
-  dprintf(("ffiPushSignedChar %d\n", value));
+  DPRINTF(("ffiPushSignedChar %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushUnsignedChar(int value)
 { 
-  dprintf(("ffiPushUnsignedChar %d\n", value));
+  DPRINTF(("ffiPushUnsignedChar %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushSignedByte(int value)
 { 
-  dprintf(("ffiPushSignedByte %d\n", value));
+  DPRINTF(("ffiPushSignedByte %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushUnsignedByte(int value)
 { 
-  dprintf(("ffiPushUnsignedByte %d\n", value));
+  DPRINTF(("ffiPushUnsignedByte %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushSignedShort(int value)
 { 
-  dprintf(("ffiPushSignedShort %d\n", value));
+  DPRINTF(("ffiPushSignedShort %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushUnsignedShort(int value)
 { 
-  dprintf(("ffiPushUnsignedShort %d\n", value));
+  DPRINTF(("ffiPushUnsignedShort %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushSignedInt(int value)
 { 
-  dprintf(("ffiPushSignedInt %d\n", value));
+  DPRINTF(("ffiPushSignedInt %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushUnsignedInt(int value)
 { 
-  dprintf(("ffiPushUnsignedInt %d\n", value));
+  DPRINTF(("ffiPushUnsignedInt %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushSignedLongLong(int low, int high)
 { 
-  dprintf(("ffiPushSignedLongLong %d %d\n", low, high));
+  DPRINTF(("ffiPushSignedLongLong %d %d\n", low, high));
   pushInt(low);
   pushInt(high);
   return 1; 
@@ -215,7 +236,7 @@ int ffiPushSignedLongLong(int low, int high)
 
 int ffiPushUnsignedLongLong(int low, int high)
 { 
-  dprintf(("ffiPushUnsignedLongLong %d %d\n", low, high));
+  DPRINTF(("ffiPushUnsignedLongLong %d %d\n", low, high));
   pushInt(low);
   pushInt(high);
   return 1; 
@@ -223,7 +244,7 @@ int ffiPushUnsignedLongLong(int low, int high)
 
 int ffiPushPointer(int pointer)
 { 
-  dprintf(("ffiPushPointer %d\n", pointer));
+  DPRINTF(("ffiPushPointer %d\n", pointer));
   pushInt(pointer);
   return 1; 
 }
@@ -231,14 +252,14 @@ int ffiPushPointer(int pointer)
 int ffiPushSingleFloat(double value)
 { 
   float f= (float)value;
-  dprintf(("ffiPushSingleFloat %f\n", value));
+  DPRINTF(("ffiPushSingleFloat %f\n", value));
   pushInt(*(int *)&f);
   return 1; 
 }
 
 int ffiPushDoubleFloat(double value)
 { 
-  dprintf(("ffiPushDoubleFloat %f\n", value));
+  DPRINTF(("ffiPushDoubleFloat %f\n", value));
   pushInt(((int *)&value)[0]);
   pushInt(((int *)&value)[1]);
   return 1; 
@@ -247,12 +268,12 @@ int ffiPushDoubleFloat(double value)
 int ffiPushStringOfLength(int srcIndex, int length)
 {
   char *ptr;
-  dprintf(("ffiPushStringOfLength %d\n", length));
+  DPRINTF(("ffiPushStringOfLength %d\n", length));
   checkStack();
   ptr= (char *)malloc(length + 1);
   if (!ptr)
     return primitiveFail();
-  dprintf(("  ++ alloc string\n"));
+  DPRINTF(("  ++ alloc string\n"));
   memcpy(ptr, (void *)srcIndex, length);
   ptr[length]= '\0';
   ffiTempStrings[ffiTempStringCount++]= ptr;
@@ -264,7 +285,7 @@ int ffiPushStructureOfLength(int pointer, int *structSpec, int specSize)
 {
   int lbs= *structSpec & FFIStructSizeMask;
   int size= (lbs + sizeof(int) - 1) / sizeof(int);
-  dprintf(("ffiPushStructureOfLength %d (%db %dw)\n", specSize, lbs, size));
+  DPRINTF(("ffiPushStructureOfLength %d (%db %dw)\n", specSize, lbs, size));
   if (ffiStackIndex + size > FFI_MAX_STACK)
     return primitiveFail();
   memcpy((void *)(ffiStack + ffiStackIndex), (void *)pointer, lbs);
@@ -280,7 +301,7 @@ int	ffiLongLongResultHigh(void)	{ return ffiLongReturnValue; }
 
 int ffiStoreStructure(int address, int structSize)
 {
-  dprintf(("ffiStoreStructure %d %d\n", address, structSize));
+  DPRINTF(("ffiStoreStructure %d %d\n", address, structSize));
 // JMM  memcpy((void *)address, (ffiStructReturnValue
 //			   ? (void *)ffiStructReturnValue
 //			   : (void *)&ffiIntReturnValue),
@@ -303,16 +324,16 @@ int ffiStoreStructure(int address, int structSize)
 int ffiCleanup(void)
 {
   int i;
-  dprintf(("ffiCleanup\n"));
+  DPRINTF(("ffiCleanup\n"));
   for (i= 0;  i < ffiTempStringCount;  ++i)
     {
-      dprintf(("  ++ free string\n"));
+      DPRINTF(("  ++ free string\n"));
       free(ffiTempStrings[i]);
     }
   ffiTempStringCount= 0;
   if (ffiStructReturnValue)
     {
-      dprintf(("  ++ free struct\n"));
+      DPRINTF(("  ++ free struct\n"));
       free(ffiStructReturnValue);
       ffiStructReturnValue= 0;
     }
@@ -322,21 +343,21 @@ int ffiCleanup(void)
 
 int ffiCallAddressOfWithPointerReturnx(int fn, int callType)
 {
-  dprintf(("ffiCallAddressOfWithPointerReturnx fn %d callType %d \n", fn, callType));
+  DPRINTF(("ffiCallAddressOfWithPointerReturnx fn %d callType %d \n", fn, callType));
   return ffiCallAddressOf((void *)fn, (void *)ffiStack,
 			  ffiStackIndex * sizeof(int));
 }
 
 int ffiCallAddressOfWithStructReturnx(int fn, int callType, int* structSpec, int specSize)
 {
-  dprintf(("ffiCallAddressOfWithStructReturnx fn %d callType %d structSpec %d specSize %d\n", fn, callType, structSpec, specSize));
+  DPRINTF(("ffiCallAddressOfWithStructReturnx fn %d callType %d structSpec %d specSize %d\n", fn, callType, structSpec, specSize));
   return ffiCallAddressOf((void *)fn, (void *)ffiStack,
 			  ffiStackIndex * sizeof(int));
 }
 
 int ffiCallAddressOfWithReturnTypex(int fn, int callType, int typeSpec)
 {
-  dprintf(("ffiCallAddressOfWithReturnTypex fn %d callType %d \n", fn, callType, typeSpec));
+  DPRINTF(("ffiCallAddressOfWithReturnTypex fn %d callType %d \n", fn, callType, typeSpec));
   return ffiCallAddressOf((void *)fn, (void *)ffiStack,
 			  ffiStackIndex * sizeof(int));
 }

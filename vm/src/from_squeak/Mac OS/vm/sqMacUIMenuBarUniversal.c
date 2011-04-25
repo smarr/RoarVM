@@ -30,6 +30,13 @@ extern struct VirtualMachine* interpreterProxy;
     #define EnableMenuItemCarbon(m1,v1)  EnableMenuItem(m1,v1);
     #define DisableMenuItemCarbon(m1,v1)  DisableMenuItem(m1,v1);
 
+extern Boolean gSqueakHasQuitWithoutSaving;
+
+static int isAqua (void) {
+	signed long int theResponse;
+	Gestalt(gestaltMenuMgrAttr,&theResponse);
+	return (theResponse & gestaltMenuMgrAquaLayoutMask );
+}
 
 void MenuBarHide(void) {
  	if (menuBarRegion != nil) return;  /* saved state, so menu bar is already hidden */
@@ -45,16 +52,20 @@ void MenuBarRestore(void) {
 }
 
 void SetUpMenus(void) {
-	long decideOnQuitMenu;
 	
 	InsertMenu(appleMenu = NewMenu(appleID, "\p\024"), 0);
-	InsertMenu(fileMenu  = NewMenu(fileID,  "\pFile"), 0);
-	InsertMenu(editMenu  = NewMenu(editID,  "\pEdit"), 0);
-    Gestalt( gestaltMenuMgrAttr, &decideOnQuitMenu);
-    if (!(decideOnQuitMenu & gestaltMenuMgrAquaLayoutMask) || true)	
-        AppendMenu(fileMenu, "\pQuit do not save");
 	
-	DisableMenuCommand(NULL,'quit');
+	/* If not OS/X aqua, use a File submenu Quit-Without-Save. 
+	   This is just placeholder stuff to reconcile with the original VM.  */
+
+	if ((! isAqua()) || gSqueakHasQuitWithoutSaving) {
+	InsertMenu(fileMenu  = NewMenu(fileID,  "\pFile"), 0);
+        	AppendMenu(fileMenu, "\pQuit Without Saving");
+	}
+
+	InsertMenu(editMenu  = NewMenu(editID,  "\pEdit"), 0);
+	
+	/* DisableMenuCommand(NULL,'quit');  */
  	AppendMenu(editMenu, "\pUndo/Z;(-;Cut/X;Copy/C;Paste/V;Clear");
 	/* Disable items in the Edit menu */
 	DisableMenuItemCarbon(editMenu, 1);

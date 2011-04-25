@@ -6,7 +6,7 @@
 *   AUTHOR:  John Maloney, John McIntosh, and others.
 *   ADDRESS: 
 *   EMAIL:   johnmci@smalltalkconsulting.com
-*   RCSID:   $Id$
+*   RCSID:   $Id: sqMacUIAppleEvents.c 1615 2007-03-11 00:07:44Z johnmci $
 *
 *   NOTES: 
 *  3.7.3b2 Apr 10th, 2004 JMM Tetsuya HAYASHI <tetha@st.rim.or.jp>  encoding for image name at startup time.
@@ -37,6 +37,7 @@ typedef struct HFSFlavorSqueak                HFSFlavorSqueak;
 int getFirstImageNameIfPossible(AEDesc	*fileList);
 void processDocumentsButExcludeOne(AEDesc	*fileList,long whichToExclude);
 OSStatus SimpleRunAppleScript(const char* theScript);
+void sqRevealWindowAndHandleQuit () ;
 
 /*** Apple Event Handlers ***/
 static pascal OSErr HandleOpenAppEvent(const AEDescList *aevt,  AEDescList *reply, long refCon);
@@ -301,12 +302,12 @@ pascal OSErr HandleQuitAppEvent(const AEDescList *aevt,  AEDescList *reply, long
 #pragma unused(aevt)
 #pragma unused(reply)
 #pragma unused(refCon)  /* reference args to avoid compiler warnings */
-	extern Boolean gQuitNowRightNow,gSqueakQuitOnQuitAppleEvent;
+	extern Boolean gSqueakQuitOnQuitAppleEvent;
 	
-	if (gSqueakQuitOnQuitAppleEvent)
-		gQuitNowRightNow = true;
-
-	return noErr;  //Note under Carbon it sends us a Quit event, processing it means image is not saved
+	if (gSqueakQuitOnQuitAppleEvent) {
+		sqRevealWindowAndHandleQuit ();
+	}
+	return noErr;  
 }
 
 

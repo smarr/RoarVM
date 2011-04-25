@@ -6,7 +6,7 @@
 *   AUTHOR:   John McIntosh
 *   ADDRESS: 
 *   EMAIL:   johnmci@smalltalkconsulting.com
-*   RCSID:   $Id$
+*   RCSID:   $Id: sqMacUIConstants.h 1344 2006-03-05 21:07:15Z johnmci $
 *
 *   NOTES: 
 */

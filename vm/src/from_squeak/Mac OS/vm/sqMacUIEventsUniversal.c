@@ -42,7 +42,6 @@
  notes: IsUserCancelEventRef
 
 *****************************************************************************/
-#define MillisecondClockMask 536870911
 
 
 #include "sq.h"
@@ -52,6 +51,7 @@
 #include "sqMacHostWindow.h"
 #include "sqMacTime.h"
 #include "sqMacNSPluginUILogic2.h"
+#include "nsPoolManagement.h"
 
 #include <pthread.h>
 #include "sqaio.h"
@@ -70,7 +70,7 @@ typedef struct
 extern int gSqueakDebug;
 pthread_mutex_t gEventQueueLock;
 
-# define dprintf(ARGS) if (gSqueakDebug) fprintf ARGS
+# define DPRINTF(ARGS) if (gSqueakDebug) fprintf ARGS
 
 #define EventTypeFullScreenUpdate 98
 #define EventTypePostEventProcessing 99
@@ -88,13 +88,13 @@ static void setRepeatInKeyMap(int keyCode);
 
 static void doPendingFlush(void);
 void ignoreLastEvent(void);
+void sqRevealWindowAndHandleQuit () ;
 
 /*** Variables -- Event Recording ***/
 #define MAX_EVENT_BUFFER 1024
 
 extern int getInterruptKeycode();
 extern int setInterruptPending(int value);
-extern int setInterruptCheckCounter(int value);
 extern int getFullScreenFlag();
 extern struct VirtualMachine* interpreterProxy;
 extern Boolean gSqueakHeadless;
@@ -520,13 +520,15 @@ EventRef event, void* userData)
 				char	cString[256];
 				GetMenuItemText(commandStruct.menu.menuRef,commandStruct.menu.menuItemIndex,itemString);
 				CopyPascalStringToC((unsigned char *)itemString,cString);
-				if (strcmp(cString, "Quit do not save") == 0)
+				if (strcmp(cString, "Quit Without Saving") == 0)
 					gQuitNowRightNow = true;
-				else
-					recordMenuEventCarbon(commandStruct.menu.menuRef,commandStruct.menu.menuItemIndex);
-				
+				else {
+					sqRevealWindowAndHandleQuit ();
+				}
 				result = noErr;
 			} else if (commandStruct.commandID == kHICommandHide) {
+			} else if (commandStruct.commandID == kHICommandQuit) {
+				sqRevealWindowAndHandleQuit ();
 			} else if (commandStruct.commandID == kHICommandHideOthers) {
 			} else if (commandStruct.commandID == kHICommandShowAll) {
 			} else if (windowActive) {
@@ -906,7 +908,7 @@ void recordMouseEventCarbon(EventRef event,UInt32 whatHappened,Boolean noPointCo
       
         if (whatHappened == kEventMouseWheelMoved) {
             GetEventParameter( event,
-                                kEventParamMouseWheelAxis,
+                                kEventParamKeyModifiers,
                                 typeMouseWheelAxis,
                                 NULL,
                                 sizeof(EventMouseWheelAxis),
@@ -933,8 +935,23 @@ void recordMouseEventCarbon(EventRef event,UInt32 whatHappened,Boolean noPointCo
 	evt->buttons = buttonState & 0x07;
 	/* then the modifiers */
 	evt->modifiers = buttonState >> 3;
-	/* clean up reserved */
-	evt->reserved1 = 0;
+
+	if ((whatHappened == kEventMouseDown) || (whatHappened == kEventMouseUp))
+        {
+	       evt->nrClicks = 1;
+               // Mac provides nrClicks directly
+               GetEventParameter(
+                       event,
+                       kEventParamClickCount,
+                       typeLongInteger,
+                       NULL,
+                       sizeof(typeUInt32),
+                       NULL,
+                       &evt->nrClicks
+               );
+        } else {
+                evt->nrClicks = 0;
+        }
 	evt->windowIndex = windowActive;
 	
 	if (oldEvent.buttons == evt->buttons && 
@@ -957,12 +974,9 @@ static void fakeMouseWheelKeyboardEvents(EventMouseWheelAxis wheelMouseDirection
     sqKeyboardEvent *evt,*extra;
     UInt32	macKeyCode=0;
     
-	if (wheelMouseDelta == 0) 
-		return;
-	
     pthread_mutex_lock(&gEventQueueLock);
     for(i=0;i<abs(wheelMouseDelta);i++) {
-        if (wheelMouseDirection == kEventMouseWheelAxisY) 
+        if (wheelMouseDirection == kEventMouseWheelAxisX) 
             if (wheelMouseDelta > 0) {//up/down
                 macKeyCode = 126;
                 asciiChar = kUpArrowCharCode;
@@ -971,7 +985,7 @@ static void fakeMouseWheelKeyboardEvents(EventMouseWheelAxis wheelMouseDirection
                 asciiChar = kDownArrowCharCode;
             }
         else
-            if (wheelMouseDelta < 0) {//left/right
+            if (wheelMouseDelta > 0) {//left/right
                 macKeyCode = 124;
                 asciiChar = kRightArrowCharCode;
             } else {
@@ -1006,7 +1020,6 @@ static void fakeMouseWheelKeyboardEvents(EventMouseWheelAxis wheelMouseDirection
             if (keystate == getInterruptKeycode()) {
                     /* Note: interrupt key is "meta"; it not reported as a keystroke */
                     setInterruptPending(true);
-                    setInterruptCheckCounter(0);
             } else {
                     keyBuf[keyBufPut] = keystate;
                     keyBufPut = (keyBufPut + 1) % KEYBUF_SIZE;
@@ -1174,7 +1187,7 @@ But mapping assumes 1,2,3  red, yellow, blue
                                 NULL,
                                 &mouseButton); 
 							
-	dprintf((stderr,"VM: MouseModifierStateCarbon buttonStateBits %i modifiers %ui\n ",mouseButton,(unsigned int) keyBoardModifiers));
+	DPRINTF((stderr,"VM: MouseModifierStateCarbon buttonStateBits %i modifiers %ui\n ",mouseButton,(unsigned int) keyBoardModifiers));
  
 		         if (mouseButton > 0 && mouseButton < 4) {
           /* OLD original carbon code 
@@ -1272,11 +1285,10 @@ static void doPendingFlush(void) {
 		if (target == NULL)
 			target = GetEventDispatcherTarget();
 	  
-		if ((interpreterProxy->methodPrimitiveIndex()) && (ReceiveNextEvent(0, NULL, kEventDurationNoWait, true, &event) == noErr)) {
+		if (ReceiveNextEvent(0, NULL, kEventDurationNoWait, true, &event) == noErr) {
 					SendEventToEventTarget (event, target);
 					ReleaseEvent(event);
 			}
-					
 		if (browserActiveAndDrawingContextOk())
 			checkBrowserForHeartBeat();
 		
@@ -1298,6 +1310,8 @@ int ioProcessEvents(void) {
         ioExit();  //This might not return, might call exittoshell
         QuitApplicationEventLoop();
         pthread_exit(null);
+    } else {
+		sqCycleMainAutoreleasePool();
     }
 	return 0;
 }
@@ -1450,7 +1464,6 @@ static sqKeyboardEvent *enterKeystroke (long type, long cc, long pc, UniChar utf
 			if (keystate == getInterruptKeycode()) {
 					/* Note: interrupt key is "meta"; it not reported as a keystroke */
 					setInterruptPending(true);
-					setInterruptCheckCounter(0);
 			} else {
 					keyBuf[keyBufPut] = keystate;
 					keyBufPut = (keyBufPut + 1) % KEYBUF_SIZE;
@@ -1513,4 +1526,23 @@ static int removeFromKeyMap(int keyCode)
     keyMap[idx]= keyMap[idx + 1];
   --keyMapSize;
   return keyChar;
+}
+
+void sqRevealWindowAndHandleQuit ()
+{
+	/*  When we receive a Quit command, since the image may or may not want input,
+		we have to activate (uncollapse) the main window, just in case, so the user
+		can see the (possible) confirmation dialog.
+		We reat Quit the same as main-window close, for parity with the Windows VM */
+
+		
+	WindowRef win = windowHandleFromIndex(1);
+	if (win) {
+		windowBlockFromIndex(1)->isInvisible  = false;
+		SelectWindow(win);
+		ShowWindow( win );
+	}
+	
+	recordWindowEventCarbon(WindowEventClose,0, 0, 0, 0, 1 /* main ST window index */ );
+
 }

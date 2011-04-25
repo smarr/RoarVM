@@ -7,7 +7,7 @@
 *   AUTHOR:  Andreas Raab (ar), John McIntosh.
 *   ADDRESS: 
 *   EMAIL:   johnmci@smalltalkconsulting.com
-*   RCSID:   $Id$
+*   RCSID:   $Id: sqMacFFI.s 1369 2006-03-22 04:48:20Z johnmci $
 *
 *   NOTES: See change log below.
 *	1/24/2002  JMM hacked from the original code for os-x, added save for CCR and 

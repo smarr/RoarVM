@@ -145,12 +145,6 @@ size_t      sqImageFileRead(void *ptr, size_t elementSize, size_t count, sqImage
     return 0;
 }
 
-size_t      sqImageFileReadEntireImage(void *ptr, size_t elementSize, size_t count, sqImageFile f) {
-	extern Boolean gSqueakUseFileMappedMMAP;
-	if (gSqueakUseFileMappedMMAP) 
-		return count;
-	return sqImageFileRead(ptr, elementSize, count, f); 
-}
 
 void        sqImageFileSeek(sqImageFile f, squeakFileOffsetType pos) {
     if (f != 0)
@@ -163,10 +157,6 @@ sqInt sqImageFileWrite(void *ptr, size_t elementSize, size_t count, sqImageFile 
 	return 0;
 }
 
-squeakFileOffsetType sqImageFileStartLocation(sqInt fileRef, char *filename, squeakFileOffsetType imageSize){
-#pragma unused(fileRef,filename,imageSize)
-    return 0;
-}
 
 
 

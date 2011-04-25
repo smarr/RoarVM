@@ -84,9 +84,6 @@
  3.8.15b5  Mar 7th, 2007 JMM Add SqueakDebug, SqueakQuitOnQuitAppleEvent 
  3.8.16b3  Mar 21th, 2007 JMM trusted/untrusted directory cleanup, warning msg cleanup
  3.8.17b2  April 26th, 2007 JMM large cursors
- 3.8.21b1	Jan 14th, 2009 JMM fix issue with mmap allocation, only allow explicitly to avoid mmap problems on nfs
- 4.0.1b1	Apr 9th, 2009 JMM add logic for etoys on a stick
- 4.2.1b1	Aug 19th, 2009 JMM add gSqueakResourceDirectoryName
 */
 
 
@@ -115,11 +112,20 @@
 #include <pthread.h>
 #include <Processes.h>
 
+#if !defined(PATH_MAX)
+# include <sys/syslimits.h>
+#endif
+#if !defined(NOEXECINFO)
+# include <execinfo.h>
+# define BACKTRACE_DEPTH 64
+#endif
+#include <sys/ucontext.h>
 extern pthread_mutex_t gEventQueueLock,gSleepLock;
 extern pthread_cond_t  gSleepLockCondition;
 
 OSErr			gSqueakFileLastError; 
 Boolean			gSqueakWindowIsFloating,gSqueakWindowHasTitle=true,gSqueakFloatingWindowGetsFocus=false,gSqueakUIFlushUseHighPercisionClock=false,gSqueakPluginsBuiltInOrLocalOnly=false,gSqueakHeadless=false,gSqueakQuitOnQuitAppleEvent=false,gSqueakExplicitWindowOpenNeeded=false;
+Boolean			gSqueakHasQuitWithoutSaving = true;
 long			gSqueakMouseMappings[4][4] = {{0},{0}};
 long			gSqueakBrowserMouseMappings[4][4] = {{0},{0}};
 usqInt          gMaxHeapSize=512*1024*1024;
@@ -127,15 +133,13 @@ UInt32			gSqueakWindowType=zoomDocProc,gSqueakWindowAttributes=0;
 long			gSqueakUIFlushPrimaryDeferNMilliseconds=20,gSqueakUIFlushSecondaryCleanupDelayMilliseconds=20,gSqueakUIFlushSecondaryCheckForPossibleNeedEveryNMilliseconds=16,gSqueakDebug=0;
 char            gSqueakImageName[PATH_MAX] = "Squeak.image";
 char            gSqueakUntrustedDirectoryName[PATH_MAX] = "/foobar/tooBar/forSqueak/bogus/";
-char			gSqueakResourceDirectoryName[PATH_MAX] =  "/foobar/tooBar/forSqueak/bogus/";
 char            gSqueakTrustedDirectoryName[PATH_MAX] = "/foobar/tooBar/forSqueak/bogus/";
 CFStringRef		gSqueakImageNameStringRef;
 int				gSqueakBrowserPipes[]= {-1, -1}; 
 Boolean			gSqueakBrowserSubProcess = false,gSqueakBrowserWasHeadlessButMadeFullScreen=false;
-Boolean			gSqueakBrowserExitRequested = false, gSqueakUseFileMappedMMAP = false;
+Boolean			gSqueakBrowserExitRequested = false;
 
-void cocoInterfaceForTilda(CFStringRef aStringRef, char *buffer,int max_size,int etoysonaStick);
-CFStringRef fixupNonAbsolutePath(CFStringRef partialPathString);
+void cocoInterfaceForTilda(CFStringRef aStringRef, char *buffer,int max_size);
 /*** Main ***/
 
 /*** Variables -- globals for access from pluggable primitives ***/
@@ -144,24 +148,147 @@ char **argVec= 0;
 char **envVec= 0;
 
 sqInt printAllStacks(void);
+sqInt printCallStack(void);
+extern void dumpPrimTraceLog(void);
 extern BOOL NSApplicationLoad(void);
+static void fetchPrefrences(void);
 
-static void sigsegv(int ignore)
+/*** errors ***/
+
+/* Print an error message, possibly a stack trace, do /not/ exit.
+ * Allows e.g. writing to a log file and stderr.
+ */
+static void
+reportStackState(char *msg, char *date, int printAll, ucontext_t *uap)
 {
-#pragma unused(ignore)
+#if !defined(NOEXECINFO)
+	void *addrs[BACKTRACE_DEPTH];
+	int depth;
+#endif
+	/* flag prevents recursive error when trying to print a broken stack */
+	static sqInt printingStack = false;
 
-  /* error("Segmentation fault"); */
-  static int printingStack= 0;
+	printf("\n%s%s%s\n\n", msg, date ? " " : "", date ? date : "");
 
-  printf("\nSegmentation fault\n\n");
-  if (!printingStack)
-    {
-      printingStack= 1;
+#if !defined(NOEXECINFO)
+	printf("C stack backtrace:\n");
+	fflush(stdout); /* backtrace_symbols_fd uses unbuffered i/o */
+	depth = backtrace(addrs, BACKTRACE_DEPTH);
+	backtrace_symbols_fd(addrs, depth, fileno(stdout));
+#endif
+
+	if (ioOSThreadsEqual(ioCurrentOSThread(),getVMOSThread())) {
+		if (!printingStack) {
+#if COGVM
+			/* If we're in generated machine code then the only way the stack
+			 * dump machinery has of giving us an accurate report is if we set
+			 * stackPointer & framePointer to the native stack & frame pointers.
+			 */
+# if __APPLE__ && __MACH__ && __i386__
+	/* see sys/ucontext.h; two different namings */
+#	if __GNUC__ && !__INTEL_COMPILER /* icc pretends to be gcc */
+			void *fp = (void *)(uap ? uap->uc_mcontext->__ss.__ebp: 0);
+			void *sp = (void *)(uap ? uap->uc_mcontext->__ss.__esp: 0);
+#	else
+			void *fp = (void *)(uap ? uap->uc_mcontext->ss.ebp: 0);
+			void *sp = (void *)(uap ? uap->uc_mcontext->ss.esp: 0);
+#	endif
+# elif __linux__ && __i386__
+			void *fp = (void *)(uap ? uap->uc_mcontext.gregs[REG_EBP]: 0);
+			void *sp = (void *)(uap ? uap->uc_mcontext.gregs[REG_ESP]: 0);
+# else
+#	error need to implement extracting pc from a ucontext_t on this system
+# endif
+			char *savedSP, *savedFP;
+
+			ifValidWriteBackStackPointersSaveTo(fp,sp,&savedFP,&savedSP);
+#endif
+
+			printingStack = true;
+			if (printAll) {
+				printf("\n\nAll Smalltalk process stacks (active first):\n");
       printAllStacks();
     }
-  abort();
+			else {
+				printf("\n\nSmalltalk stack dump:\n");
+				printCallStack();
+			}
+			printingStack = false;
+#if COGVM
+			/* Now restore framePointer and stackPointer via same function */
+			ifValidWriteBackStackPointersSaveTo(savedFP,savedSP,0,0);
+#endif
+		}
+	}
+	else
+		printf("\nCan't dump Smalltalk stack(s). Not in VM thread\n");
+	printf("\nMost recent primitives\n");
+	dumpPrimTraceLog();
+	fflush(stdout);
 }
 
+/* Print an error message, possibly a stack trace, and exit. */
+/* Disable Intel compiler inlining of error which is used for breakpoints */
+#pragma auto_inline off
+void
+error(char *msg)
+{
+	reportStackState(msg,0,0,0);
+  abort();
+}
+#pragma auto_inline on
+
+/* construct /dir/for/image/crash.dmp if a / in imageName else crash.dmp */
+static void
+getCrashDumpFilenameInto(char *buf)
+{
+  char *slash;
+
+  strcpy(buf,imageName);
+  slash = strrchr(buf,'/');
+  strcpy(slash ? slash + 1 : buf, "crash.dmp");
+}
+
+static void
+sigusr1(int sig, siginfo_t *info, ucontext_t *uap)
+{
+	int saved_errno = errno;
+	time_t now = time(NULL);
+	char ctimebuf[32];
+	char crashdump[IMAGE_NAME_SIZE+1];
+	unsigned long pc;
+
+	if (!ioOSThreadsEqual(ioCurrentOSThread(),getVMOSThread())) {
+		pthread_kill(getVMOSThread(),sig);
+		errno = saved_errno;
+		return;
+	}
+
+	getCrashDumpFilenameInto(crashdump);
+	ctime_r(&now,ctimebuf);
+	pushOutputFile(crashdump);
+	reportStackState("SIGUSR1", ctimebuf, 1, uap);
+	popOutputFile();
+	reportStackState("SIGUSR1", ctimebuf, 1, uap);
+
+	errno = saved_errno;
+}
+
+static void
+sigsegv(int sig, siginfo_t *info, ucontext_t *uap)
+{
+	time_t now = time(NULL);
+	char ctimebuf[32];
+	char crashdump[IMAGE_NAME_SIZE+1];
+
+	getCrashDumpFilenameInto(crashdump);
+	ctime_r(&now,ctimebuf);
+	pushOutputFile(crashdump);
+	reportStackState("Segmentation fault", ctimebuf, 0, uap);
+	popOutputFile();
+	reportStackState("Segmentation fault", ctimebuf, 0, uap);
+	abort();
+}
 
 int main(int argc, char **argv, char **envp);
 
@@ -188,12 +315,28 @@ void mtfsfi(unsigned long long fpscr)
 # define mtfsfi(fpscr)
 #endif
 
-int main(int argc, char **argv, char **envp) {
+int
+main(int argc, char **argv, char **envp)
+{
 	EventRecord theEvent;
 	sqImageFile f;
 	OSErr err;
 	char shortImageName[SHORTIMAGE_NAME_SIZE+1];
         
+	struct sigaction sigusr1_handler_action, sigsegv_handler_action;
+
+#if 0 /* Useful debugging stub?  Dump args to file ~/argvPID. */
+  {	char fname[PATH_MAX];
+	FILE *f;
+	int i;
+
+	sprintf(fname,"%s/argv%d",getenv("HOME"), getpid());
+	f = fopen(fname,"w");
+	for (i = 0; i < argc; i++)
+		fprintf(f,"argv[%d]: %s\n", i, argv[i]);
+	fclose(f);
+  }
+#endif
 	/* check the interpreter's size assumptions for basic data types */
 	if (sizeof(int) != 4) {
 		error("This C compiler's integers are not 32 bits.");
@@ -210,7 +353,15 @@ int main(int argc, char **argv, char **envp) {
   argVec= argv;
   envVec= envp;
   
-  signal(SIGSEGV, sigsegv);
+	sigsegv_handler_action.sa_sigaction = sigsegv;
+	sigsegv_handler_action.sa_flags = SA_NODEFER | SA_SIGINFO;
+	sigemptyset(&sigsegv_handler_action.sa_mask);
+    (void)sigaction(SIGSEGV, &sigsegv_handler_action, 0);
+
+	sigusr1_handler_action.sa_sigaction = sigusr1;
+	sigusr1_handler_action.sa_flags = SA_NODEFER | SA_SIGINFO;
+	sigemptyset(&sigusr1_handler_action.sa_mask);
+    (void)sigaction(SIGUSR1, &sigusr1_handler_action, 0);
 
   fldcw(0x12bf);	/* signed infinity, round to nearest, REAL8, disable intrs, disable signals */
   mtfsfi(0);		/* disable signals, IEEE mode, round to nearest */
@@ -221,8 +372,6 @@ int main(int argc, char **argv, char **envp) {
 
 	SetVMPathFromApplicationDirectory();
 
-/*	LETS NOT DO THIS, SEE what happens for people wanting to do  ./Squeak.app foobar.image  zingger.st
-	
 	{
 		// Change working directory, this works under os-x, previous logic worked pre os-x 10.4
 		
@@ -230,7 +379,7 @@ int main(int argc, char **argv, char **envp) {
 		getVMPathWithEncoding(target,gCurrentVMEncoding);
 		sqFilenameFromStringOpen(temp,(sqInt) target, strlen(target));
 		chdir(temp);
-	} */
+	}
 
 	/* install apple event handlers and wait for open event */
 	InstallAppleEventHandlers();
@@ -280,7 +429,7 @@ int main(int argc, char **argv, char **envp) {
 				extern void resolveWhatTheImageNameIs(char *string);
 				char	afterCheckForTilda[PATH_MAX];
 
-				cocoInterfaceForTilda(gSqueakImageNameStringRef, afterCheckForTilda,PATH_MAX,0);
+				cocoInterfaceForTilda(gSqueakImageNameStringRef, afterCheckForTilda,PATH_MAX);
 				resolveWhatTheImageNameIs(afterCheckForTilda);
 			}
 	}
@@ -314,26 +463,33 @@ int main(int argc, char **argv, char **envp) {
     SetUpTimers();
 
     aioInit();
+	ioInitThreads();
     pthread_mutex_init(&gEventQueueLock, NULL);
 	if (gSqueakBrowserSubProcess) {
 		extern CGContextRef SharedBrowserBitMapContextRef;
 		setupPipes();
 		while (SharedBrowserBitMapContextRef == NULL)
-			aioSleep(100*1000);
+			aioSleepForUsecs(100*1000);
 	}
 	NSApplicationLoad();	//	Needed for Carbon based applications which call into Cocoa
 	RunApplicationEventLoopWithSqueak();
     return 0;
 }
 
-int ioExit(void) {
+int ioExit(void) { return ioExitWithErrorCode(0); }
+
+sqInt
+ioExitWithErrorCode(int ec)
+{
     UnloadScrap();
     ioShutdownAllModules();
 	if (!gSqueakHeadless || gSqueakBrowserWasHeadlessButMadeFullScreen) 
 		MenuBarRestore();
-	sqMacMemoryFree();
-    ExitToShell();
-	return 0;
+#if !__MACH__
+	sqMacMemoryFree();  // needed on old Mac OS but not on unices
+#endif
+    exit(ec);
+	return ec;
 }
 
 int ioDisablePowerManager(int disableIfNonZero) {
@@ -348,6 +504,12 @@ int ioBeep(void) {
 	return 0;
 }
 
+void SqueakTerminate() {
+	UnloadScrap();
+	ioShutdownAllModules();
+	sqMacMemoryFree();
+}
+
 int ioFormPrint(int bitsAddr, int width, int height, int depth, double hScale, double vScale, int landscapeFlag) {
 	/* experimental: print a form with the given bitmap, width, height, and depth at
 	   the given horizontal and vertical scales in the given orientation
@@ -357,6 +519,9 @@ int ioFormPrint(int bitsAddr, int width, int height, int depth, double hScale, d
 }
 
 /*** System Attributes ***/
+/* Andreas' stubs */
+char* ioGetLogDirectory(void) { return ""; };
+sqInt ioSetLogDirectoryOfSize(void* lblIndex, sqInt sz){ return 1; }
 
 char * GetAttributeString(int id) {
 	/* This is a hook for getting various status strings back from
@@ -414,23 +579,26 @@ char * GetAttributeString(int id) {
             return data;            
         }
 
+   if (id == 1005)
+		return "Aqua";
 	/* vm build string */
 
     if (id == 1006) {
- 		return "Mac Carbon 4.2.5b1 15-Jun-10 >85D9C693-2A2A-4C33-B05C-C20B2A63B166<";
-//		return "Mac Carbon 4.2.4b1 28-Mar-10 >45CAAEAC-5A1E-4327-9702-7973E3473FDE<";		
-// 		return "Mac Carbon 4.2.3b1 13-Mar-10 >551DCCD5-0515-4A91-9316-73DCCB7E7C66<";
-// 		return "Mac Carbon 4.2.2b1 17-Sep-09 >6F0202CF-180C-420A-9CE8-411B696D3467<";
-// 		return "Mac Carbon 4.2.1b1 19-Aug-09 >4897EDBA-66BA-413A-9117-AC98701639F8<";
-// 		return "Mac Carbon 4.1.1b2 7-May-09 >028D94A1-439E-4D2D-9894-AF0DE7F057E8<";
-// 		return "Mac Carbon 4.1.1b1 1-May-09 >56D42F58-DC56-4B75-9C58-6CF5D03605CC<";
-// 		return "Mac Carbon 4.1.0b1 21-Apr-09 >6A843063-B019-4516-8EBE-67566B766023<";
-// 		return "Mac Carbon 4.0.1b1 9-Apr-09 >4403D574-7352-44D7-BEE9-B23B39405A23<";
-// 		return "Mac Carbon 4.0.0b1 2-Mar-09 >A1665FE0-5DB6-454C-A1A1-DA7A112BE5C8<";
-// 		return "Mac Carbon 3.8.21b1 14-Jan-09 >C116A3FB-EF44-40B3-B957-1A49BF9E2489<";
-// 		return "Mac Carbon 3.8.19b2 11-Nov-08 >59849109-3D90-4803-A514-C93849B8FD40<";
-// 		return "Mac Carbon 3.8.19b1 28-Oct-08 >36B0938E-7E39-4C53-9E09-F06EAEB9B458<";
-// 		return "Mac Carbon 3.8.18b5 05-Sep-08 >0DEC4F6F-198B-47DC-A52F-85B43B5514C0<";
+		extern char vmBuildString[];
+		return vmBuildString;
+    }
+#if STACKVM
+	if (id == 1007) { /* interpreter build info */
+		extern char *__interpBuildInfo;
+		return __interpBuildInfo;
+	}
+# if COGVM
+	if (id == 1008) { /* cogit build info */
+		extern char *__cogitBuildInfo;
+		return __cogitBuildInfo;
+	}
+# endif
+#endif
 // 		return "Mac Carbon 3.8.18b4 29-May-08 >02DA4BFD-4050-4372-8DBB-9582DA7D0218<";
 // 		return "Mac Carbon 3.8.18b3 10-Apr-08 >DC0EAF5D-C46C-479D-B2A3-DBD4A2DF95A8<";
 //		return "Mac Carbon 3.8.18b2 17-Aug-07 >F439DEFF-4327-403D-969B-78695EE835DB<";
@@ -456,7 +624,6 @@ char * GetAttributeString(int id) {
  //		return "Mac Carbon 3.8.15b2X 09-Feb-07 >D0AA85C3-05E7-4709-B8F4-174DB6F1ACDB<";
  //		return "Mac Carbon 3.8.15b2 27-Jan-07 >02EF6EF4-41CE-46DF-8ADF-E4D2EBBD542C<";
  //		return "Mac Carbon 3.8.15b1 22-Jan-07 >4AE66794-B628-44CF-BAA3-1BF3E916054D<";
-	}
 			
  	if (id == 1201) return "255";
  
@@ -502,15 +669,17 @@ int getAttributeIntoLength(int id, int byteArrayIndex, int length) {
 }
 
 
-void fetchPrefrences() {
+static void
+fetchPrefrences() {
     CFBundleRef  myBundle;
     CFDictionaryRef myDictionary;
     CFNumberRef SqueakWindowType,SqueakMaxHeapSizeType,SqueakUIFlushPrimaryDeferNMilliseconds,SqueakUIFlushSecondaryCleanupDelayMilliseconds,SqueakUIFlushSecondaryCheckForPossibleNeedEveryNMilliseconds,SqueakDebug;
-    CFBooleanRef SqueakWindowHasTitleType,SqueakUseFileMappedMMAP,SqueakFloatingWindowGetsFocusType,SqueakUIFlushUseHighPercisionClock,SqueakPluginsBuiltInOrLocalOnly,SqueakQuitOnQuitAppleEvent,SqueakExplicitWindowOpenNeeded;
+    CFBooleanRef SqueakWindowHasTitleType,SqueakFloatingWindowGetsFocusType,SqueakUIFlushUseHighPercisionClock,SqueakPluginsBuiltInOrLocalOnly,SqueakQuitOnQuitAppleEvent,SqueakExplicitWindowOpenNeeded;
+    CFBooleanRef SqueakHasQuitWithoutSaving;
 	CFNumberRef SqueakMouseMappings[4][4] = {{0},{0}};
 	CFNumberRef SqueakBrowserMouseMappings[4][4] = {{0},{0}};
     CFDataRef 	SqueakWindowAttributeType;    
-    CFStringRef    SqueakVMEncodingType, SqueakUnTrustedDirectoryTypeRef, SqueakTrustedDirectoryTypeRef, SqueakResourceDirectoryTypeRef;
+    CFStringRef    SqueakVMEncodingType, SqueakUnTrustedDirectoryTypeRef, SqueakTrustedDirectoryTypeRef;
 
     char        encoding[256];
     long		i,j;
@@ -523,12 +692,10 @@ void fetchPrefrences() {
     SqueakQuitOnQuitAppleEvent = CFDictionaryGetValue(myDictionary, CFSTR("SqueakQuitOnQuitAppleEvent"));
     SqueakWindowAttributeType = CFDictionaryGetValue(myDictionary, CFSTR("SqueakWindowAttribute"));
     SqueakWindowHasTitleType = CFDictionaryGetValue(myDictionary, CFSTR("SqueakWindowHasTitle"));
-	SqueakUseFileMappedMMAP = CFDictionaryGetValue(myDictionary, CFSTR("SqueakUseFileMappedMMAP"));
     SqueakFloatingWindowGetsFocusType = CFDictionaryGetValue(myDictionary, CFSTR("SqueakFloatingWindowGetsFocus"));
     SqueakMaxHeapSizeType = CFDictionaryGetValue(myDictionary, CFSTR("SqueakMaxHeapSize"));
     SqueakVMEncodingType = CFDictionaryGetValue(myDictionary, CFSTR("SqueakEncodingType"));
     SqueakUnTrustedDirectoryTypeRef  = CFDictionaryGetValue(myDictionary, CFSTR("SqueakUnTrustedDirectory"));
-	SqueakResourceDirectoryTypeRef  = CFDictionaryGetValue(myDictionary, CFSTR("SqueakResourceDirectory"));
 	SqueakTrustedDirectoryTypeRef  = CFDictionaryGetValue(myDictionary, CFSTR("SqueakTrustedDirectory"));
 	SqueakPluginsBuiltInOrLocalOnly = CFDictionaryGetValue(myDictionary, CFSTR("SqueakPluginsBuiltInOrLocalOnly"));
 	SqueakExplicitWindowOpenNeeded = CFDictionaryGetValue(myDictionary, CFSTR("SqueakExplicitWindowOpenNeeded"));
@@ -537,6 +704,7 @@ void fetchPrefrences() {
     SqueakUIFlushPrimaryDeferNMilliseconds = CFDictionaryGetValue(myDictionary, CFSTR("SqueakUIFlushPrimaryDeferNMilliseconds"));
     SqueakUIFlushSecondaryCleanupDelayMilliseconds = CFDictionaryGetValue(myDictionary, CFSTR("SqueakUIFlushSecondaryCleanupDelayMilliseconds"));
     SqueakUIFlushSecondaryCheckForPossibleNeedEveryNMilliseconds = CFDictionaryGetValue(myDictionary, CFSTR("SqueakUIFlushSecondaryCheckForPossibleNeedEveryNMilliseconds"));
+    SqueakHasQuitWithoutSaving = CFDictionaryGetValue(myDictionary, CFSTR("SqueakHasQuitWithoutSaving"));
     SqueakMouseMappings[0][1] = CFDictionaryGetValue(myDictionary, CFSTR("SqueakMouseNoneButton1"));
     SqueakMouseMappings[0][2] = CFDictionaryGetValue(myDictionary, CFSTR("SqueakMouseNoneButton2"));
     SqueakMouseMappings[0][3] = CFDictionaryGetValue(myDictionary, CFSTR("SqueakMouseNoneButton3"));
@@ -561,6 +729,22 @@ void fetchPrefrences() {
     SqueakBrowserMouseMappings[3][1] = CFDictionaryGetValue(myDictionary, CFSTR("SqueakBrowserMouseControlButton1"));
     SqueakBrowserMouseMappings[3][2] = CFDictionaryGetValue(myDictionary, CFSTR("SqueakBrowserMouseControlButton2"));
     SqueakBrowserMouseMappings[3][3] = CFDictionaryGetValue(myDictionary, CFSTR("SqueakBrowserMouseControlButton3"));
+#if STACKVM
+  { CFNumberRef nStackPagesPref;
+    nStackPagesPref = CFDictionaryGetValue(myDictionary, CFSTR("SqueakNumStackPages"));
+    if (nStackPagesPref) {
+		extern sqInt desiredNumStackPages;
+        CFNumberGetValue(nStackPagesPref,kCFNumberLongType,(sqInt *)&desiredNumStackPages);
+	}
+  }
+  { CFNumberRef nEdenBytesPref;
+    nEdenBytesPref = CFDictionaryGetValue(myDictionary, CFSTR("SqueakEdenBytes"));
+    if (nEdenBytesPref) {
+		extern sqInt desiredEdenBytes;
+        CFNumberGetValue(nEdenBytesPref,kCFNumberLongType,(sqInt *)&desiredEdenBytes);
+	}
+  }
+#endif /* STACKVM */
 	
     if (SqueakVMEncodingType) 
         CFStringGetCString (SqueakVMEncodingType, encoding, 256, kCFStringEncodingMacRoman);
@@ -569,19 +753,18 @@ void fetchPrefrences() {
 
     setEncodingType(encoding);
     
+    if (SqueakHasQuitWithoutSaving)
+        gSqueakHasQuitWithoutSaving = CFBooleanGetValue(SqueakHasQuitWithoutSaving);
     if (gSqueakImageNameStringRef) 
         CFStringGetCString (gSqueakImageNameStringRef, gSqueakImageName, IMAGE_NAME_SIZE+1, kCFStringEncodingMacRoman);
 	
 	if (SqueakUnTrustedDirectoryTypeRef) {
-		cocoInterfaceForTilda(SqueakUnTrustedDirectoryTypeRef, gSqueakUntrustedDirectoryName,PATH_MAX,1);
+		cocoInterfaceForTilda(SqueakUnTrustedDirectoryTypeRef, gSqueakUntrustedDirectoryName,PATH_MAX);
 	}
 	
 	if (SqueakTrustedDirectoryTypeRef) {
-		cocoInterfaceForTilda(SqueakTrustedDirectoryTypeRef, gSqueakTrustedDirectoryName,PATH_MAX,1);
-	}
 	
-	if (SqueakResourceDirectoryTypeRef) {
-		cocoInterfaceForTilda(SqueakResourceDirectoryTypeRef, gSqueakResourceDirectoryName,PATH_MAX,1);
+		cocoInterfaceForTilda(SqueakTrustedDirectoryTypeRef, gSqueakTrustedDirectoryName,PATH_MAX);
 	}
 	
     if (SqueakWindowType) 
@@ -599,8 +782,7 @@ void fetchPrefrences() {
     } else {
         gSqueakWindowAttributes = kWindowStandardDocumentAttributes
             +kWindowStandardHandlerAttribute
-            +kWindowNoConstrainAttribute
-            -kWindowCloseBoxAttribute;
+            +kWindowNoConstrainAttribute;
     }
     
     if (SqueakPluginsBuiltInOrLocalOnly) 
@@ -623,11 +805,6 @@ void fetchPrefrences() {
     else 
         gSqueakWindowHasTitle = true;
 
-	if (SqueakUseFileMappedMMAP) 
-        gSqueakUseFileMappedMMAP = CFBooleanGetValue(SqueakUseFileMappedMMAP);
-    else 
-        gSqueakUseFileMappedMMAP = false;
-	
 	
     for(i=0;i<4;i++)
 		for(j=1;j<4;j++)
@@ -675,70 +852,54 @@ void fetchPrefrences() {
 
 }
 
-void cocoInterfaceForTilda(CFStringRef aStringRef, char *buffer,int max_size,int isetoysonastick) {
+void cocoInterfaceForTilda(CFStringRef aStringRef, char *buffer,int max_size) {
    extern SEL NSSelectorFromString(CFStringRef thing);
    id  autopoolClass = objc_getClass("NSAutoreleasePool");
    id  autopool;
    
-	CFStringRef checkFortilda, standardizedString, selectorRef = CFSTR("stringByExpandingTildeInPath"), 
+	CFStringRef checkFortilda, selectorRef = CFSTR("stringByExpandingTildeInPath"), 
 		releaseRef = CFSTR("release"),
 		allocRef = CFSTR("alloc"), 
-		initRef = CFSTR("init"),
-		isAbsolutePathRef = CFSTR("isAbsolutePath"),
-		stringByStandardizingPathRef = CFSTR("stringByStandardizingPath");
+		initRef = CFSTR("init");
 	SEL selector		=  NSSelectorFromString(selectorRef);
 	SEL selectorRelease =  NSSelectorFromString(releaseRef);
 	SEL selectoralloc	=  NSSelectorFromString(allocRef);
 	SEL selectorInit	=  NSSelectorFromString(initRef);
-	SEL stringByStandardizingPath	=  NSSelectorFromString(stringByStandardizingPathRef);
-	SEL isAbsolutePath	=  NSSelectorFromString(isAbsolutePathRef);
 
 	autopool = objc_msgSend(autopoolClass, selectoralloc);
 	autopool = objc_msgSend(autopool, selectorInit);
 	checkFortilda=(CFStringRef)objc_msgSend((id)aStringRef,selector);
-	if (isetoysonastick) {
-		int isAbsoluteURL = (int)objc_msgSend((id)checkFortilda,isAbsolutePath);
-		if (!isAbsoluteURL) {
-			CFStringRef	filePath = fixupNonAbsolutePath(checkFortilda);
-			standardizedString = (CFStringRef)objc_msgSend((id)filePath,stringByStandardizingPath);
-			CFStringGetCString (standardizedString, buffer, max_size, gCurrentVMEncoding);
-			CFRelease(filePath);
-		} else {
-			standardizedString = (CFStringRef)objc_msgSend((id)checkFortilda,stringByStandardizingPath);
-			CFStringGetCString (standardizedString, buffer, max_size, gCurrentVMEncoding);
-		}
-	} else {
 		CFStringGetCString (checkFortilda, buffer, max_size, gCurrentVMEncoding);
-	}
 	autopool = objc_msgSend(autopool, selectorRelease);
 
 }
 
-CFStringRef fixupNonAbsolutePath(CFStringRef partialPathString) {
-	CFBundleRef mainBundle;
-	CFURLRef	bundleURL,bundleURL2,bundleURL3,resourceURL;
-	CFStringRef filePath,resourcePathString;
+#if COGVM
+/*
+ * Support code for Cog.
+ * a) Answer whether the C frame pointer is in use, for capture of the C stack
+ *    pointers.
+ */
+# if defined(i386) || defined(__i386) || defined(__i386__)
+/*
+ * Cog has already captured CStackPointer  before calling this routine.  Record
+ * the original value, capture the pointers again and determine if CFramePointer
+ * lies between the two stack pointers and hence is likely in use.  This is
+ * necessary since optimizing C compilers for x86 may use %ebp as a general-
+ * purpose register, in which case it must not be captured.
+ */
+int
+isCFramePointerInUse()
+{
+	extern unsigned long CStackPointer, CFramePointer;
+	extern void (*ceCaptureCStackPointers)(void);
+	unsigned long currentCSP = CStackPointer;
 	
-	mainBundle = CFBundleGetMainBundle();   
-	bundleURL = CFBundleCopyBundleURL(mainBundle);
-	resourceURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
-	resourcePathString = CFURLCopyPath(resourceURL);
-	CFRelease(resourceURL);
-		
-	bundleURL2 = CFURLCreateCopyAppendingPathComponent( kCFAllocatorSystemDefault, bundleURL, resourcePathString, false );
-	CFRelease(bundleURL);
-	CFRelease(resourcePathString);
-	bundleURL3 = CFURLCreateCopyAppendingPathComponent( kCFAllocatorSystemDefault, bundleURL2, partialPathString, false );
-	CFRelease(bundleURL2);
-	filePath = CFURLCopyFileSystemPath (bundleURL3, kCFURLPOSIXPathStyle);
-	CFRelease(bundleURL3);
-	return filePath;
+	currentCSP = CStackPointer;
+	ceCaptureCStackPointers();
+	assert(CStackPointer < currentCSP);
+	return CFramePointer >= CStackPointer && CFramePointer <= currentCSP;
 }
-
-
-/*** Profiling Stubs ***/
-
-int clearProfile(void){return 0;}														
-int dumpProfile(void){return 0;}														
-int startProfiling(void){return 0;}													
-int stopProfiling(void)	{return 0;}													
+# endif /* defined(i386) || defined(__i386) || defined(__i386__) */
+#endif /* COGVM */
+		

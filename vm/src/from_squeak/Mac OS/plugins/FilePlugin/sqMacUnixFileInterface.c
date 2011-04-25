@@ -280,6 +280,74 @@ sqInt dir_Lookup(char *pathString, sqInt pathStringLength, sqInt index,
   return ENTRY_FOUND;
 }
 
+sqInt dir_EntryLookup(char *pathString, sqInt pathStringLength, char* nameString, sqInt nameStringLength,
+/* outputs: */  char *name, sqInt *nameLength, sqInt *creationDate, sqInt *modificationDate,
+		sqInt *isDirectory, squeakFileOffsetType *sizeIfFile)
+{
+  /* Lookup the given name in the given directory,
+     Set the name, name length, creation date,
+     creation time, directory flag, and file size (if the entry is a file).
+     Return:	0 	if a entry is found at the given index
+     		1	if there is no such entry in the directory
+		2	if the given path has bad syntax or does not reach a directory
+  */
+  
+  char unixPath[DOCUMENT_NAME_SIZE+1];
+  struct stat statBuf;
+
+  /* default return values */
+  *name             = 0;
+  *nameLength       = 0;
+  *creationDate     = 0;
+  *modificationDate = 0;
+  *isDirectory      = false;
+  *sizeIfFile       = 0;
+
+  if ((pathStringLength == 0))
+    strcpy(unixPath, ".");
+  else  {
+	if (!ioFilenamefromStringofLengthresolveAliasesRetry(unixPath, pathString,pathStringLength, true, true))
+		return BAD_PATH;
+	}
+
+  char terminatedName[DOCUMENT_NAME_SIZE+1];
+  strncpy(terminatedName, nameString, nameStringLength);
+  terminatedName[nameStringLength]= '\0';
+  strcat(unixPath, "/");
+  strcat(unixPath, terminatedName);
+  if (stat(unixPath, &statBuf) && lstat(unixPath, &statBuf)) {
+	return NO_MORE_ENTRIES;
+  }
+
+  /* To match the results of dir_Lookup, copy back the file name */
+  *nameLength = ux2sqPath(nameString, nameStringLength, name, 256, 0);
+
+  /* last change time */
+  *creationDate= convertToSqueakTime(statBuf.st_ctime);
+  /* modification time */
+  *modificationDate= convertToSqueakTime(statBuf.st_mtime);
+	{
+		FSRef targetFSRef;
+		Boolean	targetIsFolder,wasAliased;
+		OSErr err;
+		err = getFSRef(unixPath,&targetFSRef,kCFStringEncodingUTF8);
+		if (!err) {
+			FSResolveAliasFileWithMountFlags(&targetFSRef,true,&targetIsFolder,&wasAliased,kResolveAliasFileNoUI);
+			if (wasAliased && targetIsFolder) {
+				*isDirectory= true;
+				return ENTRY_FOUND;
+			}
+		}
+	}
+  if (S_ISDIR(statBuf.st_mode))
+    *isDirectory= true;
+  else
+    *sizeIfFile= statBuf.st_size;
+
+  return ENTRY_FOUND;
+}
+
+
 int wanderDownPath(char *src,int bytes,char *possiblePath, Boolean resolveLastAlias);
 
 sqInt sqGetFilenameFromString(char * aCharBuffer, char * aFilenameString, sqInt filenameLength, sqInt aBoolean){

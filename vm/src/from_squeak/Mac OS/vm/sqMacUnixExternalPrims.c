@@ -4,34 +4,25 @@
  *                              listed elsewhere in this file.
  *   All rights reserved.
  *   
- *   This file is part of Unix Squeak.
+ *   This file was part of Unix Squeak.
  * 
- *      You are NOT ALLOWED to distribute modified versions of this file
- *      under its original name.  If you modify this file then you MUST
- *      rename it before making your modifications available publicly.
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
- *   This file is distributed in the hope that it will be useful, but WITHOUT
- *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- *   FITNESS FOR A PARTICULAR PURPOSE.
- *   
- *   You may use and/or distribute this file ONLY as part of Squeak, under
- *   the terms of the Squeak License as described in `LICENSE' in the base of
- *   this distribution, subject to the following additional restrictions:
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
  * 
- *   1. The origin of this software must not be misrepresented; you must not
- *      claim that you wrote the original software.  If you use this software
- *      in a product, an acknowledgment to the original author(s) (and any
- *      other contributors mentioned herein) in the product documentation
- *      would be appreciated but is not required.
- * 
- *   2. You must not distribute (or make publicly available by any
- *      means) a modified copy of this file unless you first rename it.
- * 
- *   3. This notice must not be removed or altered in any source distribution.
- * 
- *   Using (or modifying this file for use) in any context other than Squeak
- *   changes these copyright conditions.  Read the file `COPYING' in the
- *   directory `platforms/unix/doc' before proceeding with any such use.
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 /* Author: Ian.Piumarta@INRIA.Fr
@@ -50,13 +41,13 @@
 #include "sqMacUnixFileInterface.h"
 extern int gSqueakDebug;
 
-# define dprintf(ARGS) if (gSqueakDebug) fprintf ARGS
+# define DPRINTF(ARGS) if (gSqueakDebug) fprintf ARGS
  
 #if defined(HAVE_LIBDL)	/* non-starter without this! */
 
 # include <dlfcn.h>
     void *dlopen(const char *filename, int flag) __attribute__((weak_import));
-//	char *dlerror(void) __attribute__((weak_import));
+	char *dlerror(void) __attribute__((weak_import));
     void *dlsym(void *handle, const char *symbol) __attribute__((weak_import));
     int dlclose(void *handle) __attribute__((weak_import));
    static void *dlopenSqueak (const char *filename, int flag);
@@ -129,11 +120,11 @@ static void *tryLoadingInternals(char *libName)
   void        *handle= 0;
 
 	if ((!(err= stat(libName, &buf))) && S_ISDIR(buf.st_mode)) {
-	  dprintf((stderr, "ignoring directory: %s\n", libName));
+	  DPRINTF((stderr, "ignoring directory: %s\n", libName));
 	}
 	else
 	  {
-	    dprintf((stderr, "tryLoading %s\n", libName));
+	    DPRINTF((stderr, "tryLoading %s\n", libName));
 		if (dlopen == NULL)
 			handle= dlopenSqueak(libName, RTLD_NOW | RTLD_GLOBAL);
 		else
@@ -200,7 +191,7 @@ static void *tryLoadingPath(char *varName, char *pluginName)
   if (path)
     {
       char pbuf[MAXPATHLEN];
-      dprintf((stderr, "try %s=%s\n", varName, path));
+      DPRINTF((stderr, "try %s=%s\n", varName, path));
       strncpy(pbuf, path, sizeof(pbuf));
       pbuf[sizeof(pbuf) - 1]= '\0';
       for (path= strtok(pbuf, ":");
@@ -209,7 +200,7 @@ static void *tryLoadingPath(char *varName, char *pluginName)
 	{
 	  char buf[MAXPATHLEN];
 	  sprintf(buf, "%s/", path);
-	  dprintf((stderr, "  path dir = %s\n", buf));
+	  DPRINTF((stderr, "  path dir = %s\n", buf));
 	  if ((handle= tryLoading(buf, pluginName)) != 0)
 	    break;
 	}
@@ -243,7 +234,7 @@ void *ioLoadModule(char *pluginName)
 	  }
       else
 	{
-	  dprintf((stderr, "loaded: <intrinsic>\n"));
+	  DPRINTF((stderr, "loaded: <intrinsic>\n"));
 	  return handle;
 	}
     }
@@ -281,11 +272,10 @@ void *ioLoadModule(char *pluginName)
 			return handle;
     } else {
 		  if ((   handle= tryLoading( pluginDirPath,	pluginName))
-			  || (handle= tryLoading(    "./",			pluginName))
 			  || (handle= tryLoading( vmDirPath,		pluginName))
 			  || (handle= tryLoadingPath("SQUEAK_PLUGIN_PATH",	pluginName))
-			  || (handle= tryLoading(    VM_LIBDIR"/",		pluginName))
 		//JMM       || (handle= tryLoadingPath("LD_LIBRARY_PATH",	pluginName))
+			  || (handle= tryLoading(    "./",			pluginName))
 			  || (handle= tryLoading(    "",			pluginName))
 		#    if defined(VM_X11DIR)
 			  || (handle= tryLoading(VM_X11DIR"/",		pluginName))
@@ -417,7 +407,7 @@ void *ioFindExternalFunctionIn(char *lookupName, void *moduleHandle)
   else
 	fn= dlsym(moduleHandle, buf);
 
-  dprintf((stderr, "ioFindExternalFunctionIn(%s, %d)\n",
+  DPRINTF((stderr, "ioFindExternalFunctionIn(%s, %d)\n",
 	   lookupName, (int) moduleHandle));
 
   if ((fn == 0) && (gSqueakDebug)
@@ -457,7 +447,7 @@ sqInt ioFreeModule(void *moduleHandle)
 		why = dlerrorSqueak();
 	else
 		why = dlerror();
-      dprintf((stderr, "ioFreeModule(%d): %s\n", (int) moduleHandle, why));
+      DPRINTF((stderr, "ioFreeModule(%d): %s\n", (int) moduleHandle, why));
       return 0;
     }
   return 1;
@@ -568,7 +558,7 @@ static void dlUndefined(const char *symbol)
 
 static NSModule dlMultiple(NSSymbol s, NSModule oldModule, NSModule newModule)
 {
-  dprintf((stderr, "dyld: %s: %s previously defined in %s\n",
+  DPRINTF((stderr, "dyld: %s: %s previously defined in %s\n",
 	   NSNameOfSymbol(s), NSNameOfModule(oldModule), NSNameOfModule(newModule)));
   return newModule;
 }
@@ -628,7 +618,7 @@ static void *dlopenSqueak(const char *path, int mode)
   if (!handle)
     dlSetError("could not load shared object: %s", path);
 
-  dprintf((stderr, "dlopen: %s => %d\n", path, (int)handle));
+  DPRINTF((stderr, "dlopen: %s => %d\n", path, (int)handle));
 
   return handle;
 }
@@ -641,17 +631,17 @@ static void *dlsymSqueak(void *handle, const char *symbol)
 
   snprintf(_symbol, sizeof(_symbol), "_%s", symbol);
 
-  dprintf((stderr, "dlsym: looking for %s (%s) in %d\n", symbol, _symbol, (int)handle));
+  DPRINTF((stderr, "dlsym: looking for %s (%s) in %d\n", symbol, _symbol, (int)handle));
 
   if (!handle)
     {
-      dprintf((stderr, "dlsym: setting app context for this handle\n"));
+      DPRINTF((stderr, "dlsym: setting app context for this handle\n"));
       handle= DL_APP_CONTEXT;
     }
 
   if (DL_APP_CONTEXT == handle)
     {
-      dprintf((stderr, "dlsym: looking in app context\n"));
+      DPRINTF((stderr, "dlsym: looking in app context\n"));
       if (NSIsSymbolNameDefined(_symbol))
 	nsSymbol= NSLookupAndBindSymbol(_symbol);
     }
@@ -667,15 +657,15 @@ static void *dlsymSqueak(void *handle, const char *symbol)
 		 _symbol,
 		 NSLOOKUPSYMBOLINIMAGE_OPTION_BIND
 		 /*| NSLOOKUPSYMBOLINIMAGE_OPTION_RETURN_ON_ERROR*/);
-	      dprintf((stderr, "dlsym: bundle (image) lookup returned %p\n", nsSymbol));
+	      DPRINTF((stderr, "dlsym: bundle (image) lookup returned %p\n", nsSymbol));
 	    }
 	  else
-	    dprintf((stderr, "dlsym: bundle (image) symbol not defined\n"));
+	    DPRINTF((stderr, "dlsym: bundle (image) symbol not defined\n"));
 	}
       else
 	{
 	  nsSymbol= NSLookupSymbolInModule(handle, _symbol);
-	  dprintf((stderr, "dlsym: dylib (module) lookup returned %p\n", nsSymbol));
+	  DPRINTF((stderr, "dlsym: dylib (module) lookup returned %p\n", nsSymbol));
 	}
     }
 

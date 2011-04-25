@@ -156,13 +156,11 @@
 #define VMENDIANNESS 0
 #define	VM_HOST "intel-apple-darwin8.5.0"
 #define	VM_HOST_CPU "intel"
-#define	DOUBLE_WORD_ORDER 1
 #define LSB_FIRST 1
 #endif
 
 #define HAVE_LIBDL 1
 /* #undef	DOUBLE_WORD_ALIGNMENT */
-/* #undef	DOUBLE_WORD_ORDER */
 
 /* damage containment */
 

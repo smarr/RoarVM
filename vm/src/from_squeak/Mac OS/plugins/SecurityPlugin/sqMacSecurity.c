@@ -12,15 +12,12 @@
 #include "FilePlugin.h"
 
 #include <Files.h> 
+#if !defined(PATH_MAX)
+# include <sys/syslimits.h>
+#endif
 extern struct VirtualMachine * interpreterProxy;
 
-static char* fromSqueak(char* string, int len)
-{
-	static char buf[PATH_MAX];
-	strncpy(buf, string, len);
-	buf[len]= '\0';
-	return buf;
-}
+#define fromSqueak(string,length) string
 
 void fixPath(char *path);
 int dir_CreateSecurity(char *pathString, int pathStringLength);
@@ -28,7 +25,6 @@ int _ioSetFileAccess(int enable);
 
 static char secureUserDirectory[PATH_MAX];
 static char untrustedUserDirectory[PATH_MAX];
-static char resourceDirectory[PATH_MAX];
 
 static Boolean gInitialized = false;
 
@@ -39,58 +35,50 @@ static Boolean gInitialized = false;
 /* file security */
 static int allowFileAccess = 1;  /* full access to files */
 
-static int isAccessiblePathName(char *pathName, int writeFlag)
-{
-	char realPathName[PATH_MAX];
-	size_t  realPathLen;
-	
-	realpath(pathName, realPathName);
-	realPathLen= strlen(realPathName);
-	
-	if (realPathLen >= strlen(untrustedUserDirectory)
-		&& 0 == strncmp(realPathName, untrustedUserDirectory, strlen(untrustedUserDirectory)))
-		return 1;
-	if (writeFlag)
-		return 0;
-	return (realPathLen >= strlen(resourceDirectory)
-			&& 0 == strncmp(realPathName, resourceDirectory, strlen(resourceDirectory)));
+static int isAccessiblePathName(char *pathName) {
+  unsigned int i;
+  /* Check if the path/file name is subdirectory of the image path */
+  for(i=0; i<strlen(untrustedUserDirectory)-1; i++)
+    if(untrustedUserDirectory[i] != pathName[i]) return 0;
+  /* special check for the trusted directory */
+  if(pathName[i] == 0) return 1; /* allow access to trusted directory */
+  /* check last character in image path (e.g., backslash) */
+  if(untrustedUserDirectory[i] != pathName[i]) return 0;
+
+return 1;
 }
 
-
-static int isAccessibleFileName(char *fileName, int writeFlag)
-{
-	char pathName[PATH_MAX];
-	int pathLen= strrchr(fileName, '/') - fileName;
-	
-	strncpy(pathName, fileName, pathLen);
-	pathName[pathLen]= '\0';
-	
-	return isAccessiblePathName(pathName, writeFlag);
+static int isAccessibleFileName(char *fileName) {
+  unsigned int i;
+  /* Check if the path/file name is subdirectory of the image path */
+  for(i=0; i<strlen(untrustedUserDirectory); i++)
+    if(untrustedUserDirectory[i] != fileName[i]) return 0;
+  return 1;
 }
 /* directory access */
 int ioCanCreatePathOfSize(char* pathString, int pathStringLength) {
 #pragma unused(pathStringLength)
   if(allowFileAccess) return 1;
-  return isAccessiblePathName(fromSqueak(pathString, pathStringLength), 1);
+  return isAccessiblePathName(fromSqueak(pathString, pathStringLength));
 }
 
 int ioCanListPathOfSize(char* pathString, int pathStringLength) {
 #pragma unused(pathStringLength)
   if(allowFileAccess) return 1;
-  return isAccessiblePathName(fromSqueak(pathString, pathStringLength), 0);
+  return isAccessiblePathName(fromSqueak(pathString, pathStringLength));
 }
 
 int ioCanDeletePathOfSize(char* pathString, int pathStringLength) {
 #pragma unused(pathStringLength)
   if(allowFileAccess) return 1;
-  return isAccessiblePathName(fromSqueak(pathString, pathStringLength),1);
+  return isAccessiblePathName(fromSqueak(pathString, pathStringLength));
 }
 
 /* file access */
 int ioCanOpenFileOfSizeWritable(char* pathString, int pathStringLength, int writeFlag) {
 #pragma unused(pathStringLength,writeFlag)
   if(allowFileAccess) return 1;
-  return isAccessibleFileName(fromSqueak(pathString, pathStringLength),writeFlag);
+  return isAccessibleFileName(fromSqueak(pathString, pathStringLength));
 }
 
 int ioCanOpenAsyncFileOfSizeWritable(char* pathString, int pathStringLength, int writeFlag) {
@@ -99,13 +87,13 @@ int ioCanOpenAsyncFileOfSizeWritable(char* pathString, int pathStringLength, int
 int ioCanDeleteFileOfSize(char* pathString, int pathStringLength) {
 #pragma unused(pathStringLength)
   if(allowFileAccess) return 1;
-  return isAccessibleFileName(fromSqueak(pathString, pathStringLength),1);
+  return isAccessibleFileName(fromSqueak(pathString, pathStringLength));
 }
 
 int ioCanRenameFileOfSize(char* pathString, int pathStringLength) {
 #pragma unused(pathStringLength)
   if(allowFileAccess) return 1;
-  return isAccessibleFileName(fromSqueak(pathString, pathStringLength),1);
+  return isAccessibleFileName(fromSqueak(pathString, pathStringLength));
 }
 
 
@@ -199,7 +187,7 @@ char *ioGetUntrustedUserDirectory(void) {
 
 /* note: following is called from VM directly, not from plugin */
 int ioInitSecurity(void) {
-  extern char gSqueakUntrustedDirectoryName[],gSqueakTrustedDirectoryName[],gSqueakResourceDirectoryName[];
+  extern char gSqueakUntrustedDirectoryName[],gSqueakTrustedDirectoryName[];
   
   if (gInitialized) return 1;
   gInitialized  = true;
@@ -208,11 +196,7 @@ int ioInitSecurity(void) {
   strcpy(secureUserDirectory, gSqueakTrustedDirectoryName);
   untrustedUserDirectory[0] = 0x00;
   strcpy(untrustedUserDirectory, gSqueakUntrustedDirectoryName);
-  resourceDirectory[0] = 0x00;
-  strcpy(resourceDirectory, gSqueakResourceDirectoryName);
   return 1;
-	
-	
 }
 
 /***************************************************************************/

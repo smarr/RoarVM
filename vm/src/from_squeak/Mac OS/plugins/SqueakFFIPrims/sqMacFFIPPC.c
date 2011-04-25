@@ -7,7 +7,7 @@
 *   AUTHOR:  Andreas Raab (ar)
 *   ADDRESS: Walt Disney Imagineering, Glendale, CA
 *   EMAIL:   Andreas.Raab@disney.com
-*   RCSID:   $Id$
+*   RCSID:   $Id: sqMacFFIPPC.c 1413 2006-04-10 06:40:23Z johnmci $
 *
 *   NOTES:
 
@@ -22,6 +22,7 @@
 #ifndef LONGLONG
 #define LONGLONG long long
 #endif
+#define MAX_PATH PATH_MAX
 
 //#define DEBUGFFI 1
 
@@ -67,17 +68,50 @@ static int *structReturnValue = NULL;
 /**************************************************************/
 
 #if DEBUGFFI
-# define dprintf(ARGS)	printf ARGS; fflush(stdout)
+# define DPRINTF(ARGS)	printf ARGS; fflush(stdout)
 #else
-# define dprintf(ARGS)
+# define DPRINTF(ARGS)
 #endif
 
 #define ARG_CHECK() if(gpRegCount >= GP_MAX_REGS && ffiStackIndex >= FFI_MAX_STACK) return primitiveFail();
 #define ARG_PUSH(value) { \
 	ARG_CHECK(); \
 	if(gpRegCount < GP_MAX_REGS) GPRegs[gpRegCount++] = value; \
-	dprintf(("ARG_PUSH %i (%08x)\n", ffiStackIndex, value)); \
+	DPRINTF(("ARG_PUSH %i (%08x)\n", ffiStackIndex, value)); \
 	ffiStack[ffiStackIndex++] = value; \
+}
+
+/*****************************************************************************/
+/*****************************************************************************/
+static FILE *ffiLogFile = NULL;
+
+int ffiLogFileNameOfLength(void *nameIndex, int nameLength) {
+  char fileName[MAX_PATH];
+  FILE *fp;
+
+  if(nameIndex && nameLength) {
+    if(nameLength >= MAX_PATH) return 0;
+    strncpy(fileName, nameIndex, nameLength);
+    fileName[nameLength] = 0;
+    /* attempt to open the file and if we can't fail */
+    fp = fopen(fileName, "at");
+    if(fp == NULL) return 0;
+    /* close the old log file if needed and use the new one */
+    if(ffiLogFile) fclose(ffiLogFile);
+    ffiLogFile = fp;
+    fprintf(ffiLogFile, "------- Log started -------\n");
+    fflush(fp);
+  } else {
+    if(ffiLogFile) fclose(ffiLogFile);
+    ffiLogFile = NULL;
+  }
+  return 1;
+}
+
+int ffiLogCallOfLength(void *nameIndex, int nameLength) {
+    if(ffiLogFile == NULL) return 0;
+    fprintf(ffiLogFile, "%.*s\n", nameIndex, nameLength);
+    fflush(ffiLogFile);
 }
 
 /*****************************************************************************/
@@ -106,13 +140,13 @@ int ffiSupportsCallingConvention(int callType)
 int ffiAlloc(int byteSize)
 {
 	int data = (int) malloc(byteSize);
-	dprintf(("ffiAlloc (%08x)\n",data));
+	DPRINTF(("ffiAlloc (%08x)\n",data));
 	return data;
 }
 
 int ffiFree(int ptr)
 {
-	dprintf(("ffiFree (%08x)\n",ptr));
+	DPRINTF(("ffiFree (%08x)\n",ptr));
 	if(ptr) free((void*)ptr);
 	return 1;
 }
@@ -313,7 +347,7 @@ int ffiCanReturn(int *structSpec, int specSize)
 	Return the value from a previous ffi call with float return type. */
 double ffiReturnFloatValue(void)
 {
-	dprintf(("ffiReturnFloatValue %d\n",floatReturnValue));
+	DPRINTF(("ffiReturnFloatValue %d\n",floatReturnValue));
 	return floatReturnValue;
 }
 
@@ -321,7 +355,7 @@ double ffiReturnFloatValue(void)
 	Return the low 32bit from the 64bit result of a call to an external function */
 int ffiLongLongResultLow(void)
 {
-	dprintf(("ffiLongLongResultLow %i\n",((int*) &longReturnValue)[1]));
+	DPRINTF(("ffiLongLongResultLow %i\n",((int*) &longReturnValue)[1]));
 	return ((int*) &longReturnValue)[1];
 }
 
@@ -329,7 +363,7 @@ int ffiLongLongResultLow(void)
 	Return the high 32bit from the 64bit result of a call to an external function */
 int ffiLongLongResultHigh(void)
 {
-	dprintf(("ffiLongLongResultHigh %i\n",((int*) &longReturnValue)[0]));
+	DPRINTF(("ffiLongLongResultHigh %i\n",((int*) &longReturnValue)[0]));
 	return ((int*) &longReturnValue)[0];
 }
 
@@ -337,7 +371,7 @@ int ffiLongLongResultHigh(void)
 	Store the structure result of a previous ffi call into the given address. */
 int ffiStoreStructure(int address, int structSize)
 {
-	dprintf(("ffiStoreStructure\n"));
+	DPRINTF(("ffiStoreStructure\n"));
 	if(structReturnValue) {
 		memcpy((void*)address, (void*)structReturnValue, structSize);
 	} else {

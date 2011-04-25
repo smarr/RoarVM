@@ -7,37 +7,27 @@
  *   
  *   This file was part of Unix Squeak.
  * 
- *      You are NOT ALLOWED to distribute modified versions of this file
- *      under its original name.  If you modify this file then you MUST
- *      rename it before making your modifications available publicly.
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
- *   This file is distributed in the hope that it will be useful, but WITHOUT
- *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- *   FITNESS FOR A PARTICULAR PURPOSE.
- *   
- *   You may use and/or distribute this file ONLY as part of Squeak, under
- *   the terms of the Squeak License as described in `LICENSE' in the base of
- *   this distribution, subject to the following additional restrictions:
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
  * 
- *   1. The origin of this software must not be misrepresented; you must not
- *      claim that you wrote the original software.  If you use this software
- *      in a product, an acknowledgment to the original author(s) (and any
- *      other contributors mentioned herein) in the product documentation
- *      would be appreciated but is not required.
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  * 
- *   2. You must not distribute (or make publicly available by any
- *      means) a modified copy of this file unless you first rename it.
- * 
- *   3. This notice must not be removed or altered in any source distribution.
- * 
- *   Using (or modifying this file for use) in any context other than Squeak
- *   changes these copyright conditions.  Read the file `COPYING' in the
- *   directory `platforms/unix/doc' before proceeding with any such use.
- 
  * Much of this code comes from the unix port
  * Ian Piumarta <ian.piumarta@inria.fr>
- 
- 
+ * 
  * 3.8.13b4  Oct 16th, 2006 JMM headless
  */
 
@@ -142,22 +132,13 @@ void resolveWhatTheImageNameIs(char *guess)
 	OSErr		err;
 	
 	strncpy(possibleImageName, guess,DOCUMENT_NAME_SIZE);
-	// fprintf(stderr,"\nresolveWhatTheImageNameIs %s",guess);
 	err = getFSRef(possibleImageName,&theFSRef,kCFStringEncodingUTF8);
-	if (err && (!(guess[0] == '.' || guess[0] == '/'))) {
-		getVMPathWithEncoding(possibleImageName,kCFStringEncodingUTF8);
-		strncat(possibleImageName, guess, DOCUMENT_NAME_SIZE - strlen(possibleImageName));
-		err = getFSRef(possibleImageName,&theFSRef,kCFStringEncodingUTF8);
-		// fprintf(stderr,"\nresolveWhatTheImageNameIs 2ndTry %s",possibleImageName);
-	}
 	if (err) {
 		SetImageNameViaString("",gCurrentVMEncoding);
 		SetShortImageNameViaString("",gCurrentVMEncoding);
-		//	fprintf(stderr,"\nresolveWhatTheImageNameIs Failure to find file");
 		return;
 	}
 	PathToFileViaFSRef(fullPath,DOCUMENT_NAME_SIZE, &theFSRef,gCurrentVMEncoding);
-	// fprintf(stderr,"\nresolveWhatTheImageNameIs fullPath %s",fullPath);
 	getLastPathComponentInCurrentEncoding(fullPath,lastPath,gCurrentVMEncoding);
 	SetImageNameViaString(fullPath,gCurrentVMEncoding);
 	SetShortImageNameViaString(lastPath,gCurrentVMEncoding);
@@ -181,6 +162,69 @@ static int parseArgument(int argc, char **argv)
 	  if (!strcmp(argv[0], "-memory"))	{ 
 		gMaxHeapSize = strtobkm(argv[1]);	 
 		return 2; }
+#if STACKVM
+      else if (!strcmp(argv[0], "-eden")) { 
+		extern sqInt desiredEdenBytes;
+		desiredEdenBytes = strtobkm(argv[1]);	 
+		return 2; }
+      else if (!strcmp(argv[0], "-leakcheck")) { 
+		extern sqInt checkForLeaks;
+		checkForLeaks = atoi(argv[1]);	 
+		return 2; }
+      else if (!strcmp(argv[0], "-stackpages")) { 
+		extern sqInt desiredNumStackPages;
+		desiredNumStackPages = atoi(argv[1]);	 
+		return 2; }
+      else if (!strcmp(argv[0], "-breaksel")) { 
+		extern void setBreakSelector(char *);
+		setBreakSelector(argv[1]);
+		return 2; }
+      else if (!strcmp(argv[0], "-noheartbeat")) { 
+		extern sqInt suppressHeartbeatFlag;
+		suppressHeartbeatFlag = 1;
+		return 1; }
+      else if (!strcmp(argv[0], "-pollpip")) { 
+		extern sqInt pollpip;
+		pollpip = atoi(argv[1]);	 
+		return 2; }
+#endif /* STACKVM */
+#if COGVM
+      else if (!strcmp(argv[0], "-codesize")) { 
+		extern sqInt desiredCogCodeSize;
+		desiredCogCodeSize = strtobkm(argv[1]);	 
+		return 2; }
+# define TLSLEN (sizeof("-sendtrace")-1)
+      else if (!strncmp(argv[0], "-sendtrace", TLSLEN)) { 
+		extern int traceLinkedSends;
+		char *equalsPos = strchr(argv[0],'=');
+
+		if (!equalsPos) {
+			traceLinkedSends = 1;
+			return 1;
+		}
+		if (equalsPos - argv[0] != TLSLEN
+		  || (equalsPos[1] != '-' && !isdigit(equalsPos[1])))
+			return 0;
+
+		traceLinkedSends = atoi(equalsPos + 1);
+		return 1; }
+      else if (!strcmp(argv[0], "-tracestores")) { 
+		extern sqInt traceStores;
+		traceStores = 1;
+		return 1; }
+      else if (!strcmp(argv[0], "-dpcso")) { 
+		extern unsigned long debugPrimCallStackOffset;
+		debugPrimCallStackOffset = (unsigned long)strtobkm(argv[1]);	 
+		return 2; }
+      else if (!strcmp(argv[0], "-cogmaxlits")) { 
+		extern sqInt maxLiteralCountForCompile;
+		maxLiteralCountForCompile = strtobkm(argv[1]);	 
+		return 2; }
+      else if (!strcmp(argv[0], "-cogminjumps")) { 
+		extern sqInt minBackwardJumpCountForCompile;
+		minBackwardJumpCountForCompile = strtobkm(argv[1]);	 
+		return 2; }
+#endif /* COGVM */
       else if (!strcmp(argv[0], "-pathenc")) { 
 		setEncodingType(argv[1]); 
 		return 2; }
@@ -214,6 +258,18 @@ static void printUsage(void)
   printf("\nCommon <option>s:\n");
   printf("  -help                 print this help message, then exit\n");
   printf("  -memory <size>[mk]    use fixed heap size (added to image size)\n");
+#if STACKVM
+  printf("  -eden <size>[mk]      set eden memory to bytes\n");
+  printf("  -stackpages num       use n stack pages\n");
+  printf("  -breaksel selector    set breakpoint on send of selector\n");
+#endif
+#if COGVM
+  printf("  -codesize <size>[mk]  set machine code memory to bytes\n");
+  printf("  -sendtrace[=num]      enable send tracing (optionally to a specific value)\n");
+  printf("  -tracestores          enable store tracing (assert check stores)\n");
+  printf("  -cogmaxlits <n>       set max number of literals for methods compiled to machine code\n");
+  printf("  -cogminjumps <n>      set min number of backward jumps for interpreted methods to be considered for compilation to machine code\n");
+#endif
   printf("  -pathenc <enc>        set encoding for pathnames (default: macintosh)\n");
   printf("  -headless             run in headless (no window) mode (default: false)\n");
 }

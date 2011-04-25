@@ -89,5 +89,5 @@ void snd_Volume(double *left, double *right)	{
 	sound_Volume(left, right); }
 void snd_SetVolume(double left, double right)	{ 
 	sound_SetVolume(left, right); }
-void  snd_SetRecordLevel(sqInt level)		{ 
-	 sound_SetRecordLevel(level); }
+int  snd_SetRecordLevel(sqInt level)		{ 
+	return sound_SetRecordLevel(level); }
