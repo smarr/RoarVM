@@ -2,29 +2,40 @@
  * 
  * Author: Ian Piumarta <ian.piumarta@squeakland.org>
  * 
- *   Copyright (C) 1996-2007 by Ian Piumarta and other authors/contributors
+ *   Copyright (C) 1996-2005 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
  *   
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   This file is part of Unix Squeak.
  *
- *   The above copyright notice and this permission notice shall be included in
- *   all copies or substantial portions of the Software.
+ *      You are NOT ALLOWED to distribute modified versions of this file
+ *      under its original name.  If you modify this file then you MUST
+ *      rename it before making your modifications available publicly.
  *
- *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   This file is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *   FITNESS FOR A PARTICULAR PURPOSE.
  * 
- * Last edited: 2009-08-19 04:38:45 by piumarta on emilia-2.local
+ *   You may use and/or distribute this file ONLY as part of Squeak, under
+ *   the terms of the Squeak License as described in `LICENSE' in the base of
+ *   this distribution, subject to the following additional restrictions:
+ * 
+ *   1. The origin of this software must not be misrepresented; you must not
+ *      claim that you wrote the original software.  If you use this software
+ *      in a product, an acknowledgment to the original author(s) (and any
+ *      other contributors mentioned herein) in the product documentation
+ *      would be appreciated but is not required.
+ * 
+ *   2. You must not distribute (or make publicly available by any
+ *      means) a modified copy of this file unless you first rename it.
+ * 
+ *   3. This notice must not be removed or altered in any source distribution.
+ * 
+ *   Using (or modifying this file for use) in any context other than Squeak
+ *   changes these copyright conditions.  Read the file `COPYING' in the
+ *   directory `platforms/unix/doc' before proceeding with any such use.
+ * 
+ * Last edited: 2006-04-17 16:56:53 by piumarta on margaux.local
  */
 
 
@@ -95,11 +106,7 @@
 /// No more user-serviceable parts in this file.  Stop Tweaking Now!
 /// 
 
-#if defined (__ppc__)
 # define USE_SPINLOCK	1
-#else
-# define USE_SPINLOCK	0
-#endif
 #define USE_OWN_ICON	0
 
 static inline int min(int x, int y) { return x < y ? x : y; }
@@ -269,11 +276,6 @@ void feedback(int offset, int pixel)
 extern inline int testAndSet(int *lock)
 {
   int valu;
-# if defined(__i386__)
-  asm volatile("        movl	$1, %0		\n"
-               "        xchg	%0, %1		\n"
-               : "=&r"(valu) : "r"(lock));
-# else
   asm volatile("        lwarx   %0, 0, %1       \n"
                "        cmpwi   %0, 0           \n"
                "        bne-    1f              \n"
@@ -283,7 +285,6 @@ extern inline int testAndSet(int *lock)
                "        li      %0, 0           \n"
                "1:                              \n"
                : "=&r"(valu) : "r"(lock) : "cr0","memory");
-# endif
   return valu;
 }
 
@@ -356,7 +357,7 @@ static sqInt display_ioFormPrint(sqInt bitsAddr, sqInt width, sqInt height, sqIn
   int opp=     depth / 8;
   int success= 1;
 
-  debugf(("ioFormPrint %f %f\n", hScale, vScale));
+  DPRINTF(("ioFormPrint %f %f\n", hScale, vScale));
   {
     unsigned char    *planes[1]= { (unsigned char *)pointerForOop(bitsAddr) };
     NSBitmapImageRep *bitmap= 	 0;
@@ -374,23 +375,23 @@ static sqInt display_ioFormPrint(sqInt bitsAddr, sqInt width, sqInt height, sqIn
 	      colorSpaceName:		NSCalibratedBlackColorSpace
 	      bytesPerRow:		width * opp
 	      bitsPerPixel:		depth];
-    if (!bitmap) { debugf(("bitmap fail\n")); success= 0; goto done; }
+    if (!bitmap) { DPRINTF(("bitmap fail\n")); success= 0; goto done; }
     image= [NSImage alloc];
     //[image setSize: NSMakeSize(width, height)];
     [image addRepresentation: bitmap];
-    if (!image) { debugf(("image fail\n")); success= 0; goto done; }
+    if (!image) { DPRINTF(("image fail\n")); success= 0; goto done; }
     view= [[NSImageView alloc] initWithFrame: NSMakeRect(0, 0, width, height)];
     [view setImage: image];
     {
       NSPrintOperation *op=  [NSPrintOperation printOperationWithView: view];
       [op setShowPanels: YES];
-      debugf(("launch print operation\n"));
+      DPRINTF(("launch print operation\n"));
       [op runOperation];
     }
   }
 
  done:
-  debugf(("ioFormPrint done.\n"));
+  DPRINTF(("ioFormPrint done.\n"));
   [pool release];
   return success;
 }
@@ -405,7 +406,7 @@ static sqInt display_ioBeep(void)
 
 static sqInt display_ioRelinquishProcessorForMicroseconds(sqInt microSeconds)
 {
-  aioSleep(microSeconds);
+  aioSleepForUsecs(microSeconds);
   return 0;
 }
 
@@ -434,7 +435,7 @@ static unsigned int qz2sqButton(unsigned int button)
     case 1: return (swapBtn ? YellowButtonBit : BlueButtonBit);
     case 2: return (swapBtn ? BlueButtonBit   : YellowButtonBit);
     }
-  debugf(("unknown mouse button %d\n", button));
+  DPRINTF(("unknown mouse button %d\n", button));
   return RedButtonBit;
 }
 
@@ -720,47 +721,6 @@ static sqInt display_ioSetCursorWithMask(sqInt cursorBitsIndex, sqInt cursorMask
   return 1;
 }
 
-static sqInt display_ioSetCursorARGB(sqInt cursorBitsIndex, sqInt extentX, sqInt extentY, sqInt offsetX, sqInt offsetY)
-{
-  if (headless)
-    return 0;
-
-  if ([view lockFocusIfCanDraw])
-    {
-      NSAutoreleasePool *pool= [[NSAutoreleasePool alloc] init];
-      NSBitmapImageRep  *bitmap= 0;
-      NSImage           *image=  0;
-      NSCursor          *cursor= 0;
-
-      bitmap= [[NSBitmapImageRep alloc]
-		initWithBitmapDataPlanes: 0 pixelsWide: extentX pixelsHigh: extentY
-		bitsPerSample: 8 samplesPerPixel: 4
-		hasAlpha: YES isPlanar: NO
-		colorSpaceName: NSCalibratedRGBColorSpace
-		bytesPerRow: extentX * 4
-		bitsPerPixel: 0];
-      {
-	unsigned *planes[5];
-	[bitmap getBitmapDataPlanes: planes];
-	unsigned* src= (unsigned*)cursorBitsIndex;
-	unsigned* dst= planes[0];
-	int i;
-	for (i= 0;  i < extentX * extentY;  ++i, ++dst, ++src)
-	  *dst= (*src & 0xFF00FF00) | ((*src & 0x000000FF) << 16) | ((*src & 0x00FF0000) >> 16);
-      }
-      image= [[NSImage alloc] init];
-      [image addRepresentation: bitmap];
-      {
-	NSPoint hotSpot= { -offsetX, -offsetY };
-	cursor= [[NSCursor alloc] initWithImage: image hotSpot: hotSpot];
-      }
-      [cursor set];
-      [pool release];
-      [view unlockFocus];
-    }
-  return 1;
-}
-
 #if 0
 static sqInt display_ioSetCursor(sqInt cursorBitsIndex, sqInt offsetX, sqInt offsetY)
 {
@@ -779,7 +739,7 @@ static sqInt display_ioForceDisplayUpdate(void)
 
 static void setRects(int w, int h)
 {
-  debugf(("setRects %d %d\n", w, h));
+  DPRINTF(("setRects %d %d\n", w, h));
   topRect= NSMakeRect(0,0, w,h);
   if (fullscreen)
     {
@@ -824,7 +784,7 @@ static char *updatePix(void)
       topRect= [NSWindow contentRectForFrameRect: winRect styleMask: styleMask];
       w= NSWidth(topRect);
       h= NSHeight(topRect);
-      debugf(("updatePix w=%d h=%d\n", w, h));
+      DPRINTF(("updatePix w=%d h=%d\n", w, h));
       setSavedWindowSize((w << 16) | h);			// assume this is atomic
       if (fullscreen)
 	{
@@ -854,10 +814,11 @@ static char *updatePix(void)
     }
   else
     {
-      debugf(("updatePix: NO PORT!\n"));
+      DPRINTF(("updatePix: NO PORT!\n"));
       pixBase= 0;
     }
-  debugf(("pixBase %p, width %d, height %d, depth %d, pitch %d\n", pixBase, pixWidth, pixHeight, pixDepth, pixPitch));
+  DPRINTF(("pixBase %p, width %d, height %d, depth %d, pitch %d\n",
+	   pixBase, pixWidth, pixHeight, pixDepth, pixPitch));
   return pixBase;
 }
 
@@ -876,13 +837,13 @@ static sqInt display_ioShowDisplay(sqInt dispBitsIndex, sqInt width, sqInt heigh
       || (displayChanged)
       || (![view lockFocusIfCanDraw]))
     {
-      debugf(("ioShowDisplay squashed: dpy %dx%dx%d pix %dx%dx%d\n",
+      DPRINTF(("ioShowDisplay squashed: dpy %dx%dx%d pix %dx%dx%d\n",
 	      (int)width, (int)height, (int)depth,
 	      (int)pixWidth, (int)pixHeight, (int)pixDepth));
       return 0;
     }
 
-  debugf(("ioShowDisplay %p %ldx%ldx%ld %ld,%ld-%ld,%ld\n",
+  DPRINTF(("ioShowDisplay %p %ldx%ldx%ld %ld,%ld-%ld,%ld\n",
 	  (void *)dispBitsIndex, width, height, depth,
 	  affectedL, affectedR, affectedT, affectedB));
 
@@ -976,7 +937,7 @@ static void *display_ioGetDisplay(void)
   if (headless)
     return 0;
 
-  debugf(("ioGetDisplay: WARNING: check the client to see it knows what it's doing\n"));
+  DPRINTF(("ioGetDisplay: WARNING: check the client to see it knows what it's doing\n"));
   return dpy;
 }
 
@@ -1046,24 +1007,6 @@ static sqInt display_clipboardReadIntoAt(sqInt count, sqInt byteArrayIndex, sqIn
   return 0;
 }
 
-static char **display_clipboardGetTypeNames(void)
-{
-  return 0;
-};
-
-static sqInt display_clipboardSizeWithType(char *typeName, int ntypeName)
-{
-  return 0;
-}
-
-static void display_clipboardWriteWithType(char *data, size_t nData, char *typeName, size_t nTypeName, int isDnd, int isClaiming)
-{
-  return;
-}
-
-static sqInt display_dndOutStart(char *types, int ntypes)	{ return 0; }
-static void  display_dndOutSend(char *bytes, int nbytes)	{ return  ; }
-static sqInt display_dndOutAcceptedType(char * buf, int nbuf)	{ return 0; }
 
 static void display_winExit(void)
 {
@@ -1302,7 +1245,7 @@ static void setUpDisplay(void)
   dpyPixels  = CGDisplayBaseAddress(dpy);
   dpyPitch   = CGDisplayBytesPerRow(dpy);
 
-  debugf(("display is %dx%dx%d at %p pitch %d\n", dpyWidth, dpyHeight, dpyDepth, dpyPixels, dpyPitch));
+  DPRINTF(("display is %dx%dx%d at %p pitch %d\n", dpyWidth, dpyHeight, dpyDepth, dpyPixels, dpyPitch));
 }
 
 
@@ -1314,7 +1257,6 @@ static void setUpWindow(int fs)
       NSRect contentRect;
       if (fs)
 	{
-	  setUpDisplay();
 	  w= dpyWidth;
 	  h= dpyHeight;
 	}
@@ -1332,7 +1274,7 @@ static void setUpWindow(int fs)
 	      h= 480;
 	    }
 	}
-      debugf(("initial winSize %d %d\n", w, h));
+      DPRINTF(("initial winSize %d %d\n", w, h));
       styleMask= (fs
 		  ? (NSBorderlessWindowMask)
 		  : (  NSTitledWindowMask
@@ -1348,7 +1290,7 @@ static void setUpWindow(int fs)
       contentRect= [[win contentView] frame];
       w= NSWidth(contentRect);
       h= NSHeight(contentRect);
-      debugf(("alloc winSize %d %d\n", w, h));
+      DPRINTF(("alloc winSize %d %d\n", w, h));
       setSavedWindowSize((w << 16) | h);
 
       view= [[SqueakView alloc] initWithFrame: contentRect];
@@ -1517,7 +1459,7 @@ static sqInt display_ioSetFullScreen(sqInt flag)
   static sqInt originalWindowSize= 0;
   SqueakWindow *old;
 
-  debugf(("ioSetFullScreen(%d)\n", flag));
+  DPRINTF(("ioSetFullScreen(%d)\n", flag));
 
   if (headless || (fullscreen == flag))
     return 0;	// nothing to do
@@ -1540,7 +1482,7 @@ static sqInt display_ioSetFullScreen(sqInt flag)
 {
   static sqInt originalWindowSize= (800 << 16) | 600;
 
-  debugf(("ioSetFullScreen(%d)\n", flag));
+  DPRINTF(("ioSetFullScreen(%d)\n", flag));
 
   if (headless || (fullscreen == flag) || glActive)
     return 0;	// nothing to do
@@ -1553,7 +1495,7 @@ static sqInt display_ioSetFullScreen(sqInt flag)
       fadeOut(FULLSCREEN_FADE);
 #    endif
       if (CGDisplayNoErr != CGDisplayCapture(dpy))
-	debugf(("failed to capture display\n"));
+	DPRINTF(("failed to capture display\n"));
       else
 	{
 #        ifdef FULLSCREEN_FADE
@@ -1740,7 +1682,6 @@ static void *runInterpreter(void *arg)
   (void)recordMouseEvent;
   (void)recordKeyboardEvent;
   (void)recordDragEvent;
-  (void)recordWindowEvent;
 }
 
 
@@ -1983,7 +1924,7 @@ static void *runInterpreter(void *arg)
 	  // info (we'd far rather be informed that the current screen's
 	  // depth has changed)
 	}
-      //debugf(("AppKitDefinedEvent subtype %d\n", [event subtype]));
+      //DPRINTF(("AppKitDefinedEvent subtype %d\n", [event subtype]));
       [super sendEvent: event];
       break;
 
@@ -1993,7 +1934,7 @@ static void *runInterpreter(void *arg)
       // case NSCursorUpdate: break;
 
     default: // almost always NSSystemDefined
-      //debugf(("Event type %d subtype %d\n", [event type], [event subtype]));
+      //DPRINTF(("Event type %d subtype %d\n", [event type], [event subtype]));
       [super sendEvent: event];
     }
 }
@@ -2848,23 +2789,6 @@ static void display_ioGLsetBufferRect(glRenderer *r, sqInt x, sqInt y, sqInt w, 
   [renderView(r) setFrame: frame];
 }
 
-//
-// Host Window support
-//
-
-#if (SqDisplayVersionMajor >= 1 && SqDisplayVersionMinor >= 2)
-static int display_hostWindowClose(int index)                                               { return 0; }
-static int display_hostWindowCreate(int w, int h, int x, int y,
-  char *list, int attributeListLength)                                                      { return 0; }
-static int display_hostWindowShowDisplay(unsigned *dispBitsIndex, int width, int height, int depth,
-  int affectedL, int affectedR, int affectedT, int affectedB, int windowIndex)              { return 0; }
-static int display_hostWindowGetSize(int windowIndex)                                       { return -1; }
-static int display_hostWindowSetSize(int windowIndex, int w, int h)                         { return -1; }
-static int display_hostWindowGetPosition(int windowIndex)                                   { return -1; }
-static int display_hostWindowSetPosition(int windowIndex, int x, int y)                     { return -1; }
-static int display_hostWindowSetTitle(int windowIndex, char *newTitle, int sizeOfTitle)     { return -1; }
-static int display_hostWindowCloseAll(void)                                                 { return 0; }
-#endif
 
 
 SqDisplayDefine(Quartz);

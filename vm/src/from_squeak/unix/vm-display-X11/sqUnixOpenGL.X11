@@ -79,7 +79,7 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
 
   if (flags & ~(B3D_HARDWARE_RENDERER | B3D_SOFTWARE_RENDERER | B3D_STENCIL_BUFFER))
     {
-      DPRINTF(1, (fp, "ERROR: Unsupported renderer flags (%d)\r", flags));
+      DPRINTF3D(1, (fp, "ERROR: Unsupported renderer flags (%d)\r", flags));
       return -1;
     }
 
@@ -103,7 +103,7 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
 
   if (index == -1)
     {
-      DPRINTF(1, (fp, "ERROR: Maximum number of renderers (%d) exceeded\r", MAX_RENDERER));
+      DPRINTF3D(1, (fp, "ERROR: Maximum number of renderers (%d) exceeded\r", MAX_RENDERER));
       return 0;
     }
 
@@ -113,13 +113,13 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
   renderer->window= 0;
   renderer->context= NULL;
 
-  DPRINTF(3, (fp, "---- Creating new renderer ----\r\r"));
+  DPRINTF3D(3, (fp, "---- Creating new renderer ----\r\r"));
 
   /* sanity checks */
 
   if (w < 0 || h < 0)
     {
-      DPRINTF(1, (fp, "Negative extent (%i@%i)!\r", w, h));
+      DPRINTF3D(1, (fp, "Negative extent (%i@%i)!\r", w, h));
       goto FAILED;
     }
 
@@ -144,11 +144,11 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
 
     if (!visinfo)
       {
-	DPRINTF(1, (fp, "No OpenGL visual found!\r"));
+	DPRINTF3D(1, (fp, "No OpenGL visual found!\r"));
 	goto FAILED;
       }
 
-    DPRINTF(3, (fp, "\r#### Selected GLX visual ID 0x%lx ####\r", 
+    DPRINTF3D(3, (fp, "\r#### Selected GLX visual ID 0x%lx ####\r", 
 		visinfo->visualid));
     if (verboseLevel >= 3)
       printVisual(visinfo);
@@ -157,11 +157,11 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
 
     if (!renderer->context)
       {
-	DPRINTF(1, (fp, "Creating GLX context failed!\r"));
+	DPRINTF3D(1, (fp, "Creating GLX context failed!\r"));
 	goto FAILED;
       }
 
-    DPRINTF(3, (fp, "\r#### Created GLX context ####\r"  ));
+    DPRINTF3D(3, (fp, "\r#### Created GLX context ####\r"  ));
 
     /* create window */
     {
@@ -182,7 +182,7 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
 				    valuemask, &attributes);
       if (!renderer->window) 
 	{
-	  DPRINTF(1, (fp, "Failed to create client window\r"));
+	  DPRINTF3D(1, (fp, "Failed to create client window\r"));
 	  goto FAILED;
 	}
 
@@ -190,7 +190,7 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
 
     }
 
-    DPRINTF(3, (fp, "\r#### Created window ####\r"  ));
+    DPRINTF3D(3, (fp, "\r#### Created window ####\r"  ));
 
     XFree(visinfo);
     visinfo= 0;
@@ -199,7 +199,7 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
   /* Make the context current */
   if (!glXMakeCurrent(stDisplay, renderer->window, renderer->context))
     {
-      DPRINTF(1, (fp, "Failed to make context current\r"));
+      DPRINTF3D(1, (fp, "Failed to make context current\r"));
       goto FAILED;
     }
    
@@ -208,7 +208,7 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
   renderer->bufferRect[2]= w;
   renderer->bufferRect[3]= h;
 
-  DPRINTF(3, (fp, "\r### Renderer created! ###\r"));
+  DPRINTF3D(3, (fp, "\r### Renderer created! ###\r"));
 
   /* setup user context */
   glDisable(GL_LIGHTING);
@@ -228,7 +228,7 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
 
 FAILED:
   /* do necessary cleanup */
-  DPRINTF(1, (fp, "OpenGL initialization failed\r"));
+  DPRINTF3D(1, (fp, "OpenGL initialization failed\r"));
 
   if (visinfo)
     XFree(visinfo);
@@ -245,7 +245,7 @@ int glDestroyRenderer(int handle)
 {
   glRenderer *renderer= glRendererFromHandle(handle);
 
-  DPRINTF(3, (fp, "\r--- Destroying renderer ---\r"));
+  DPRINTF3D(3, (fp, "\r--- Destroying renderer ---\r"));
 
   if (!renderer)
     return 1; /* already destroyed */
@@ -270,7 +270,7 @@ int glDestroyRenderer(int handle)
 
 glRenderer *glRendererFromHandle(int handle)
 {
-  DPRINTF(7, (fp, "Looking for renderer id: %i\r", handle));
+  DPRINTF3D(7, (fp, "Looking for renderer id: %i\r", handle));
 
   if (handle < 0 || handle >= MAX_RENDERER) 
     return NULL;
@@ -312,7 +312,7 @@ int glMakeCurrentRenderer(glRenderer *renderer)
     {
       if (!glXMakeCurrent(stDisplay, renderer->window, renderer->context))
 	{
-	  DPRINTF(1, (fp, "Failed to make context current\r"));
+	  DPRINTF3D(1, (fp, "Failed to make context current\r"));
 	  return 0;
 	}
     }
@@ -446,13 +446,13 @@ static void printVisual(XVisualInfo* visinfo)
       glXGetConfig(stDisplay, visinfo, GLX_DEPTH_SIZE,    &depth);
 
       if (slow != GLX_SLOW_CONFIG)
-	DPRINTF(3, (fp,"===> OpenGL visual\r"))
+	DPRINTF3D(3, (fp,"===> OpenGL visual\r"))
       else
-	DPRINTF(3, (fp,"---> slow OpenGL visual\r"));
+	DPRINTF3D(3, (fp,"---> slow OpenGL visual\r"));
 
-      DPRINTF(3, (fp,"rgbaBits = %i+%i+%i+%i\r", red, green, blue, alpha));
-      DPRINTF(3, (fp,"stencilBits = %i\r", stencil));
-      DPRINTF(3, (fp,"depthBits = %i\r", depth));
+      DPRINTF3D(3, (fp,"rgbaBits = %i+%i+%i+%i\r", red, green, blue, alpha));
+      DPRINTF3D(3, (fp,"stencilBits = %i\r", stencil));
+      DPRINTF3D(3, (fp,"depthBits = %i\r", depth));
     }
 }
 
@@ -465,7 +465,7 @@ static void listVisuals()
 
   for (i= 0; i < nvisuals; i++)
     {
-      DPRINTF(3, (fp,"#### Checking pixel format (visual ID 0x%lx)\r", visinfo[i].visualid));
+      DPRINTF3D(3, (fp,"#### Checking pixel format (visual ID 0x%lx)\r", visinfo[i].visualid));
       printVisual(&visinfo[i]);
     }
   XFree(visinfo);
@@ -485,7 +485,7 @@ int glInitialize(void)
   stDisplay= (fn ? ((Display *(*)(void))fn)() : 0);
   if (!stDisplay)
     {
-      DPRINTF(1,(fp,"ERROR: Failed to look up stDisplay\r"));
+      DPRINTF3D(1,(fp,"ERROR: Failed to look up stDisplay\r"));
       return 0;
     }
 
@@ -493,7 +493,7 @@ int glInitialize(void)
   stWindow= (fn ? ((Window (*)(void))fn)() : 0);
   if (!stWindow)
     {
-      DPRINTF(1,(fp,"ERROR: Failed to look up stWindow\r"));
+      DPRINTF3D(1,(fp,"ERROR: Failed to look up stWindow\r"));
       return 0;
     }
 

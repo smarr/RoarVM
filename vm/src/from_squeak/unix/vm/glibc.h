@@ -3,6 +3,20 @@
 # if __GLIBC_PREREQ(2,3)
     /* squash __ctype_to{upper,lower}_loc and avoid including the header */
 #   define _CTYPE_H 1
+#   undef isalnum
+#   undef isalpha
+#   undef isascii
+#   undef isblank
+#   undef iscntrl
+#   undef isdigit
+#   undef isgraph
+#   undef islower
+#   undef isprint
+#   undef ispunct
+#   undef isspace
+#   undef isupper
+#   undef isxdigit
+
     extern int isalnum(int c);
     extern int isalpha(int c);
     extern int isascii(int c);

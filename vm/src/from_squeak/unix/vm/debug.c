@@ -1,11 +1,10 @@
 #include "debug.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
-void __sq_debugf(const char *fmt, ...)
+void __sq_DPRINTF(const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);

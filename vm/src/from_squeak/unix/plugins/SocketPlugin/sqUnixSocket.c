@@ -115,7 +115,6 @@
 
 #define TCPSocketType	 	0
 #define UDPSocketType	 	1
-
 #define RAWSocketType		2
 
 /*** Resolver states ***/
@@ -142,7 +141,6 @@ static int one= 1;
 
 static char   localHostName[MAXHOSTNAMELEN];
 static u_long localHostAddress;	/* GROSS IPv4 ASSUMPTION! */
-
 
 typedef struct privateSocketStruct
 {
@@ -516,7 +514,6 @@ void sqSocketCreateNetTypeSocketTypeRecvBytesSendBytesSemaIDReadSemaIDWriteSemaI
   int newSocket= -1;
   privateSocketStruct *pss;
 
-
   s->sessionID= 0;
   if (TCPSocketType == socketType)
     {
@@ -693,7 +690,7 @@ void sqSocketListenOnPortBacklogSizeInterface(SocketPtr s, sqInt port, sqInt bac
     }
   else
     {
-      /* --- UDP --- */
+      /* --- UDP/RAW --- */
     }
 }
 
@@ -718,7 +715,7 @@ void sqSocketConnectToPort(SocketPtr s, sqInt addr, sqInt port)
   saddr.sin_addr.s_addr= htonl(addr);
   if (TCPSocketType != s->socketType)
     {
-      /* --- UDP --- */
+      /* --- UDP/RAW --- */
       if (SOCKET(s) >= 0)
 	{
 	  memcpy((void *)&SOCKETPEER(s), (void *)&saddr, sizeof(SOCKETPEER(s)));
@@ -933,7 +930,7 @@ sqInt sqSocketRemoteAddress(SocketPtr s)
 	return 0;
       return ntohl(saddr.sin_addr.s_addr);
     }
-  /* --- UDP --- */
+  /* --- UDP/RAW --- */
   return ntohl(SOCKETPEER(s).sin_addr.s_addr);
 }
 
@@ -971,7 +968,7 @@ sqInt sqSocketRemotePort(SocketPtr s)
 	return 0;
       return ntohs(saddr.sin_port);
     }
-  /* --- UDP --- */
+  /* --- UDP/RAW --- */
   return ntohs(SOCKETPEER(s).sin_port);
 }
 
@@ -1036,10 +1033,9 @@ sqInt sqSocketReceiveDataBufCount(SocketPtr s, char *buf, sqInt bufSize)
 
   if (!socketValid(s))
     return -1;
-
   if (TCPSocketType != s->socketType)
     {
-      /* --- UDP --- */
+      /* --- UDP/RAW --- */
       socklen_t addrSize= sizeof(SOCKETPEER(s));
       if ((nread= recvfrom(SOCKET(s), buf, bufSize, 0, (struct sockaddr *)&SOCKETPEER(s), &addrSize)) <= 0)
 	{
@@ -1089,7 +1085,7 @@ sqInt sqSocketSendDataBufCount(SocketPtr s, char *buf, sqInt bufSize)
 
   if (TCPSocketType != s->socketType)
     {
-      /* --- UDP --- */
+      /* --- UDP/RAW --- */
       FPRINTF((stderr, "UDP sendData(%d, %d)\n", SOCKET(s), bufSize));
       if ((nsent= sendto(SOCKET(s), buf, bufSize, 0, (struct sockaddr *)&SOCKETPEER(s), sizeof(SOCKETPEER(s)))) <= 0)
 	{
@@ -1467,5 +1463,3 @@ void sqResolverStartNameLookup(char *hostName, sqInt nameSize)
   /* we're done before we even started */
   interpreterProxy->signalSemaphoreWithIndex(resolverSema);
 }
-
-

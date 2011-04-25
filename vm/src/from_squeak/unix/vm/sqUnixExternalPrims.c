@@ -1,16 +1,17 @@
 /* sqUnixExternalPrims.c -- Unix named primitives and loadable modules
  * 
- *   Copyright (C) 1996-2009 by Ian Piumarta
+ *   Copyright (C) 1996-2004 by Ian Piumarta and other authors/contributors
+ *                              listed elsewhere in this file.
  *   All rights reserved.
  *   
  *   This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -19,29 +20,33 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
-/* Last edited: 2010-04-09 00:37:36 by piumarta on ubuntu
+/* Author: Ian.Piumarta@INRIA.Fr
  */
 
+/* If one really wants debugging output use e.g. -DDEBUG=2 */
+#if DEBUG <= 1
+# undef DEBUG
 #define DEBUG 0
+#endif
  
 #include "sq.h"		/* sqUnixConfig.h */
 
 #if (DEBUG)
-# define fdebugf(ARGS) fprintf ARGS
+# define DPRINTF(ARGS) fprintf ARGS
 #else
-# define fdebugf(ARGS)
+# define DPRINTF(ARGS)
 #endif
  
-#if !defined(HAVE_DLOPEN) && defined(HAVE_DYLD)
+#if !defined(HAVE_LIBDL) && defined(HAVE_DYLD)
 # include "dlfcn-dyld.c"
 #endif
 
-#if defined(HAVE_DLOPEN)	/* non-starter without this! */
+#if defined(HAVE_LIBDL)	/* non-starter without this! */
 
 #ifdef HAVE_DLFCN_H
 # include <dlfcn.h>
@@ -52,7 +57,7 @@
   extern int dlclose (void *handle);
 #endif
  
-#include <limits.h>
+#include <sys/param.h>
 #include <sys/stat.h>
 
 /* get a value for RTLD_NOW, with increasing levels of desperation... */
@@ -111,20 +116,36 @@
 /*** configured variables ***/
 
 extern char vmLibDir[];
+
+# ifndef ROAR_VM
 extern char vmPath[];
+# else
+  # ifndef VMPATH_SIZE
+    # define VMPATH_SIZE 1000
+  # endif
+
+       char vmPath[VMPATH_SIZE+1];
+# endif
+
 
 /*** local functions ***/
 
-#if 1 /* simplified plugin logic */
 
-# ifdef ROAR_VM
-  # ifndef MODULE_PREFIX
+#define USE_SIMPLIFIED_PLUGIN_LOGIC 0
+#if USE_SIMPLIFIED_PLUGIN_LOGIC
+
+#if !defined(MODULE_PREFIX)
+/* These are defined by the cmake configuration and I'm not about to go there.
+ * eliot Wed Jan 20
+ */
+
+# if __linux__ || defined(ROAR_VM)
     # define MODULE_PREFIX ""
     # define MODULE_SUFFIX ""
     # define LIBRARY_PREFIX "lib"
     # define LIBRARY_SUFFIX ".so"
-  # endif // !MODULE_PREFIX
-# endif // ROAR_VM
+# endif // __linux__ || defined(ROAR_VM)
+#endif !defined(MODULE_PREFIX)
 
 
 static void *tryLoadModule(const char *in, char *name)
@@ -154,7 +175,7 @@ static void *tryLoadModule(const char *in, char *name)
   }
   sprintf(out, "/" MODULE_PREFIX "%s" MODULE_SUFFIX, name);
   handle= dlopen(path, RTLD_NOW | RTLD_GLOBAL);
-  fdebugf((stderr, "tryLoading(%s) = %p\n", path, handle));
+  DPRINTF((stderr, "tryLoading(%s) = %p\n", path, handle));
   if (!handle) {
     struct stat buf;
     if ((0 == stat(path, &buf)) && ! S_ISDIR(buf.st_mode))
@@ -176,7 +197,7 @@ void *ioLoadModule(const char *pluginName)
       fprintf(stderr, "ioLoadModule(<intrinsic>): %s\n", dlerror());
     }
     else {
-      fdebugf((stderr, "loaded: <intrinsic>\n"));
+      DPRINTF((stderr, "loaded: <intrinsic>\n"));
     }
     return handle;
   }
@@ -204,16 +225,14 @@ void *ioLoadModule(const char *pluginName)
   sprintf(path, "%s%s%s", LIBRARY_PREFIX, pluginName, LIBRARY_SUFFIX);
 # endif
 
-  if ((handle= dlopen(path, RTLD_NOW | RTLD_GLOBAL)))
-    return handle;
-
-  fdebugf((stderr, "ioLoadModule(%s) = %p\n", path, handle));
+  handle= dlopen(path, RTLD_NOW | RTLD_GLOBAL);
+  DPRINTF((stderr, "ioLoadModule(%s) = %p\n", path, handle));
 
   return handle;
 }
 
 
-#else /* obsolete plugin logic */
+#else /* USE_SIMPLIFIED_PLUGIN_LOGIC */
 
 /*  Attempt to load the shared library named by the concatenation of prefix,
  *  moduleName and suffix.  Answer the new module entry, or 0 if the shared
@@ -233,19 +252,15 @@ static void *tryLoading(const char *dirName, const char *moduleName)
 	struct stat buf;
 	int         err;
 	sprintf(libName, "%s%s%s%s", dirName, *prefix, moduleName, *suffix);
-	if ((err= stat(libName, &buf)))
-	  fdebugf((stderr, "cannot read: %s\n", libName));
+	if ((!(err= stat(libName, &buf))) && S_ISDIR(buf.st_mode))
+	  DPRINTF((stderr, "ignoring directory: %s\n", libName));
 	else
 	  {
-	    if (S_ISDIR(buf.st_mode))
-	      fdebugf((stderr, "ignoring directory: %s\n", libName));
-	    else
-	      {
-		fdebugf((stderr, "tryLoading %s\n", libName));
+	    DPRINTF((stderr, "tryLoading %s\n", libName));
 		handle= dlopen(libName, RTLD_NOW | RTLD_GLOBAL);
 		if (handle == 0)
 		  {
-		    /*if ((!err) && !(sqIgnorePluginErrors))*/
+		if ((!err) && !(sqIgnorePluginErrors))
 		      fprintf(stderr, "ioLoadModule(%s):\n  %s\n", libName, dlerror());
 		  }
 		else
@@ -257,7 +272,6 @@ static void *tryLoading(const char *dirName, const char *moduleName)
 		  }
 	      }
 	  }
-      }
   return 0;
 }
 
@@ -270,7 +284,7 @@ static void *tryLoadingPath(const char *varName, const char *pluginName)
   if (path)
     {
       char pbuf[MAXPATHLEN];
-      fdebugf((stderr, "try %s=%s\n", varName, path));
+      DPRINTF((stderr, "try %s=%s\n", varName, path));
       strncpy(pbuf, path, sizeof(pbuf));
       pbuf[sizeof(pbuf) - 1]= '\0';
       for (path= strtok(pbuf, ":");
@@ -279,7 +293,7 @@ static void *tryLoadingPath(const char *varName, const char *pluginName)
 	{
 	  char buf[MAXPATHLEN];
 	  sprintf(buf, "%s/", path);
-	  fdebugf((stderr, "  path dir = %s\n", buf));
+	  DPRINTF((stderr, "  path dir = %s\n", buf));
 	  if ((handle= tryLoading(buf, pluginName)) != 0)
 	    break;
 	}
@@ -302,7 +316,7 @@ void *ioLoadModule(const char *pluginName)
 	fprintf(stderr, "ioLoadModule(<intrinsic>): %s\n", dlerror());
       else
 	{
-	  fdebugf((stderr, "loaded: <intrinsic>\n"));
+	  DPRINTF((stderr, "loaded: <intrinsic>\n"));
 	  return handle;
 	}
     }
@@ -323,19 +337,20 @@ void *ioLoadModule(const char *pluginName)
 	      *out++= c;
 	  }
 	*out= '\0';
-	fdebugf((stderr, "ioLoadModule plugins = %s\n                path = %s\n",
+	DPRINTF((stderr, "ioLoadModule plugins = %s\n                path = %s\n",
 		 squeakPlugins, path));
 	if ((handle= tryLoading("", path)))
 	  return handle;
+	if (!(out > path && *(out - 1) == '/')) {
 	*out++= '/';
 	*out= '\0';
+	}
 	if ((handle= tryLoading(path, pluginName)))
 	  return handle;
       }
 
   if ((   handle= tryLoading(    "./",			pluginName))
       || (handle= tryLoadingPath("SQUEAK_PLUGIN_PATH",	pluginName))
-      || (handle= tryLoading(    VM_LIBDIR"/",		pluginName))
       || (handle= tryLoadingPath("LD_LIBRARY_PATH",	pluginName))
       || (handle= tryLoading(    "",			pluginName))
 #    if defined(VM_X11DIR)
@@ -384,13 +399,6 @@ void *ioLoadModule(const char *pluginName)
   {
     char pluginDir[MAXPATHLEN];
 #  ifdef HAVE_SNPRINTF
-    snprintf(pluginDir, sizeof(pluginDir), "%s%s/", vmPath, pluginName);
-#  else
-    sprintf(pluginDir, "%s%s/", vmPath, pluginName);
-#  endif
-    if ((handle= tryLoading(pluginDir, pluginName)))
-      return handle;
-#  ifdef HAVE_SNPRINTF
     snprintf(pluginDir, sizeof(pluginDir), "%s%s/.libs/", vmPath, pluginName);
 #  else
     sprintf(pluginDir, "%s%s/.libs/", vmPath, pluginName);
@@ -405,25 +413,43 @@ void *ioLoadModule(const char *pluginName)
   return 0;
 }
 
-#endif /* obsolete plugin logic */
+#endif /* USE_SIMPLIFIED_PLUGIN_LOGIC */
 
 /*  Find a function in a loaded module.  Answer 0 if not found (do NOT
  *  fail the primitive!).
  */
 void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle)
 {
-  void *fn= dlsym(moduleHandle, lookupName);
-  fdebugf((stderr, "ioFindExternalFunctionIn(%s, %p) = %p\n", lookupName, moduleHandle, fn));
+  char buf[256];
+  void *fn;
+
+#ifdef HAVE_SNPRINTF
+  snprintf(buf, sizeof(buf), "%s", lookupName);
+#else
+  sprintf(buf, "%s", lookupName);
+#endif
+
+  if (!*lookupName) /* avoid errors in dlsym from eitherPlugin: code. */
+    return 0;
+
+  fn= dlsym(moduleHandle, buf);
+
+  DPRINTF((stderr, "ioFindExternalFunctionIn(%s, %d)\n",
+	   lookupName, moduleHandle));
 
   if ((fn == 0) && (!sqIgnorePluginErrors)
       && strcmp(lookupName, "initialiseModule")
       && strcmp(lookupName, "shutdownModule")
+      && strcmp(lookupName, "moduleUnloaded")
       && strcmp(lookupName, "setInterpreter")
       && strcmp(lookupName, "getModuleName"))
-    fprintf(stderr, "ioFindExternalFunctionIn(%s, %p):\n  %s\n", lookupName, moduleHandle, dlerror());
+    fprintf(stderr, "ioFindExternalFunctionIn(%s, %p):\n  %s\n",
+	    lookupName, moduleHandle, dlerror());
 
   return fn;
 }
+
+
 
 /*  Free the module with the associated handle.  Answer 0 on error (do
  *  NOT fail the primitive!).
@@ -432,14 +458,14 @@ sqInt ioFreeModule(void *moduleHandle)
 {
   if (dlclose(moduleHandle))
     {
-      fdebugf((stderr, "ioFreeModule(%d): %s\n", moduleHandle, dlerror()));
+      DPRINTF((stderr, "ioFreeModule(%d): %s\n", moduleHandle, dlerror()));
       return 0;
     }
   return 1;
 }
 
 
-#else /* !HAVE_DLOPEN */
+#else /* !HAVE_LIBDL */
 
 
 
@@ -460,4 +486,4 @@ sqInt ioFreeModule(void *moduleHandle)
 
 
 
-#endif /* !HAVE_DLOPEN */
+#endif /* !HAVE_LIBDL */

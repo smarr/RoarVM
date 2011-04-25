@@ -6,12 +6,12 @@
  *   
  *   This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -20,13 +20,11 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  * 
  * Author: ian.piumarta@inria.fr
- * 
- * Last edited: 2009-09-02 15:09:53 by piumarta on ubuntu.piumarta.com
  * 
  * NOTE:
  *   This plugin is kind of ridiculous.  Nevertheless, after seeing what
@@ -61,7 +59,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -91,25 +88,13 @@ static int copy(char *from, char *to)
       if ((zero= open(_dev_zero, O_RDWR)) >= 0)
 	{
 	  void *mem;
-	  if (MAP_FAILED != (mem= mmap(0, stat.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, zero, 0)))
+	  if (MAP_FAILED != (mem= mmap(0, stat.st_size, PROT_READ | PROT_WRITE,
+				       MAP_PRIVATE, zero, 0)))
 	    {
-	      ssize_t count, n;
-	      count= n= 0;
-	      while (count < stat.st_size) {
-		while ((n= read(in, mem + count, stat.st_size)) < 0 && EINTR == errno);
-		if (n < 0) break;
-		count += n;
-	      }
-	      if (n >= 0) {
-		count= n= 0;
-		while (count < stat.st_size) {
-		  while ((n= write(out, mem + count, stat.st_size)) < 0 && EINTR == errno);
-		  if (n < 0) break;
-		  count += n;
-		}
-		if (n >= 0) {
+	      if ((  (read(in, mem, stat.st_size) != stat.st_size) >= 0)
+		  && (write(out, mem, stat.st_size) != stat.st_size) >= 0)
+		{
 		  status= 0;      /* success */
-		}
 	      }
 	      munmap(mem, stat.st_size);
 	    }

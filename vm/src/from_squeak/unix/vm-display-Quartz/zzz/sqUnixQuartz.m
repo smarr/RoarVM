@@ -8,25 +8,34 @@
  *   
  *   This file is part of Unix Squeak.
  *   
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *      You are NOT ALLOWED to distribute modified versions of this file
+ *      under its original name.  If you modify this file then you MUST
+ *      rename it before making your modifications available publicly.
  *
- *   The above copyright notice and this permission notice shall be included in
- *   all copies or substantial portions of the Software.
+ *   This file is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *   FITNESS FOR A PARTICULAR PURPOSE.
  *
- *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   You may use and/or distribute this file ONLY as part of Squeak, under
+ *   the terms of the Squeak License as described in `LICENSE' in the base of
+ *   this distribution, subject to the following additional restrictions:
  * 
- * Last edited: 2009-08-19 04:37:34 by piumarta on emilia-2.local
+ *   1. The origin of this software must not be misrepresented; you must not
+ *      claim that you wrote the original software.  If you use this software
+ *      in a product, an acknowledgment to the original author(s) (and any
+ *      other contributors mentioned herein) in the product documentation
+ *      would be appreciated but is not required.
+ * 
+ *   2. You must not distribute (or make publicly available by any
+ *      means) a modified copy of this file unless you first rename it.
+ * 
+ *   3. This notice must not be removed or altered in any source distribution.
+ * 
+ *   Using (or modifying this file for use) in any context other than Squeak
+ *   changes these copyright conditions.  Read the file `COPYING' in the
+ *   directory `platforms/unix/doc' before proceeding with any such use.
+ * 
+ * Last edited: 2005-04-06 08:08:38 by piumarta on squeak.hpl.hp.com
  */
 
 
@@ -299,7 +308,7 @@ static int display_ioFormPrint(int bitsAddr, int width, int height, int depth,
   int opp=     depth / 8;
   int success= 1;
 
-  debugf(("ioFormPrint %f %f\n", hScale, vScale));
+  DPRINTF(("ioFormPrint %f %f\n", hScale, vScale));
   {
     unsigned char    *planes[1]= { (char *)bitsAddr };
     NSBitmapImageRep *bitmap= 	 0;
@@ -317,23 +326,23 @@ static int display_ioFormPrint(int bitsAddr, int width, int height, int depth,
 	      colorSpaceName:		NSCalibratedBlackColorSpace
 	      bytesPerRow:		width * opp
 	      bitsPerPixel:		depth];
-    if (!bitmap) { debugf(("bitmap fail\n")); success= 0; goto done; }
+    if (!bitmap) { DPRINTF(("bitmap fail\n")); success= 0; goto done; }
     image= [NSImage alloc];
     //[image setSize: NSMakeSize(width, height)];
     [image addRepresentation: bitmap];
-    if (!image) { debugf(("image fail\n")); success= 0; goto done; }
+    if (!image) { DPRINTF(("image fail\n")); success= 0; goto done; }
     view= [[NSImageView alloc] initWithFrame: NSMakeRect(0, 0, width, height)];
     [view setImage: image];
     {
       NSPrintOperation *op=  [NSPrintOperation printOperationWithView: view];
       [op setShowPanels: YES];
-      debugf(("launch print operation\n"));
+      DPRINTF(("launch print operation\n"));
       [op runOperation];
     }
   }
 
  done:
-  debugf(("ioFormPrint done.\n"));
+  DPRINTF(("ioFormPrint done.\n"));
   [pool release];
   return success;
 }
@@ -377,7 +386,7 @@ static unsigned int qz2sqButton(unsigned int button)
     case 1: return (swapBtn ? YellowButtonBit : BlueButtonBit);
     case 2: return (swapBtn ? BlueButtonBit   : YellowButtonBit);
     }
-  debugf(("unknown mouse button %d\n", button));
+  DPRINTF(("unknown mouse button %d\n", button));
 #endif
   return RedButtonBit;
 }
@@ -796,7 +805,7 @@ static int display_ioForceDisplayUpdate(void)
 
 static void setRects(int w, int h)
 {
-  debugf(("setRects %d %d\n", w, h));
+  DPRINTF(("setRects %d %d\n", w, h));
   topRect= NSMakeRect(0,0, w,h);
   if (fullscreen)
     {
@@ -839,7 +848,7 @@ static char *updatePix(void)
       NSRect winRect= [win frame];
       winRect.origin= NSMakePoint(0, 0);	// window coordinates
       topRect= [NSWindow contentRectForFrameRect: winRect styleMask: styleMask];
-      debugf(("updatePix w=%d h=%d\n", (int)NSWidth(topRect), (int)NSHeight(topRect)));
+      DPRINTF(("updatePix w=%d h=%d\n", (int)NSWidth(topRect), (int)NSHeight(topRect)));
       w= NSWidth(topRect);
       h= NSHeight(topRect);
       setSavedWindowSize((w << 16) | h);			// assume this is atomic
@@ -870,10 +879,10 @@ static char *updatePix(void)
     }
   else
     {
-      debugf(("updatePix: NO PORT!\n"));
+      DPRINTF(("updatePix: NO PORT!\n"));
       pixBase= 0;
     }
-  debugf(("pixBase %p, width %d, height %d, pitch %d\n", pixBase, pixWidth, pixHeight, pixPitch));
+  DPRINTF(("pixBase %p, width %d, height %d, pitch %d\n", pixBase, pixWidth, pixHeight, pixPitch));
   return pixBase;
 }
 
@@ -982,7 +991,7 @@ static void *display_ioGetDisplay(void)
   if (headless)
     return 0;
 
-  debugf(("ioGetDisplay: WARNING: check the client to see it knows what it's doing\n"));
+  DPRINTF(("ioGetDisplay: WARNING: check the client to see it knows what it's doing\n"));
   return dpy;
 }
 
@@ -1242,7 +1251,8 @@ static void setUpDisplay(void)
 
   pixRegion  = NewRgn();
 
-  debugf(("display is %dx%dx%d at %p pitch %d\n", dpyWidth, dpyHeight, dpyDepth, dpyPixels, dpyPitch));
+  DPRINTF(("display is %dx%dx%d at %p pitch %d\n",
+	   dpyWidth, dpyHeight, dpyDepth, dpyPixels, dpyPitch));
 }
 
 
@@ -1263,7 +1273,7 @@ static void setUpWindow(int fs)
 	  w= winSize >> 16;
 	  h= winSize & 0xffff;
 	}
-      debugf(("initial winSize %d %d\n", w, h));
+      DPRINTF(("initial winSize %d %d\n", w, h));
       styleMask= (fs
 		  ? (NSBorderlessWindowMask)
 		  : (  NSTitledWindowMask
@@ -1469,7 +1479,7 @@ static int display_ioSetFullScreen(int flag)
       fadeOut(FULLSCREEN_FADE);
 #    endif
       if (CGDisplayNoErr != CGDisplayCapture(dpy))
-	debugf(("failed to capture display\n"));
+	DPRINTF(("failed to capture display\n"));
       else
 	{
 #        ifdef FULLSCREEN_FADE
@@ -1657,7 +1667,7 @@ static int display_ioSetFullScreen(int flag)
 	  // info (we'd far rather be informed that the current screen's
 	  // depth has changed)
 	}
-      //debugf(("AppKitDefinedEvent subtype %d\n", [event subtype]));
+      //DPRINTF(("AppKitDefinedEvent subtype %d\n", [event subtype]));
       [super sendEvent: event];
       break;
 
@@ -1667,7 +1677,7 @@ static int display_ioSetFullScreen(int flag)
       // case NSCursorUpdate: break;
 
     default: // almost always NSSystemDefined
-      //debugf(("Event type %d subtype %d\n", [event type], [event subtype]));
+      //DPRINTF(("Event type %d subtype %d\n", [event type], [event subtype]));
       [super sendEvent: event];
     }
 }

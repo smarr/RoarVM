@@ -6,12 +6,12 @@
  *   
  *   This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -20,14 +20,15 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 /* Author: Ian.Piumarta@squeakland.org
  *
- * Last edited: 2006-10-24 11:10:51 by piumarta on emilia.local
+ * December 10th 2008, Eliot Miranda, updated with FP_REG and use of GIV() for
+ *      the global struct.
  *
  * NOTES:
  *	this file is #included IN PLACE OF sq.h
@@ -46,7 +47,7 @@
 #endif
 
 #if defined(SQ_USE_GLOBAL_STRUCT)
-# define PRIM_DISPATCH	goto *jumpTable[foo->primitiveIndex]
+# define PRIM_DISPATCH	goto *jumpTable[GIV(primitiveIndex)]
 #else
 # define PRIM_DISPATCH	goto *jumpTable[primitiveIndex]
 #endif
@@ -157,7 +158,7 @@
 
   /*
      IP_REG, SP_REG, CB_REG
-        the machine registers in which to place localIP, localSP and
+        the machine registers in which to place localIP, localFP, localSP and
         currentBytecode.  Wins big on register-deficient architectures --
         especially Intel.
   */
@@ -177,12 +178,10 @@
 # define CB_REG __asm__("$11")
 #endif
 #if defined(__i386__)
-# if !defined(__MACH__)
 #   define IP_REG __asm__("%esi")
 #   define SP_REG __asm__("%edi")
-#   if ((__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95)))
+# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
 #     define CB_REG __asm__("%ebx")
-#   endif
 # else
 #   define CB_REG /* avoid undue register pressure */
 # endif
@@ -205,18 +204,24 @@
 # define CB_REG __asm__("d7")
 #endif
 
-#ifndef JP_REG
+#if !defined(JP_REG)
 # define JP_REG
 #endif
-#ifndef IP_REG
+#if !defined(IP_REG)
 # define IP_REG
 #endif
-#ifndef SP_REG
+#if !defined(SP_REG)
 # define SP_REG
 #endif
-#ifndef CB_REG
+#if !defined(CB_REG)
 # define CB_REG
 #endif
-#ifndef GP_REG
+#if !defined(GP_REG)
 # define GP_REG
+#endif
+#if !defined(FOO_REG)
+# define FOO_REG /* nada */
+#endif
+#if !defined(FP_REG)
+# define FP_REG /* nada */
 #endif

@@ -8,12 +8,12 @@
  *   
  *   This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -22,11 +22,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
- * 
- * Last edited: 2009-10-20 19:42:22 by piumarta on emilia-2.local
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 /* Note:
@@ -61,7 +59,6 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <fcntl.h>
-#include <assert.h>
 
 #if !defined(MAP_ANON)
 # if defined(MAP_ANONYMOUS)
@@ -75,6 +72,12 @@
 #define MAP_FLAGS	(MAP_ANON | MAP_PRIVATE)
 
 extern int useMmap;
+/* Since Cog needs to make memory executable via mprotect, and since mprotect
+ * only works on mmapped memory we must always use mmap in Cog.
+ */
+#if COGVM
+# define ALWAYS_USE_MMAP 1
+#endif
 
 void *uxAllocateMemory(sqInt minHeapSize, sqInt desiredHeapSize);
 char *uxGrowMemoryBy(char *oldLimit, sqInt delta);
@@ -106,8 +109,10 @@ static int max(int x, int y) { return (x > y) ? x : y; }
 
 void *uxAllocateMemory(sqInt minHeapSize, sqInt desiredHeapSize)
 {
+#if !ALWAYS_USE_MMAP
   if (!useMmap)
     return malloc(desiredHeapSize);
+#endif
 
   if (heap)
     {
@@ -117,7 +122,7 @@ void *uxAllocateMemory(sqInt minHeapSize, sqInt desiredHeapSize)
   pageSize= getpagesize();
   pageMask= ~(pageSize - 1);
 
-  debugf(("uxAllocateMemory: pageSize 0x%x (%d), mask 0x%x\n", pageSize, pageSize, pageMask));
+  DPRINTF(("uxAllocateMemory: pageSize 0x%x (%d), mask 0x%x\n", pageSize, pageSize, pageMask));
 
 #if (!MAP_ANON)
   if ((devZero= open("/dev/zero", O_RDWR)) < 0)
@@ -127,14 +132,14 @@ void *uxAllocateMemory(sqInt minHeapSize, sqInt desiredHeapSize)
     }
 #endif
 
-  debugf(("uxAllocateMemory: /dev/zero descriptor %d\n", devZero));
-  debugf(("uxAllocateMemory: min heap %d, desired %d\n", minHeapSize, desiredHeapSize));
+  DPRINTF(("uxAllocateMemory: /dev/zero descriptor %d\n", devZero));
+  DPRINTF(("uxAllocateMemory: min heap %d, desired %d\n", minHeapSize, desiredHeapSize));
 
   heapLimit= valign(max(desiredHeapSize, useMmap));
 
   while ((!heap) && (heapLimit >= minHeapSize))
     {
-      debugf(("uxAllocateMemory: mapping 0x%08x bytes (%d Mbytes)\n", heapLimit, heapLimit >> 20));
+      DPRINTF(("uxAllocateMemory: mapping 0x%08x bytes (%d Mbytes)\n", heapLimit, heapLimit >> 20));
       if (MAP_FAILED == (heap= mmap(0, heapLimit, MAP_PROT, MAP_FLAGS, devZero, 0)))
 	{
 	  heap= 0;
@@ -158,6 +163,9 @@ void *uxAllocateMemory(sqInt minHeapSize, sqInt desiredHeapSize)
 }
 
 
+static int log_mem_delta = 0;
+#define MDPRINTF(foo) if (log_mem_delta) DPRINTF(foo); else 0
+
 /* grow the heap by delta bytes.  answer the new end of memory. */
 
 char *uxGrowMemoryBy(char *oldLimit, sqInt delta)
@@ -166,22 +174,17 @@ char *uxGrowMemoryBy(char *oldLimit, sqInt delta)
     {
       int newSize=  min(valign(oldLimit - heap + delta), heapLimit);
       int newDelta= newSize - heapSize;
-      if (newSize < 0)
-	{
-	  /* requested size too large */
-	  return oldLimit;
-	}
-      debugf(("uxGrowMemory: %p By: %d(%d) (%d -> %d)\n", oldLimit, newDelta, delta, heapSize, newSize));
+      MDPRINTF(("uxGrowMemory: %p By: %d(%d) (%d -> %d)\n", oldLimit, newDelta, delta, heapSize, newSize));
       assert(0 == (newDelta & ~pageMask));
       assert(0 == (newSize  & ~pageMask));
       assert(newDelta >= 0);
       if (newDelta)
 	{
-	  debugf(("was: %p %p %p = 0x%x (%d) bytes\n", heap, heap + heapSize, heap + heapLimit, heapSize, heapSize));
+	  MDPRINTF(("was: %p %p %p = 0x%x (%d) bytes\n", heap, heap + heapSize, heap + heapLimit, heapSize, heapSize));
 	  if (overallocateMemory)
 	    {
 	      char *base= heap + heapSize;
-	      debugf(("remap: %p + 0x%x (%d)\n", base, newDelta, newDelta));
+	      MDPRINTF(("remap: %p + 0x%x (%d)\n", base, newDelta, newDelta));
 	      if (MAP_FAILED == mmap(base, newDelta, MAP_PROT, MAP_FLAGS | MAP_FIXED, devZero, heapSize))
 		{
 		  perror("mmap");
@@ -189,7 +192,7 @@ char *uxGrowMemoryBy(char *oldLimit, sqInt delta)
 		}
 	    }
 	  heapSize += newDelta;
-	  debugf(("now: %p %p %p = 0x%x (%d) bytes\n", heap, heap + heapSize, heap + heapLimit, heapSize, heapSize));
+	  MDPRINTF(("now: %p %p %p = 0x%x (%d) bytes\n", heap, heap + heapSize, heap + heapLimit, heapSize, heapSize));
 	  assert(0 == (heapSize  & ~pageMask));
 	}
       return heap + heapSize;
@@ -206,17 +209,17 @@ char *uxShrinkMemoryBy(char *oldLimit, sqInt delta)
     {
       int newSize=  max(0, valign((char *)oldLimit - heap - delta));
       int newDelta= heapSize - newSize;
-      debugf(("uxGrowMemory: %p By: %d(%d) (%d -> %d)\n", oldLimit, newDelta, delta, heapSize, newSize));
+      MDPRINTF(("uxGrowMemory: %p By: %d(%d) (%d -> %d)\n", oldLimit, newDelta, delta, heapSize, newSize));
       assert(0 == (newDelta & ~pageMask));
       assert(0 == (newSize  & ~pageMask));
       assert(newDelta >= 0);
       if (newDelta)
 	{
-	  debugf(("was: %p %p %p = 0x%x (%d) bytes\n", heap, heap + heapSize, heap + heapLimit, heapSize, heapSize));
+	  MDPRINTF(("was: %p %p %p = 0x%x (%d) bytes\n", heap, heap + heapSize, heap + heapLimit, heapSize, heapSize));
 	  if (overallocateMemory)
 	    {
 	      char *base= heap + heapSize - newDelta;
-	      debugf(("unmap: %p + 0x%x (%d)\n", base, newDelta, newDelta));
+	      MDPRINTF(("unmap: %p + 0x%x (%d)\n", base, newDelta, newDelta));
 	      if (munmap(base, newDelta) < 0)
 		{
 		  perror("unmap");
@@ -224,7 +227,7 @@ char *uxShrinkMemoryBy(char *oldLimit, sqInt delta)
 		}
 	    }
 	  heapSize -= newDelta;
-	  debugf(("now: %p %p %p = 0x%x (%d) bytes\n", heap, heap + heapSize, heap + heapLimit, heapSize, heapSize));
+	  MDPRINTF(("now: %p %p %p = 0x%x (%d) bytes\n", heap, heap + heapSize, heap + heapLimit, heapSize, heapSize));
 	  assert(0 == (heapSize  & ~pageMask));
 	}
       return heap + heapSize;
@@ -286,6 +289,29 @@ sqInt sqMemoryExtraBytesLeft(sqInt includingSwap)			{ return uxMemoryExtraBytesL
 
 #endif
 
+#if COGVM
+# define roundDownToPageBoundary(v) ((v)&pageMask)
+# define roundUpToPageBoundary(v) (((v)+pageSize-1)&pageMask)
+void
+sqMakeMemoryExecutableFromTo(unsigned long startAddr, unsigned long endAddr)
+{
+	unsigned long firstPage = roundDownToPageBoundary(startAddr);
+	if (mprotect((void *)firstPage,
+				 roundUpToPageBoundary(endAddr - firstPage),
+				 PROT_READ | PROT_WRITE | PROT_EXEC) < 0)
+		perror("mprotect(x,y,PROT_READ | PROT_WRITE | PROT_EXEC)");
+}
+
+void
+sqMakeMemoryNotExecutableFromTo(unsigned long startAddr, unsigned long endAddr)
+{
+	unsigned long firstPage = roundDownToPageBoundary(startAddr);
+	if (mprotect((void *)firstPage,
+				 roundUpToPageBoundary(endAddr - firstPage),
+				 PROT_READ | PROT_WRITE) < 0)
+		perror("mprotect(x,y,PROT_READ | PROT_WRITE)");
+}
+#endif /* COGVM */
 
 
 #if defined(TEST_MEMORY)

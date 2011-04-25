@@ -22,7 +22,7 @@ static sqInt display_ioBeep(void) { return 0; }
 
 static sqInt display_ioRelinquishProcessorForMicroseconds(sqInt microSeconds)
 {
-  aioSleep(microSeconds);
+  aioSleepForUsecs(microSeconds);
   return 0;
 }
 
@@ -111,6 +111,7 @@ static void display_clipboardWriteWithType(char *data, size_t ndata, char *typeN
 static sqInt display_dndOutStart(char *types, int ntypes)	{ return 0; }
 static void  display_dndOutSend (char *bytes, int nbytes)	{ return  ; }
 static sqInt display_dndOutAcceptedType(char *buf, int nbuf)	{ return 0; }
+static sqInt display_dndReceived(char *fileName)	{ return 0; }
 
 static sqInt display_ioGetButtonState(void)		{ return 0; }
 static sqInt display_ioPeekKeystroke(void)		{ return 0; }
@@ -149,6 +150,25 @@ static int display_hostWindowSetTitle(int windowIndex, char *newTitle, int sizeO
 static int display_hostWindowCloseAll(void)                                                 { return 0; }
 #endif
 
+#if (SqDisplayVersionMajor >= 1 && SqDisplayVersionMinor >= 3)
+
+sqInt display_ioSetCursorPositionXY(sqInt x, sqInt y) { return 0; }
+
+int display_ioPositionOfScreenWorkArea (int windowIndex) { return -1; }
+
+int display_ioSizeOfScreenWorkArea (int windowIndex) { return -1; }
+
+void *display_ioGetWindowHandle() { return 0; }
+
+int display_ioPositionOfNativeDisplay(void *windowHandle) { return -1; }
+
+int display_ioSizeOfNativeDisplay(void *windowHandle) { return -1; }
+
+int display_ioPositionOfNativeWindow(void *windowHandle) { return -1; }
+
+int display_ioSizeOfNativeWindow(void *windowHandle) { return -1; }
+
+#endif /* (SqDisplayVersionMajor >= 1 && SqDisplayVersionMinor >= 3) */
 
 SqDisplayDefine(null);
 

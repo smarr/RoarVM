@@ -1,6 +1,6 @@
 /* sqUnixCustomWindow.c -- support for display via your custom window system.
  * 
- * Last edited: 2008-04-21 14:06:20 by piumarta on emilia
+ * Last edited: 2006-04-17 16:57:12 by piumarta on margaux.local
  * 
  * This is a template for creating your own window drivers for Squeak:
  * 
@@ -53,40 +53,6 @@ static sqInt display_clipboardReadIntoAt(sqInt count, sqInt byteArrayIndex, sqIn
 }
 
 
-static char ** display_clipboardGetTypeNames(void)
-{
-  trace();
-  return 0;
-}
-
-static sqInt display_clipboardSizeWithType(char *typeName, int ntypeName)
-{
-  trace();
-  return 0;
-}
-
-static void display_clipboardWriteWithType(char *data, size_t ndata, char *typeName, size_t ntypeName, int isDnd, int isClaiming)
-{
-  trace();
-}
-
-static sqInt display_dndOutStart(char *types, int ntypes)
-{
-  trace();
-  return 0;
-}
-
-static void display_dndOutSend (char *bytes, int nbytes)
-{
-  trace();
-}
-
-static sqInt display_dndOutAcceptedType(char * buf, int nbuf)
-{
-  trace();
-  return 0;
-}
-
 static sqInt display_ioFormPrint(sqInt bitsIndex, sqInt width, sqInt height, sqInt depth, double hScale, double vScale, sqInt landscapeFlag)
 {
   trace();
@@ -101,7 +67,7 @@ static sqInt display_ioBeep(void)
 
 static sqInt display_ioRelinquishProcessorForMicroseconds(sqInt microSeconds)
 {
-  aioSleep(handleEvents() ? 0 : microSeconds);
+  aioSleepForUsecs(handleEvents() ? 0 : microSeconds);
   return 0;
 }
 
@@ -125,12 +91,6 @@ static sqInt display_ioScreenSize(void)
 }
 
 static sqInt display_ioSetCursorWithMask(sqInt cursorBitsIndex, sqInt cursorMaskIndex, sqInt offsetX, sqInt offsetY)
-{
-  trace();
-  return 0;
-}
-
-static sqInt display_ioSetCursorARGB(sqInt cursorBitsIndex, sqInt extentX, sqInt extentY, sqInt offsetX, sqInt offsetY)
 {
   trace();
   return 0;
@@ -217,20 +177,6 @@ static sqInt display_primitivePluginPostURL(void)		{ return primitiveFail(); }
 static sqInt display_primitivePluginRequestFileHandle(void)	{ return primitiveFail(); }
 static sqInt display_primitivePluginDestroyRequest(void)	{ return primitiveFail(); }
 static sqInt display_primitivePluginRequestState(void)		{ return primitiveFail(); }
-
-#if (SqDisplayVersionMajor >= 1 && SqDisplayVersionMinor >= 2)
-static int display_hostWindowClose(int index)                                               { return 0; }
-static int display_hostWindowCreate(int w, int h, int x, int y,
-  char *list, int attributeListLength)                                                      { return 0; }
-static int display_hostWindowShowDisplay(unsigned *dispBitsIndex, int width, int height, int depth,
-  int affectedL, int affectedR, int affectedT, int affectedB, int windowIndex)              { return 0; }
-static int display_hostWindowGetSize(int windowIndex)                                       { return -1; }
-static int display_hostWindowSetSize(int windowIndex, int w, int h)                         { return -1; }
-static int display_hostWindowGetPosition(int windowIndex)                                   { return -1; }
-static int display_hostWindowSetPosition(int windowIndex, int x, int y)                     { return -1; }
-static int display_hostWindowSetTitle(int windowIndex, char *newTitle, int sizeOfTitle)     { return -1; }
-static int display_hostWindowCloseAll(void)                                                 { return 0; }
-#endif
 
 SqDisplayDefine(custom);	/* name must match that in makeInterface() below */
 

@@ -34,10 +34,10 @@
 #include "sqFFI.h"
 
 #if 0
-# define debugf(ARGS)	printf ARGS
+# define DPRINTF(ARGS)	printf ARGS
 # define puts(ARG)	puts(ARG)
 #else
-# define debugf(ARGS)
+# define DPRINTF(ARGS)
 # define puts(ARG)
 #endif
 
@@ -78,14 +78,14 @@ static long long return_ll(long long ll)		{ return ll; }
 static int floating(int a, float b, double c, long_double d, int e)
 {
   int i;
-  debugf(("%d %f %f %"Lf" %d\n", a, (double)b, c, d, e));
+  DPRINTF(("%d %f %f %"Lf" %d\n", a, (double)b, c, d, e));
   i= (int)((float)a/b + ((float)c/(float)d));
   return i;
 }
 
 static float many(float f1, float f2, float f3, float f4, float f5, float f6, float f7, float f8, float f9, float f10, float f11, float f12, float f13, float f14, float f15)
 {
-  debugf(("%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
+  DPRINTF(("%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
 	  (double)f1, (double)f2, (double)f3, (double)f4, (double)f5, 
 	  (double)f6, (double)f7, (double)f8, (double)f9, (double)f10,
 	  (double)f11, (double)f12, (double)f13, (double)f14, (double)f15));
@@ -107,7 +107,7 @@ static int spec_structure_1[]= {
 
 static test_structure_1 struct1(test_structure_1 ts)
 {
-  debugf(("%d %f %d\n", ts.uc, ts.d, ts.ui));
+  DPRINTF(("%d %f %d\n", ts.uc, ts.d, ts.ui));
   ts.uc++;  ts.d--;  ts.ui++;  return ts;
 }
 
@@ -156,7 +156,7 @@ static int spec_structure_5[]= {
 
 static test_structure_5 struct5(test_structure_5 ts1, test_structure_5 ts2)
 {
-  debugf(("%d %d %d %d\n", ts1.c1, ts1.c2, ts2.c1, ts2.c2));
+  DPRINTF(("%d %d %d %d\n", ts1.c1, ts1.c2, ts2.c1, ts2.c2));
   ts1.c1 += ts2.c1;  ts1.c2 -= ts2.c2; return ts1;
 }
 
@@ -236,7 +236,7 @@ void ctests(void)
 	GO(FFITypeSignedLongLong, return_ll);
 	rll= ffiLongLongResultHigh() * 0x100000000LL + ffiLongLongResultLow();
 	ffiCleanup();
-	debugf(("%lld %lld\n", ll, rll));
+	DPRINTF(("%lld %lld\n", ll, rll));
 	CHECK(rll == ll);
       }
 
@@ -277,14 +277,14 @@ void ctests(void)
     float f= 3.14159;
     long_double ld;
 
-    debugf(("%"Lf"\n", ldblit(f)));
+    DPRINTF(("%"Lf"\n", ldblit(f)));
     ld= 666;
     ffiInitialize();
     ffiPushSingleFloat(f);
     GO(FFITypeDoubleFloat, ldblit);
     ld= ffiReturnFloatValue();
     ffiCleanup();
-    debugf(("%"Lf", %"Lf", %"Lf", %"Lf"\n", ld, ldblit(f), ld - ldblit(f), (long_double)LDBL_EPSILON));
+    DPRINTF(("%"Lf", %"Lf", %"Lf", %"Lf"\n", ld, ldblit(f), ld - ldblit(f), (long_double)LDBL_EPSILON));
     /* These are not always the same!! Check for a reasonable delta */
     CHECK(ld - ldblit(f) < LDBL_EPSILON);
   }
@@ -305,7 +305,7 @@ void ctests(void)
     ffiPushSignedInt(si2);
     rint= GO(FFITypeSignedInt, floating);
     ffiCleanup();
-    debugf(("%d vs %d\n", (int)rint, floating(si1, f, d, ld, si2)));
+    DPRINTF(("%d vs %d\n", (int)rint, floating(si1, f, d, ld, si2)));
     CHECK(rint == floating(si1, f, d, ld, si2));
   }
   puts("double return tests...");
@@ -395,7 +395,7 @@ void ctests(void)
     GOS(structure_1, struct1);
     ffiStoreStructure((int)&ts1_result, sizeof(ts1_result));
     ffiCleanup();
-    debugf(("%d %g\n", ts1_result.ui, ts1_result.d));
+    DPRINTF(("%d %g\n", ts1_result.ui, ts1_result.d));
     CHECK(ts1_result.ui == 556);
     CHECK(ts1_result.d == 3.14159 - 1);
   }
@@ -403,16 +403,16 @@ void ctests(void)
     test_structure_2 ts2_arg, ts2_result;
     ts2_arg.d1= 5.55;
     ts2_arg.d2= 6.66;
-    debugf(("%g\n", ts2_result.d1));	/*xxx this is junk!*/
-    debugf(("%g\n", ts2_result.d2));
+    DPRINTF(("%g\n", ts2_result.d1));	/*xxx this is junk!*/
+    DPRINTF(("%g\n", ts2_result.d2));
     ffiInitialize();
     CHECK(ffiCanReturn(SPEC(structure_2)));
     ffiPushStructureOfLength((int)&ts2_arg, SPEC(structure_2));
     GOS(structure_2, struct2);
     ffiStoreStructure((int)&ts2_result, sizeof(ts2_result));
     ffiCleanup();
-    debugf(("%g\n", ts2_result.d1));
-    debugf(("%g\n", ts2_result.d2));
+    DPRINTF(("%g\n", ts2_result.d1));
+    DPRINTF(("%g\n", ts2_result.d2));
     CHECK(ts2_result.d1 == 5.55 - 1);
     CHECK(ts2_result.d2 == 6.66 - 1);
   }
@@ -427,7 +427,7 @@ void ctests(void)
     GOS(structure_3, struct3);
     ffiStoreStructure((int)&ts3_result, sizeof(ts3_result));
     ffiCleanup();
-    debugf(("%d %d\n", ts3_result.si, -(compare_value*2)));
+    DPRINTF(("%d %d\n", ts3_result.si, -(compare_value*2)));
     CHECK(ts3_result.si == -(ts3_arg.si*2));
   }
   {
@@ -461,23 +461,23 @@ void ctests(void)
     GOS(structure_5, struct5);
     ffiStoreStructure((int)&ts5_result, sizeof(ts5_result));
     ffiCleanup();
-    debugf(("%d %d\n", ts5_result.c1, ts5_result.c2));
+    DPRINTF(("%d %d\n", ts5_result.c1, ts5_result.c2));
     CHECK(ts5_result.c1 == 7 && ts5_result.c2 == 3);
   }
   {
     test_structure_6 ts6_arg, ts6_result;
     ts6_arg.f= 5.55f;
     ts6_arg.d= 6.66;
-    debugf(("%g\n", ts6_arg.f));
-    debugf(("%g\n", ts6_arg.d));
+    DPRINTF(("%g\n", ts6_arg.f));
+    DPRINTF(("%g\n", ts6_arg.d));
     ffiInitialize();
     CHECK(ffiCanReturn(SPEC(structure_6)));
     ffiPushStructureOfLength((int)&ts6_arg, SPEC(structure_6));
     GOS(structure_6, struct6);
     ffiStoreStructure((int)&ts6_result, sizeof(ts6_result));
     ffiCleanup();
-    debugf(("%g\n", ts6_result.f));
-    debugf(("%g\n", ts6_result.d));
+    DPRINTF(("%g\n", ts6_result.f));
+    DPRINTF(("%g\n", ts6_result.d));
     CHECK(ts6_result.f == 5.55f + 1);
     CHECK(ts6_result.d == 6.66 + 1);
   }
@@ -486,18 +486,18 @@ void ctests(void)
     ts7_arg.f1= 5.55f;
     ts7_arg.f2= 55.5f;
     ts7_arg.d= 6.66;
-    debugf(("%g\n", ts7_arg.f1));
-    debugf(("%g\n", ts7_arg.f2));
-    debugf(("%g\n", ts7_arg.d));
+    DPRINTF(("%g\n", ts7_arg.f1));
+    DPRINTF(("%g\n", ts7_arg.f2));
+    DPRINTF(("%g\n", ts7_arg.d));
     ffiInitialize();
     CHECK(ffiCanReturn(SPEC(structure_7)));
     ffiPushStructureOfLength((int)&ts7_arg, SPEC(structure_7));
     GOS(structure_7, struct7);
     ffiStoreStructure((int)&ts7_result, sizeof(ts7_result));
     ffiCleanup();
-    debugf(("%g\n", ts7_result.f1));
-    debugf(("%g\n", ts7_result.f2));
-    debugf(("%g\n", ts7_result.d));
+    DPRINTF(("%g\n", ts7_result.f1));
+    DPRINTF(("%g\n", ts7_result.f2));
+    DPRINTF(("%g\n", ts7_result.d));
     CHECK(ts7_result.f1 == 5.55f + 1);
     CHECK(ts7_result.f2 == 55.5f + 1);
     CHECK(ts7_result.d == 6.66 + 1);
@@ -508,20 +508,20 @@ void ctests(void)
     ts8_arg.f2= 55.5f;
     ts8_arg.f3= -5.55f;
     ts8_arg.f4= -55.5f;
-    debugf(("%g\n", ts8_arg.f1));
-    debugf(("%g\n", ts8_arg.f2));
-    debugf(("%g\n", ts8_arg.f3));
-    debugf(("%g\n", ts8_arg.f4));
+    DPRINTF(("%g\n", ts8_arg.f1));
+    DPRINTF(("%g\n", ts8_arg.f2));
+    DPRINTF(("%g\n", ts8_arg.f3));
+    DPRINTF(("%g\n", ts8_arg.f4));
     ffiInitialize();
     CHECK(ffiCanReturn(SPEC(structure_8)));
     ffiPushStructureOfLength((int)&ts8_arg, SPEC(structure_8));
     GOS(structure_8, struct8);
     ffiStoreStructure((int)&ts8_result, sizeof(ts8_result));
     ffiCleanup();
-    debugf(("%g\n", ts8_result.f1));
-    debugf(("%g\n", ts8_result.f2));
-    debugf(("%g\n", ts8_result.f3));
-    debugf(("%g\n", ts8_result.f4));
+    DPRINTF(("%g\n", ts8_result.f1));
+    DPRINTF(("%g\n", ts8_result.f2));
+    DPRINTF(("%g\n", ts8_result.f3));
+    DPRINTF(("%g\n", ts8_result.f4));
     CHECK(ts8_result.f1 == 5.55f + 1);
     CHECK(ts8_result.f2 == 55.5f + 1);
     CHECK(ts8_result.f3 == -5.55f + 1);
@@ -531,8 +531,8 @@ void ctests(void)
     test_structure_9 ts9_arg, ts9_result;
     ts9_arg.f= 5.55f;
     ts9_arg.i= 5;
-    debugf(("%g\n", ts9_arg.f));
-    debugf(("%d\n", ts9_arg.i));
+    DPRINTF(("%g\n", ts9_arg.f));
+    DPRINTF(("%d\n", ts9_arg.i));
 
     ffiInitialize();
     CHECK(ffiCanReturn(SPEC(structure_9)));
@@ -540,8 +540,8 @@ void ctests(void)
     GOS(structure_9, struct9);
     ffiStoreStructure((int)&ts9_result, sizeof(ts9_result));
     ffiCleanup();
-    debugf(("%g\n", ts9_result.f));
-    debugf(("%d\n", ts9_result.i));
+    DPRINTF(("%g\n", ts9_result.f));
+    DPRINTF(("%d\n", ts9_result.i));
     CHECK(ts9_result.f == 5.55f + 1);
     CHECK(ts9_result.i == 5 + 1);
   }
@@ -587,7 +587,7 @@ void stests(void)
   GO(FFITypeSingleFloat, ffiTestFloats);
   d= ffiReturnFloatValue();
   ffiCleanup();
-  debugf(("%f\n", d));
+  DPRINTF(("%f\n", d));
   assert(d == 130.0, "single floats don't work");
 
   ffiInitialize(); D(41.0L); D(1);

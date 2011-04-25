@@ -12,25 +12,30 @@
  * 
  *   This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   This file is distributed in the hope that it will be useful, but WITHOUT
+ *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *   FITNESS FOR A PARTICULAR PURPOSE.
+ *   
+ *   You may use and/or distribute this file ONLY as part of Squeak, under
+ *   the terms of the Squeak License as described in `LICENSE' in the base of
+ *   this distribution, subject to the following additional restrictions:
  * 
- *   The above copyright notice and this permission notice shall be included in
- *   all copies or substantial portions of the Software.
+ *   1. The origin of this software must not be misrepresented; you must not
+ *      claim that you wrote the original software.  If you use this software
+ *      in a product, an acknowledgment to the original author(s) (and any
+ *      other contributors mentioned herein) in the product documentation
+ *      would be appreciated but is not required.
  * 
- *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   2. You must not distribute (or make publicly available by any
+ *      means) a modified copy of this file unless you first rename it.
  * 
- * Last edited: 2009-08-19 04:40:14 by piumarta on emilia-2.local
+ *   3. This notice must not be removed or altered in any source distribution.
+ * 
+ *   Using (or modifying this file for use) in any context other than Squeak
+ *   changes these copyright conditions.  Read the file `COPYING' in the
+ *   directory `platforms/unix/doc' before proceeding with any such use.
+ * 
+ * Last edited: 2003-01-31 21:53:21 by piumarta on emilia.local.
  */
 
 #include <sys/types.h>
@@ -82,7 +87,7 @@ int glMakeCurrentRenderer(glRenderer *renderer)
   GLboolean ok;
   GLint err;
 
-  //debugf("glMakeCurrentRenderer(%p)\n", renderer);
+  //DPRINTF("glMakeCurrentRenderer(%p)\n", renderer);
 
   if (current == renderer)
     return 1;
@@ -142,12 +147,12 @@ int glCreateRendererFlags(int x, int y, int w, int h, int flags)
   renderer->bufferRect[2] = w;
   renderer->bufferRect[3] = h;
   glMakeCurrentRenderer(renderer);
-  //debugf("    vendor:     %s\n", glGetString(GL_VENDOR));
-  //debugf("    renderer:   %s\n", glGetString(GL_RENDERER));
-  //debugf("    version:    %s\n", glGetString(GL_VERSION));
-  //debugf("    extensions: %s\n", glGetString(GL_EXTENSIONS));
+  //DPRINTF("    vendor:     %s\n", glGetString(GL_VENDOR));
+  //DPRINTF("    renderer:   %s\n", glGetString(GL_RENDERER));
+  //DPRINTF("    version:    %s\n", glGetString(GL_VERSION));
+  //DPRINTF("    extensions: %s\n", glGetString(GL_EXTENSIONS));
   ERROR_CHECK;
-  //debugf("   renderer created, handle = %d\n", i);
+  //DPRINTF("   renderer created, handle = %d\n", i);
   /* setup user context */
   glDisable(GL_LIGHTING);
   glDisable(GL_COLOR_MATERIAL);
