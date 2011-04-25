@@ -16,7 +16,7 @@
 #ifndef __sqMemoryAccess_h
 #define __sqMemoryAccess_h
 
-#include "config.h"
+#include <config.h>
 
 #if defined(HAVE_INTERP_H)
 # include "interp.h"

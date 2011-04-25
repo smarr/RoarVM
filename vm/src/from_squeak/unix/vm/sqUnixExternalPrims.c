@@ -107,7 +107,7 @@
 
 /*** options ***/
 
-# ifndef ROAR_VM
+# if !defined(ROAR_VM) || !On_iOS
   extern char *squeakPlugins;
 # else
          char *squeakPlugins = NULL;
