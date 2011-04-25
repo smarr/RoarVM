@@ -20,4 +20,7 @@ void pat(); // print all stack traces
 void pet(); // print execution trace
 void pst(); // print stack trace
 
-extern "C" { int printCallStack(); }
+extern "C" {
+  int printCallStack();
+  int printAllStacks();
+}
