@@ -11,6 +11,8 @@
  /* Default EXPORT macro that does nothing (see comment in sq.h): */
 #define EXPORT(returnType) returnType
 
+# include "squeak_adapters.h"
+
 /* Do not include the entire sq.h file but just those parts needed. */
 /*  The virtual machine proxy definition */
 #include "sqVirtualMachine.h"

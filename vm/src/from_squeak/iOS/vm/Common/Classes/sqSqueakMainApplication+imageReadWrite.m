@@ -52,7 +52,9 @@
 		return NO;
 	}
 	f = sqImageFileOpen(characterPathForImage, "rb");
-	//readImageFromFileHeapSizeStartingAt(f, sqGetAvailableMemory(), (squeakFileOffsetType) 0);  //This is a VM Callback
+# ifndef ROAR_VM
+	readImageFromFileHeapSizeStartingAt(f, sqGetAvailableMemory(), (squeakFileOffsetType) 0);  //This is a VM Callback
+# endif // ROAR_VM
 	sqImageFileClose(f);
 	[pool drain];
 	return YES;

@@ -13,7 +13,11 @@ extern sqExport BitBltPlugin_exports[];
 extern sqExport BMPReadWriterPlugin_exports[];
 extern sqExport ZipPlugin_exports[];
 extern sqExport DSAPrims_exports[];
+
+# ifndef ROAR_VM
 extern sqExport SqueakFFIPrims_exports[];
+# endif // !ROAR_VM
+
 extern sqExport FFTPlugin_exports[];
 extern sqExport FilePlugin_exports[];
 extern sqExport FloatArrayPlugin_exports[];
@@ -47,7 +51,11 @@ sqExport *pluginExports[] = {
 	BMPReadWriterPlugin_exports,
 	ZipPlugin_exports,
 	DSAPrims_exports,
+  
+# ifndef ROAR_VM
 	SqueakFFIPrims_exports,
+# endif // !ROAR_VM
+  
 	FFTPlugin_exports,
 	FilePlugin_exports,
 	FloatArrayPlugin_exports,

@@ -65,8 +65,10 @@ extern sqSqueakAppDelegate *gDelegateApp;
 @synthesize soundInterfaceLogic;
 @synthesize argsArguments;
 
+# ifndef ROAR_VM
 //STEFAN: todo
-//extern sqInt interpret(void);  //This is a VM Callback
+extern sqInt interpret(void);  //This is a VM Callback
+# endif // ROAR_VM
 
 - (void) setupFloat {
 }
@@ -126,11 +128,11 @@ extern sqSqueakAppDelegate *gDelegateApp;
 	return [sqSqueakFileDirectoryInterface new];
 }
 
+// STEFAN: TODO clean up
 void basic_init();
 void set_num_cores(char* num_cores_str);
 void go_parallel();
 void interpret_rvm(char* image_name);
-
 - (void) runSqueak {
   //STEFAN: here is were we need to hack into
   
@@ -165,13 +167,15 @@ void interpret_rvm(char* image_name);
 		return;
 	}
 	
-	/*if (![self readImageIntoMemory]) {
+// STEFAN: TODO clean up
+# ifdef ROAR_VM
+    char * characterPathForImage = (char *) [[NSFileManager defaultManager] fileSystemRepresentationWithPath: [self.imageNameURL path]];
+# else
+	if (![self readImageIntoMemory]) {
 		[pool drain];
 		return;
-	}*/
-  
-  char * characterPathForImage = (char *) [[NSFileManager defaultManager] fileSystemRepresentationWithPath: [self.imageNameURL path]];
-
+	}
+# endif // ROAR_VM
 	
 	[self setupMenus];
 	[self setupTimers];
@@ -180,14 +184,17 @@ void interpret_rvm(char* image_name);
 	[self setupSoundLogic];
 	[gDelegateApp makeMainWindow];
 	
-  
+// STEFAN: TODO clean up
+# ifdef ROAR_VM
   basic_init();
   set_num_cores("1"); //STEFAN TODO try 2
   
   go_parallel();
   
   interpret_rvm(characterPathForImage);
-  
+# else
+	interpret();
+# endif // ROAR_VM
 	[pool drain];  //may not return here, could call exit() via quit image
 	[self release];
 }
@@ -195,7 +202,10 @@ void interpret_rvm(char* image_name);
 - (void) MenuBarRestore {
 }
 
-//void sqMacMemoryFree(void);
+// STEFAN: TODO cleanup
+# ifndef ROAR_VM
+void sqMacMemoryFree(void);
+# endif // !ROAR_VM
 
 - (void) ioExit {
 	[self ioExitWithErrorCode: 0];
@@ -214,7 +224,9 @@ void interpret_rvm(char* image_name);
 	[imageNameURL release];
 	[fileDirectoryLogic release];
 	[eventQueue release];
-	//sqMacMemoryFree();
+# ifndef ROAR_VM
+	sqMacMemoryFree();
+# endif // !ROAR_VM
 	[super dealloc];
 }
 

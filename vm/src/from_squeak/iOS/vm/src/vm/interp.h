@@ -13,9 +13,11 @@
 #endif
 
 #define BYTES_PER_WORD SQ_VI_BYTES_PER_WORD
-#define BASE_HEADER_SIZE sizeof(long int)
-//Object::BaseHeaderSize
 
+// Is already defined for the RoarVM based on Object::BaseHeaderSize
+# ifndef ROAR_VM
+  #define BASE_HEADER_SIZE sizeof(long int)
+# endif // !ROAR_VM
 
 
 /*

@@ -3964,8 +3964,7 @@ startOfData(sqInt oop)
 }
 
 
-#ifdef SQUEAK_BUILTIN_PLUGIN
-
+#if defined(SQUEAK_BUILTIN_PLUGIN) || defined(ROAR_VM)
 void* SqueakFFIPrims_exports[][3] = {
 	{"SqueakFFIPrims", "ffiLogCallsTo", (void*)ffiLogCallsTo},
 	{"SqueakFFIPrims", "getModuleName", (void*)getModuleName},
