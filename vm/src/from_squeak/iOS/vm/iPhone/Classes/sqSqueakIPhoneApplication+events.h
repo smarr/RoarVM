@@ -42,13 +42,17 @@
 #import "RoarVMMouseEvent.h"
 
 @interface sqSqueakIPhoneApplication (events) 
+# ifdef ROAR_VM
 - (void) enqueueRoarVMEvent: (RoarVMAbstractEvent*) evt;
+- (void) processRoarVMEvent: (RoarVMAbstractEvent*) event placeIn: (sqInputEvent *) evt;
+# else
+- (void) recordTouchEvent:(NSSet *) touches type: (UITouchPhase) phase;
+# endif
 
 - (void) buildTouchEventComplexObject:(NSSet *) touches forType: (NSNumber *) aType placeIn: (sqComplexEvent *) evt ;
 - (void) buildAccelerationEventComplexObject: (UIAcceleration *) acceleration placeIn: (sqComplexEvent *) evt;
 - (void) buildLocationEventComplexObject: (NSMutableArray *) acceleration placeIn: (sqComplexEvent *) evt;
 - (void) buildApplicationEventComplexObject: (NSMutableArray *) acceleration placeIn: (sqComplexEvent *) evt;
 
-- (void) processRoarVMEvent: (RoarVMAbstractEvent*) event placeIn: (sqInputEvent *) evt;
 
 @end

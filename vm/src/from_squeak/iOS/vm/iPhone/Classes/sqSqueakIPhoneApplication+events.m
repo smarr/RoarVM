@@ -106,6 +106,7 @@ sqInt	windowActive=1;
 	}
 }
 
+# ifdef ROAR_VM
 
 - (void) processRoarVMEvent: (RoarVMAbstractEvent*) event placeIn: (sqInputEvent *) evt {
   [event processInto: evt];
@@ -117,6 +118,20 @@ sqInt	windowActive=1;
 	[evt release];
 	interpreterProxy->signalSemaphoreWithIndex(gDelegateApp.squeakApplication.inputSemaphoreIndex);
 }
+
+# else
+- (void) recordTouchEvent:(NSSet *) touches type: (UITouchPhase) phase {
+	NSMutableArray* data = [NSMutableArray new];
+	
+	[data addObject: [NSNumber numberWithInteger: 1]];
+	[data addObject: [NSNumber numberWithInteger: (signed) phase]];
+	[data addObject: touches];
+	[eventQueue addItem: data];
+	[data release];
+	interpreterProxy->signalSemaphoreWithIndex(gDelegateApp.squeakApplication.inputSemaphoreIndex);
+}
+# endif // ROAR_VM
+
 
 
 // unused now

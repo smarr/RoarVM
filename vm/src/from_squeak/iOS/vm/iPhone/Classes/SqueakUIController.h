@@ -35,6 +35,8 @@ Alternately, this acknowledgment may appear in the software itself, in the same 
 such third-party acknowledgments.
 */
 
+# ifdef ROAR_VM
+
 @interface SqueakUIController : UIViewController <UIGestureRecognizerDelegate, UIKeyInput> {
   UIButton* cursor;
   UILongPressGestureRecognizer* longRecognizers[4];
@@ -50,5 +52,9 @@ such third-party acknowledgments.
 - (void)startEnteringText;
 
 @property (nonatomic,assign) UIButton* cursor;
+
+# else
+@interface SqueakUIController : UIViewController
+# endif // ROAR_VM
 
 @end

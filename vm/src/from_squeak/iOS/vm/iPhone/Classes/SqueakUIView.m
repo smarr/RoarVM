@@ -68,6 +68,34 @@ extern SqueakNoOGLIPhoneAppDelegate *gDelegateApp;
 - (void) drawImageUsingClip: (CGRect) clip {
 }
 
+# ifndef ROAR_VM
+// Handles the start of a touch
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	//Called by Main Thread, beware of calling Squeak routines in Squeak Thread
+	[(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication recordTouchEvent: touches type: UITouchPhaseBegan];
+}
+
+// Handles the continuation of a touch.
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
+{  
+	//Called by Main Thread, beware of calling Squeak routines in Squeak Thread
+	[(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication recordTouchEvent: touches type: UITouchPhaseMoved];
+	
+}
+
+// Handles the end of a touch event.
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
+{
+	//Called by Main Thread, beware of calling Squeak routines in Squeak Thread
+	[(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication recordTouchEvent: touches type: UITouchPhaseEnded];
+}
+
+- (void) touchesCancelled: (NSSet *) touches withEvent: (UIEvent *) event {
+	//Called by Main Thread, beware of calling Squeak routines in Squeak Thread
+	[(sqSqueakIPhoneApplication *) gDelegateApp.squeakApplication recordTouchEvent: touches type: UITouchPhaseCancelled];
+}
+# endif // !ROAR_VM
 
 - (BOOL)canBecomeFirstResponder {
 	return YES;
