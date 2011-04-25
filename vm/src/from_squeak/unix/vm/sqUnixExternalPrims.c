@@ -187,12 +187,13 @@ void *ioLoadModule(const char *pluginName)
     return handle;
 
   /* try loading {pluginPaths}/MODULE_PREFIX<name>MODULE_SUFFIX */
-
-  while (*dir) {
-    if ((handle= tryLoadModule(dir, pluginName)))
-      return handle;
-    while (*dir && ':' != *dir++)
-      ;
+  if (dir) {
+    while (*dir) {
+      if ((handle= tryLoadModule(dir, pluginName)))
+        return handle;
+      while (*dir && ':' != *dir++)
+        ;
+    }
   }
 
   /* try dlopen()ing LIBRARY_PREFIX<name>LIBRARY_SUFFIX searching only the default locations modulo LD_LIBRARY_PATH et al */
