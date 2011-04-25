@@ -95,7 +95,7 @@ sqImageFileReadEntireImage(memoryAddress, elementSize, length, fileStream)
 #define ioUtcWithOffset ioUtcWithOffset
 
 /* macro to return from interpret() loop in browser plugin VM */
-#define ReturnFromInterpret() return
+#define ReturnFromInterpret() return 0
 
 /* undef the memory routines for our logic */
 #undef sqGrowMemoryBy
@@ -141,8 +141,9 @@ extern int isCFramePointerInUse(void);
 typedef struct {
 	pthread_cond_t	cond;
 	pthread_mutex_t mutex;
-	int				locked;
+    int				count;
 } sqOSSemaphore;
+#  define ioDestroyOSSemaphore(ptr) 0
 #  if !ForCOGMTVMImplementation /* this is a read-only export */
 extern const pthread_key_t tltiIndex;
 #  endif
@@ -150,6 +151,7 @@ extern const pthread_key_t tltiIndex;
 #  define ioSetThreadLocalThreadIndex(v) (pthread_setspecific(tltiIndex,(void*)(v)))
 #  define ioOSThreadIsAlive(thread) (pthread_kill(thread,0) == 0)
 #  define ioTransferTimeslice() sched_yield()
+#  define ioMilliSleep(ms) usleep((ms) * 1000)
 # endif /* COGMTVM */
 #endif /* STACKVM */
 

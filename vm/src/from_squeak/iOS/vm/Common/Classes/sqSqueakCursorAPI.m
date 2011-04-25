@@ -43,19 +43,19 @@
 
 extern sqSqueakAppDelegate *gDelegateApp;
 
-sqInt ioSetCursor(char* cursorBitsIndex, int offsetX, int offsetY) {
+sqInt ioSetCursor(sqInt cursorBitsIndex, sqInt offsetX, sqInt offsetY) {
 	/* Old version; forward to new version. */
-	[gDelegateApp.squeakApplication  setCursor: (sqInt)cursorBitsIndex
+	[gDelegateApp.squeakApplication  setCursor: cursorBitsIndex
 									  withMask: 0
 									   offsetX: offsetX offsetY: offsetY];
 	return 0;
 }
 
-int ioSetCursorWithMask( char* cursorBitsIndex, char* cursorMaskIndex, int offsetX, int offsetY) 
+sqInt ioSetCursorWithMask( sqInt cursorBitsIndex, sqInt cursorMaskIndex, sqInt offsetX, sqInt offsetY) 
 {	
-	[gDelegateApp.squeakApplication  setCursor: (sqInt)cursorBitsIndex
-									  withMask: (sqInt)cursorMaskIndex
-									   offsetX: (sqInt)offsetX offsetY: (sqInt)offsetY];
+	[gDelegateApp.squeakApplication  setCursor: cursorBitsIndex
+									  withMask: cursorMaskIndex
+									   offsetX: offsetX offsetY: offsetY];
 	return 0;
 }
 

@@ -34,7 +34,7 @@
 BOOL		gSqueakBrowserSubProcess=false,gSqueakBrowserWasHeadlessButMadeFullScreen=false;
 void		*SharedBrowserBitMapContextRef=NULL;
 
-extern int32 getFullScreenFlag(void);  //This is VM callback
+extern sqInt getFullScreenFlag(void);  //This is VM callback
 
 
 BOOL b(void) {

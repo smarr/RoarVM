@@ -299,7 +299,7 @@ void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle)
 /*  Free the module with the associated handle.  Answer 0 on error (do
  *  NOT fail the primitive!).
 */
-int ioFreeModule(void *moduleHandle)
+sqInt ioFreeModule(void *moduleHandle)
 {
   int results = dlclose(moduleHandle);
 	

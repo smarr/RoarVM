@@ -185,7 +185,6 @@
 		0ADE8AC0135F38FE00D37EAD /* SoundGenerationPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AB0135F38FE00D37EAD /* SoundGenerationPlugin.c */; };
 		0ADE8AC1135F38FE00D37EAD /* SoundPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AB2135F38FE00D37EAD /* SoundPlugin.c */; };
 		0ADE8AC2135F38FE00D37EAD /* Squeak3D.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AB4135F38FE00D37EAD /* Squeak3D.c */; };
-		0ADE8ACB135F392E00D37EAD /* SqueakFFIPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AC4135F392E00D37EAD /* SqueakFFIPrims.c */; };
 		0ADE8ACC135F392E00D37EAD /* StarSqueakPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AC6135F392E00D37EAD /* StarSqueakPlugin.c */; };
 		0ADE8ACD135F392E00D37EAD /* UUIDPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8AC8135F392E00D37EAD /* UUIDPlugin.c */; };
 		0ADE8ACE135F392E00D37EAD /* ZipPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8ACA135F392E00D37EAD /* ZipPlugin.c */; };
@@ -2506,7 +2505,6 @@
 				0ADE8AC0135F38FE00D37EAD /* SoundGenerationPlugin.c in Sources */,
 				0ADE8AC1135F38FE00D37EAD /* SoundPlugin.c in Sources */,
 				0ADE8AC2135F38FE00D37EAD /* Squeak3D.c in Sources */,
-				0ADE8ACB135F392E00D37EAD /* SqueakFFIPrims.c in Sources */,
 				0ADE8ACC135F392E00D37EAD /* StarSqueakPlugin.c in Sources */,
 				0ADE8ACD135F392E00D37EAD /* UUIDPlugin.c in Sources */,
 				0ADE8ACE135F392E00D37EAD /* ZipPlugin.c in Sources */,

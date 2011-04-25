@@ -19,7 +19,7 @@
   me->y = lround(location.y);
   me->buttons = buttonBits; 
   me->modifiers = 0; // fix later
-  me->reserved1 = 0; 
+  me->nrClicks = 0; 
   me->windowIndex = 0; // is this right?
 
 }

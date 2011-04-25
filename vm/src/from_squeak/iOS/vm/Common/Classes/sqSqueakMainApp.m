@@ -51,9 +51,9 @@ such third-party acknowledgments.
 
 #warning what about these guyes?
 /*** Variables -- globals for access from pluggable primitives ***/
-int		argCnt= 0;
-char	**argVec= 0;
-char	**envVec= 0;
+EXPORT(int)		argCnt= 0;
+EXPORT(char**)	argVec= 0;
+EXPORT(char**)	envVec= 0;
 
 extern sqSqueakAppDelegate *gDelegateApp;
 
@@ -62,7 +62,7 @@ int				gSqueakUseFileMappedMMAP=0;
 char            gSqueakUntrustedDirectoryName[PATH_MAX];
 char            gSqueakTrustedDirectoryName[PATH_MAX];
 
-//sqInt printAllStacks(void);
+sqInt printAllStacks(void);
 sqInt printCallStack(void);
 extern void dumpPrimTraceLog(void);
 extern BOOL NSApplicationLoad(void);
@@ -79,7 +79,7 @@ error(char *msg)
 	
 	printf("\n%s\n\n", msg);
 	
-	if (ioOSThreadsEqual(ioCurrentOSThread(),getVMThread())) {
+	if (ioOSThreadsEqual(ioCurrentOSThread(),getVMOSThread())) {
 		if (!printingStack) {
 			printingStack = true;
 			printf("\n\nSmalltalk stack dump:\n");
@@ -112,7 +112,7 @@ void sigsegv(int ignore)
 	if (!printingStack)
 	{
 		printingStack= 1;
-		//printAllStacks();
+		printAllStacks();
 	}
 	abort();
 }
@@ -165,11 +165,6 @@ isCFramePointerInUse()
 
 
 #endif /* COGVM */
-
-#if !COGVM && STACKVM 
-void
-dumpPrimTraceLog(void) {};
-#endif
 
 /* Andreas' stubs */
 char* ioGetLogDirectory(void) { return ""; };
