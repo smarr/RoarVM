@@ -6,7 +6,7 @@
 *   AUTHOR:  Andreas Raab (ar)
 *   ADDRESS: Walt Disney Imagineering, Glendale, CA
 *   EMAIL:   Andreas.Raab@disney.com
-*   RCSID:   $Id: sqNamedPrims.c 1150 2005-04-01 00:30:34Z piumarta $
+*   RCSID:   $Id: sqNamedPrims.c 2158 2010-03-29 01:16:36Z johnmci $
 *
 *   NOTES:
 *
@@ -25,16 +25,17 @@ typedef struct {
 
 #undef DEBUG
 
+#undef DPRINTF
 #ifdef DEBUG
-#define dprintf(what) printf what
+#define DPRINTF(what) printf what
 #else
-#define dprintf(what)
+#define DPRINTF(what)
 #endif
 
 typedef struct ModuleEntry {
 	struct ModuleEntry *next;
 	void *handle;
-	int ffiLoaded;
+	sqInt ffiLoaded;
 	char name[1];
 } ModuleEntry;
 
@@ -55,7 +56,7 @@ static void *findLoadedModule(const char *pluginName)
 	return NULL;
 }
 
-static ModuleEntry *addToModuleList(const char *pluginName, void* handle, int ffiFlag)
+static ModuleEntry *addToModuleList(const char *pluginName, void* handle, sqInt ffiFlag)
 {
 	ModuleEntry *module;
 
@@ -73,7 +74,7 @@ static ModuleEntry *addToModuleList(const char *pluginName, void* handle, int ff
 	Remove the given entry from the list of loaded modules.
 	Do NOT free it yet.
 */
-static int removeFromList(ModuleEntry *entry)
+static sqInt removeFromList(ModuleEntry *entry)
 {
 	ModuleEntry *prevModule;
 
@@ -89,7 +90,6 @@ static int removeFromList(ModuleEntry *entry)
 	return 1;
 }
 
-void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle);
 
 /*
 	findExternalFunctionIn:
@@ -101,12 +101,12 @@ static void *findExternalFunctionIn(const char *functionName, ModuleEntry *modul
 {
 	void *result;
 
-	dprintf(("Looking (externally) for %s in %s... ", functionName,module->name));
+	DPRINTF(("Looking (externally) for %s in %s... ", functionName,module->name));
 	if(module->handle)
-		result = ioFindExternalFunctionIn((const char*)functionName, (void*)module->handle);
+		result = ioFindExternalFunctionIn(functionName, module->handle);
 	else
 		result = NULL;
-	dprintf(("%s\n", result ? "found" : "not found"));
+	DPRINTF(("%s\n", result ? "found" : "not found"));
 	return result;
 }
 
@@ -119,10 +119,10 @@ static void *findExternalFunctionIn(const char *functionName, ModuleEntry *modul
 static void *findInternalFunctionIn(const char *functionName, const char *pluginName)
 {
   char *function, *plugin;
-  int listIndex, index;
+  sqInt listIndex, index;
   sqExport *exports;
 
-  dprintf(("Looking (internally) for %s in %s ... ", functionName, (pluginName ? pluginName : "<intrinsic>")));
+  DPRINTF(("Looking (internally) for %s in %s ... ", functionName, (pluginName ? pluginName : "<intrinsic>")));
 
   /* canonicalize functionName and pluginName to be NULL if not specified */
   if(functionName && !functionName[0]) functionName = NULL;
@@ -145,11 +145,11 @@ static void *findInternalFunctionIn(const char *functionName, const char *plugin
       if(function && strcmp(functionName, function)) continue; /* name mismatch */
 
       /* match */
-      dprintf(("found\n"));
+      DPRINTF(("found\n"));
       return exports[index].primitiveAddress;
     }
   }
-  dprintf(("not found\n"));
+  DPRINTF(("not found\n"));
   return NULL;
 
 }
@@ -171,7 +171,7 @@ static void *findFunctionIn(const char *functionName, ModuleEntry *module)
 	b) initialiseModule (if defined) and check it's return
 	as well.
 */
-static int callInitializersIn(ModuleEntry *module)
+static sqInt callInitializersIn(ModuleEntry *module)
 {
 	void *init0;
 	void *init1;
@@ -187,35 +187,35 @@ static int callInitializersIn(ModuleEntry *module)
 		/* Check the compiled name of the module */
 		moduleName = ((char* (*) (void))init0)();
 		if(!moduleName) {
-			dprintf(("ERROR: getModuleName() returned NULL\n"));
+			DPRINTF(("ERROR: getModuleName() returned NULL\n"));
 			return 0;
 		}
 		if(strncmp(moduleName, module->name, strlen(module->name)) != 0) {
-			dprintf(("ERROR: getModuleName returned %s (expected: %s)\n", moduleName, module->name));
+			DPRINTF(("ERROR: getModuleName returned %s (expected: %s)\n", moduleName, module->name));
 			return 0;
 		}
 	} else {
 		/* Note: older plugins may not export the compiled module name */
-		dprintf(("WARNING: getModuleName() not found in %s\n", module->name));
+		DPRINTF(("WARNING: getModuleName() not found in %s\n", module->name));
 	}
 	if(!init1) {
-		dprintf(("ERROR: setInterpreter() not found\n"));
+		DPRINTF(("ERROR: setInterpreter() not found\n"));
 		return 0;
 	}
 	/* call setInterpreter */
 	okay = ((sqInt (*) (struct VirtualMachine*))init1)(sqGetInterpreterProxy());
 	if(!okay) {
-		dprintf(("ERROR: setInterpreter() returned false\n"));
+		DPRINTF(("ERROR: setInterpreter() returned false\n"));
 		return 0;
 	}
 	if(init2) {
 		okay = ((sqInt (*) (void)) init2)();
 		if(!okay) {
-			dprintf(("ERROR: initialiseModule() returned false\n"));
+			DPRINTF(("ERROR: initialiseModule() returned false\n"));
 			return 0;
 		}
 	}
-	dprintf(("SUCCESS: Module %s is now initialized\n", module->name));
+	DPRINTF(("SUCCESS: Module %s is now initialized\n", module->name));
 	return 1;
 }
 
@@ -229,12 +229,21 @@ static int callInitializersIn(ModuleEntry *module)
 	If anything goes wrong make sure the module is unloaded
 	(WITHOUT calling shutdownModule()) and return NULL.
 */
-static ModuleEntry *findAndLoadModule(const char *pluginName, int ffiLoad)
+static int moduleLoadingEnabled = 1;
+
+/* Disable module loading mechanism for the rest of current session. This operation should be not reversable! */
+void ioDisableModuleLoading() {
+	moduleLoadingEnabled = 0;
+}
+
+static ModuleEntry *findAndLoadModule(const char *pluginName, sqInt ffiLoad)
 {
 	void *handle;
 	ModuleEntry *module;
 
-	dprintf(("Looking for plugin %s\n", (pluginName ? pluginName : "<intrinsic>")));
+	if (!moduleLoadingEnabled)
+		return NULL;
+	DPRINTF(("Looking for plugin %s\n", (pluginName ? pluginName : "<intrinsic>")));
 	/* Try to load the module externally */
 	handle = ioLoadModule(pluginName);
 	if(ffiLoad) {
@@ -268,7 +277,7 @@ static ModuleEntry *findAndLoadModule(const char *pluginName, int ffiLoad)
 	Look if the given module is already loaded.
 	If so, return it's handle, otherwise try to load it.
 */
-static ModuleEntry *findOrLoadModule(const char *pluginName, int ffiLoad)
+static ModuleEntry *findOrLoadModule(const char *pluginName, sqInt ffiLoad)
 {
 	ModuleEntry *module;
 
@@ -299,7 +308,7 @@ void *ioLoadFunctionFrom(const char *functionName, const char *pluginName)
 	module = findOrLoadModule(pluginName, 0);
 	if(!module) {
 		/* no module */
-		dprintf(("Failed to find %s (module %s was not loaded)\n", functionName, pluginName));
+		DPRINTF(("Failed to find %s (module %s was not loaded)\n", functionName, pluginName));
 		return 0;
 	}
 	if(!functionName) {
@@ -317,11 +326,11 @@ void *ioLoadFunctionFrom(const char *functionName, const char *pluginName)
 void *ioLoadExternalFunctionOfLengthFromModuleOfLength(sqInt functionNameIndex, sqInt functionNameLength,
 						       sqInt moduleNameIndex,   sqInt moduleNameLength)
 {
-	char *functionNamePointer= pointerForIndex_xxx_dmu(functionNameIndex);
-	char *moduleNamePointer= pointerForIndex_xxx_dmu(moduleNameIndex);
+	char *functionNamePointer= pointerForIndex_xxx_dmu((usqInt)functionNameIndex);
+	char *moduleNamePointer= pointerForIndex_xxx_dmu((usqInt)moduleNameIndex);
 	char functionName[256];
 	char moduleName[256];
-	int i;
+	sqInt i;
 
 	if(functionNameLength > 255 || moduleNameLength > 255)
 		return 0; /* can't cope with those */
@@ -339,9 +348,9 @@ void *ioLoadExternalFunctionOfLengthFromModuleOfLength(sqInt functionNameIndex, 
 */
 void *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionNameLength, void *moduleHandle)
 {
-	char *functionNamePointer= pointerForIndex_xxx_dmu(functionNameIndex);
+	char *functionNamePointer= pointerForIndex_xxx_dmu((usqInt)functionNameIndex);
 	char functionName[256];
-	int i;
+	sqInt i;
 
 	if(functionNameLength > 255)
 		return 0; /* can't cope with those */
@@ -349,7 +358,7 @@ void *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionName
 		functionName[i] = functionNamePointer[i];
 	functionName[functionNameLength] = 0;
 	if(moduleHandle)
-		return ioFindExternalFunctionIn((const char*)functionName, (void*)moduleHandle);
+		return ioFindExternalFunctionIn(functionName, moduleHandle);
 	else
 		return 0;
 }
@@ -362,9 +371,9 @@ void *ioLoadSymbolOfLengthFromModule(sqInt functionNameIndex, sqInt functionName
 void *ioLoadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 {
 	ModuleEntry *module;
-	char *moduleNamePointer= pointerForIndex_xxx_dmu(moduleNameIndex);
+	char *moduleNamePointer= pointerForIndex_xxx_dmu((usqInt)moduleNameIndex);
 	char moduleName[256];
-	int i;
+	sqInt i;
 
 	if(moduleNameLength > 255) return 0; /* can't cope with those */
 	for(i=0; i< moduleNameLength; i++)
@@ -380,7 +389,7 @@ void *ioLoadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 /* shutdownModule:
 	Call the shutdown mechanism from the specified module.
 */
-static int shutdownModule(ModuleEntry *module)
+static sqInt shutdownModule(ModuleEntry *module)
 {
 	void* fn;
 
@@ -388,7 +397,7 @@ static int shutdownModule(ModuleEntry *module)
 
 	/* load the actual function */
 	fn = findFunctionIn("shutdownModule", module);
-	if(fn) return ((int (*) (void)) fn) ();
+	if(fn) return ((sqInt (*) (void)) fn) ();
 	return 1;
 }
 
@@ -432,7 +441,7 @@ sqInt ioUnloadModule(const char *moduleName)
 			void *fn = findFunctionIn("moduleUnloaded", temp);
 			if(fn) {
 				/* call it */
-				((int (*) (char *))fn)(entry->name);
+				((sqInt (*) (char *))fn)(entry->name);
 			}
 		}
 		temp = temp->next;
@@ -450,9 +459,9 @@ sqInt ioUnloadModule(const char *moduleName)
 */
 sqInt ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 {
-	char *moduleNamePointer= pointerForIndex_xxx_dmu(moduleNameIndex);
+	char *moduleNamePointer= pointerForIndex_xxx_dmu((usqInt) moduleNameIndex);
 	char moduleName[256];
-	int i;
+	sqInt i;
 
 	if(moduleNameLength > 255) return 0; /* can't cope with those */
 	for(i=0; i< moduleNameLength; i++)
@@ -467,7 +476,7 @@ sqInt ioUnloadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 
 char *ioListBuiltinModule(sqInt moduleIndex)
 {
-  int index, listIndex;
+  sqInt index, listIndex;
   char *function;
   char *plugin;
   sqExport *exports;
@@ -499,7 +508,7 @@ char *ioListBuiltinModule(sqInt moduleIndex)
 }
 
 char *ioListLoadedModule(sqInt moduleIndex) {
-	int index = 1;
+	sqInt index = 1;
 
 	ModuleEntry *entry;
 	entry = firstModule;

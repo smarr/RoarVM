@@ -2,7 +2,7 @@
  * 
  * Author: Ian.Piumarta@squeakland.org
  * 
- * Last edited: 2007-06-10 19:16:03 by piumarta on vps2.piumarta.com
+ * Last edited: 2006-04-06 09:47:39 by piumarta on emilia.local
  */
 
 /* Systematic use of the macros defined in this file within the
@@ -66,7 +66,7 @@
   extern char *sqMemoryBase;
 # define SQ_FAKE_MEMORY_OFFSET	16 // (1*1024*1024)	/* nonzero to debug addr xlation */
 #else
-# define sqMemoryBase		((char *)0)
+# define sqMemoryBase 0
 #endif
 
 #ifdef USE_INLINE_MEMORY_ACCESSORS
@@ -78,12 +78,17 @@
   static inline sqInt shortAtPointerput(char *ptr, int val)	{ return (sqInt)(*((short *)ptr)= (short)val); }
   static inline sqInt intAtPointer(char *ptr)			{ return (sqInt)(*((unsigned int *)ptr)); }
   static inline sqInt intAtPointerput(char *ptr, int val)	{ return (sqInt)(*((unsigned int *)ptr)= (int)val); }
-  static inline sqInt longAtPointer(char *ptr)			{ return (sqInt)(*((sqInt *)ptr)); }
-  static inline sqInt longAtPointerput(char *ptr, sqInt val)	{ return (sqInt)(*((sqInt *)ptr)= (sqInt)val); }
-  static inline sqInt oopAtPointer(char *ptr)			{ return (sqInt)(*((sqInt *)ptr)); }
-  static inline sqInt oopAtPointerput(char *ptr, sqInt val)	{ return (sqInt)(*((sqInt *)ptr)= (sqInt)val); }
+  static inline sqInt longAtPointer(char *ptr)			{ return *(sqInt *)ptr; }
+  static inline sqInt longAtPointerput(char *ptr, sqInt val)	{ return *(sqInt *)ptr= (sqInt)val; }
+  static inline sqInt oopAtPointer(char *ptr)			{ return *(sqInt *)ptr; }
+  static inline sqInt oopAtPointerput(char *ptr, sqInt val)	{ return (sqInt)(*(sqInt *)ptr= (sqInt)val); }
+# if defined(sqMemoryBase) && !sqMemoryBase
+  static inline char *pointerForOop(usqInt oop)			{ return (char *)oop; }
+  static inline sqInt oopForPointer(char *ptr)			{ return (sqInt)ptr; }
+# else
   static inline char *pointerForOop(usqInt oop)			{ return sqMemoryBase + oop; }
   static inline sqInt oopForPointer(char *ptr)			{ return (sqInt)(ptr - sqMemoryBase); }
+# endif
   static inline sqInt byteAt(sqInt oop)				{ return byteAtPointer(pointerForOop(oop)); }
   static inline sqInt byteAtput(sqInt oop, int val)		{ return byteAtPointerput(pointerForOop(oop), val); }
   static inline sqInt shortAt(sqInt oop)			{ return shortAtPointer(pointerForOop(oop)); }
@@ -100,14 +105,19 @@
 # define byteAtPointerput(ptr, val)	((sqInt)(*((unsigned char *)(ptr))= (unsigned char)(val)))
 # define shortAtPointer(ptr)		((sqInt)(*((short *)(ptr))))
 # define shortAtPointerput(ptr, val)	((sqInt)(*((short *)(ptr))= (short)(val)))
-# define intAtPointer(ptr)		((sqInt)(*((unsigned int *)(ptr))))
-# define intAtPointerput(ptr, val)	((sqInt)(*((unsigned int *)(ptr))= (int)(val)))
-# define longAtPointer(ptr)		((sqInt)(*((sqInt *)(ptr))))
-# define longAtPointerput(ptr, val)	((sqInt)(*((sqInt *)(ptr))= (sqInt)(val)))
-# define oopAtPointer(ptr)		(sqInt)(*((sqInt *)ptr))
-# define oopAtPointerput(ptr, val)	(sqInt)(*((sqInt *)ptr)= (sqInt)val)
+# define intAtPointer(ptr)		((sqInt)(*((int *)(ptr))))
+# define intAtPointerput(ptr, val)	((sqInt)(*((int *)(ptr))= (int)(val)))
+# define longAtPointer(ptr)		(*(sqInt *)(ptr))
+# define longAtPointerput(ptr, val)	(*(sqInt *)(ptr)= (sqInt)(val))
+# define oopAtPointer(ptr)		(*(sqInt *)(ptr))
+# define oopAtPointerput(ptr, val)	(*(sqInt *)(ptr)= (sqInt)(val))
+# if defined(sqMemoryBase) && !sqMemoryBase
+#  define pointerForOop(oop)		((char *)(oop))
+#  define oopForPointer(ptr)		((sqInt)(ptr))
+# else
 # define pointerForOop(oop)		((char *)(sqMemoryBase + ((usqInt)(oop))))
 # define oopForPointer(ptr)		((sqInt)(((char *)(ptr)) - (sqMemoryBase)))
+# endif
 # define byteAt(oop)			byteAtPointer(pointerForOop(oop))
 # define byteAtput(oop, val)		byteAtPointerput(pointerForOop(oop), (val))
 # define shortAt(oop)			shortAtPointer(pointerForOop(oop))
@@ -123,50 +133,50 @@
 #define long32At	intAt
 #define long32Atput	intAtput
 
+# ifdef ROAR_VM
+  #define long32AtPointer	intAtPointer // xxx_dmu
+  #define long32AtPointerput	intAtPointerput // xxx_dmu
+# endif // ROAR_VM
+
 /* platform-dependent float conversion macros */
 /* Note: Second argument must be a variable name, not an expression! */
-/* Note: Floats in image are always in PowerPC word order; change
-   these macros to swap words if necessary. This costs no extra and
-   obviates sometimes having to word-swap floats when reading an image.
-*/
-#if defined(DOUBLE_WORD_ALIGNMENT) || defined(DOUBLE_WORD_ORDER)
+#if defined(DOUBLE_WORD_ALIGNMENT)
 /* this is to allow strict aliasing assumption in the optimizer */
-typedef union { double d; int i[sizeof(double) / sizeof(int)]; } _swapper;
-# ifdef DOUBLE_WORD_ORDER
-/* word-based copy with swapping for non-PowerPC order */
-#   define storeFloatAtPointerfrom(intPointerToFloat, floatVarName) \
-	*((int *)(intPointerToFloat) + 0) = ((_swapper *)(&floatVarName))->i[1]; \
-	*((int *)(intPointerToFloat) + 1) = ((_swapper *)(&floatVarName))->i[0];
-#   define fetchFloatAtPointerinto(intPointerToFloat, floatVarName) \
-	((_swapper *)(&floatVarName))->i[1] = *((int *)(intPointerToFloat) + 0); \
-	((_swapper *)(&floatVarName))->i[0] = *((int *)(intPointerToFloat) + 1);
-# else /*!DOUBLE_WORD_ORDER*/
+typedef union { double d; int i[sizeof(double) / sizeof(int)]; } _aligner;
 /* word-based copy for machines with alignment restrictions */
-#   define storeFloatAtPointerfrom(intPointerToFloat, floatVarName) \
-	*((int *)(intPointerToFloat) + 0) = ((_swapper *)(&floatVarName))->i[0]; \
-	*((int *)(intPointerToFloat) + 1) = ((_swapper *)(&floatVarName))->i[1];
-#   define fetchFloatAtPointerinto(intPointerToFloat, floatVarName) \
-	((_swapper *)(&floatVarName))->i[0] = *((int *)(intPointerToFloat) + 0); \
-	((_swapper *)(&floatVarName))->i[1] = *((int *)(intPointerToFloat) + 1);
-# endif /*!DOUBLE_WORD_ORDER*/
-#else /*!(DOUBLE_WORD_ORDER||DOUBLE_WORD_ALIGNMENT)*/
+# define storeFloatAtPointerfrom(intPointerToFloat, doubleVar) do { \
+	*((int *)(intPointerToFloat) + 0) = ((_aligner *)(&doubleVar))->i[0]; \
+	*((int *)(intPointerToFloat) + 1) = ((_aligner *)(&doubleVar))->i[1]; \
+  } while (0)
+# define fetchFloatAtPointerinto(intPointerToFloat, doubleVar) do { \
+	((_aligner *)(&doubleVar))->i[0] = *((int *)(intPointerToFloat) + 0); \
+	((_aligner *)(&doubleVar))->i[1] = *((int *)(intPointerToFloat) + 1); \
+  } while (0)
+#else /* !DOUBLE_WORD_ALIGNMENT */
 /* for machines that allow doubles to be on any word boundary */
-# define storeFloatAtPointerfrom(i, floatVarName) \
-	*((double *) (i)) = (floatVarName);
-# define fetchFloatAtPointerinto(i, floatVarName) \
-	(floatVarName) = *((double *) (i));
+# define storeFloatAtPointerfrom(i, doubleVar) (*((double *) (i)) = (doubleVar))
+# define fetchFloatAtPointerinto(i, doubleVar) ((doubleVar) = *((double *) (i)))
 #endif
 
-#define storeFloatAtfrom(i, floatVarName)	storeFloatAtPointerfrom(pointerForOop(i), floatVarName)
-#define fetchFloatAtinto(i, floatVarName)	fetchFloatAtPointerinto(pointerForOop(i), floatVarName)
+#define storeFloatAtfrom(i, doubleVar)	storeFloatAtPointerfrom(pointerForOop(i), doubleVar)
+#define fetchFloatAtinto(i, doubleVar)	fetchFloatAtPointerinto(pointerForOop(i), doubleVar)
+# define storeSingleFloatAtPointerfrom(i, floatVar) (*((float *) (i)) = (float)(floatVar))
+# define fetchSingleFloatAtPointerinto(i, floatVar) ((floatVar) = *((float *) (i)))
+#define storeSingleFloatAtfrom(i, floatVar)	storeSingleFloatAtPointerfrom(pointerForOop(i), floatVar)
+#define fetchSingleFloatAtinto(i, floatVar)	fetchSingleFloatAtPointerinto(pointerForOop(i), floatVar)
 
 
 /* This doesn't belong here, but neither do 'self flag: ...'s belong in the image. */
 
-static void inline flag(char *ignored)
-{
-  (void)ignored;
-}
+#ifdef _MSC_VER
+static void flag(char *ignored) {}
+#else 
+static inline void flag(char *ignored) {}
+#endif
 
+/* heap debugging facilities in sqHeapMap.c */
+extern void clearHeapMap(void);
+extern int  heapMapAtWord(void *wordPointer);
+extern void heapMapAtWordPut(void *wordPointer, int bit);
 
 #endif /* __sqMemoryAccess_h */
