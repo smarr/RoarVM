@@ -7,7 +7,11 @@ extern int    uxDropFileCount;
 extern char **uxDropFileNames;
 
 #define SqDisplayVersionMajor	1
+<<<<<<< HEAD
 #define SqDisplayVersionMinor	2
+=======
+#define SqDisplayVersionMinor	4
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
 #define SqDisplayVersion	((SqDisplayVersionMajor << 16) | (SqDisplayVersionMinor))
 
 #if (AVOID_OPENGL_H)
@@ -23,7 +27,11 @@ struct SqDisplay
   char  *(*winSystemName)(void);
   /* window startup/shutown */
   void 	 (*winInit)(void);
+<<<<<<< HEAD
   void 	 (*winOpen)(void);
+=======
+  void 	 (*winOpen)(int argc, char *dropFiles[]);
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
   void 	 (*winSetName)(char *title);
   int  	 (*winImageFind)(char *imageName, int size);
   void 	 (*winImageNotFound)(void);
@@ -51,6 +59,10 @@ struct SqDisplay
   sqInt  (*dndOutStart)(char *types, int ntypes);
   sqInt  (*dndOutAcceptedType)(char *type, int ntype);
   void   (*dndOutSend)(char *bytes, int nbytes);
+<<<<<<< HEAD
+=======
+  sqInt  (*dndReceived)(char *fileName);
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
   sqInt  (*ioGetButtonState)(void);
   sqInt  (*ioPeekKeystroke)(void);
   sqInt  (*ioGetKeystroke)(void);
@@ -83,6 +95,19 @@ struct SqDisplay
   int    (*hostWindowSetPosition)(int windowIndex, int x, int y);
   int    (*hostWindowSetTitle)(int windowIndex, char * newTitle, int sizeOfTitle);
   int    (*hostWindowCloseAll)(void);
+<<<<<<< HEAD
+=======
+
+  int    (*ioPositionOfScreenWorkArea)(int windowIndex);
+  int    (*ioSizeOfScreenWorkArea)(int windowIndex);
+  sqInt  (*ioSetCursorPositionXY)(sqInt x, sqInt y);
+
+  void  *(*ioGetWindowHandle)(void);
+  int    (*ioPositionOfNativeDisplay)(void *);
+  int    (*ioSizeOfNativeDisplay)(void *);
+  int    (*ioPositionOfNativeWindow)(void *);
+  int    (*ioSizeOfNativeWindow)(void *);
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
 };
 
 
@@ -118,6 +143,10 @@ static struct SqDisplay display_##NAME##_itf= {	\
   display_dndOutStart,				\
   display_dndOutAcceptedType,  			\
   display_dndOutSend,				\
+<<<<<<< HEAD
+=======
+  display_dndReceived,				\
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
   display_ioGetButtonState,			\
   display_ioPeekKeystroke,			\
   display_ioGetKeystroke,			\
@@ -146,7 +175,19 @@ static struct SqDisplay display_##NAME##_itf= {	\
   display_hostWindowGetPosition,		\
   display_hostWindowSetPosition,		\
   display_hostWindowSetTitle,			\
+<<<<<<< HEAD
   display_hostWindowCloseAll			\
+=======
+  display_hostWindowCloseAll,			\
+  display_ioPositionOfScreenWorkArea,	\
+  display_ioSizeOfScreenWorkArea,		\
+  display_ioSetCursorPositionXY,		\
+  display_ioGetWindowHandle,			\
+  display_ioPositionOfNativeDisplay,	\
+  display_ioSizeOfNativeDisplay,	\
+  display_ioPositionOfNativeWindow,	\
+  display_ioSizeOfNativeWindow	\
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
 }
 
 

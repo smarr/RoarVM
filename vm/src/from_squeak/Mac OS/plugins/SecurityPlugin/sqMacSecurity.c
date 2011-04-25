@@ -12,20 +12,19 @@
 #include "FilePlugin.h"
 
 #include <Files.h> 
+
 #if !defined(PATH_MAX)
 # include <sys/syslimits.h>
 #endif
 extern struct VirtualMachine * interpreterProxy;
 
 #define fromSqueak(string,length) string
-
 void fixPath(char *path);
 int dir_CreateSecurity(char *pathString, int pathStringLength);
 int _ioSetFileAccess(int enable);
 
 static char secureUserDirectory[PATH_MAX];
 static char untrustedUserDirectory[PATH_MAX];
-
 static Boolean gInitialized = false;
 
 /***************************************************************************/
@@ -55,6 +54,7 @@ static int isAccessibleFileName(char *fileName) {
     if(untrustedUserDirectory[i] != fileName[i]) return 0;
   return 1;
 }
+
 /* directory access */
 int ioCanCreatePathOfSize(char* pathString, int pathStringLength) {
 #pragma unused(pathStringLength)

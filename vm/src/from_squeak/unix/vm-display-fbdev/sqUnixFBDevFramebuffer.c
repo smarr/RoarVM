@@ -2,7 +2,7 @@
  * 
  * Author: Ian Piumarta <ian.piumarta@inria.fr>
  * 
- * Last edited: 2009-08-19 04:36:33 by piumarta on emilia-2.local
+ * Last edited: 2003-10-31 13:32:59 by piumarta on emilia.inria.fr
  */
 
 
@@ -17,12 +17,12 @@
  * 
  * This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -31,9 +31,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 
@@ -508,14 +508,14 @@ static void fb_initVisual(_self)
   self->size= fb_height(self) * self->fix.line_length;
   self->pitch= self->fix.line_length / self->var.bits_per_pixel * 8;
 
-  debugf("%s: %dx%dx%d+%x+%x (%dx%d) %s, rgb %d+%d %d+%d %d+%d pitch %d(%d)\n", self->fbName,
-	 self->var.xres, self->var.yres, self->var.bits_per_pixel, self->var.xoffset, self->var.yoffset,
-	 self->var.xres_virtual, self->var.yres_virtual,
-	 visualName(self),
-	 self->var.red  .offset, self->var.red  .length,
-	 self->var.green.offset, self->var.green.length,
-	 self->var.blue .offset, self->var.blue .length,
-	 self->fix.line_length, self->pitch);
+  DPRINTF("%s: %dx%dx%d+%x+%x (%dx%d) %s, rgb %d+%d %d+%d %d+%d pitch %d(%d)\n", self->fbName,
+	  self->var.xres, self->var.yres, self->var.bits_per_pixel, self->var.xoffset, self->var.yoffset,
+	  self->var.xres_virtual, self->var.yres_virtual,
+	  visualName(self),
+	  self->var.red  .offset, self->var.red  .length,
+	  self->var.green.offset, self->var.green.length,
+	  self->var.blue .offset, self->var.blue .length,
+	  self->fix.line_length, self->pitch);
 
   if (self->var.bits_per_pixel == 8)
     self->bpp= 8;
@@ -607,7 +607,7 @@ static void fb_initBuffer(_self)
   assert(self->addr == 0);
   self->addr= (char *)mmap(0, self->size, PROT_READ | PROT_WRITE, MAP_SHARED, self->fd, 0);
   if (self->addr == (char *)MAP_FAILED) fatalError("mmap");
-  debugf("%s: mapped at %p + %ld\n", self->fbName, self->addr, self->size);
+  DPRINTF("%s: mapped at %p + %ld\n", self->fbName, self->addr, self->size);
 }
 
 
@@ -617,7 +617,7 @@ static void fb_freeBuffer(_self)
     {
       munmap(self->addr, self->size);
       self->addr= 0;
-      debugf("%s: unmapped\n", self->fbName);
+      DPRINTF("%s: unmapped\n", self->fbName);
     }
 }
 
@@ -674,7 +674,7 @@ static int fb_open(_self, struct kb *kb, char *fbDev)
 
   self->kb= kb;
 
-  debugf("using: %s (%d)\n", self->fbName, self->fd);
+  DPRINTF("using: %s (%d)\n", self->fbName, self->fd);
 
   fb_initVisual(self);
   fb_initBuffer(self);
@@ -692,7 +692,7 @@ static void fb_close(_self)
   if (self->fd >= 0)
     {
       close(self->fd);
-      debugf("%s (%d) closed\n", self->fbName, self->fd);
+      DPRINTF("%s (%d) closed\n", self->fbName, self->fd);
       self->fd= -1;
     }
   self->kb= 0;

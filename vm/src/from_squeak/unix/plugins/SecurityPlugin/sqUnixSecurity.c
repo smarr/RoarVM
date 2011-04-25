@@ -19,7 +19,7 @@
 
 static char secureUserDirectory[MAXPATHLEN];     /* imagepath/secure/    */
 static char untrustedUserDirectory[MAXPATHLEN];  /* imagepath/untrusted/ */
-static int  untrustedUserDirectoryLen;		 
+static int  untrustedUserDirectoryLen;
 
 static char* fromSqueak(char* string, int len)
 {
@@ -225,8 +225,8 @@ sqInt ioInitSecurity(void)
   char *squeakUserDirectory= 0;
 
   /* establish the secure user directory */
-      strncpy(secureUserDirectory, imageName, imagePathLen);
-      strcpy(secureUserDirectory + imagePathLen, "/secure");
+  strncpy(secureUserDirectory, imageName, imagePathLen);
+  strcpy(secureUserDirectory + imagePathLen, "/secure");
 
   /* establish untrusted user directory */
   squeakUserDirectory= getenv("SQUEAK_USERDIR");

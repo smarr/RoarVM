@@ -952,6 +952,7 @@ void recordMouseEventCarbon(EventRef event,UInt32 whatHappened,Boolean noPointCo
         } else {
                 evt->nrClicks = 0;
         }
+
 	evt->windowIndex = windowActive;
 	
 	if (oldEvent.buttons == evt->buttons && 
@@ -1286,9 +1287,9 @@ static void doPendingFlush(void) {
 			target = GetEventDispatcherTarget();
 	  
 		if (ReceiveNextEvent(0, NULL, kEventDurationNoWait, true, &event) == noErr) {
-					SendEventToEventTarget (event, target);
-					ReleaseEvent(event);
-			}
+			SendEventToEventTarget (event, target);
+			ReleaseEvent(event);
+		}
 		if (browserActiveAndDrawingContextOk())
 			checkBrowserForHeartBeat();
 		
@@ -1312,7 +1313,7 @@ int ioProcessEvents(void) {
         pthread_exit(null);
     } else {
 		sqCycleMainAutoreleasePool();
-    }
+	}
 	return 0;
 }
 

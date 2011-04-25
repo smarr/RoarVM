@@ -36,13 +36,13 @@ static struct timeval	 startUpTime;
  * Compute the time via the old method for sanity checking purposes.
  */
 int ioOldMSecs() {
-	struct timeval now;
-	gettimeofday(&now, 0);
-	if ((now.tv_usec-= startUpTime.tv_usec) < 0) {
-		now.tv_usec+= 1000000;
-		now.tv_sec-= 1;
-	}
-	now.tv_sec-= startUpTime.tv_sec;
+  struct timeval now;
+  gettimeofday(&now, 0);
+  if ((now.tv_usec-= startUpTime.tv_usec) < 0) {
+    now.tv_usec+= 1000000;
+    now.tv_sec-= 1;
+  }
+  now.tv_sec-= startUpTime.tv_sec;
   return (now.tv_usec / 1000 + now.tv_sec * 1000);
 }
 void SetUpTimers(void)
@@ -74,11 +74,9 @@ int ioMicroMSecs(void)
   return (now.tv_usec / 1000 + now.tv_sec * 1000);
 }
 
-
-
 int ioSeconds(void) {
     time_t unixTime;
-    
+
     unixTime = time(0);
     unixTime += localtime(&unixTime)->tm_gmtoff;
     /* Squeak epoch is Jan 1, 1901.  Unix epoch is Jan 1, 1970: 17 leap years
@@ -86,13 +84,12 @@ int ioSeconds(void) {
     return unixTime + ((52*365UL + 17*366UL) * 24*60*60UL);
 }
 
-
 int ioRelinquishProcessorForMicroseconds(int microSeconds) {
 	/* This operation is platform dependent. 	 */
 
     long	   realTimeToWait,now;
 	extern int getNextWakeupTick();
-    
+
     now = (ioMSecs() & MillisecondClockMask);
     if (getNextWakeupTick() <= now)
         if (getNextWakeupTick() == 0)
@@ -102,11 +99,13 @@ int ioRelinquishProcessorForMicroseconds(int microSeconds) {
     }
     else
         realTimeToWait = (getNextWakeupTick() - now) * 1000; 
-            
+
 	aioSleepForUsecs(realTimeToWait);
-    
+
 	return 0;
 }
+
+
 #undef ioMSecs
 //Issue with unix aio.c sept 2003
 

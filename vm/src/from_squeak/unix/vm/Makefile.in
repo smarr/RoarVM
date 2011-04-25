@@ -6,34 +6,45 @@
 #   
 #   This file is part of Unix Squeak.
 # 
-#    Permission is hereby granted, free of charge, to any person obtaining a copy
-#    of this software and associated documentation files (the "Software"), to deal
-#    in the Software without restriction, including without limitation the rights
-#    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#    copies of the Software, and to permit persons to whom the Software is
-#    furnished to do so, subject to the following conditions:
-#  
-#    The above copyright notice and this permission notice shall be included in
-#    all copies or substantial portions of the Software.
-#  
-#    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#    SOFTWARE.
+#      You are NOT ALLOWED to distribute modified versions of this file
+#      under its original name.  If you modify this file then you MUST
+#      rename it before making your modifications available publicly.
+# 
+#   This file is distributed in the hope that it will be useful, but WITHOUT
+#   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#   FITNESS FOR A PARTICULAR PURPOSE.
+#   
+#   You may use and/or distribute this file ONLY as part of Squeak, under
+#   the terms of the Squeak License as described in `LICENSE' in the base of
+#   this distribution, subject to the following additional restrictions:
+# 
+#   1. The origin of this software must not be misrepresented; you must not
+#      claim that you wrote the original software.  If you use this software
+#      in a product, an acknowledgment to the original author(s) (and any
+#      other contributors mentioned herein) in the product documentation
+#      would be appreciated but is not required.
+# 
+#   2. You must not distribute (or make publicly available by any
+#      means) a modified copy of this file unless you first rename it.
+# 
+#   3. This notice must not be removed or altered in any source distribution.
+# 
+#   Using (or modifying this file for use) in any context other than Squeak
+#   changes these copyright conditions.  Read the file `COPYING' in the
+#   directory `platforms/unix/doc' before proceeding with any such use.
 # 
 # Author: ian.piumarta@inria.fr
 # 
-# Last edited: 2008-04-10 13:51:39 by piumarta on emilia.local
+# Last edited: 2003-08-22 22:54:19 by piumarta on emilia.inria.fr
 
 [make_cfg]
 [make_plg]
 
 TARGET		= vm$a
-OBJS		= $(INTERP)$o sqNamedPrims$o sqVirtualMachine$o aio$o debug$o osExports$o \
-		  sqUnixExternalPrims$o sqUnixMemory$o sqUnixCharConv$o sqUnixMain$o
+OBJS		= $(INTERP)$o cogit$o sqNamedPrims$o sqVirtualMachine$o sqHeapMap$o\
+			sqExternalSemaphores$o sqTicker$o aio$o debug$o osExports$o \
+			sqUnixExternalPrims$o sqUnixMemory$o sqUnixCharConv$o sqUnixMain$o \
+			sqUnixVMProfile$o sqUnixHeartbeat$o sqUnixThreads$o
 
 XINCLUDES	= [includes] \
 		  -I$(topdir)/platforms/Cross/plugins/FilePlugin \
@@ -44,24 +55,36 @@ $(TARGET) : $(OBJS) Makefile
 	$(LINK) $(TARGET) $(OBJS)
 	$(RANLIB) $(TARGET)
 
+$(blddir)/sqNamedPrims.h:	$(vmmcfg)/plugins.int
+	$(topdir)/unixbuild/mkNamedPrims.sh $(vmmcfg)/plugins.int >$(blddir)/sqNamedPrims.h
+
 # rebuild sqNamedPrims.o if sqNamedPrims.h changes
 
-sqNamedPrims$o : $(srcdir)/vm/sqNamedPrims.h
+sqNamedPrims$o : $(blddir)/sqNamedPrims.h
 
-# rebuild sqExtPrims (VM_LIBDIR) sqUnixMain (VM_VERSION) if config.h changes
+# rebuild sqExtPrims sqUnixMain (VM_VERSION) if config.h changes
 
 sqUnixExternalPrims$o sqUnixMain$o : ../config.h $(topdir)/platforms/unix/vm/dlfcn-dyld.c
 
-# GNUify the interpreter if needed
-
-gnu-interp$o : gnu-interp.c
-	$(COMPILE) $@ gnu-interp.c
-
-gnu-interp.c : $(srcdir)/vm/interp.c
-	tr '\015' '\012' < $(srcdir)/vm/interp.c > interp.c
-	$(AWK) -f $(topdir)/platforms/unix/config/gnuify interp.c > $@.out
-	mv $@.out $@
-
 [make_targets]
+
+# Ensure the heartbeat is compiled with less aggressive optimization.  At
+# least with gcc 4.1.2 compiling with -O2 results in an apparently flakey VM;
+# so flakey the Squeak4.2-10856-beta.image image won't even start-up.
+#sqUnixHeartbeat$o : $(topdir)/platforms/unix/vm/sqUnixHeartbeat.c
+#	$(COMPILE) sqUnixHeartbeat$o -O1 -fno-omit-frame-pointer -mno-rtd -mno-accumulate-outgoing-args $(topdir)/platforms/unix/vm/sqUnixHeartbeat.c
+
+# Ensure the cointerpreter is compiled with less aggressive optimization.  At
+# least with gcc 4.1.2 compiling with -O2 results in an apparently flakey VM.
+#gcc3x-cointerp$o : $(srcdir)/vm/gcc3x-cointerp.c
+#	$(COMPILE) gcc3x-cointerp$o -O1 -fno-omit-frame-pointer -momit-leaf-frame-pointer -mno-rtd -mno-accumulate-outgoing-args $(srcdir)/vm/gcc3x-cointerp.c
+
+# Ensure the cogit is compiled with less aggressive optimization.  The cogit
+# contains a function that does two alloca's which is miscompiled by a number of
+# optimizing compilers (at least gcc 4.0.x 4.1.x & Intel icc 10.1) under the
+# -fomit-frame-pointer regime.  Also on gcc 4.1 linux -O2 causes an abort on
+# shutdown even though the VM starts correctly.  You have been warned :)
+#cogit$o : $(srcdir)/vm/cogit.c
+#	$(COMPILE) cogit$o -O1 -fno-omit-frame-pointer -momit-leaf-frame-pointer -mno-rtd -mno-accumulate-outgoing-args $(srcdir)/vm/cogit.c
 
 .force :

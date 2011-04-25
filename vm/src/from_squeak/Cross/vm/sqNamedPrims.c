@@ -1,5 +1,5 @@
 /****************************************************************************
-*   PROJECT: Squeak
+*   PROJECT: Squeak 
 *   FILE:    sqNamedPrims.c
 *   CONTENT: Generic (cross platform) named primitive support
 *
@@ -12,7 +12,6 @@
 *
 *****************************************************************************/
 #include "sq.h"
-# include "squeak_adapters.h"
 
 
 typedef struct {
@@ -89,7 +88,6 @@ static sqInt removeFromList(ModuleEntry *entry)
 	}
 	return 1;
 }
-
 
 /*
 	findExternalFunctionIn:
@@ -198,7 +196,7 @@ static sqInt callInitializersIn(ModuleEntry *module)
 		/* Note: older plugins may not export the compiled module name */
 		DPRINTF(("WARNING: getModuleName() not found in %s\n", module->name));
 	}
-	if(!init1) {
+	if(!init1) { 
 		DPRINTF(("ERROR: setInterpreter() not found\n"));
 		return 0;
 	}
@@ -229,6 +227,7 @@ static sqInt callInitializersIn(ModuleEntry *module)
 	If anything goes wrong make sure the module is unloaded
 	(WITHOUT calling shutdownModule()) and return NULL.
 */
+
 static int moduleLoadingEnabled = 1;
 
 /* Disable module loading mechanism for the rest of current session. This operation should be not reversable! */
@@ -274,7 +273,7 @@ static ModuleEntry *findAndLoadModule(const char *pluginName, sqInt ffiLoad)
 }
 
 /* findOrLoadModule:
-	Look if the given module is already loaded.
+	Look if the given module is already loaded. 
 	If so, return it's handle, otherwise try to load it.
 */
 static ModuleEntry *findOrLoadModule(const char *pluginName, sqInt ffiLoad)
@@ -318,7 +317,6 @@ void *ioLoadFunctionFrom(const char *functionName, const char *pluginName)
 	/* and load the actual function */
 	return findFunctionIn(functionName, module);
 }
-
 
 /* ioLoadExternalFunctionOfLengthFromModuleOfLength
 	Entry point for functions looked up through the VM.
@@ -384,7 +382,6 @@ void *ioLoadModuleOfLength(sqInt moduleNameIndex, sqInt moduleNameLength)
 	if(module) return module->handle;
 	return 0;
 }
-
 
 /* shutdownModule:
 	Call the shutdown mechanism from the specified module.

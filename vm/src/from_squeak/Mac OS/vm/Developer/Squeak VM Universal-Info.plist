@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
@@ -83,8 +83,6 @@
 			<array>
 				<string>STpr</string>
 			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
@@ -346,119 +344,29 @@
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
-	</array>
-	<key>UTExportedTypeDeclarations</key>
-	<array>
 		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>org.squeak.image</string>
-			<key>UTTypeDescription</key>
-			<string>Squeak Image File</string>
-			<key>UTTypeConformsTo</key>
+			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>public.data</string>
+				<string>bundle</string>
 			</array>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>com.apple.ostype</key>
-				<string>STim</string>
-				<key>public.filename-extension</key>
-				<array>
-					<string>image</string>
-				</array>
-				<key>public.mime-type</key>
-				<string>application/squeak-image</string>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>org.squeak.sources</string>
-			<key>UTTypeDescription</key>
-			<string>Squeak Sources File</string>
-			<key>UTTypeConformsTo</key>
+			<key>CFBundleTypeIconFile</key>
+			<string>SqueakPlugin.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Squeak Plugin</string>
+			<key>CFBundleTypeOSTypes</key>
 			<array>
-				<string>public.utf8-plain-text</string>
+				<string>BNDL</string>
 			</array>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>com.apple.ostype</key>
-				<string>STso</string>
-				<key>public.filename-extension</key>
-				<array>
-					<string>sources</string>
-				</array>
-				<key>public.mime-type</key>
-				<string>application/squeak-sources</string>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>org.squeak.changes</string>
-			<key>UTTypeDescription</key>
-			<string>Squeak Changes File</string>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.utf8-plain-text</string>
-			</array>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>com.apple.ostype</key>
-				<string>STch</string>
-				<key>public.filename-extension</key>
-				<array>
-					<string>changes</string>
-				</array>
-				<key>public.mime-type</key>
-				<string>application/squeak-changes</string>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>org.squeak.script</string>
-			<key>UTTypeDescription</key>
-			<string>Squeak Script File</string>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.data</string>
-			</array>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>com.apple.ostype</key>
-				<string>SOBJ</string>
-				<key>public.filename-extension</key>
-				<array>
-					<string>sobj</string>
-				</array>
-				<key>public.mime-type</key>
-				<string>application/squeak-script</string>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>org.squeak.project</string>
-			<key>UTTypeDescription</key>
-			<string>Squeak Project File</string>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.data</string>
-			</array>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>com.apple.ostype</key>
-				<string>STpr</string>
-				<key>public.filename-extension</key>
-				<array>
-					<string>pr</string>
-				</array>
-				<key>public.mime-type</key>
-				<string>application/x-squeak-project</string>
-			</dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>Squeak VM Opt</string>
+	<key>CGDisableCoalescedUpdates</key>
+	<true/>
 	<key>CFBundleGetInfoString</key>
-	<string>Squeak VM 4.2.5b1 http://www.squeak.org</string>
+	<string>Squeak VM 3.8.12b4 http://www.squeak.org </string>
 	<key>CFBundleIconFile</key>
 	<string>Squeak.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -470,15 +378,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>Squeak VM 4.2.5b1</string>
+	<string>Squeak VM 3.8.12b4</string>
 	<key>CFBundleSignature</key>
 	<string>FAST</string>
 	<key>CFBundleVersion</key>
-	<string>4.2.5b1</string>
-	<key>CGDisableCoalescedUpdates</key>
-	<true/>
-	<key>LSBackgroundOnly</key>
-	<false/>
+	<string>3.8.12b4</string>
 	<key>NSServices</key>
 	<array>
 		<dict>
@@ -501,74 +405,16 @@
 			</array>
 		</dict>
 	</array>
-	<key>SqueakBrowserMouseCmdButton1</key>
-	<integer>3</integer>
-	<key>SqueakBrowserMouseCmdButton2</key>
-	<integer>3</integer>
-	<key>SqueakBrowserMouseCmdButton3</key>
-	<integer>2</integer>
-	<key>SqueakBrowserMouseControlButton1</key>
-	<integer>1</integer>
-	<key>SqueakBrowserMouseControlButton2</key>
-	<integer>3</integer>
-	<key>SqueakBrowserMouseControlButton3</key>
-	<integer>2</integer>
-	<key>SqueakBrowserMouseNoneButton1</key>
-	<integer>1</integer>
-	<key>SqueakBrowserMouseNoneButton2</key>
-	<integer>3</integer>
-	<key>SqueakBrowserMouseNoneButton3</key>
-	<integer>2</integer>
-	<key>SqueakBrowserMouseOptionButton1</key>
-	<integer>2</integer>
-	<key>SqueakBrowserMouseOptionButton2</key>
-	<integer>3</integer>
-	<key>SqueakBrowserMouseOptionButton3</key>
-	<integer>2</integer>
-	<key>SqueakDebug</key>
-	<integer>0</integer>
 	<key>SqueakEncodingType</key>
-	<string>UTF-8</string>
-	<key>SqueakExplicitWindowOpenNeeded</key>
-	<false/>
+	<string>macintosh</string>
 	<key>SqueakFloatingWindowGetsFocus</key>
+	<true/>
+	<key>SqueakPluginsBuiltInOrLocalOnly</key>
 	<true/>
 	<key>SqueakImageName</key>
 	<string>Squeak.image</string>
 	<key>SqueakMaxHeapSize</key>
 	<integer>536870912</integer>
-	<key>SqueakMouseCmdButton1</key>
-	<integer>3</integer>
-	<key>SqueakMouseCmdButton2</key>
-	<integer>3</integer>
-	<key>SqueakMouseCmdButton3</key>
-	<integer>2</integer>
-	<key>SqueakMouseControlButton1</key>
-	<integer>1</integer>
-	<key>SqueakMouseControlButton2</key>
-	<integer>3</integer>
-	<key>SqueakMouseControlButton3</key>
-	<integer>2</integer>
-	<key>SqueakMouseNoneButton1</key>
-	<integer>1</integer>
-	<key>SqueakMouseNoneButton2</key>
-	<integer>3</integer>
-	<key>SqueakMouseNoneButton3</key>
-	<integer>2</integer>
-	<key>SqueakMouseOptionButton1</key>
-	<integer>2</integer>
-	<key>SqueakMouseOptionButton2</key>
-	<integer>3</integer>
-	<key>SqueakMouseOptionButton3</key>
-	<integer>2</integer>
-	<key>SqueakPluginsBuiltInOrLocalOnly</key>
-	<true/>
-	<key>SqueakQuitOnQuitAppleEvent</key>
-	<false/>
-	<key>SqueakTrustedDirectory</key>
-	<string>/foobar/tooBar/forSqueak/bogus/</string>
-	<key>SqueakResourceDirectory</key>
-	<string>./</string>
 	<key>SqueakUIFlushPrimaryDeferNMilliseconds</key>
 	<integer>20</integer>
 	<key>SqueakUIFlushSecondaryCheckForPossibleNeedEveryNMilliseconds</key>
@@ -577,15 +423,13 @@
 	<integer>25</integer>
 	<key>SqueakUIFlushUseHighPercisionClock</key>
 	<true/>
-	<key>SqueakUnTrustedDirectory</key>
-	<string>~/Library/Preferences/Squeak/Internet/My Squeak/</string>
 	<key>SqueakWindowAttribute</key>
-	<data>ggAAHg==</data>
+	<data>
+	ggAAHg==
+	</data>
 	<key>SqueakWindowHasTitle</key>
 	<true/>
 	<key>SqueakWindowType</key>
 	<integer>6</integer>
-	<key>SqueakUseFileMappedMMAP</key>
-	<false/>
 </dict>
 </plist>

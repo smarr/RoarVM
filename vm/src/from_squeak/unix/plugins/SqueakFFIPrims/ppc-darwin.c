@@ -2,7 +2,7 @@
  * 
  * Author: Ian.Piumarta@INRIA.Fr
  * 
- * Last edited: 2009-08-19 04:23:48 by piumarta on emilia-2.local
+ * Last edited: 2004-04-03 02:59:34 by piumarta on emilia.local
  * 
  *   Copyright (C) 1996-2004 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
@@ -10,12 +10,12 @@
  *   
  *   This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -24,9 +24,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  *
  * Notes:
  *
@@ -56,9 +56,9 @@
 #endif
 
 #if 0
-# define debugf(ARGS)	printf ARGS; fflush(stdout)
+# define DPRINTF(ARGS)	printf ARGS; fflush(stdout)
 #else
-# define debugf(ARGS)
+# define DPRINTF(ARGS)
 #endif
 
 extern struct VirtualMachine *interpreterProxy;
@@ -112,7 +112,7 @@ extern int ffiCallAddressOf(void *addr, void *globals);
 
 int ffiInitialize(void)
 {
-  debugf(("ffiInitialize\n"));
+  DPRINTF(("ffiInitialize\n"));
   stackIndex= gprCount= fprCount= 0;
 #if 0
   structCount= 0;
@@ -132,14 +132,14 @@ int ffiSupportsCallingConvention(int callType)
 int ffiAlloc(int byteSize)
 {
   int ptr= (int)malloc(byteSize);
-  debugf(("ffiAlloc(%d) => %08x\n", byteSize, ptr));
+  DPRINTF(("ffiAlloc(%d) => %08x\n", byteSize, ptr));
   return ptr;
 }
 
 
 int ffiFree(int ptr)
 {
-  debugf(("ffiFree(%08x)\n", ptr));
+  DPRINTF(("ffiFree(%08x)\n", ptr));
   if (ptr) free((void *)ptr);
   return 1;
 }
@@ -166,7 +166,7 @@ int ffiFree(int ptr)
 
 int ffiPushSignedChar(int value)
 { 
-  debugf(("ffiPushSignedChar %d\n", value));
+  DPRINTF(("ffiPushSignedChar %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -174,7 +174,7 @@ int ffiPushSignedChar(int value)
 
 int ffiPushUnsignedChar(int value) 
 { 
-  debugf(("ffiPushUnsignedChar %d\n", value));
+  DPRINTF(("ffiPushUnsignedChar %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -182,7 +182,7 @@ int ffiPushUnsignedChar(int value)
 
 int ffiPushSignedByte(int value) 
 { 
-  debugf(("ffiPushSignedByte %d\n", value));
+  DPRINTF(("ffiPushSignedByte %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -190,7 +190,7 @@ int ffiPushSignedByte(int value)
 
 int ffiPushUnsignedByte(int value)
 { 
-  debugf(("ffiPushUnsignedByte %d\n", value));
+  DPRINTF(("ffiPushUnsignedByte %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -198,7 +198,7 @@ int ffiPushUnsignedByte(int value)
 
 int ffiPushSignedShort(int value)
 { 
-  debugf(("ffiPushSignedShort %d\n", value));
+  DPRINTF(("ffiPushSignedShort %d\n", value));
   pushGPR(value); 
   return 1; 
 }
@@ -206,7 +206,7 @@ int ffiPushSignedShort(int value)
 
 int ffiPushUnsignedShort(int value) 
 { 
-  debugf(("ffiPushUnsignedShort %d\n", value));
+  DPRINTF(("ffiPushUnsignedShort %d\n", value));
   pushGPR(value); 
   return 1; 
 }
@@ -214,7 +214,7 @@ int ffiPushUnsignedShort(int value)
 
 int ffiPushSignedInt(int value) 
 { 
-  debugf(("ffiPushSignedInt %d\n", value));
+  DPRINTF(("ffiPushSignedInt %d\n", value));
   pushGPR(value); 
   return 1; 
 }
@@ -222,7 +222,7 @@ int ffiPushSignedInt(int value)
 
 int ffiPushUnsignedInt(int value) 
 { 
-  debugf(("ffiPushUnsignedInt %d\n", value));
+  DPRINTF(("ffiPushUnsignedInt %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -230,7 +230,7 @@ int ffiPushUnsignedInt(int value)
 
 int ffiPushSignedLongLong(int low, int high)
 {
-  debugf(("ffiPushSignedLongLong %d %d\n", low, high));
+  DPRINTF(("ffiPushSignedLongLong %d %d\n", low, high));
   qalignGPR();
   qalignStack();
   pushGPR(high);
@@ -241,7 +241,7 @@ int ffiPushSignedLongLong(int low, int high)
 
 int ffiPushUnsignedLongLong(int low, int high)
 { 
-  debugf(("ffiPushUnsignedLongLong %d %d\n", low, high));
+  DPRINTF(("ffiPushUnsignedLongLong %d %d\n", low, high));
   qalignGPR();
   qalignStack();
   pushGPR(high);
@@ -252,7 +252,7 @@ int ffiPushUnsignedLongLong(int low, int high)
 
 int ffiPushPointer(int pointer)
 {
-  debugf(("ffiPushPointer %08x\n", pointer));
+  DPRINTF(("ffiPushPointer %08x\n", pointer));
   pushGPR(pointer);
   return 1;
 }
@@ -260,7 +260,7 @@ int ffiPushPointer(int pointer)
 
 int ffiPushSingleFloat(double value)
 {
-  debugf(("ffiPushSingleFloat %f\n", (float)value));
+  DPRINTF(("ffiPushSingleFloat %f\n", (float)value));
   if (fprCount < FPR_MAX)
     fprs[fprCount++]= value;
   {
@@ -273,7 +273,7 @@ int ffiPushSingleFloat(double value)
 
 int ffiPushDoubleFloat(double value)
 {
-  debugf(("ffiPushDoubleFloat %f\n", (float)value));
+  DPRINTF(("ffiPushDoubleFloat %f\n", (float)value));
   if (fprCount < FPR_MAX)
     fprs[fprCount++]= value;
   pushGPR(((int *)&value)[0]);
@@ -285,7 +285,7 @@ int ffiPushDoubleFloat(double value)
 int ffiPushStringOfLength(int srcIndex, int length)
 {
   char *ptr;
-  debugf(("ffiPushStringOfLength %d\n", length));
+  DPRINTF(("ffiPushStringOfLength %d\n", length));
   checkGPR();
   ptr= (char *)malloc(length + 1);
   if (!ptr)
@@ -312,7 +312,7 @@ int ffiPushStructureOfLength(int pointer, int *structSpec, int specSize)
 #define gprl	  (char *)&gprs[GPR_MAX]
   int   gprSize	= min(argSize, gprl - gprp);
 
-  debugf(("ffiPush %08x Structure %p OfLength %d\n", pointer, structSpec, specSize));
+  DPRINTF(("ffiPush %08x Structure %p OfLength %d\n", pointer, structSpec, specSize));
 
   if (gprSize < 4) gprp += (4 - gprSize);
   if (argSize < 4) argp += (4 - gprSize);
@@ -360,7 +360,7 @@ int ffiPushStructureOfLength(int pointer, int *structSpec, int specSize)
 int ffiCanReturn(int *structSpec, int specSize)
 {
   int header= *structSpec;
-  debugf(("ffiCanReturn %p %d\n", structSpec, specSize));
+  DPRINTF(("ffiCanReturn %p %d\n", structSpec, specSize));
   if (header & FFIFlagPointer)
     return 1;
   if (header & FFIFlagStructure)
@@ -383,7 +383,7 @@ int    ffiLongLongResultHigh(void)	{ return ((int *)&longReturnValue)[0]; }
 
 int ffiStoreStructure(int address, int structSize)
 {
-  debugf(("ffiStoreStructure %08x %d\n", address, structSize));
+  DPRINTF(("ffiStoreStructure %08x %d\n", address, structSize));
   memcpy((void *)address,
 	 structReturnValue ? (void *)structReturnValue : (void *)&longReturnValue,
 	 structSize);
@@ -394,7 +394,7 @@ int ffiStoreStructure(int address, int structSize)
 int ffiCleanup(void)
 {
   int i;
-  debugf(("ffiCleanup\n"));
+  DPRINTF(("ffiCleanup\n"));
   for (i= 0;  i < stringCount;  ++i)
     free(strings[i]);
   stringCount= 0;
@@ -409,14 +409,14 @@ int ffiCleanup(void)
 
 int ffiCallAddressOfWithPointerReturn(int fn, int callType)
 {
-  debugf(("ffiCallAddressOfWithPointerReturn %08x %d\n", fn, callType));
+  DPRINTF(("ffiCallAddressOfWithPointerReturn %08x %d\n", fn, callType));
   return ffiCallAddressOf((void *)fn, (void *)&global);
 }
 
 
 int ffiCallAddressOfWithStructReturn(int fn, int callType, int* structSpec, int specSize)
 {
-  debugf(("ffiCallAddressOfWithStructReturn %08x %d %p %d\n",
+  DPRINTF(("ffiCallAddressOfWithStructReturn %08x %d %p %d\n",
 	   fn, callType, structSpec, specSize));
   return ffiCallAddressOf((void *)fn, (void *)&global);
 }
@@ -424,7 +424,7 @@ int ffiCallAddressOfWithStructReturn(int fn, int callType, int* structSpec, int 
 
 int ffiCallAddressOfWithReturnType(int fn, int callType, int typeSpec)
 {
-  debugf(("ffiCallAddressOfWithReturnType %08x %d %d\n", fn, callType, typeSpec));
+  DPRINTF(("ffiCallAddressOfWithReturnType %08x %d %d\n", fn, callType, typeSpec));
   return ffiCallAddressOf((void *)fn, (void *)&global);
 }
 

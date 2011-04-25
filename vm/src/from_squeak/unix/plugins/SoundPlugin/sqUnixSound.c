@@ -148,7 +148,7 @@ sqInt snd_RecordSamplesIntoAtLength(void *buf, sqInt startSliceIndex, sqInt buff
 
 void snd_Volume(double *left, double *right)			  { snd->snd_Volume(left, right); }
 void snd_SetVolume(double left, double right)			  { snd->snd_SetVolume(left, right); }
-void snd_SetRecordLevel(sqInt level)				  { snd->snd_SetRecordLevel(level); }
+int snd_SetRecordLevel(sqInt level)				  { return snd->snd_SetRecordLevel(level); }
 sqInt snd_GetSwitch(sqInt id, sqInt captureFlag, sqInt channel)	  { return snd->snd_GetSwitch(id, captureFlag, channel); }
 sqInt snd_SetSwitch(sqInt id, sqInt captureFlag, sqInt parameter) { return snd->snd_SetSwitch(id, captureFlag, parameter); }
 sqInt snd_SetDevice(sqInt id, char *name)			  { return snd->snd_SetDevice(id, name); }

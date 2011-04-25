@@ -738,11 +738,12 @@ void Object::print_process_or_nil(Printer* p, bool print_stack) {
     p->printf("nil");
     return;
   }
+  
   print(p);
   p->printf("(0x%x, hash %d, pri %d, %s, ", as_oop().bits(), hashBits(), priority_of_process(), is_process_running() ? "running" : "not running");
-
-    p->printf("myList: ");    my_list_of_process().print(p);  p->printf(", ");
-    p->printf("nextLink: ");  fetchPointer(Object_Indices::NextLinkIndex).print(p);  p->printf(", ");
+  
+  p->printf("myList: ");    my_list_of_process().print(p);  p->printf(", ");
+  p->printf("nextLink: ");  fetchPointer(Object_Indices::NextLinkIndex).print(p);  p->printf(", ");
   
   Oop name = name_of_process();
   if (name != The_Squeak_Interpreter()->roots.nilObj) {

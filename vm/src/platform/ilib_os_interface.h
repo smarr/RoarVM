@@ -77,7 +77,11 @@ public:
   static inline int atomic_fetch_and_add(int* mem, int increment) {
     return atomic_add_val(mem, increment);
   }
+<<<<<<< HEAD
     
+=======
+  
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
   /**
    * Atomically compare the memory location with the old value, and 
    * if they are equal set the new value and return true, false otherwise.

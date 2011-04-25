@@ -107,7 +107,7 @@ ffiTestPoint2 ffiTestStruct64(ffiTestPoint2 pt1, ffiTestPoint2 pt2)
 {
   ffiTestPoint2 result;
   DPRINTF(("pt1.x = %d\npt1.y = %d\npt2.x = %d\npt2.y = %d\n",
-	  pt1.x, pt1.y, pt2.x, pt2.y));
+	 pt1.x, pt1.y, pt2.x, pt2.y));
   result.x = pt1.x + pt2.x;
   result.y = pt1.y + pt2.y;
   return result;
@@ -118,9 +118,9 @@ ffiTestPoint4 ffiTestStructBig(ffiTestPoint4 pt1, ffiTestPoint4 pt2)
 {
   ffiTestPoint4 result;
   DPRINTF(("pt1.x = %d\npt1.y = %d\npt1.z = %d\npt1.w = %d\n",
-	  pt1.x, pt1.y, pt1.z, pt1.w));
+	 pt1.x, pt1.y, pt1.z, pt1.w));
   DPRINTF(("pt2.x = %d\npt2.y = %d\npt2.z = %d\npt2.w = %d\n",
-	  pt2.x, pt2.y, pt2.z, pt2.w));
+	 pt2.x, pt2.y, pt2.z, pt2.w));
   result.x = pt1.x + pt2.x;
   result.y = pt1.y + pt2.y;
   result.z = pt1.z + pt2.z;
@@ -133,9 +133,9 @@ ffiTestPoint4 *ffiTestPointers(ffiTestPoint4 *pt1, ffiTestPoint4 *pt2)
 {
   ffiTestPoint4 *result;
   DPRINTF(("pt1.x = %d\npt1.y = %d\npt1.z = %d\npt1.w = %d\n",
-	  pt1->x, pt1->y, pt1->z, pt1->w));
+	 pt1->x, pt1->y, pt1->z, pt1->w));
   DPRINTF(("pt2.x = %d\npt2.y = %d\npt2.z = %d\npt2.w = %d\n",
-	  pt2->x, pt2->y, pt2->z, pt2->w));
+	 pt2->x, pt2->y, pt2->z, pt2->w));
   result = (ffiTestPoint4*) malloc(sizeof(ffiTestPoint4));
   result->x = pt1->x + pt2->x;
   result->y = pt1->y + pt2->y;

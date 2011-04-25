@@ -157,7 +157,7 @@
     &&_690, &&_691, &&_692, &&_693, &&_694, &&_695, &&_696, &&_697, &&_698, &&_699, \
   }
 
-  /*
+ /*
      IP_REG, FP_REG, SP_REG, CB_REG
         the machine registers in which to place localIP, localFP, localSP and
         currentBytecode.  Wins big on register-deficient architectures --
@@ -181,7 +181,7 @@
 #if defined(__i386__)
 # define IP_REG asm("%esi")
 # define SP_REG asm("%edi")
-#   define CB_REG asm("%ebx")
+# define CB_REG asm("%ebx")
 #endif
 #if defined(__powerpc__) || defined(PPC) || defined(_POWER) || defined(_IBMR2) || defined(__ppc__)
 # define FOO_REG asm("13")
@@ -200,7 +200,6 @@
 # define SP_REG asm("a4")
 # define CB_REG asm("d7")
 #endif
-
 
 #if !defined(FOO_REG)
 # define FOO_REG /* nada */

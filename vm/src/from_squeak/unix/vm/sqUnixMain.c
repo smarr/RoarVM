@@ -39,6 +39,12 @@
 #include "sqUnixCharConv.h"
 #include "debug.h"
 
+# ifdef ROAR_VM
+  # if __tile__
+    # include <arch/cycle.h>
+  # endif
+# endif // ROAR_VM
+
 #ifdef ioMSecs
 # undef ioMSecs
 #endif
@@ -60,7 +66,7 @@
 # include <execinfo.h>
 # define BACKTRACE_DEPTH 64
 #endif
-#if __FreeBSD__
+#if __FreeBSD__ || __linux__
 # include <sys/ucontext.h>
 #endif
 
@@ -109,7 +115,10 @@ static int    installHandlers=	1;	/* 0 to disable sigusr1 & sigsegv handlers */
 #else
 # define useJit 0
 #endif
+
+# ifndef ROAR_VM
        int    withSpy=		0;
+# endif // ROAR_VM
 
        int    uxDropFileCount=	0;	/* number of dropped items	*/
        char **uxDropFileNames=	0;	/* dropped filenames		*/
@@ -120,7 +129,7 @@ static int    installHandlers=	1;	/* 0 to disable sigusr1 & sigsegv handlers */
 static int    dumpImageFile=	0;	/* 1 after SIGHUP received */
 #endif
 
-#if defined(DARWIN)
+#if defined(DARWIN) && !defined(ROAR_VM)
 int inModalLoop= 0;
 #endif
 
@@ -156,7 +165,13 @@ static void sigalrm(int signum)
 static void initTimers(void)
 {
   /* set up the micro/millisecond clock */
-  gettimeofday(&startUpTime, 0);
+  # ifdef ROAR_VM
+    // cannot use gettimeofday here because time is different on each core -- dmu 3/09
+    fprintf(stderr, "itimer is %sbeing used\n",  useItimer ? "" : "not "); // xxx_dmu
+  # else
+    gettimeofday(&startUpTime, 0);
+  # endif
+
   if (useItimer)
     {
       /* set up the low-res (50th second) millisecond clock */
@@ -194,6 +209,34 @@ sqInt ioLowResMSecs(void)
     ? lowResMSecs
     : ioMSecs();
 }
+
+# ifdef ROAR_VM
+// STEFAN: copied from sqUnixHeartbeat, since we are not using a heartbeat thread
+sqLong
+ioHighResClock(void)
+{
+  /* return the value of the high performance counter */
+  sqLong value = 0;
+#if defined(__GNUC__) && ( defined(i386) || defined(__i386) || defined(__i386__)  \
+			|| defined(i486) || defined(__i486) || defined (__i486__) \
+			|| defined(intel) || defined(x86) || defined(i86pc) )
+    __asm__ __volatile__ ("rdtsc" : "=A"(value));
+#elif __tile__
+  value = get_cycle_count();
+#else
+# error "no high res clock defined"
+#endif
+  return value;
+}
+
+// we are not yet using the new timer infrastructure
+usqLong
+ioUTCMicroseconds()
+{
+  return ioMSecs();
+}
+
+# endif // ROAR_VM
 
 sqInt ioMSecs(void)
 {
@@ -262,7 +305,7 @@ time_t convertToSqueakTime(time_t unixTime);
 sqInt ioSeconds(void)
 {
   return convertToSqueakTime(time(0));
-  }
+}
 #endif /* STACKVM */
 
 time_t convertToSqueakTime(time_t unixTime)
@@ -287,7 +330,7 @@ time_t convertToSqueakTime(time_t unixTime)
 
 /* copy src filename to target, if src is not an absolute filename,
  * prepend the cwd to make target absolute
- */
+  */
 static void pathCopyAbs(char *target, const char *src, size_t targetSize)
 {
   if (src[0] == '/')
@@ -349,7 +392,7 @@ sqInt imageNameSize(void)
 
 sqInt imageNameGetLength(sqInt sqImageNameIndex, sqInt length)
 {
-  char *sqImageName= pointerForOop(sqImageNameIndex);
+  char *sqImageName= (char*)pointerForIndex_xxx_dmu(sqImageNameIndex);
   int count, i;
 
   count= strlen(imageName);
@@ -365,7 +408,7 @@ sqInt imageNameGetLength(sqInt sqImageNameIndex, sqInt length)
 
 sqInt imageNamePutLength(sqInt sqImageNameIndex, sqInt length)
 {
-  char *sqImageName= pointerForOop(sqImageNameIndex);
+  char *sqImageName= (char*)pointerForIndex_xxx_dmu(sqImageNameIndex);
   int count, i;
 
   count= (IMAGE_NAME_SIZE < length) ? IMAGE_NAME_SIZE : length;
@@ -397,7 +440,7 @@ sqInt vmPathSize(void)
 
 sqInt vmPathGetLength(sqInt sqVMPathIndex, sqInt length)
 {
-  char *stVMPath= pointerForOop(sqVMPathIndex);
+  char *stVMPath= (char*)pointerForIndex_xxx_dmu(sqVMPathIndex);
   int count, i;
 
   count= strlen(vmPath);
@@ -496,7 +539,7 @@ sqInt attributeSize(sqInt id)
 sqInt getAttributeIntoLength(sqInt id, sqInt byteArrayIndex, sqInt length)
 {
   if (length > 0)
-    strncpy(pointerForOop(byteArrayIndex), getAttribute(id), length);
+    strncpy((char*)pointerForIndex_xxx_dmu(byteArrayIndex), getAttribute(id), length);
   return 0;
 }
 
@@ -529,7 +572,12 @@ sqInt ioFormPrint(sqInt bitsAddr, sqInt width, sqInt height, sqInt depth, double
 #if STACKVM
 sqInt ioRelinquishProcessorForMicroseconds(sqInt us)
 {
-  dpy->ioRelinquishProcessorForMicroseconds(us);
+  # ifdef ROAR_VM
+    dpy->ioRelinquishProcessorForMicroseconds(0);
+    setInterruptCheckCounter(0);
+  # else
+    dpy->ioRelinquishProcessorForMicroseconds(us);
+  # endif
   return 0;
 }
 #else /* STACKVM */
@@ -745,6 +793,7 @@ static void outOfMemory(void)
   error("out of memory\n");
 }
 
+# ifndef ROAR_VM
 /* Print an error message, possibly a stack trace, do /not/ exit.
  * Allows e.g. writing to a log file and stderr.
  */
@@ -798,8 +847,8 @@ reportStackState(char *msg, char *date, int printAll, ucontext_t *uap)
 			}
 			else {
 				printf("\n\nSmalltalk stack dump:\n");
-      printCallStack();
-    }
+				printCallStack();
+			}
 			printingStack = false;
 #if COGVM
 			/* Now restore framePointer and stackPointer via same function */
@@ -821,9 +870,11 @@ void
 error(char *msg)
 {
 	reportStackState(msg,0,0,0);
-  abort();
+	abort();
 }
 #pragma auto_inline on
+
+# endif // ROAR_VM
 
 /* construct /dir/for/image/crash.dmp if a / in imageName else crash.dmp */
 static void
@@ -845,19 +896,25 @@ sigusr1(int sig, siginfo_t *info, ucontext_t *uap)
 	char crashdump[IMAGE_NAME_SIZE+1];
 	unsigned long pc;
 
+# ifndef ROAR_VM
 	if (!ioOSThreadsEqual(ioCurrentOSThread(),getVMOSThread())) {
 		pthread_kill(getVMOSThread(),sig);
 		errno = saved_errno;
 		return;
 	}
+# endif
 
 	getCrashDumpFilenameInto(crashdump);
 	ctime_r(&now,ctimebuf);
 	pushOutputFile(crashdump);
+# ifndef ROAR_VM
 	reportStackState("SIGUSR1", ctimebuf, 1, uap);
+# endif
 	popOutputFile();
+# ifndef ROAR_VM
 	reportStackState("SIGUSR1", ctimebuf, 1, uap);
-
+# endif
+  
 	errno = saved_errno;
 }
 
@@ -871,9 +928,13 @@ sigsegv(int sig, siginfo_t *info, ucontext_t *uap)
 	getCrashDumpFilenameInto(crashdump);
 	ctime_r(&now,ctimebuf);
 	pushOutputFile(crashdump);
+# ifndef ROAR_VM
 	reportStackState("Segmentation fault", ctimebuf, 0, uap);
+# endif
 	popOutputFile();
+# ifndef ROAR_VM
 	reportStackState("Segmentation fault", ctimebuf, 0, uap);
+# endif
 	abort();
 }
 
@@ -1082,8 +1143,14 @@ static void loadImplicit(struct SqModule **addr, char *evar, char *type, char *n
 
 static void loadModules(void)
 {
+# if Configure_Squeak_Code_for_Tilera
+    extern struct SqModule display_X11,sound_null;
+    displayModule = &display_X11;
+    soundModule = &sound_null;
+# else
   loadImplicit(&displayModule, "DISPLAY",     "display", "X11");
   loadImplicit(&soundModule,   "AUDIOSERVER", "sound",   "NAS");
+# endif
   {
     struct moduleDescription *md;
 
@@ -1133,7 +1200,7 @@ static int strtobkm(const char *str)
   return value;
 }
 
-#if !STACKVM && !COGVM
+#if !STACKVM && !COGVM && !defined(ROAR_VM)
 static int jitArgs(char *str)
 {
   char *endptr= str;
@@ -1146,7 +1213,7 @@ static int jitArgs(char *str)
     args|= (1 << (strtol(endptr + 1, &endptr, 10) + 8));
   return args;
 }
-#endif /* !STACKVM && !COGVM */
+#endif /* !STACKVM && !COGVM && !defined(ROAR_VM) */
 
 
 # include <locale.h>
@@ -1171,21 +1238,27 @@ static void vm_parseEnvironment(void)
   if ((ev= getenv("SQUEAK_NOEVENTS")))	noEvents= 1;
   if ((ev= getenv("SQUEAK_NOTIMER")))	useItimer= 0;
 #if !STACKVM && !COGVM
+  # ifndef ROAR_VM
   if ((ev= getenv("SQUEAK_JIT")))	useJit= jitArgs(ev);
+  # endif // !ROAR_VM
   if ((ev= getenv("SQUEAK_PROCS")))	jitProcs= atoi(ev);
   if ((ev= getenv("SQUEAK_MAXPIC")))	jitMaxPIC= atoi(ev);
 #endif /* !STACKVM && !COGVM */
+  # ifndef ROAR_VM
   if ((ev= getenv("SQUEAK_ENCODING")))	setEncoding(&sqTextEncoding, ev);
   if ((ev= getenv("SQUEAK_PATHENC")))	setEncoding(&uxPathEncoding, ev);
   if ((ev= getenv("SQUEAK_TEXTENC")))	setEncoding(&uxTextEncoding, ev);
+  # endif // !ROAR_VM
 
   if ((ev= getenv("SQUEAK_VM")))	requireModulesNamed(ev);
 }
 
 
 static void usage(void);
-static void versionInfo(void);
 
+# ifndef ROAR_VM
+static void versionInfo(void);
+# endif // !ROAR_VM
 
 static int parseModuleArgument(int argc, char **argv, struct SqModule **addr, char *type, char *name)
 {
@@ -1237,17 +1310,19 @@ static int vm_parseArgument(int argc, char **argv)
 
   /* vm arguments */
 
-  if      (!strcmp(argv[0], "-help"))		{ usage();				return 1; }
-  else if (!strcmp(argv[0], "-noevents"))	{ noEvents	= 1;			return 1; }
-  else if (!strcmp(argv[0], "-nomixer"))	{ noSoundMixer	= 1;			return 1; }
-  else if (!strcmp(argv[0], "-notimer"))	{ useItimer	= 0;			return 1; }
+  if      (!strcmp(argv[0], "-help"))		{ usage();		return 1; }
+  else if (!strcmp(argv[0], "-noevents"))	{ noEvents	= 1;	return 1; }
+  else if (!strcmp(argv[0], "-nomixer"))	{ noSoundMixer	= 1;	return 1; }
+  else if (!strcmp(argv[0], "-notimer"))	{ useItimer	= 0;	return 1; }
   else if (!strcmp(argv[0], "-nohandlers"))	{ installHandlers= 0;	return 1; }
-#if !STACKVM && !COGVM
+#if !STACKVM && !COGVM && !defined(ROAR_VM)
   else if (!strncmp(argv[0],"-jit", 4))		{ useJit	= jitArgs(argv[0]+4);	return 1; }
-  else if (!strcmp(argv[0], "-nojit"))		{ useJit	= 0;			return 1; }
-  else if (!strcmp(argv[0], "-spy"))		{ withSpy	= 1;			return 1; }
-#endif /* !STACKVM && !COGVM */
-  else if (!strcmp(argv[0], "-version"))	{ versionInfo();			return 1; }
+  else if (!strcmp(argv[0], "-nojit"))		{ useJit	= 0;	return 1; }
+  else if (!strcmp(argv[0], "-spy"))		{ withSpy	= 1;	return 1; }
+#endif /* !STACKVM && !COGVM && !defined(ROAR_VM) */
+  # ifndef ROAR_VM
+  else if (!strcmp(argv[0], "-version"))	{ versionInfo();	return 1; }
+  # endif // !ROAR_VM
   else if (!strcmp(argv[0], "-single"))		{ runAsSingleInstance=1; return 1; }
   /* option requires an argument */
   else if (argc > 1)
@@ -1259,8 +1334,10 @@ static int vm_parseArgument(int argc, char **argv)
 #endif /* !STACKVM && !COGVM */
       else if (!strcmp(argv[0], "-mmap"))	{ useMmap=	 strtobkm(argv[1]);	 return 2; }
       else if (!strcmp(argv[0], "-plugins"))	{ squeakPlugins= strdup(argv[1]);	 return 2; }
+      # ifndef ROAR_VM
       else if (!strcmp(argv[0], "-encoding"))	{ setEncoding(&sqTextEncoding, argv[1]); return 2; }
       else if (!strcmp(argv[0], "-pathenc"))	{ setEncoding(&uxPathEncoding, argv[1]); return 2; }
+      # endif // !ROAR_VM
 #if STACKVM
       else if (!strcmp(argv[0], "-eden")) {
 		extern sqInt desiredEdenBytes;
@@ -1328,10 +1405,12 @@ static int vm_parseArgument(int argc, char **argv)
 	  len= strlen(buf);
 	  for (i= 0;  i < len;  ++i)
 	    buf[i]= toupper(buf[i]);
+    # ifndef ROAR_VM
 	  if ((!strcmp(buf, "UTF8")) || (!strcmp(buf, "UTF-8")))
 	    textEncodingUTF8= 1;
 	  else
 	    setEncoding(&uxTextEncoding, buf);
+     # endif // !ROAR_VM
 	  free(buf);
 	  return 2;
 	}
@@ -1352,6 +1431,7 @@ static void vm_printUsage(void)
   printf("  -stackpages <num>     use given number of stack pages\n");
 #endif
   printf("  -noevents             disable event-driven input support\n");
+  printf("  -notimer              disable interval timer for low-res clock \n");
   printf("  -nohandlers           disable sigsegv & sigusr1 handlers\n");
   printf("  -pathenc <enc>        set encoding for pathnames (default: UTF-8)\n");
   printf("  -plugins <path>       specify alternative plugin location (see manpage)\n");
@@ -1371,12 +1451,12 @@ static void vm_printUsage(void)
   printf("  -jit                  enable the dynamic compiler (if available)\n");
 # endif
   printf("  -notimer              disable interval timer for low-res clock \n");
-  printf("  -display <dpy>        quivalent to '-vm-display-X11 -display <dpy>'\n");
-  printf("  -headless             quivalent to '-vm-display-X11 -headless'\n");
-  printf("  -nodisplay            quivalent to '-vm-display-null'\n");
+  printf("  -display <dpy>        equivalent to '-vm-display-X11 -display <dpy>'\n");
+  printf("  -headless             equivalent to '-vm-display-X11 -headless'\n");
+  printf("  -nodisplay            equivalent to '-vm-display-null'\n");
   printf("  -nomixer              disable modification of mixer settings\n");
-  printf("  -nosound              quivalent to '-vm-sound-null'\n");
-  printf("  -quartz               quivalent to '-vm-display-Quartz'\n");
+  printf("  -nosound              equivalent to '-vm-sound-null'\n");
+  printf("  -quartz               equivalent to '-vm-display-Quartz'\n");
 #endif
 }
 
@@ -1435,6 +1515,7 @@ static void usage(void)
   exit(1);
 }
 
+# ifndef ROAR_VM
 
 char *getVersionInfo(int verbose)
 {
@@ -1467,6 +1548,7 @@ static void versionInfo(void)
   exit(0);
 }
 
+# endif // !ROAR_VM
 
 static void parseArguments(int argc, char **argv)
 {
@@ -1513,6 +1595,8 @@ static void parseArguments(int argc, char **argv)
 # undef saveArg
 # undef skipArg
 }
+
+# ifndef ROAR_VM
 
 
 /*** main ***/
@@ -1575,6 +1659,8 @@ void imgInit(void)
       break;
     }
 }
+# endif // !ROAR_VM
+
 
 #if defined(__GNUC__) && ( defined(i386) || defined(__i386) || defined(__i386__)  \
 			|| defined(i486) || defined(__i486) || defined (__i486__) \
@@ -1642,7 +1728,7 @@ int main(int argc, char **argv, char **envp)
   tzset();	/* should _not_ be necessary! */
 #endif
 
-  recordFullPathForVmName(argv[0]);	/* full vm path */
+  recordFullPathForVmName(argv[0]); /* full vm path */
   squeakPlugins= vmPath;		/* default plugin location is VM directory */
 
 #if !DEBUG
@@ -1664,6 +1750,7 @@ int main(int argc, char **argv, char **envp)
     printf("soundModule   %p %s\n", soundModule,   soundModule->name);
 #endif
 
+# ifndef ROAR_VM
   if (!realpath(argv[0], vmName))
     vmName[0]= 0; /* full VM name */
 
@@ -1672,6 +1759,7 @@ int main(int argc, char **argv, char **envp)
   printf("viName: %s\n", shortImageName);
   printf("documentName: %s\n", documentName);
 #endif
+# endif // !ROAR_VM
 
 #if STACKVM || COGVM
   ioInitTime();
@@ -1681,12 +1769,15 @@ int main(int argc, char **argv, char **envp)
 #endif
   aioInit();
   dpy->winInit();
+# ifndef ROAR_VM
   imgInit();
+# endif // !ROAR_VM
   /* If running as a single instance and there are arguments after the image
    * and any are files then try and drop these on the existing instance.
    */
   dpy->winOpen(runAsSingleInstance ? squeakArgCnt : 0, squeakArgVec);
 
+# ifndef ROAR_VM
 #if defined(HAVE_LIBDL) && !(STACKVM || COGVM)
   if (useJit)
     {
@@ -1710,7 +1801,7 @@ int main(int argc, char **argv, char **envp)
 	printf("could not find j_interpret\n");
       exit(1);
     }
-#endif /* defined(HAVE_LIBDL) && !(STACKVM || COGVM) */
+#endif /* defined(HAVE_LIBDL) && !(STACKVM || COGVM || defined(ROAR_VM)) */
 
   if (installHandlers) {
 	struct sigaction sigusr1_handler_action, sigsegv_handler_action;
@@ -1739,7 +1830,14 @@ int main(int argc, char **argv, char **envp)
   (void)sq2uxPath;
   (void)ux2sqPath;
   sqDebugAnchor();
-  
+
+# else
+
+  extern void sigint(int);
+  signal(SIGINT, sigint);
+
+# endif // !ROAR_VM
+
   return 0;
 }
 
@@ -1748,7 +1846,13 @@ int ioExit(void) { return ioExitWithErrorCode(0); }
 sqInt
 ioExitWithErrorCode(int ec)
 {
-  dpy->winExit();
+  if (dpy != NULL)
+    dpy->winExit();
+
+# ifdef ROAR_VM
+  rvm_exit(); // xxx_dmu
+# endif // ROAR_VM
+
   exit(ec);
   return ec;
 }
@@ -1800,14 +1904,14 @@ sqInt sqGetFilenameFromString(char *aCharBuffer, char *aFilenameString, sqInt fi
 	    continue;
 	  }
 
-#      if defined(DARWIN)
+#    if defined(DARWIN)
 	if (isMacAlias(aCharBuffer))
 	  {
 	    if ((++numLinks > MAXSYMLINKS) || !resolveMacAlias(aCharBuffer, aCharBuffer, PATH_MAX))
-	      return -1;	/* too many levels or bad alias */
+	      return -1;		/* too many levels or bad alias */
 	    continue;
 	  }
-#      endif
+#    endif
 
 	break;			/* target is no longer a symlink or alias */
       }

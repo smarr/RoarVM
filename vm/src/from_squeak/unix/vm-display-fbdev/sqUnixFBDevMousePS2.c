@@ -2,7 +2,7 @@
  * 
  * Author: Ian.Piumarta@INRIA.Fr
  * 
- * Last edited: 2009-08-19 04:35:03 by piumarta on emilia-2.local
+ * Last edited: 2003-10-31 11:42:56 by piumarta on emilia.inria.fr
  */
 
 /* The framebuffer display driver was donated to the Squeak community by:
@@ -16,12 +16,12 @@
  * 
  * This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -30,9 +30,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 #define PS2_DISABLE_DELAY   100*1000
@@ -62,7 +62,7 @@
 static void ms_ps2_flush(_self)
 {
   unsigned char buf[32];
-  debugf("%s: flush\n", self->msName);
+  DPRINTF("%s: flush\n", self->msName);
   while (ms_read(self, buf, sizeof(buf), 1, PS2_FLUSH_DELAY))
     ;
 }
@@ -106,19 +106,15 @@ static int ms_ps2_send(_self, unsigned char *command, int len)
 {
   unsigned char buf[1];
   int i;
-  debugf("%s: send\n", self->msName);
+  DPRINTF("%s: send\n", self->msName);
   for (i= 0;  i < len;  ++i)
     {
     resend:
-      if (1 != write(self->fd, command + i, 1))
-	{
-	  debugf("%s: send failed during write\n", self->msName);
-	  return 0;
-	}
-      debugf(">%02x\n", command[i]);
+      write(self->fd, command + i, 1);
+      DPRINTF(">%02x\n", command[i]);
       if (1 != ms_read(self, buf, 1, 1, PS2_SEND_DELAY))
 	{
-	  debugf("%s: send failed during read\n", self->msName);
+	  DPRINTF("%s: send failed\n", self->msName);
 	  return 0;
 	}
       switch (buf[0])
@@ -130,7 +126,7 @@ static int ms_ps2_send(_self, unsigned char *command, int len)
 	  fprintf(stderr, "%s: error response in send\n", self->msName);
 	  return 0;
 	case PS2_RESEND:
-	  debugf("%s: resend\n", self->msName);
+	  DPRINTF("%s: resend\n", self->msName);
 	  goto resend;
 	default:
 	  fprintf(stderr, "%s: illegal response %02x in send\n", self->msName, buf[0]);
@@ -144,13 +140,9 @@ static int ms_ps2_send(_self, unsigned char *command, int len)
 static void ms_ps2_disable(_self)
 {
   unsigned char command[]= { PS2_DISABLE };
-  debugf("%s: disable\n", self->msName);
-  if (1 != write(self->fd, command, 1))
-    {
-      debugf("%s: disable failed during write\n", self->msName);
-      return;
-    }
-  debugf(">%02x\n", command[0]);
+  DPRINTF("%s: disable\n", self->msName);
+  write(self->fd, command, 1);
+  DPRINTF(">%02x\n", command[0]);
   while (1 == ms_read(self, command, 1, 1, PS2_DISABLE_DELAY))
     if (PS2_OK == command[0])
       break;
@@ -160,7 +152,7 @@ static void ms_ps2_disable(_self)
 static int ms_ps2_enable(_self)
 {
   unsigned char command[]= { PS2_ENABLE };
-  debugf("%s: enable\n", self->msName);
+  DPRINTF("%s: enable\n", self->msName);
   return ms_ps2_send(self, command, sizeof(command));
 }
 
@@ -168,12 +160,12 @@ static int ms_ps2_enable(_self)
 static int ms_ps2_reset(_self)
 {
   unsigned char command[]= { PS2_RESET }, buf[2];
-  debugf("%s: reset\n", self->msName);
+  DPRINTF("%s: reset\n", self->msName);
   if (!ms_ps2_send(self, command, sizeof(command)))
     return -1;
   if (2 == ms_read(self, buf, 2, 2, PS2_RESET_DELAY))
     {
-      debugf("%s: response %02x %02x\n", self->msName, buf[0], buf[1]);
+      DPRINTF("%s: response %02x %02x\n", self->msName, buf[0], buf[1]);
       switch (buf[0])
 	{
 	case PS2_SELFTEST_OK:
@@ -183,7 +175,7 @@ static int ms_ps2_reset(_self)
 	  fprintf(stderr, "%s: self-test failed\n", self->msName);
 	  break;
 	default:
-	  debugf("%s: bad response\n", self->msName);
+	  DPRINTF("%s: bad response\n", self->msName);
 	  break;
 	}
     }
@@ -192,7 +184,7 @@ static int ms_ps2_reset(_self)
      up the mouse id immediately in the flush(), so the only harm done
      is a misleading "reset failed" message while debugging.  */
   ms_ps2_flush(self);
-  debugf("%s: reset failed\n", self->msName);
+  DPRINTF("%s: reset failed\n", self->msName);
   return -1;
 }
 
@@ -202,7 +194,7 @@ static void ms_ps2_init(_self)
   int id;
   ms_ps2_disable(self);
   id= ms_ps2_reset(self);
-  debugf("%s: mouse id %02x\n", self->msName, id);
+  DPRINTF("%s: mouse id %02x\n", self->msName, id);
   ms_ps2_enable(self);
 }
 

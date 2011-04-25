@@ -1,0 +1,2052 @@
+'******************************************************************************
+ *  Copyright (c) 2008 - 2010 IBM Corporation and others.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ * 
+ *  Contributors:
+ *    David Ungar, IBM Research - Initial Implementation
+ *    Sam Adams, IBM Research - Initial Implementation
+ *    Stefan Marr, Vrije Universiteit Brussel - Port to x86 Multi-Core Systems
+ ******************************************************************************'!
+DisplayText subclass: #Paragraph
+	instanceVariableNames: 'clippingRectangle compositionRectangle destinationForm rule mask marginTabsLevel lines lastLine destFormSema'
+	classVariableNames: ''
+	poolDictionaries: 'TextConstants'
+	category: 'ST80-Support'!
+Link subclass: #Process
+	instanceVariableNames: 'suspendedContext priority myList errorHandler name env hostCore coreMask'
+	classVariableNames: 'SemaForSuspensions'
+	poolDictionaries: ''
+	category: 'Kernel-Processes'!
+Object subclass: #RVMPrimitives
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'RVM-Support'!	
+Object subclass: #ProcessorScheduler
+	instanceVariableNames: 'quiescentProcessLists activeProcess'
+	classVariableNames: 'BackgroundProcess EmergencyProcess HighIOPriority LowIOPriority SystemBackgroundPriority SystemRockBottomPriority TimingPriority UserBackgroundPriority UserInterruptPriority UserSchedulingPriority'
+	poolDictionaries: ''
+	category: 'Kernel-Processes'!
+FileStream subclass: #StandardFileStream
+	instanceVariableNames: 'name fileID buffer1 interlock'
+	classVariableNames: 'Registry'
+	poolDictionaries: ''
+	category: 'Files-Kernel'!
+!ProcessorScheduler methodsFor: 'accessing' stamp: 'dmu 11/25/2008 00:23'!
+activePriority
+	"Answer the priority level of the currently running Process."
+
+	^self thisProcess priority! !
+!ProcessorScheduler methodsFor: 'accessing' stamp: 'dmu 9/16/2010 14:53'!
+preemptedProcess
+	"Return the process that the currently active process just preempted."
+	| list listWithoutMe |
+	self thisProcess priority to: 1 by: -1 do:[:priority|
+		list := quiescentProcessLists at: priority.
+		"RVM keeps running processes on the lists -- dmu 9/16/10"
+		listWithoutMe := list reject: [:p | p == Processor thisProcess].
+		listWithoutMe isEmpty ifFalse:[^listWithoutMe last].
+	].
+	^nil
+
+	"Processor preemptedProcess"! !
+!ProcessorScheduler methodsFor: 'process state change' stamp: 'dmu 11/25/2008 00:23'!
+terminateActive
+	"Terminate the process that is currently running."
+
+	self thisProcess terminate! !
+!ProcessorScheduler methodsFor: 'RVM' stamp: 'dmu 6/14/2010 15:39'!
+areRunningProcessesInSchedulerLists
+	"Our RVM follows Pallas' MS system and keeps runnable processes in the scheduler lists even when running."
+	^RVMPrimitives isRVM! !
+!ProcessorScheduler methodsFor: 'RVM' stamp: 'dmu 11/25/2008 00:26'!
+isActive: aProcess
+	^ aProcess suspendedContext ==  nil! !
+!ProcessorScheduler methodsFor: 'RVM' stamp: 'dmu 6/14/2010 15:32'!
+thisProcess
+	^ RVMPrimitives thisProcess! !
+!ProcessorScheduler methodsFor: 'RVM' stamp: 'dmu 3/22/2010 13:03'!
+yieldIfFewerCoresThan: n
+	RVMPrimitives coreCount < n    ifTrue: [self yield]! !
+!Project class methodsFor: 'utilities' stamp: 'dmu 11/25/2008 00:24'!
+spawnNewProcessAndTerminateOld: terminate
+
+	self spawnNewProcess.
+	terminate
+		ifTrue: [Processor terminateActive]
+		ifFalse: [Processor thisProcess suspend]! !
+!RVMPrimitives class methodsFor: 'debugging VM' stamp: 'dmu 6/8/2010 23:41'!
+breakpoint
+	<primitive: 'primitiveBreakpoint' module: 'RVMPrimitives'>
+	self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'debugging VM' stamp: 'dmu 6/9/2010 00:02'!
+printExecutionTrace
+	<primitive: 'primitivePrintExecutionTrace' module: 'RVMPlugin'>! !
+!RVMPrimitives class methodsFor: 'debugging VM' stamp: 'dmu 6/9/2010 00:01'!
+printOnConsole: aString
+	"Prints a string onto the console"
+	<primitive: 'primitivePrint' module: 'RVMPlugin'>! !
+!RVMPrimitives class methodsFor: 'debugging VM' stamp: 'dmu 6/9/2010 00:00'!
+printStack
+	"Prints Smalltalk stack to console"
+	<primitive: 'primitivePrintStack' module: 'RVMPlugin'>! !
+!RVMPrimitives class methodsFor: 'debugging VM' stamp: 'dmu 6/9/2010 00:01'!
+printVMStatistics
+	<primitive: 'primitivePrintStats' module: 'RVMPlugin'>! !
+!RVMPrimitives class methodsFor: 'VM statistics' stamp: 'dmu 6/8/2010 23:04'!
+sampleRVM
+	"Grab some data from the VM and return it"
+	<primitive: 'primitiveSampleRVM' module: 'RVMPlugin'>
+	"RVMPrimitives sampleRVM"
+	^ nil! !
+!RVMPrimitives class methodsFor: 'VM statistics' stamp: 'sm 10/27/2010 22:09'!
+getMainRank
+	"Get a sample from the VM and read out the main rank"
+	| sample |
+	sample := self sampleRVM.
+	^ ((sample at: 6) at: 2) at: 6! !
+!RVMPrimitives class methodsFor: 'VM statistics' stamp: 'dmu 6/8/2010 23:40'!
+sampleSpecificData: flags
+	"Grab some data from the VM and return it"
+	"Bit offsets for flags; bit 0 is 1, bit 1 is 2, bit 2 is 4, etc.
+	
+	allCores, // 0
+	runMask,
+	messageNames,
+	cpuCoreStats,
+	allCoreStats,
+	fence,
+
+	millisecs, // 6
+	cycles,
+	messageStats,
+	memorySystemStats,
+    	interpreterStats,
+    	objectTableStats,
+    	interactionStats,
+
+   	 coreCoords, // 14
+    	sendTallies,
+    	receiveTallies,
+    	bufferedMessageStats,
+    	receiveCycles,
+
+    	// memory system
+    	gcStats, // 19
+    	heapStats,
+
+    	// interpreter
+    	bytecodes, // 20
+    	yieldCount,
+    	cycleCounts,
+    	interruptChecks,
+    	movedMutatedObjectStats,
+    	mutexStats,
+   	 interpreterLoopStats // 26"
+
+	<primitive: 'primitiveSampleRVM' module: 'RVMPlugin'>
+	^ nil! !
+!RVMPrimitives class methodsFor: 'rearranging objects' stamp: 'dmu 6/8/2010 23:58'!
+moveAllToReadMostlyHeaps
+	"Move all objects into read-mostly heaps"
+	<primitive: 'primitiveMoveAllToReadMostlyHeaps' module: 'RVMPlugin'>
+	self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'rearranging objects' stamp: 'dmu 6/8/2010 23:55'!
+shuffleToHeapsFrom: firstHeap to: lastHeap
+	"Deal out all objects in the system into heaps from firstHeap through lastHeap in round-robin fashion so that adjacent objects wind up in different heaps"
+	<primitive: 'primitiveShuffle' module: 'RVMPlugin'>
+	^ self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'rearranging objects' stamp: 'dmu 6/8/2010 23:56'!
+shuffleToHeapsFrom: firstHeap to: lastHeap movingReadWriteObjectsToReadMostlyHeap: rwToRM  movingReadMostlyObjectsToReadWriteHeap: rmToRw
+	"Deal out all objects in the system into heaps from firstHeap through lastHeap in round-robin fashion so that adjacent objects wind up in different heaps"
+	"If rwToRM, move objects in read/write heaps to read-mostly heaps."
+	"If rmToRW, move objects in read-mostly heaps to read/write heaps."
+	<primitive: 'primitiveShuffle' module: 'RVMPlugin'>
+	^ self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'rearranging objects' stamp: 'dmu 6/8/2010 23:57'!
+spreadToHeapsFrom: firstHeap to: lastHeap
+	"Spread out all objects in the system into heaps from firstHeap through lastHeap so that each heap ends up about equally full."
+	<primitive: 'primitiveSpread' module: 'RVMPlugin'>
+	^ self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'rearranging objects' stamp: 'dmu 6/8/2010 23:57'!
+spreadToHeapsFrom: firstHeap to: lastHeap movingReadWriteObjectsToReadMostlyHeap: rwToRM  movingReadMostlyObjectsToReadWriteHeap: rmToRw
+	"Spread out all objects in the system into heaps from firstHeap through lastHeap so that each heap ends up about equally full."
+	"If rwToRM, move objects in read/write heaps to read-mostly heaps."
+	"If rmToRW, move objects in read-mostly heaps to read/write heaps."
+	<primitive: 'primitiveSpread' module: 'RVMPlugin'>
+	^ self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'situating an object' stamp: 'dmu 6/8/2010 23:30'!
+for: anObject setRankTo: rank
+	<primitive: 'primitiveSetCoordinatesFor' module: 'RVMPlugin'>
+	self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'situating an object' stamp: 'dmu 6/8/2010 23:31'!
+for: anObject setRankTo: rank isReadWrite: isRW
+	<primitive: 'primitiveSetCoordinatesFor' module: 'RVMPlugin'>
+	self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'situating an object' stamp: 'dmu 6/8/2010 23:17'!
+getCoreOf: anObject
+	"RVMPrimitives getCoreOf: 2@3"
+	<primitive: 'primitiveGetCore' module: 'RVMPlugin'>
+	^ -1! !
+!RVMPrimitives class methodsFor: 'situating an object' stamp: 'dmu 6/8/2010 23:47'!
+getMutabilityOf: anObject
+	"Return true if argument is in a read/write heap, false if in read-mostly heap"
+	<primitive: 'primitiveGetMutability' module: 'RVMPlugin'>
+	^ true! !
+!RVMPrimitives class methodsFor: 'enumerating a heap' stamp: 'dmu 6/8/2010 23:10'!
+allObjectsInHeap: rank isReadWrite: trueForReadWriteFalseForReadMostly
+	"return array of all objects in either read/write or read-mostly heap specified by rank and trueForReadWriteFalseForReadMostly"
+	"RVMPrimitives allObjectsInHeap: 0 isReadWrite: true"
+	<primitive: 'primitiveAllObjectsInHeap' module: 'RVMPlugin'>
+	^ nil! !
+!RVMPrimitives class methodsFor: 'processes' stamp: 'dmu 6/8/2010 23:18'!
+getCoreIAmRunningOn
+	"RVMPrimitives getCoreIAmRunningOn"
+	<primitive: 'primitiveGetCoreIAmRunningOn' module: 'RVMPlugin' >
+  	^ -1! !
+!RVMPrimitives class methodsFor: 'processes' stamp: 'dmu 6/8/2010 23:44'!
+getRunMask
+	"Return an integer with ones corresponding to cores RVM is allowed to use: 1 means core 0, 3 means cores 0 and 1, etc."
+	"RVMPrimitives getRunMask printStringBase: 16"
+	<primitive: 'primitiveRunMask' module: 'RVMPlugin'>
+	^ -1! !
+!RVMPrimitives class methodsFor: 'processes' stamp: 'dmu 6/9/2010 00:07'!
+getRunningProcessesByCore
+	"Returns array of running processes, indexed by core (+1)"
+	<primitive: 'primitiveRunningProcessByCore' module: 'RVMPlugin'>
+	^ self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'processes' stamp: 'dmu 6/8/2010 23:46'!
+setRunMask: anInteger
+	"Sets run mask to argument and returns old run mask.
+	Only cores set in run mask will be used to run Smalltalk processes."
+	"RVMPrimitives setRunMask: 1"
+	<primitive: 'primitiveRunMask' module: 'RVMPlugin'>
+	^ -1! !
+!RVMPrimitives class methodsFor: 'processes' stamp: 'dmu 6/9/2010 00:04'!
+thisProcess
+	"Return the process that is running; RVM does not use ActiveProcess for this state, since many may be running"
+	<primitive: 'primitiveThisProcess'  module: 'RVMPlugin'>
+	^ Processor activeProcess! !
+!RVMPrimitives class methodsFor: 'cores' stamp: 'dmu 6/8/2010 23:11'!
+coreCount
+  "RVMPrimitives coreCount"
+  <primitive: 'primitiveCoreCount' module: 'RVMPlugin'>
+  ^ 1! !
+!RVMPrimitives class methodsFor: 'tracing' stamp: 'dmu 6/8/2010 23:25'!
+getCoreTrace
+	"RVMPrimitives getCoreTrace"
+	<primitive: 'primitiveTraceCores' module: 'RVMPlugin'>
+	^ self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'tracing' stamp: 'dmu 6/8/2010 23:26'!
+getMutatedReplicatedObjectsTrace
+	<primitive: 'primitiveTraceMutatedReplicatedObjects' module: 'RVMPlugin'>
+	^ self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'tracing' stamp: 'dmu 6/8/2010 23:22'!
+startCoreTrace: size
+	"RVMPrimitives startCoreTrace: 1000"
+	<primitive: 'primitiveTraceCores' module: 'RVMPlugin'>
+	^ self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'tracing' stamp: 'dmu 6/8/2010 23:27'!
+startMutatedReplicatedObjectsTrace: size
+	<primitive: 'primitiveTraceMutatedReplicatedObjects' module: 'RVMPlugin'>
+	^ self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'emergency evaluating' stamp: 'dmu 6/8/2010 23:19'!
+getEmergencySemaphore
+	"When you hit shift-control-a, the VM will signal the emergency semaphore, if it has been set to a semaphore"
+	"RVMPrimitives getEmergencySemaphore"
+	<primitive: 'primitiveEmergencySemaphore' module: 'RVMPlugin'>! !
+!RVMPrimitives class methodsFor: 'emergency evaluating' stamp: 'dmu 6/9/2010 00:06'!
+setEmergencySemaphore: aSema
+	"When you hit shift-control-a, the VM will signal the emergency semaphore, if it has been set to a semaphore"
+	"RVMPrimitives setEmergencySemaphore: Semaphore new"
+	<primitive: 'primitiveEmergencySemaphore' module: 'RVMPlugin'>! !
+!RVMPrimitives class methodsFor: 'using extra word' stamp: 'dmu 6/14/2010 15:27'!
+getExtraPreheaderWordOf: anObject
+	"Returns the extra preheader word of the argument."
+	"RVMPrimitives getExtraPreheaderWordOf: 3@4"
+	<primitive: 'primitiveGetExtraPreheaderWord' module: 'RVMPlugin'>! !
+!RVMPrimitives class methodsFor: 'using extra word' stamp: 'dmu 6/14/2010 15:27'!
+setExtraPreheaderWordOf: anObject to: newContents
+	"Sets the extra preheader word of the first argument."
+	"|n| n := 3@4.
+	RVMPrimitives setExtraPreheaderWordOf: n to: 17.
+	RVMPrimitives getExtraPreheaderWordOf: n"
+	<primitive: 'primitiveSetExtraPreheaderWord' module: 'RVMPlugin'>! !
+!RVMPrimitives class methodsFor: 'using extra word' stamp: 'dmu 6/9/2010 00:05'!
+setExtraWordSelector: aSelector
+	"returns the old one"
+	<primitive: 'primitiveSetExtraWordSelector' module: 'RVMPlugin'>
+	^self primitiveFailed! !
+!RVMPrimitives class methodsFor: 'testing' stamp: 'dmu 6/14/2010 15:36'!
+isRVM
+	"RVMPrimitives isRVM"
+	^ (self getCoreOf: nil) ~= -1! !
+!BlockClosure methodsFor: 'evaluating' stamp: 'dmu 6/14/2010 16:13'!
+valueAt: blockPriority 
+	"Evaluate the receiver (block), with another priority as the actual one 
+	and restore it afterwards. The caller should be careful with using 
+	higher priorities."
+	| activeProcess result outsidePriority |
+	activeProcess := Processor thisProcess.
+	outsidePriority := activeProcess priority.
+	activeProcess priority: blockPriority.
+	result := self ensure: [activeProcess priority: outsidePriority].
+	"Yield after restoring lower priority to give the preempted processes a  
+	chance to run."
+	blockPriority > outsidePriority
+		ifTrue: [Processor yield].
+	^ result! !
+!BlockClosure methodsFor: 'evaluating' stamp: 'dmu 6/14/2010 16:13'!
+valueWithin: aDuration onTimeout: timeoutBlock
+	"Evaluate the receiver.
+	If the evaluation does not complete in less than aDuration evaluate the timeoutBlock instead"
+
+	| theProcess delay watchdog |
+
+	aDuration <= Duration zero ifTrue: [^ timeoutBlock value ].
+
+	"the block will be executed in the current process"
+	theProcess := Processor thisProcess.
+	delay := aDuration asDelay.
+
+	"make a watchdog process"
+	watchdog := [
+		delay wait. 	"wait for timeout or completion"
+		theProcess ifNotNil:[ theProcess signalException: TimedOut ] 
+	] newProcess.
+
+	"Watchdog needs to run at high priority to do its job (but not at timing priority)"
+	watchdog priority: Processor timingPriority-1.
+
+	"catch the timeout signal"
+	^ [	watchdog resume.				"start up the watchdog"
+		self ensure:[						"evaluate the receiver"
+			theProcess := nil.				"it has completed, so ..."
+			delay delaySemaphore signal.	"arrange for the watchdog to exit"
+		]] on: TimedOut do: [ :e | timeoutBlock value ].
+! !
+!BlockClosure methodsFor: 'private' stamp: 'dmu 6/14/2010 16:13'!
+valueUnpreemptively
+	"Evaluate the receiver (block), without the possibility of preemption by higher priority processes. Use this facility VERY sparingly!!"
+	"Think about using Block>>valueUninterruptably first, and think about using Semaphore>>critical: before that, and think about redesigning your application even before that!! 
+	After you've done all that thinking, go right ahead and use it..."
+	| activeProcess oldPriority result |
+	activeProcess := Processor thisProcess.
+	oldPriority := activeProcess priority.
+	activeProcess priority: Processor highestPriority.
+	result := self ensure: [activeProcess priority: oldPriority].
+	"Yield after restoring priority to give the preempted processes a chance to run"
+	Processor yield.
+	^result! !
+!BlockContext methodsFor: 'evaluating' stamp: 'dmu 6/14/2010 16:14'!
+valueWithin: aDuration onTimeout: timeoutBlock
+	"Evaluate the receiver.
+	If the evaluation does not complete in less than aDuration evaluate the timeoutBlock instead"
+
+	| theProcess delay watchdog |
+
+	aDuration <= Duration zero ifTrue: [^ timeoutBlock value ].
+
+	"the block will be executed in the current process"
+	theProcess := Processor thisProcess.
+	delay := aDuration asDelay.
+
+	"make a watchdog process"
+	watchdog := [
+		delay wait. 	"wait for timeout or completion"
+		theProcess ifNotNil:[ theProcess signalException: TimedOut ] 
+	] newProcess.
+
+	"Watchdog needs to run at high priority to do its job (but not at timing priority)"
+	watchdog priority: Processor timingPriority-1.
+
+	"catch the timeout signal"
+	^ [	watchdog resume.				"start up the watchdog"
+		self ensure:[						"evaluate the receiver"
+			theProcess := nil.				"it has completed, so ..."
+			delay delaySemaphore signal.	"arrange for the watchdog to exit"
+		]] on: TimedOut do: [ :e | timeoutBlock value ].
+! !
+!BlockContext methodsFor: 'scheduling' stamp: 'dmu 6/14/2010 16:14'!
+valueAt: blockPriority 
+	"Evaluate the receiver (block), with another priority as the actual one 
+	and restore it afterwards. The caller should be careful with using 
+	higher priorities."
+	| activeProcess result outsidePriority |
+	activeProcess := Processor thisProcess.
+	outsidePriority := activeProcess priority.
+	activeProcess priority: blockPriority.
+	result := self
+				ensure: [activeProcess priority: outsidePriority].
+	"Yield after restoring lower priority to give the preempted processes a  
+	chance to run."
+	blockPriority > outsidePriority
+		ifTrue: [Processor yield].
+	^ result! !
+!BlockContext methodsFor: 'private' stamp: 'dmu 11/25/2008 00:18'!
+valueUnpreemptively
+	"Evaluate the receiver (block), without the possibility of preemption by higher priority processes. Use this facility VERY sparingly!!"
+	"Think about using Block>>valueUninterruptably first, and think about using Semaphore>>critical: before that, and think about redesigning your application even before that!! 
+	After you've done all that thinking, go right ahead and use it..."
+	| activeProcess oldPriority result |
+	activeProcess := Processor thisProcess.
+	oldPriority := activeProcess priority.
+	activeProcess priority: Processor highestPriority.
+	result := self ensure: [activeProcess priority: oldPriority].
+	"Yield after restoring priority to give the preempted processes a chance to run"
+	Processor yield.
+	^result! !
+!CPUWatcher methodsFor: 'process operations' stamp: 'dmu 11/25/2008 00:18'!
+debugProcess: aProcess
+	| uiPriority oldPriority |
+	uiPriority := Processor thisProcess priority.
+	aProcess priority >= uiPriority ifTrue: [
+		oldPriority := ProcessBrowser setProcess: aProcess toPriority: uiPriority - 1
+	].
+	ProcessBrowser debugProcess: aProcess.! !
+!Cursor methodsFor: 'displaying' stamp: 'dmu 6/14/2010 16:15'!
+showWhile: aBlock 
+	"While evaluating the argument, aBlock, make the receiver be the cursor shape."
+	"ar 2/2/2006: Only allow this if active process is ui process"
+	| oldcursor |
+	Processor thisProcess == Project uiProcess ifFalse:[^aBlock value].
+	oldcursor := Sensor currentCursor.
+	self show.
+	^aBlock ensure: [oldcursor show]
+! !
+!Debugger class methodsFor: 'class initialization' stamp: 'dmu 6/14/2010 16:15'!
+openContext: aContext label: aString contents: contentsStringOrNil
+
+	"Open a notifier in response to an error, halt, or notify. A notifier view just shows a short view of the sender stack and provides a menu that lets the user open a full debugger."
+	<primitive: 19> "Simulation guard"
+	ErrorRecursion not & self logDebuggerStackToFile ifTrue:
+		[Smalltalk logError: aString inContext: aContext to: 'PharoDebug.log'].
+	  ErrorRecursion ifTrue:[
+               ErrorRecursion := false.
+               self primitiveError: aString].
+	ErrorRecursion := true.
+	self informExistingDebugger: aContext label: aString.
+	(Debugger context: aContext)
+		openNotifierContents: contentsStringOrNil
+		label: aString.
+	ErrorRecursion := false.
+	Processor thisProcess suspend.
+! !
+!Debugger class methodsFor: 'instance creation' stamp: 'dmu 6/14/2010 16:15'!
+context: aContext
+	"Answer an instance of me for debugging the active process starting with the given context."
+
+	^ self new
+		process: Processor thisProcess
+		controller: nil
+		context: aContext! !
+!DelayWaitTimeout methodsFor: 'private' stamp: 'dmu 6/14/2010 16:15'!
+setDelay: anInteger forSemaphore: aSemaphore
+	super setDelay: anInteger forSemaphore: aSemaphore.
+	process := Processor thisProcess.
+	expired := false.! !
+!HTTPLoader methodsFor: 'private' stamp: 'dmu 6/14/2010 16:15'!
+startDownload
+	| newDownloadProcess |
+	
+	downloads size >= self maxNrOfConnections ifTrue: [^self].
+	requests size <= 0 ifTrue: [^self].
+
+	newDownloadProcess := [
+		[
+			self nextRequest startRetrieval
+		] on: FTPConnectionException do: [ :ex | 
+			Cursor normal show.
+			self removeProcess: Processor thisProcess.
+			self startDownload
+		].
+		self removeProcess: Processor thisProcess.
+		self startDownload
+	] newProcess.
+	downloads add: newDownloadProcess.
+	newDownloadProcess resume! !
+!MessageTally methodsFor: 'initialize-release' stamp: 'dmu 6/14/2010 16:16'!
+spyEvery: millisecs on: aBlock
+	"Create a spy and spy on the given block at the specified rate."
+	"Spy only on the active process (in which aBlock is run)"
+
+	| myDelay time0 observedProcess |
+	aBlock isBlock
+		ifFalse: [ self error: 'spy needs a block here' ].
+	self class: aBlock receiver class method: aBlock method.
+		"set up the probe"
+	observedProcess := Processor thisProcess.
+	myDelay := Delay forMilliseconds: millisecs.
+	time0 := Time millisecondClockValue.
+	gcStats := Smalltalk getVMParameters.
+	Timer ifNotNil: [ self error: 'it seems a tally is already running' ].
+	Timer := [
+		[ true ] whileTrue: [
+			| startTime |
+			startTime := Time millisecondClockValue.
+			myDelay wait.
+			self
+				tally: Processor preemptedProcess suspendedContext
+				in: (observedProcess == Processor preemptedProcess ifTrue: [observedProcess] ifFalse: [nil])
+				"tally can be > 1 if ran a long primitive"
+				by: (Time millisecondClockValue - startTime) // millisecs].
+		nil] newProcess.
+	Timer priority: Processor timingPriority-1.
+		"activate the probe and evaluate the block"
+	Timer resume.
+	^ aBlock ensure: [
+		"cancel the probe and return the value"
+		"Could have already been terminated. See #terminateTimerProcess"
+		Timer ifNotNil: [
+			Timer terminate.
+			Timer := nil ].
+		"Collect gc statistics"
+		Smalltalk getVMParameters keysAndValuesDo: [ :idx :gcVal | 
+			gcVal ifNotNil: [ gcStats at: idx put: (gcVal - (gcStats at: idx))]].
+		time := Time millisecondClockValue - time0]! !
+!Monitor methodsFor: 'private' stamp: 'dmu 6/14/2010 16:16'!
+enter
+	self isOwnerProcess ifTrue: [
+		nestingLevel := nestingLevel + 1.
+	] ifFalse: [
+		mutex wait.
+		ownerProcess := Processor thisProcess.
+		nestingLevel := 1.
+	].! !
+!Monitor methodsFor: 'private' stamp: 'dmu 6/14/2010 16:16'!
+isOwnerProcess
+	^ Processor thisProcess == ownerProcess! !
+!Paragraph methodsFor: 'RVM' stamp: 'dmu 6/15/2010 11:36'!
+destFormSema: s
+	destFormSema := s! !
+!Paragraph methodsFor: 'private' stamp: 'dmu 4/1/2009 19:38'!
+compositionRectangle: compositionRect text: aText style: aTextStyle offset: aPoint
+
+	compositionRectangle := compositionRect copy.
+	text := aText.
+	textStyle := aTextStyle.
+	rule := DefaultRule.
+	mask := nil.		"was DefaultMask "
+	marginTabsLevel := 0.
+	destFormSema := Semaphore forMutualExclusion.
+	destinationForm := Display.
+	offset := aPoint.
+	^self composeAll! !
+!Paragraph methodsFor: 'private' stamp: 'ssa 4/7/2009 12:39'!
+displayOn: aDisplayMedium lines: lineInterval
+
+	| saveDestinationForm |
+	destFormSema isNil ifTrue:[self destFormSema: Semaphore forMutualExclusion].
+	destFormSema critical: [
+		saveDestinationForm := destinationForm.
+		self destinationForm: aDisplayMedium.
+		self displayLines: lineInterval.
+		destinationForm := saveDestinationForm
+	]! !
+!Process methodsFor: 'accessing' stamp: 'ssa 2/17/2009 22:34'!
+isActiveProcess
+
+	^ Processor areRunningProcessesInSchedulerLists
+		ifTrue: [ suspendedContext isNil and:[myList notNil]]
+		ifFalse: [self == Processor activeProcess]! !
+!Process methodsFor: 'accessing' stamp: 'dmu 6/18/2010 17:35'!
+isTerminated
+
+	self isActiveProcess ifTrue: [^ false].
+	^suspendedContext isNil
+	  or: ["If the suspendedContext is the bottomContext it is the block in Process>>newProcess.
+		   If so, and the pc is greater than the startpc, the bock has alrteady sent and returned
+		   from value and there is nothing more to do."
+		suspendedContext isBottomContext
+		and: [suspendedContext pc isNil or: [suspendedContext pc > suspendedContext startpc]]]! !
+!Process methodsFor: 'changing process state' stamp: 'dmu 6/14/2010 16:16'!
+run
+	"Suspend current process and execute self instead"
+
+	| proc |
+	proc := Processor thisProcess.
+	[	proc suspend.
+		self resume.
+	] forkAt: Processor highestPriority! !
+!Process methodsFor: 'changing process state' stamp: 'dmu 6/18/2010 00:18'!
+suspend
+	"Primitive. Stop the process that the receiver represents in such a way 
+	that it can be restarted at a later time (by sending the receiver the 
+	message resume). If the receiver represents the activeProcess, suspend it. 
+	Otherwise remove the receiver from the list of waiting processes.
+	The return value of this method is the list the receiver was previously on (if any)."
+	| oldList |
+	<primitive: 88>
+	"This is fallback code for VMs which only support the old primitiveSuspend which 
+	would not accept processes that are waiting to be run."
+	RVMPrimitives isRVM ifTrue: [self error: 'suspend should never fail'].
+	myList ifNil:[^nil]. "this allows us to use suspend multiple times"
+	oldList := myList.
+	myList := nil.
+	oldList remove: self ifAbsent:[].
+	^oldList! !
+!Process methodsFor: 'changing process state' stamp: 'dmu 6/17/2010 23:57'!
+terminate 
+	"Stop the process that the receiver represents forever.  Unwind to execute pending ensure:/ifCurtailed: blocks before terminating."
+
+	| ctxt unwindBlock oldList |
+	self == Processor thisProcess
+		ifTrue: [
+			ctxt := thisContext.
+			[ ctxt := ctxt findNextUnwindContextUpTo: nil.
+			ctxt isNil ] whileFalse: 
+				[ (ctxt tempAt: 2) ifNil:
+					[ ctxt tempAt: 2 put: nil.
+					unwindBlock := ctxt tempAt: 1.
+					thisContext terminateTo: ctxt.
+					unwindBlock value ]].
+			thisContext terminateTo: nil.
+			self suspend ]
+		 ifFalse: [
+			"Always suspend the process first so it doesn't accidentally get woken up"
+			 oldList := self suspend.
+			suspendedContext ifNotNil:[
+				"Figure out if we are terminating the process while waiting in Semaphore>>critical:
+				In this case, pop the suspendedContext so that we leave the ensure: block inside
+				Semaphore>>critical: without signaling the semaphore."
+				(oldList class == Semaphore and:[
+					suspendedContext method == (Semaphore compiledMethodAt: #critical:)]) ifTrue:[
+						suspendedContext := suspendedContext home.].
+
+			  "If we are terminating a process halfways through an unwind, try to complete that unwind block first."
+				(suspendedContext findNextUnwindContextUpTo: nil) ifNotNil: [ :outer |
+				(suspendedContext findContextSuchThat: [ :c | c closure == (outer tempAt: 1)])
+					ifNotNil: [ :inner |
+						"This is an unwind block currently under evaluation"
+						suspendedContext runUntilErrorOrReturnFrom: inner ]].
+
+			ctxt := self popTo: suspendedContext bottomContext.
+			ctxt == suspendedContext bottomContext ifFalse: [
+				self debug: ctxt title: 'Unwind error during termination']] ].
+! !
+!Process methodsFor: 'changing suspended state' stamp: 'dmu 12/2/2008 14:05'!
+activateReturn: aContext value: value
+	"Activate 'aContext return: value', so execution will return to aContext's sender"
+	self suspend.
+	^ suspendedContext := suspendedContext activateReturn: aContext value: value! !
+!Process methodsFor: 'changing suspended state' stamp: 'dmu 12/2/2008 14:01'!
+complete: aContext 
+	"Run self until aContext is popped or an unhandled error is raised.  Return self's new top context, unless an unhandled error was raised then return the signaler context (rather than open a debugger)."
+	
+	| ctxt pair error |
+	self suspend.
+	ctxt := suspendedContext.
+	suspendedContext := nil.  "disable this process while running its stack in active process below"
+	pair := ctxt runUntilErrorOrReturnFrom: aContext.
+	suspendedContext := pair first.
+	error := pair second.
+	error ifNotNil: [^ error signalerContext].
+	^ suspendedContext! !
+!Process methodsFor: 'changing suspended state' stamp: 'dmu 6/14/2010 16:06'!
+install: aContext 
+	"Replace the suspendedContext with aContext."
+
+	(Processor isActive: self)
+		ifTrue: [^self error: 'An active process cannot install contexts'].
+	suspendedContext := aContext! !
+!Process methodsFor: 'changing suspended state' stamp: 'dmu 6/14/2010 16:07'!
+popTo: aContext 
+	"Pop self down to aContext by remote returning from aContext's callee.  Unwind blocks will be executed on the way.
+	This is done by pushing a new context on top which executes 'aContext callee return' then resuming self until aContext is reached.  This way any errors raised in an unwind block will get handled by senders in self and not by senders in the activeProcess.
+	If an unwind block raises an error that is not handled then the popping stops at the error and the signalling context is returned, othewise aContext is returned."
+
+	| callee |
+	(Processor isActive: self)
+		ifTrue: [^ self error: 'An active process cannot pop contexts'].
+	callee := (self calleeOf: aContext) ifNil: [^ aContext].  "aContext is on top"
+	^ self return: callee value: callee receiver! !
+!Process methodsFor: 'changing suspended state' stamp: 'dmu 6/14/2010 16:08'!
+popTo: aContext value: aValue
+	"Replace the suspendedContext with aContext, releasing all contexts 
+	between the currently suspendedContext and it."
+
+	| callee |
+	(Processor isActive: self)
+		ifTrue: [^ self error: 'An active process cannot pop contexts'].
+	callee := (self calleeOf: aContext) ifNil: [^ self].  "aContext is on top"
+	self return: callee value: aValue! !
+!Process class methodsFor: 'accessing' stamp: 'ssa 3/25/2010 15:11'!
+semaForSuspensions
+
+	SemaForSuspensions isNil ifTrue:[SemaForSuspensions := Semaphore forMutualExclusion].
+	^SemaForSuspensions! !
+!Process methodsFor: 'debugging' stamp: 'dmu 6/14/2010 16:09'!
+debug: context title: title full: bool
+	"Open debugger on self with context shown on top"
+
+	| topCtxt |
+	topCtxt :=  self == Processor thisProcess  ifTrue: [thisContext]
+		ifFalse: [
+			self suspend.  
+			self suspendedContextWaitingIfNecessary].
+	(topCtxt hasContext: context) ifFalse: [^ self error: 'context not in process'].
+	UIManager default onDebug: self context: context title: title full: bool
+! !
+!Process methodsFor: 'debugging' stamp: 'dmu 9/17/2010 12:03'!
+debugWithTitle: title
+	"Open debugger on self"
+
+	| context |
+	context := self == Processor thisProcess  ifTrue: [thisContext] ifFalse: [ self suspend.  self suspendedContextWaitingIfNecessary].
+	self debug: context title: title full: true.
+! !
+!Process methodsFor: 'signaling' stamp: 'ssa 2/17/2009 22:31'!
+pvtSignal: anException list: aList
+	"Private. This method is used to signal an exception from another
+	process...the receiver must be the active process.  If the receiver 
+	was previously waiting on a Semaphore, then return the process
+	to the waiting state after signaling the exception and if the Semaphore
+	has not been signaled in the interim"
+
+	"Since this method is not called in a normal way, we need to take care
+	that it doesn't directly return to the caller (because I believe that could
+	have the potential to push an unwanted object on the caller's stack)."
+
+	| blocker |
+	self == Processor thisProcess ifFalse: [^self].
+	self suspend.
+	anException signal.
+	blocker := Semaphore new.
+	[self suspend.
+	suspendedContext := suspendedContext swapSender: nil.
+	aList class == Semaphore 
+		ifTrue:
+			[aList isSignaled
+				ifTrue: 
+					[aList wait.  "Consume the signal that would have restarted the receiver"
+					self resume]
+				ifFalse:
+					["Add us back to the Semaphore's list (and remain blocked)"
+					myList := aList.
+					aList add: self]]
+		ifFalse: [self resume]] fork.
+	blocker wait.
+
+
+! !
+!Process methodsFor: 'signaling' stamp: 'dmu 6/14/2010 16:11'!
+signalException: anException
+	"Signal an exception in the receiver process...if the receiver is currently
+	suspended, the exception will get signaled when the receiver is resumed.  If 
+	the receiver is blocked on a Semaphore, it will be immediately re-awakened
+	and the exception will be signaled; if the exception is resumed, then the receiver
+	will return to a blocked state unless the blocking Semaphore has excess signals"
+	| oldList |
+	"If we are the active process, go ahead and signal the exception"
+	self == Processor thisProcess  ifTrue: [^anException signal].
+
+	"Suspend myself first to ensure that I won't run away in the
+	midst of the following modifications."
+	myList ifNotNil:[oldList := self suspend].
+
+	"Add a new method context to the stack that will signal the exception"
+	suspendedContext := MethodContext
+		sender: suspendedContext
+		receiver: self
+		method: (self class lookupSelector: #pvtSignal:list:)
+		arguments: (Array with: anException with: oldList).
+
+	"If we are on a list to run, then suspend and restart the receiver 
+	(this lets the receiver run if it is currently blocked on a semaphore).  If
+	we are not on a list to be run (i.e. this process is suspended), then when the
+	process is resumed, it will signal the exception"
+
+	oldList ifNotNil: [self resume].
+! !
+!Process methodsFor: 'RVM' stamp: 'dmu 6/14/2010 15:40'!
+coreMask
+	^ coreMask! !
+!Process methodsFor: 'RVM' stamp: 'dmu 6/14/2010 15:40'!
+coreMask: m
+	coreMask := m! !
+!Process methodsFor: 'RVM' stamp: 'dmu 6/14/2010 15:41'!
+hostCore
+	^ hostCore! !
+!Process methodsFor: 'RVM' stamp: 'dmu 6/14/2010 15:31'!
+isRunning
+	Processor thisProcess == self ifTrue: [^ true].
+	self isActiveProcess ifTrue: [^ true].
+	myList ifNil: [^ false].
+	^ myList class ~~ Semaphore! !
+!Process methodsFor: 'RVM' stamp: 'ssa 3/2/2010 18:23'!
+nilMyListUnlessRVM
+	Processor areRunningProcessesInSchedulerLists ifFalse: [
+		"primitiveSuspend will use myList to remove from list and will nil it out"
+		myList := nil.
+	]! !
+!ProcessBrowser methodsFor: 'stack list' stamp: 'dmu 6/14/2010 16:17'!
+updateStackList: depth 
+	| suspendedContext oldHighlight |
+	selectedProcess
+		ifNil: [^ self changeStackListTo: nil].
+	(stackList notNil and: [ stackListIndex > 0 ])
+		ifTrue: [oldHighlight := stackList at: stackListIndex].
+	selectedProcess == Processor thisProcess
+		ifTrue: [self
+				changeStackListTo: (thisContext stackOfSize: depth)]
+		ifFalse: [suspendedContext := selectedProcess suspendedContext.
+			suspendedContext
+				ifNil: [self changeStackListTo: nil]
+				ifNotNil: [self
+						changeStackListTo: (suspendedContext stackOfSize: depth)]].
+	self
+		stackListIndex: (stackList
+				ifNil: [0]
+				ifNotNil: [stackList indexOf: oldHighlight])! !
+!ProcessBrowser class methodsFor: 'class initialization' stamp: 'dmu 6/14/2010 16:17'!
+registerWellKnownProcesses
+	"Associate each well-known process with a nickname and two flags: allow-stop, and allow-debug.
+	Additional processes may be added to this list as required"
+
+	WellKnownProcesses := OrderedCollection new.
+	self registerWellKnownProcess: []
+		label: 'no process'
+		allowStop: false
+		allowDebug: false.
+	self registerWellKnownProcess: [Smalltalk lowSpaceWatcherProcess]
+		label: 'the low space watcher'
+		allowStop: false
+		allowDebug: false.
+	self registerWellKnownProcess: [WeakArray runningFinalizationProcess]
+		label: 'the WeakArray finalization process'
+		allowStop: false
+		allowDebug: false.
+	self registerWellKnownProcess: [Processor thisProcess]
+		label: 'the UI process'
+		allowStop: false
+		allowDebug: true.
+	self registerWellKnownProcess: [Processor backgroundProcess]
+		label: 'the idle process'
+		allowStop: false
+		allowDebug: false.
+	self registerWellKnownProcess: [Sensor interruptWatcherProcess]
+		label: 'the user interrupt watcher'
+		allowStop: false
+		allowDebug: false.
+	self registerWellKnownProcess: [Sensor eventTicklerProcess]
+		label: 'the event tickler'
+		allowStop: false
+		allowDebug: false.
+	self registerWellKnownProcess: [Project uiProcess]
+		label: 'the inactive Morphic UI process'
+		allowStop: false
+		allowDebug: false.
+	self
+		registerWellKnownProcess: [ Smalltalk globals at: #SoundPlayer ifPresent: [ :sp | sp playerProcess ] ]
+		label: 'the Sound Player'
+		allowStop: false
+		allowDebug: false.
+	self
+		registerWellKnownProcess: [ Smalltalk globals at: #CPUWatcher ifPresent: [ :cw | cw currentWatcherProcess ] ]
+		label: 'the CPUWatcher'
+		allowStop: false
+		allowDebug: false
+! !
+!StandardToolSet class methodsFor: 'debugging' stamp: 'dmu 6/14/2010 16:17'!
+debugError: anError
+	"Handle an otherwise unhandled error"
+	^Processor thisProcess
+		debug: anError signalerContext
+		title: anError description! !
+!TestCase methodsFor: 'extensions' stamp: 'dmu 6/14/2010 16:18'!
+should: aBlock notTakeMoreThan: aDuration
+    "Evaluate aBlock in a forked process and if it takes more than anInteger milliseconds
+    to run we terminate the process and report a test failure.  It'' important to
+    use the active process for the test failure so that the failure reporting works correctly
+    in the context of the exception handlers."
+
+    | succeeded evaluationProcess result delay testProcess |
+
+    succeeded := false.
+    delay := Delay forDuration: aDuration.
+    testProcess := Processor thisProcess.
+    "Create a new process to evaluate aBlock"
+    evaluationProcess := [
+        [result := aBlock value.
+        succeeded := true.] on: Exception do: [succeeded := false] .
+ 		delay unschedule.
+        testProcess resume ] newProcess name: 'Process to evaluate should: notTakeMoreThanMilliseconds:'.
+	evaluationProcess resume.
+    "Wait the milliseconds they asked me to"
+    delay wait.
+    "After this point either aBlock was evaluated if succeeded is not still nil"
+    succeeded ifNil: [
+        evaluationProcess terminate.
+        self assert: false description: ('Block evaluation took more than the expected <1p>' expandMacrosWith: aDuration)].
+	"If tests in block failed, rerun block in this context, so it's handled correctly"
+	succeeded ifFalse: [^aBlock value].
+   
+    ^result! !
+!SemaphoreTest methodsFor: 'private' stamp: 'dmu 6/14/2010 16:17'!
+criticalError
+	Processor thisProcess terminate! !
+!TestFailure methodsFor: 'camp smalltalk' stamp: 'dmu 6/14/2010 16:18'!
+defaultAction
+
+	Processor thisProcess
+		debug: self signalerContext
+		title: self description! !
+!Utilities class methodsFor: 'fetching updates' stamp: 'dmu 6/14/2010 16:19'!
+retrieveUrls: urls ontoQueue: queue withWaitSema: waitSema 
+	"download the given list of URLs. The queue will be loaded alternately  
+	with url's and with the retrieved contents. If a download fails, the  
+	contents will be #failed. If all goes well, a special pair with an empty  
+	URL and the contents #finished will be put on the queue. waitSema is  
+	waited on every time before a new document is downloaded; this keeps 
+	the downloader from getting too far  ahead of the main process"
+	"kill the existing downloader if there is one"
+	| updateCounter |
+	UpdateDownloader
+		ifNotNil: [UpdateDownloader terminate].
+	updateCounter := 0.
+	"fork a new downloading process"
+	UpdateDownloader := [
+		'Downloading updates' displayProgressAt: Sensor cursorPoint from: 0 to: urls size during: [:bar |
+			urls
+				do: [:url | | front canPeek doc | 
+					waitSema wait.
+					queue nextPut: url.
+					doc := HTTPClient httpGet: url.
+					doc isString
+						ifTrue: [queue nextPut: #failed.
+							UpdateDownloader := nil.
+							Processor thisProcess terminate]
+						ifFalse: [canPeek := 120 min: doc size.
+							front := doc next: canPeek.  doc skip: -1 * canPeek.
+							(front beginsWith: '<!!DOCTYPE') ifTrue: [
+								(front includesSubString: 'Not Found') ifTrue: [
+									queue nextPut: #failed.
+									UpdateDownloader := nil.
+									Processor thisProcess terminate]]].
+						UpdateDownloader ifNotNil: [queue nextPut: doc. updateCounter := updateCounter + 1. bar value: updateCounter]]].
+			queue nextPut: ''.
+			queue nextPut: #finished.
+			UpdateDownloader := nil] newProcess.
+	UpdateDownloader priority: Processor userInterruptPriority.
+	"start the process running"
+	UpdateDownloader resume! !
+!Paragraph reorganize!
+('accessing' backgroundColor clippingRectangle clippingRectangle: compositionRectangle compositionRectangle: destinationForm fillColor fillColor: height indentationOfLineIndex:ifBlank: mask numberOfLines replaceFrom:to:with:displaying: rule rule: stringAtLineNumber: text:)
+('alignment' centered justified leftFlush rightFlush toggleAlignment)
+('character location' characterBlockAtPoint: characterBlockForIndex: defaultCharacterBlock)
+('composition' composeAll wrappingBox:clippingBox:)
+('converting' asForm asString asText)
+('display box access' boundingBox computeBoundingBox)
+('displaying' displayOn: displayOn:at: displayOn:at:clippingBox:rule:fillColor: displayOn:transformation:clippingBox:align:with:rule:fillColor:)
+('indicating' flash outline)
+('scrolling' scrollBy: scrollBy:withSelectionFrom:to: scrollDelta scrollUncheckedBy:withSelectionFrom:to:)
+('selecting' caretFormForDepth: clickAt:for:controller: extendSelectionAt:endBlock: extendSelectionMark:pointBlock: hiliteRect: mouseMovedFrom:pivotBlock:showingCaret: mouseSelect mouseSelect: reverseFrom:to: selectionRectsFrom:to:)
+('utilities' clearVisibleRectangle deepCopy destinationForm: fit lines: visibleRectangle)
+('RVM' destFormSema:)
+('private' bottomAtLineIndex: compositionRectangle:text:style:offset: compositionRectangleDelta displayLines: displayLines:affectedRectangle: displayOn:lines: leftMarginForCompositionForLine: leftMarginForDisplayForLine:alignment: lineAt:put: lineIndexOfCharacterIndex: lineIndexOfTop: lines moveBy: rightMarginForComposition rightMarginForDisplay setWithText:style: setWithText:style:compositionRectangle:clippingRectangle: setWithText:style:compositionRectangle:clippingRectangle:foreColor:backColor: topAtLineIndex: topAtLineIndex:using:and: trimLinesTo: updateCompositionHeight withClippingRectangle:do:)
+!
+
+!BitBlt methodsFor: 'accessing' stamp: 'dmu 4/4/2009 00:24'!
+copyBitsOnMain
+	"Primitive. Perform the movement of bits from the source form to the 
+	destination form. Fail if any variables are not of the right type (Integer, 
+	Float, or Form) or if the combination rule is not implemented. 
+	In addition to the original 16 combination rules, this BitBlt supports
+	16	fail (to simulate paint)
+	17	fail (to simulate mask)
+	18	sourceWord + destinationWord
+	19	sourceWord - destinationWord
+	20	rgbAdd: sourceWord with: destinationWord
+	21	rgbSub: sourceWord with: destinationWord
+	22	rgbDiff: sourceWord with: destinationWord
+	23	tallyIntoMap: destinationWord
+	24	alphaBlend: sourceWord with: destinationWord
+	25	pixPaint: sourceWord with: destinationWord
+	26	pixMask: sourceWord with: destinationWord
+	27	rgbMax: sourceWord with: destinationWord
+	28	rgbMin: sourceWord with: destinationWord
+	29	rgbMin: sourceWord bitInvert32 with: destinationWord
+"
+	<primitive: 'primitiveCopyBits' module: 'BitBltPlugin'>
+
+	"Check for compressed source, destination or halftone forms"
+	(combinationRule >= 30 and: [combinationRule <= 31]) ifTrue:
+		["No alpha specified -- re-run with alpha = 1.0"
+		^ self copyBitsTranslucent: 255].
+	((sourceForm isForm) and: [sourceForm unhibernate])
+		ifTrue: [^ self copyBits].
+	((destForm isForm) and: [destForm unhibernate])
+		ifTrue: [^ self copyBits].
+	((halftoneForm isForm) and: [halftoneForm unhibernate])
+		ifTrue: [^ self copyBits].
+
+	"Check for unimplmented rules"
+	combinationRule = Form oldPaint ifTrue: [^ self paintBits].
+	combinationRule = Form oldErase1bitShape ifTrue: [^ self eraseBits].
+
+	"Check if BitBlt doesn't support full color maps"
+	(colorMap notNil and:[colorMap isColormap]) ifTrue:[
+		colorMap := colorMap colors.
+		^self copyBits].
+	"Check if clipping gots us way out of range"
+	self clipRange ifTrue:[^self copyBits].
+
+	self error: 'Bad BitBlt arg (Fraction?); proceed to convert.'.
+	"Convert all numeric parameters to integers and try again."
+	destX := destX asInteger.
+	destY := destY asInteger.
+	width := width asInteger.
+	height := height asInteger.
+	sourceX := sourceX asInteger.
+	sourceY := sourceY asInteger.
+	clipX := clipX asInteger.
+	clipY := clipY asInteger.
+	clipWidth := clipWidth asInteger.
+	clipHeight := clipHeight asInteger.
+	^ self copyBitsAgain! !
+!BitBlt methodsFor: 'copying' stamp: 'dmu 4/4/2009 00:20'!
+copyBitsLocally
+	"Primitive. Perform the movement of bits from the source form to the 
+	destination form. Fail if any variables are not of the right type (Integer, 
+	Float, or Form) or if the combination rule is not implemented. 
+	In addition to the original 16 combination rules, this BitBlt supports
+	16	fail (to simulate paint)
+	17	fail (to simulate mask)
+	18	sourceWord + destinationWord
+	19	sourceWord - destinationWord
+	20	rgbAdd: sourceWord with: destinationWord
+	21	rgbSub: sourceWord with: destinationWord
+	22	rgbDiff: sourceWord with: destinationWord
+	23	tallyIntoMap: destinationWord
+	24	alphaBlend: sourceWord with: destinationWord
+	25	pixPaint: sourceWord with: destinationWord
+	26	pixMask: sourceWord with: destinationWord
+	27	rgbMax: sourceWord with: destinationWord
+	28	rgbMin: sourceWord with: destinationWord
+	29	rgbMin: sourceWord bitInvert32 with: destinationWord
+"
+	<primitive: 'primitiveCopyBitsLocally'>
+
+	"Check for compressed source, destination or halftone forms"
+	(combinationRule >= 30 and: [combinationRule <= 31]) ifTrue:
+		["No alpha specified -- re-run with alpha = 1.0"
+		^ self copyBitsTranslucent: 255].
+	((sourceForm isForm) and: [sourceForm unhibernate])
+		ifTrue: [^ self copyBits].
+	((destForm isForm) and: [destForm unhibernate])
+		ifTrue: [^ self copyBits].
+	((halftoneForm isForm) and: [halftoneForm unhibernate])
+		ifTrue: [^ self copyBits].
+
+	"Check for unimplmented rules"
+	combinationRule = Form oldPaint ifTrue: [^ self paintBits].
+	combinationRule = Form oldErase1bitShape ifTrue: [^ self eraseBits].
+
+	"Check if BitBlt doesn't support full color maps"
+	(colorMap notNil and:[colorMap isColormap]) ifTrue:[
+		colorMap := colorMap colors.
+		^self copyBits].
+	"Check if clipping gots us way out of range"
+	self clipRange ifTrue:[^self copyBits].
+
+	self error: 'Bad BitBlt arg (Fraction?); proceed to convert.'.
+	"Convert all numeric parameters to integers and try again."
+	destX := destX asInteger.
+	destY := destY asInteger.
+	width := width asInteger.
+	height := height asInteger.
+	sourceX := sourceX asInteger.
+	sourceY := sourceY asInteger.
+	clipX := clipX asInteger.
+	clipY := clipY asInteger.
+	clipWidth := clipWidth asInteger.
+	clipHeight := clipHeight asInteger.
+	^ self copyBitsAgain! !
+!BitBlt methodsFor: 'line drawing' stamp: 'dmu 4/3/2009 23:01'!
+drawLoopLocallyX: xDelta Y: yDelta 
+	"Primitive. Implements the Bresenham plotting algorithm (IBM Systems
+	Journal, Vol. 4 No. 1, 1965). It chooses a principal direction, and
+	maintains a potential, P. When P's sign changes, it is time to move in
+	the minor direction as well. This particular version does not write the
+	first and last points, so that these can be called for as needed in client code.
+	Optional. See Object documentation whatIsAPrimitive."
+	| |
+	<primitive: 'primitiveDrawLoopLocally'>
+self primitiveFailed! !
+!BitBlt methodsFor: 'line drawing' stamp: 'ssa 4/3/2009 22:36'!
+globalDrawLoopX: xDelta Y: yDelta 
+	"Primitive. Implements the Bresenham plotting algorithm (IBM Systems
+	Journal, Vol. 4 No. 1, 1965). It chooses a principal direction, and
+	maintains a potential, P. When P's sign changes, it is time to move in
+	the minor direction as well. This particular version does not write the
+	first and last points, so that these can be called for as needed in client code.
+	Optional. See Object documentation whatIsAPrimitive."
+	| dx dy px py P |
+	<primitive: 'primitiveDrawLoop' module: 'BitBltPlugin'>
+	dx := xDelta sign.
+	dy := yDelta sign.
+	px := yDelta abs.
+	py := xDelta abs.
+	"self copyBits."
+	py > px
+		ifTrue: 
+			["more horizontal"
+			P := py // 2.
+			1 to: py do: 
+				[:i |
+				destX := destX + dx.
+				(P := P - px) < 0 ifTrue: 
+						[destY := destY + dy.
+						P := P + py].
+				i < py ifTrue: [self copyBits]]]
+		ifFalse: 
+			["more vertical"
+			P := px // 2.
+			1 to: px do:
+				[:i |
+				destY := destY + dy.
+				(P := P - py) < 0 ifTrue: 
+						[destX := destX + dx.
+						P := P + px].
+				i < px ifTrue: [self copyBits]]]! !
+!BitBlt methodsFor: 'line drawing' stamp: 'ssa 4/3/2009 22:52'!
+localDrawLoopX: xDelta Y: yDelta 
+	"Primitive"
+	<primitive: 'primitiveDrawLoopLocally'>
+	^self primitiveFailed! !
+
+!BlockContext methodsFor: 'scheduling' stamp: 'dmu 4/7/2009 02:38'!
+forkOn: aCore
+	"Create and schedule a Process running the code in the receiver."
+
+	^ self newProcess resumeOn: aCore! !
+!BlockContext methodsFor: 'scheduling' stamp: 'ssa 4/8/2009 20:09'!
+forkOn: aCore with: anObject
+	"Create and schedule a Process running the code in the receiver."
+
+	^ (self newProcessWith: anObject) resumeOn: aCore! !
+!BlockContext methodsFor: 'scheduling' stamp: 'ssa 4/8/2009 20:08'!
+forkOn: aCore with: anObject at: aPriority
+	"Create and schedule a Process running the code in the receiver."
+
+	| proc |
+	proc := self newProcessWith: anObject.
+	proc priority: aPriority.
+	^proc resumeOn: aCore! !
+!BlockContext methodsFor: 'scheduling' stamp: 'dmu 4/7/2009 02:34'!
+forkWith: anObject
+	"Create and schedule a Process running the code in the receiver."
+
+	^ (self newProcessWith: anObject) resume! !
+!BlockContext methodsFor: 'scheduling' stamp: 'dmu 4/7/2009 02:33'!
+newProcessWith: anObject
+	"Answer a Process running the code in the receiver. The process is not 
+	scheduled."
+	<primitive: 19> "Simulation guard"
+	^Process
+		forContext: 
+			[self value: anObject.
+			Processor terminateActive]
+		priority: Processor activePriority! !
+!Delay class methodsFor: 'snapshotting' stamp: 'dmu 5/25/2010 11:02'!
+startUp
+	"Restart active delay, if any, when resuming a snapshot."
+
+	DelaySuspended ifFalse:[^self error: 'Trying to activate Delay twice'].
+	DelaySuspended := false.
+	self restoreResumptionTimes.
+	AccessProtect := Semaphore forMutualExclusion
+! !
+!Delay methodsFor: 'private' stamp: 'StefanMarr 11/9/2010 23:38' prior: 47886371!
+schedule
+	"Schedule this delay"
+	
+	| delayDelivered |
+	delayDelivered := false.
+	
+	beingWaitedOn ifTrue: [^self error: 'This Delay has already been scheduled.'].
+	resumptionTime := Time millisecondClockValue + delayDuration.
+	
+	[AccessProtect critical: [
+		ScheduledDelay ifNil: [
+			ScheduledDelay := self.
+			TimingSemaphore signal.
+			delayDelivered := true.
+		]
+	]. 	delayDelivered	] whileFalse.! !
+!Delay methodsFor: 'private' stamp: 'StefanMarr 11/9/2010 23:39' prior: 47885691!
+unschedule
+	| delayDelivered |
+	delayDelivered := false.
+	
+	[AccessProtect critical: [
+		ScheduledDelay ifNil: [
+			FinishedDelay := self.
+			TimingSemaphore signal.
+			delayDelivered := true.
+		]
+	]. delayDelivered ] whileFalse.! !
+!Delay class methodsFor: 'timer process' stamp: 'StefanMarr 11/9/2010 17:44' prior: 19672467!
+handleTimerEvent
+	"Handle a timer event; which can be either:
+		- a schedule request (ScheduledDelay notNil)
+		- an unschedule request (FinishedDelay notNil)
+		- a timer signal (not explicitly specified)
+	We check for timer expiry every time we get a signal."
+	| nowTick nextTick |
+	"Wait until there is work to do."
+	TimingSemaphore wait.
+
+	"Process any schedule requests"
+	ScheduledDelay ifNotNil:[
+		"Schedule the given delay"
+		self scheduleDelay: ScheduledDelay.
+		ScheduledDelay := nil.
+	].
+
+	"Process any unschedule requests"
+	FinishedDelay ifNotNil:[
+		self unscheduleDelay: FinishedDelay.
+		FinishedDelay := nil.
+	].
+
+	"Check for clock wrap-around."
+	nowTick := Time millisecondClockValue.
+	nowTick < ActiveDelayStartTime ifTrue: [
+		"clock wrapped"
+		self saveResumptionTimes.
+		self restoreResumptionTimes.
+	].
+	ActiveDelayStartTime := nowTick.
+
+	"Signal any expired delays"
+	[ActiveDelay notNil and:[nowTick >= ActiveDelay resumptionTime]] whileTrue:[
+		ActiveDelay signalWaitingProcess.
+		SuspendedDelays isEmpty 
+			ifTrue: [ActiveDelay := nil] 
+			ifFalse:[ActiveDelay := SuspendedDelays removeFirst].
+	].
+
+	"And signal when the next request is due. We sleep at most 1sec here
+	as a soft busy-loop so that we don't accidentally miss signals."
+	nextTick := nowTick + 1000.
+	ActiveDelay ifNotNil:[nextTick := nextTick min: ActiveDelay resumptionTime].
+	nextTick := nextTick min: SmallInteger maxVal.
+
+	"Since we have processed all outstanding requests, reset the timing semaphore so
+	that only new work will wake us up again. Do this RIGHT BEFORE setting the next
+	wakeup call from the VM because it is only signaled once so we mustn't miss it."
+     "No!!!! If running multicore, TimingSemaphore may have already been signalled!!!!
+      Do not reset signals, because then we will miss it -- dmu 9/26/10"
+     RVMPrimitives coreCount > 1 ifFalse: [TimingSemaphore initSignals].
+     "Do not wait till the next Delay if Semaphore already signaled. -- dmu 9/26/10"
+     TimingSemaphore isSignaled ifFalse: [
+          Delay primSignal: TimingSemaphore atMilliseconds: nextTick.
+     ].
+
+	"This last test is necessary for the obscure case that the msecs clock rolls over
+	after nowTick has been computed (unlikely but not impossible). In this case we'd
+	wait for MillisecondClockMask msecs (roughly six days) or until another delay gets
+	scheduled (which may not be any time soon). In any case, since handling the
+	condition is easy, let's just deal with it"
+	Time millisecondClockValue < nowTick ifTrue:[TimingSemaphore signal]. "retry"
+! !
+!Process methodsFor: 'accessing' stamp: 'dmu 3/8/2010 20:26'!
+hostCore: anObject
+	"Set the value of hostCore"
+
+	hostCore := anObject! !
+!Process methodsFor: 'accessing' stamp: 'dmu 3/8/2010 20:26'!
+myList
+	"Answer the value of myList"
+
+	myList isNil ifTrue:[self myList: nil].
+	^ myList! !
+!Process methodsFor: 'accessing' stamp: 'dmu 3/8/2010 20:26'!
+myList: anObject
+	"Set the value of myList"
+
+	myList := anObject! !
+!Process methodsFor: 'changing process state' stamp: 'dmu 3/2/2010 17:02'!
+primitiveSuspend
+	"Primitive. Stop the process that self represents in such a way 
+	that it can be restarted at a later time (by sending #resume).
+	ASSUMES self is the active process.
+	Essential. See Object documentation whatIsAPrimitive."
+
+	"Debugging code below causes terminated running processes to seem not terminated. -- dmu 3/2/10"
+	"(myList isNil and: [RVMPrimitives isRVM]) ifTrue:[self halt]."
+	<primitive: 88>
+	self primitiveFailed! !
+!Process methodsFor: 'changing process state' stamp: 'dmu 4/7/2009 02:41'!
+resumeOn: aCore
+  self useOnlyCore: aCore.
+  self resume! !
+!Process methodsFor: 'changing suspended state' stamp: 'dmu 12/2/2008 14:04'!
+return: aContext value: value
+	"Pop thread down to aContext's sender.  Execute any unwind blocks on the way.  See #popTo: comment and #runUntilErrorOrReturnFrom: for more details."
+        self suspend.
+	suspendedContext == aContext ifTrue: [
+		^ suspendedContext := aContext return: value from: aContext].
+	self activateReturn: aContext value: value.
+	^ self complete: aContext.
+! !
+!Process methodsFor: 'changing suspended state' stamp: 'dmu 12/2/2008 14:03'!
+step
+         self suspend.
+	^ suspendedContext := suspendedContext step! !
+!Process methodsFor: 'changing suspended state' stamp: 'dmu 12/2/2008 14:04'!
+stepToCallee
+	"Step until top context changes"
+
+	| ctxt |
+	self suspend.
+	ctxt := suspendedContext.
+	[ctxt == suspendedContext] whileTrue: [
+		suspendedContext := suspendedContext step].
+	^ suspendedContext! !
+!Process methodsFor: 'changing suspended state' stamp: 'dmu 12/2/2008 14:05'!
+stepToSendOrReturn
+self suspend.
+	^ suspendedContext := suspendedContext stepToSendOrReturn! !
+!Process methodsFor: 'core assignment' stamp: 'ssa 2/26/2009 02:57'!
+avoidCore: anIndex
+	"Force this process to avoid this core (0-55)"
+	self coreMask: (self coreMask bitClear: (1 bitShift: anIndex))! !
+!Process methodsFor: 'core assignment' stamp: 'ssa 2/26/2009 03:49'!
+avoidCores: aCollectionOfIndicies
+	"Force this process to avoid these cores (0-55)"
+	| mask |
+	mask := 0.
+	aCollectionOfIndicies do:[:index| mask := mask bitOr: (1 bitShift: index)].
+	self coreMask: (self coreMask bitClear:mask)! !
+!Process methodsFor: 'core assignment' stamp: 'ssa 2/26/2009 02:59'!
+useAdditionalCore: anIndex
+	"Force this process to only urn on this core (0-55)"
+	self coreMask: (self coreMask bitOr:(1 bitShift: anIndex))! !
+!Process methodsFor: 'core assignment' stamp: 'ssa 2/26/2009 03:50'!
+useAdditionalCores: aCollectionOfIndicies
+	"Allow this process to run on these additional cores (0-55)"
+	| mask |
+	mask := 0.
+	aCollectionOfIndicies do:[:index| mask := mask bitOr: (1 bitShift: index)].
+	self coreMask: (self coreMask bitOr:mask)! !
+!Process methodsFor: 'core assignment' stamp: 'dmu 5/5/2009 01:32'!
+useOnlyCore: anIndex
+	"Force this process to only run on this core (0-55)"
+	self coreMask: (1 bitShift: anIndex)! !
+!Process methodsFor: 'core assignment' stamp: 'ssa 2/26/2009 03:02'!
+useOnlyCores: aCollectionOfIndicies
+	"Force this process to only run on these cores (0-55)"
+	| mask |
+	mask := 0.
+	aCollectionOfIndicies do:[:index| mask := mask bitOr: (1 bitShift: index)].
+	self coreMask: mask! !
+!Process methodsFor: 'core assignment' stamp: 'dmu 1/25/2010 11:06'!
+useOnlyMainCore
+	RVMPrimitives isRVM ifTrue: [self useOnlyCore: (RVMPrimitives getMainRank)]! !
+!Process methodsFor: 'signaling' stamp: 'ssa 2/17/2009 22:30'!
+signal: anException
+	"Signal an exception in the receiver process...if the receiver is currently
+	suspended, the exception will get signaled when the receiver is resumed.  If 
+	the receiver is blocked on a Semaphore, it will be immediately re-awakened
+	and the exception will be signaled; if the exception is resumed, then the receiver
+	will return to a blocked state unless the blocking Semaphore has excess signals"
+
+	"If we are the active process, go ahead and signal the exception"
+	self == Processor thisProcess ifTrue: [^anException signal].
+
+        self suspend.
+
+	"Add a new method context to the stack that will signal the exception"
+	suspendedContext := MethodContext
+		sender: suspendedContext
+		receiver: self
+		method: (self class methodDict at: #pvtSignal:list:)
+		arguments: (Array with: anException with: myList).
+
+	"If we are on a list to run, then suspend and restart the receiver 
+	(this lets the receiver run if it is currently blocked on a semaphore).  If
+	we are not on a list to be run (i.e. this process is suspended), then when the
+	process is resumed, it will signal the exception"
+
+	myList ifNotNil: [self suspend; resume].! !
+!Process class methodsFor: 'instance creation' stamp: 'dmu 3/24/2010 15:46'!
+forContext: aContext priority: anInteger 
+	"Answer an instance of me that has suspended aContext at priority 
+	anInteger."
+
+	| newProcess |
+	newProcess := self new.
+	newProcess suspendedContext: aContext.
+	newProcess priority: anInteger.
+	[newProcess coreMask:(1 bitShift: 27)].
+	^newProcess! !
+!Process class methodsFor: 'instance creation' stamp: 'ssa 2/26/2009 02:45'!
+forContext: aContext priority: anInteger coreMask: anIntegerMask
+	"Answer an instance of me that has suspended aContext at priority 
+	anInteger using this coreMask."
+
+	| newProcess |
+	newProcess := self forContext: aContext priority: anInteger.
+	newProcess coreMask:anIntegerMask.
+	^newProcess! !
+!ProcessorScheduler methodsFor: 'removing' stamp: 'ssa 6/11/2010 14:37'!
+removeAllPossible
+	"Terminate and remove all processes that you can.
+	This should leave the standard set only"
+	self terminatableProcesses print do:[:proc| proc terminate]! !
+!ProcessorScheduler methodsFor: 'removing' stamp: 'ssa 6/11/2010 14:31'!
+terminatableProcesses
+	"Answer all current processes that may be user terminated like in the ProcessBrowser"
+	"self terminatableProcesses"
+	| processList |
+	Smalltalk garbageCollectMost. "lose defunct processes"
+
+	processList := Process allSubInstances
+				reject: [:each | each isTerminated].
+	processList := processList
+				sortBy: [:a :b | a priority >= b priority].
+	processList := WeakArray withAll: processList.
+	^processList select:[:proc| (ProcessBrowser nameAndRulesFor: proc) at: 2]! !
+!Project methodsFor: 'menu messages' stamp: 'dmu 11/25/2008 00:23'!
+enterForEmergencyRecovery
+	"This version of enter invokes an absolute minimum of mechanism.
+	An unrecoverable error has been detected in an isolated project.
+	It is assumed that the old changeSet has already been revoked.
+	No new process gets spawned here.  This will happen in the debugger."
+
+	self isCurrentProject ifTrue: [^ self].
+	CurrentProject saveState.
+	CurrentProject := self.
+	Display newDepthNoRestore: displayDepth.
+	Smalltalk newChanges: changeSet.
+	TranscriptStream newTranscript: transcript.
+
+
+	world isMorph
+		ifTrue:
+			["Entering a Morphic project"
+			World := world.
+			world install.
+			world triggerOpeningScripts]
+		ifFalse:
+			["Entering an MVC project"
+			World := nil.
+			Smalltalk at: #ScheduledControllers put: world.
+			ScheduledControllers restore].
+	UIProcess := Processor thisProcess.
+! !
+
+!StandardFileStream methodsFor: 'RVM' stamp: 'dmu 9/7/2010 14:07'!
+interlock
+	interlock ifNil: [self interlock: Semaphore forMutualExclusion].
+	^ interlock! !
+!StandardFileStream methodsFor: 'RVM' stamp: 'dmu 9/7/2010 14:07'!
+interlock: aSemaphore
+	interlock := aSemaphore! !
+!StandardFileStream methodsFor: 'RVM' stamp: 'dmu 9/7/2010 14:14'!
+resetInterlock
+	self interlock signal.
+	self interlock: nil! !
+!StandardFileStream methodsFor: 'RVM' stamp: 'dmu 9/7/2010 14:09'!
+safelyDo: aBlock
+	^ self interlock critical: aBlock! !
+!StandardFileStream class methodsFor: 'RVM' stamp: 'dmu 9/7/2010 14:14'!
+resetAllInterlocks
+	"self resetAllInterlocks"
+	self allSubInstancesDo: [:sfs| sfs resetInterlock]! !
+
+!RemoteString methodsFor: 'accessing' stamp: 'dmu 9/7/2010 17:19'!
+text 
+	"Answer the receiver's string asText if remote files are enabled.
+	Use a read only copy to avoid syntax errors when accessed via
+	multiple processes."
+	
+	| theFile |
+	(sourceFileNumber == nil or: [(SourceFiles at: sourceFileNumber) == nil]) ifTrue: [^ nil].
+	theFile := (SourceFiles at: sourceFileNumber) readOnlyCopy.
+	^[theFile safelyDo: [
+	theFile position: filePositionHi.
+	theFile position > theFile size ifTrue: [
+		self error: 'RemoteString past end of file' ].
+	theFile nextChunkText string ]] ensure: [theFile close]! !
+
+!SyntaxError class methodsFor: 'instance creation' stamp: 'dmu 11/25/2008 00:25'!
+open: aSyntaxError 
+	"Answer a standard system view whose model is an instance of me."
+	<primitive: 19>
+	"Simulation guard"
+	self buildMorphicViewOn: aSyntaxError.
+	Project spawnNewProcessIfThisIsUI: Processor activeProcess.
+	^ Processor thisProcess suspend! !
+!SmalltalkImage methodsFor: 'snapshot and quit' stamp: 'dmu 9/7/2010 14:26'!
+snapshot: save andQuit: quit embedded: embeddedFlag
+	"Mark the changes file and close all files as part of #processShutdownList.
+	If save is true, save the current state of this Smalltalk in the image file.
+	If quit is true, then exit to the outer OS shell.
+	The latter part of this method runs when resuming a previously saved image. This resume logic checks for a document file to process when starting up."
+
+	| resuming msg |
+	Object flushDependents.
+	Object flushEvents.
+	(SourceFiles at: 2)
+		ifNotNil: [ 
+			msg := String
+				streamContents: [ :s | 
+					s
+						nextPutAll: '----';
+						nextPutAll:
+								(save
+										ifTrue: [ 
+											quit
+												ifTrue: [ 'QUIT' ]
+												ifFalse: [ 'SNAPSHOT' ] ]
+										ifFalse: [ 
+											quit
+												ifTrue: [ 'QUIT/NOSAVE' ]
+												ifFalse: [ 'NOP' ] ]);
+						nextPutAll: '----';
+						print: Date dateAndTimeNow;
+						space;
+						nextPutAll: (FileDirectory default localNameFor: self imageName);
+						nextPutAll: ' priorSource: ';
+						print: LastQuitLogPosition ].
+			self assureStartupStampLogged.
+			save
+				ifTrue: [ 
+					(SourceFiles at: 2) safelyDo: [
+						LastQuitLogPosition := (SourceFiles at: 2)
+							setToEnd;
+							position ]].
+			self logChange: msg.
+			Transcript
+				cr;
+				show: msg ].
+	self processShutDownList: quit.
+	Cursor write show.
+	save
+		ifTrue: [ 
+			resuming := embeddedFlag
+				ifTrue: [ self snapshotEmbeddedPrimitive ]
+				ifFalse: [ self snapshotPrimitive ].	"<-- PC frozen here on image file"
+			resuming == false
+				ifTrue: [ 
+					"Time to reclaim segment files is immediately after a save"
+					Smalltalk globals at: #ImageSegment ifPresent: [ :theClass | theClass reclaimObsoleteSegmentFiles ] ]	"guard against failure" ]
+		ifFalse: [ resuming := false ].
+	quit & (resuming == false)
+		ifTrue: [ self quitPrimitive ].
+	Cursor normal show.
+	self setGCParameters.
+	resuming == true
+		ifTrue: [ Smalltalk clearExternalObjects ].
+	self processStartUpList: resuming == true.
+	resuming == true
+		ifTrue: [ self recordStartupStamp ].
+	UIManager default onSnapshot.	"Now it's time to raise an error"
+	resuming == nil
+		ifTrue: [ self error: 'Failed to write image file (disk full?)' ].
+	^ resuming! !
+
+
+Cursor initialize!
+Controller initialize!
+!BitBlt methodsFor: 'copying' stamp: 'ssa 4/7/2009 13:44'!
+OLDcopyBits
+	"Primitive. Perform the movement of bits from the source form to the 
+	destination form. Fail if any variables are not of the right type (Integer, 
+	Float, or Form) or if the combination rule is not implemented. 
+	In addition to the original 16 combination rules, this BitBlt supports
+	16	fail (to simulate paint)
+	17	fail (to simulate mask)
+	18	sourceWord + destinationWord
+	19	sourceWord - destinationWord
+	20	rgbAdd: sourceWord with: destinationWord
+	21	rgbSub: sourceWord with: destinationWord
+	22	rgbDiff: sourceWord with: destinationWord
+	23	tallyIntoMap: destinationWord
+	24	alphaBlend: sourceWord with: destinationWord
+	25	pixPaint: sourceWord with: destinationWord
+	26	pixMask: sourceWord with: destinationWord
+	27	rgbMax: sourceWord with: destinationWord
+	28	rgbMin: sourceWord with: destinationWord
+	29	rgbMin: sourceWord bitInvert32 with: destinationWord
+"
+	<primitive: 'primitiveCopyBits' module: 'BitBltPlugin'>
+
+	"Check for compressed source, destination or halftone forms"
+	(combinationRule >= 30 and: [combinationRule <= 31]) ifTrue:
+		["No alpha specified -- re-run with alpha = 1.0"
+		^ self copyBitsTranslucent: 255].
+	((sourceForm isForm) and: [sourceForm unhibernate])
+		ifTrue: [^ self copyBits].
+	((destForm isForm) and: [destForm unhibernate])
+		ifTrue: [^ self copyBits].
+	((halftoneForm isForm) and: [halftoneForm unhibernate])
+		ifTrue: [^ self copyBits].
+
+	"Check for unimplmented rules"
+	combinationRule = Form oldPaint ifTrue: [^ self paintBits].
+	combinationRule = Form oldErase1bitShape ifTrue: [^ self eraseBits].
+
+	"Check if BitBlt doesn't support full color maps"
+	(colorMap notNil and:[colorMap isColormap]) ifTrue:[
+		colorMap := colorMap colors.
+		^self copyBits].
+	"Check if clipping gots us way out of range"
+	self clipRange ifTrue:[^self copyBits].
+
+	self error: 'Bad BitBlt arg (Fraction?); proceed to convert.'.
+	"Convert all numeric parameters to integers and try again."
+	destX := destX asInteger.
+	destY := destY asInteger.
+	width := width asInteger.
+	height := height asInteger.
+	sourceX := sourceX asInteger.
+	sourceY := sourceY asInteger.
+	clipX := clipX asInteger.
+	clipY := clipY asInteger.
+	clipWidth := clipWidth asInteger.
+	clipHeight := clipHeight asInteger.
+	^ self copyBitsAgain! !
+!BitBlt methodsFor: 'copying' stamp: 'dmu 5/10/2009 08:43'!
+copyBits
+	RVMPrimitives isRVM ifFalse:[^self OLDcopyBits].
+ 	destForm == Display  ifTrue: [self copyBitsOnMain] ifFalse: [self copyBitsLocally]! !
+!BitBlt methodsFor: 'line drawing' stamp: 'dmu 4/10/2009 22:47'!
+drawFrom: startPoint to: stopPoint withFirstPoint: drawFirstPoint
+	"Draw a line whose end points are startPoint and stopPoint.
+	The line is formed by repeatedly calling copyBits at every
+	point along the line.  If drawFirstPoint is false, then omit
+	the first point so as not to overstrike at line junctions."
+	| offset point1 point2 forwards |
+	"Always draw down, or at least left-to-right"
+	forwards := (startPoint y = stopPoint y and: [startPoint x < stopPoint x])
+				or: [startPoint y < stopPoint y].
+	forwards
+		ifTrue: [point1 := startPoint. point2 := stopPoint]
+		ifFalse: [point1 := stopPoint. point2 := startPoint].
+	sourceForm == nil ifTrue:
+		[destX := point1 x.
+		destY := point1 y]
+		ifFalse:
+		[width := sourceForm width.
+		height := sourceForm height.
+		offset := sourceForm offset.
+		destX := (point1 x + offset x) rounded.
+		destY := (point1 y + offset y) rounded].
+
+	"Note that if not forwards, then the first point is the last and vice versa.
+	We agree to always paint stopPoint, and to optionally paint startPoint."
+	(drawFirstPoint or: [forwards == false  "ie this is stopPoint"])
+		ifTrue: [self copyBits].
+		(destForm == Display or:[RVMPrimitives isRVM not]) ifTrue: [
+	self drawLoopX: (point2 x - point1 x) rounded 
+				  Y: (point2 y - point1 y) rounded]
+			ifFalse: [self drawLoopLocallyX: (point2 x - point1 x) rounded 
+				  Y: (point2 y - point1 y) rounded].
+	(drawFirstPoint or: [forwards  "ie this is stopPoint"])
+		ifTrue: [self copyBits].
+! !
+!BitBlt methodsFor: 'line drawing' stamp: 'dmu 4/10/2009 22:47'!
+drawLoopX: xDelta Y: yDelta 
+	"Primitive. Implements the Bresenham plotting algorithm (IBM Systems
+	Journal, Vol. 4 No. 1, 1965). It chooses a principal direction, and
+	maintains a potential, P. When P's sign changes, it is time to move in
+	the minor direction as well. This particular version does not write the
+	first and last points, so that these can be called for as needed in client code.
+	Optional. See Object documentation whatIsAPrimitive."
+	
+		^(destForm == Display  or:[RVMPrimitives isRVM not])
+			ifTrue:[self globalDrawLoopX:xDelta Y: yDelta ]
+			ifFalse:[self localDrawLoopX:xDelta Y: yDelta ]! !
+
+!ClassDescription methodsFor: 'fileIn/Out' stamp: 'dmu 9/7/2010 14:17'!
+classComment: aString stamp: aStamp
+	"Store the comment, aString or Text or RemoteString, associated with the class we are organizing.  Empty string gets stored only if had a non-empty one before."
+
+	| ptr header file oldCommentRemoteStr oldComment oldStamp |
+	oldComment := self organization classComment.
+	oldStamp := self organization commentStamp.
+	(aString isKindOf: RemoteString) ifTrue:
+		[SystemChangeNotifier uniqueInstance class: self oldComment: oldComment newComment: aString string oldStamp: oldStamp newStamp: aStamp.
+		^ self organization classComment: aString stamp: aStamp].
+
+	oldCommentRemoteStr := self organization commentRemoteStr.
+	(aString size = 0) & (oldCommentRemoteStr isNil) ifTrue: [^ self organization classComment: nil].
+		"never had a class comment, no need to write empty string out"
+
+	ptr := oldCommentRemoteStr ifNil: [0] ifNotNil: [oldCommentRemoteStr sourcePointer].
+	SourceFiles ifNotNil: [(file := SourceFiles at: 2) ifNotNil:
+		[file safelyDo:
+		[file setToEnd; cr; nextPut: $!!.	"directly"
+		"Should be saying (file command: 'H3') for HTML, but ignoring it here"
+		header := String streamContents: [:strm | strm nextPutAll: self name;
+			nextPutAll: ' commentStamp: '.
+			aStamp storeOn: strm.
+			strm nextPutAll: ' prior: '; nextPutAll: ptr printString].
+		file nextChunkPut: header]]].
+	self organization classComment: (RemoteString newString: aString onFileNumber: 2) stamp: aStamp.
+	SystemChangeNotifier uniqueInstance class: self oldComment: oldComment newComment: aString oldStamp: oldStamp newStamp: aStamp
+! !
+!CompiledMethod methodsFor: 'source code management' stamp: 'dmu 9/7/2010 14:23'!
+putSource: sourceStr fromParseNode: methodNode inFile: fileIndex withPreamble: preambleBlock
+	"Store the source code for the receiver on an external file.
+	If no sources are available, i.e., SourceFile is nil, then store
+	temp names for decompilation at the end of the method.
+	If the fileIndex is 1, print on *.sources;  if it is 2, print on *.changes,
+	in each case, storing a 4-byte source code pointer at the method end."
+
+	| file remoteString |
+	(SourceFiles == nil or: [(file := SourceFiles at: fileIndex) == nil]) ifTrue:
+		[^self become: (self copyWithTempsFromMethodNode: methodNode)].
+
+	SmalltalkImage current assureStartupStampLogged.
+	
+	file safelyDo: [
+		file setToEnd.
+
+		preambleBlock value: file.  "Write the preamble"
+		remoteString := RemoteString newString: sourceStr onFileNumber: fileIndex toFile: file.
+		file nextChunkPut: ' '.
+		InMidstOfFileinNotification signal ifFalse: [file flush].
+		self checkOKToAdd: sourceStr size at: remoteString position.
+		self setSourcePosition: remoteString position inFile: fileIndex].
+! !
+!RemoteString methodsFor: 'private' stamp: 'dmu 9/7/2010 14:23'!
+string: aString onFileNumber: fileNumber
+	"Store this as my string if source files exist."
+	| theFile |
+	(SourceFiles at: fileNumber) == nil ifFalse: 
+		[theFile := SourceFiles at: fileNumber.
+		theFile safelyDo: [
+			theFile setToEnd; cr.
+			self string: aString onFileNumber: fileNumber toFile: theFile]
+		]! !
+!SmalltalkImage methodsFor: 'sources, change log' stamp: 'dmu 9/7/2010 14:26'!
+writeRecentCharacters: nCharacters toFileNamed: aFilename
+	"Schedule an editable text view on the last n characters of changes."
+	| changes |
+	changes := SourceFiles at: 2.
+	changes safelyDo: [
+		changes setToEnd; skip: nCharacters negated.
+		(FileStream newFileNamed: aFilename) nextPutAll: (changes next: nCharacters); close; open; edit
+	]! !
+!SmalltalkImage methodsFor: 'sources, changes log' stamp: 'dmu 9/7/2010 14:25'!
+logChange: aStringOrText 
+	"Write the argument, aString, onto the changes file."
+	| aString changesFile |
+	(SourceFiles isNil or: [(SourceFiles at: 2) == nil]) ifTrue: [^ self].
+	self assureStartupStampLogged.
+
+	aString := aStringOrText asString.
+	(aString findFirst: [:char | char isSeparator not]) = 0
+		ifTrue: [^ self].  "null doits confuse replay"
+	(changesFile := SourceFiles at: 2).
+	changesFile isReadOnly ifTrue:[^self].
+	changesFile safelyDo: [
+		changesFile setToEnd; cr; cr.
+		changesFile nextChunkPut: aString.
+			"If want style changes in DoIt, use nextChunkPutWithStyle:, and allow Texts to get here"
+		self forceChangesToDisk.
+	]! !
+!SmalltalkImage methodsFor: 'sources, changes log' stamp: 'dmu 9/7/2010 14:25'!
+assureStartupStampLogged
+	"If there is a startup stamp not yet actually logged to disk, do it now."
+	| changesFile |
+	StartupStamp ifNil: [^ self].
+	(SourceFiles isNil or: [(changesFile := SourceFiles at: 2) == nil]) ifTrue: [^ self].
+	changesFile isReadOnly ifTrue:[^self].
+	changesFile safelyDo: [
+		changesFile setToEnd; cr; cr.
+		changesFile nextChunkPut: StartupStamp asString; cr.
+		StartupStamp := nil.
+		self forceChangesToDisk.
+	]! !
+
+!ClassDescription methodsFor: 'fileIn/Out' stamp: 'dmu 9/7/2010 14:22'!
+printMethodChunk: selector withPreamble: doPreamble on: outStream
+		moveSource: moveSource toFile: fileIndex
+	"Copy the source code for the method associated with selector onto the fileStream.  If moveSource true, then also set the source code pointer of the method."
+	| preamble method oldPos newPos sourceFile endPos |
+	doPreamble 
+		ifTrue: [preamble := self name , ' methodsFor: ' ,
+					(self organization categoryOfElement: selector) asString printString]
+		ifFalse: [preamble := ''].
+	method := self methodDict at: selector ifAbsent:
+		[outStream nextPutAll: selector; cr.
+		outStream tab; nextPutAll: '** ERROR!!  THIS SCRIPT IS MISSING ** ' translated; cr; cr.
+		outStream nextPutAll: '  '.
+		^ outStream].
+
+	((method fileIndex = 0
+		or: [(SourceFiles at: method fileIndex) == nil])
+		or: [(oldPos := method filePosition) = 0])
+		ifTrue:
+		["The source code is not accessible.  We must decompile..."
+		preamble size > 0 ifTrue: [outStream cr; nextPut: $!!; nextChunkPut: preamble; cr].
+		outStream nextChunkPut: method decompileString]
+		ifFalse:
+		[sourceFile := SourceFiles at: method fileIndex.
+		sourceFile safelyDo: [
+			preamble size > 0
+				ifTrue:    "Copy the preamble"
+					[outStream copyPreamble: preamble from: sourceFile at: oldPos]
+				ifFalse:
+					[sourceFile position: oldPos].
+			"Copy the method chunk"
+			newPos := outStream position.
+			outStream copyMethodChunkFrom: sourceFile.
+			sourceFile skipSeparators.      "The following chunk may have ]style["
+			sourceFile peek == $] ifTrue: [
+				outStream cr; copyMethodChunkFrom: sourceFile].
+			
+			moveSource ifTrue:    "Set the new method source pointer"
+				[endPos := outStream position.
+				method checkOKToAdd: endPos - newPos at: newPos.
+				method setSourcePosition: newPos inFile: fileIndex]]].
+	preamble size > 0 ifTrue: [outStream nextChunkPut: ' '].
+	^ outStream cr! !
+!StandardSourceFileArray class methodsFor: 'initialize-release' stamp: 'dmu 9/7/2010 14:12'!
+install
+	"Replace SourceFiles by an instance of me with the standard sources and changes files.
+	This only works if SourceFiles is either an Array or an instance of this class"
+	"StandardSourceFileArray install"
+	StandardFileStream resetAllInterlocks.
+	SourceFiles := self new initialize! !
+
+!Process methodsFor: 'RVM' stamp: 'dmu 9/17/2010 11:59'!
+suspendedContextWaitingIfNecessary
+	"In RVM, can suspend some other running process, and so after sending suspend, suspendedContext may still be nil."
+	
+	[self suspendedContext isNil] whileTrue.
+	^ self suspendedContext! !
+!ParagraphEditor methodsFor: 'do-its' stamp: 'dmu 9/17/2010 12:00'!
+debug: aCompiledMethod receiver: anObject in: evalContext
+
+	| selector guineaPig debugger context |
+	selector := evalContext isNil ifTrue: [#DoIt] ifFalse: [#DoItIn:].
+	anObject class addSelectorSilently: selector withMethod: aCompiledMethod.
+	guineaPig := evalContext isNil
+		ifTrue: [[anObject DoIt] newProcess]
+		ifFalse: [[anObject DoItIn: evalContext] newProcess].
+	context := guineaPig suspendedContextWaitingIfNecessary.
+	debugger := ToolSet 
+		debug: guineaPig
+		controller: nil
+		context: context.
+	debugger openFullNoSuspendLabel: 'Debug it'.
+	[debugger interruptedContext method == aCompiledMethod]
+		whileFalse: [debugger send].
+	anObject class basicRemoveSelector: selector! !
+!Mutex methodsFor: 'mutual exclusion' stamp: 'dmu 6/14/2010 16:16'!
+critical: aBlock
+	"Evaluate aBlock protected by the receiver."
+	| activeProcess |
+	activeProcess := Processor thisProcess.
+	activeProcess == owner ifTrue:[^aBlock value].
+	^semaphore critical:[
+		owner := activeProcess.
+		aBlock ensure:[owner := nil]].! !
+!Mutex commentStamp: 'dmu 9/17/2010 12:34'!
+A Mutex is a light-weight MUTual EXclusion object being used when two or more processes need to access a shared resource concurrently. A Mutex grants ownership to a single process and will suspend any other process trying to aquire the mutex while in use. Waiting processes are granted access to the mutex in the order the access was requested.
+
+Brought in from Squeak 4.1 because we need it.
+
+Instance variables:
+	semaphore	<Semaphore>		The (primitive) semaphore used for synchronization.
+	owner		<Process>		The process owning the mutex.!
+
+!UserInterruptHandler methodsFor: 'private' stamp: 'dmu 9/17/2010 16:39'!
+handleUserInterrupt
+	"This will be called from the event-fetcher process. 
+	Assume no system-vital processes have a lower priority than this, and are thus ok to interrupt"
+	UserInterruptHandler cmdDotEnabled 
+		ifTrue: [
+		
+			[|toInterrupt|
+			toInterrupt := Processor preemptedProcess.
+			"Only interrupt processes which are potentially blocking the UI"
+			toInterrupt priority <  Project uiProcess priority ifTrue: [toInterrupt := Project uiProcess].
+			
+			"Fork at lower priority to avoid interrupting system-critical processes"
+			toInterrupt debugWithTitle: 'User Interrupt'] 
+				forkAt: Processor thisProcess priority -1]! !
+
+!TAssertable methodsFor: 'asserting' stamp: 'StefanMarr 10/30/2010 13:38'!
+should: aBlock notTakeMoreThan: aDuration
+    "Evaluate aBlock in a forked process and if it takes more than anInteger milliseconds
+    to run we terminate the process and report a test failure.  It'' important to
+    use the active process for the test failure so that the failure reporting works correctly
+    in the context of the exception handlers."
+
+    | evaluated evaluationProcess result delay testProcess |
+
+    evaluated := false.
+    delay := Delay forDuration: aDuration.
+    testProcess := Processor thisProcess.
+    "Create a new process to evaluate aBlock"
+    evaluationProcess := [
+        result := aBlock value.
+        evaluated := true.
+        delay unschedule.
+        testProcess resume ] forkNamed: 'Process to evaluate should: notTakeMoreThanMilliseconds:'.
+
+    "Wait the milliseconds they asked me to"
+    delay wait.
+    "After this point either aBlock was evaluated or not..."
+    evaluated ifFalse: [
+        evaluationProcess terminate.
+        self assert: false description: ('Block evaluation took more than the expected <1p>' expandMacrosWith: aDuration)].
+   
+    ^result! !
+
+
+!ProcessTest methodsFor: 'running' stamp: 'StefanMarr 10/30/2010 13:38'!
+tearDown
+	Processor thisProcess environmentRemoveKey: #processTests ifAbsent: []! !
+
+!ProcessTest methodsFor: 'testing' stamp: 'StefanMarr 10/30/2010 13:39'!
+testEnvironmentAt
+	Processor thisProcess environmentAt: #processTests put: 42.
+	self assert: (Processor thisProcess environmentAt: #processTests) = 42.
+	self should: [Processor thisProcess environmentAt: #foobar] raise: Error! !
+
+!ProcessTest methodsFor: 'testing' stamp: 'StefanMarr 10/30/2010 13:38'!
+testEnvironmentAtPut
+	self assert: (Processor thisProcess environmentAt: #processTests put: 42) = 42.! !
+
+!ProcessTest methodsFor: 'testing' stamp: 'StefanMarr 10/30/2010 13:38'!
+testEnvironmentRemoveKey
+	Processor thisProcess environmentAt: #processTests put: 42.
+	Processor thisProcess environmentRemoveKey: #processTests.
+	self assert: (Processor thisProcess environmentAt: #processTests ifAbsent: []) isNil.
+	self should: [Processor thisProcess environmentAt: #processTests] raise: Error! !
+
+
+!UpdateStreamer methodsFor: 'private actions' stamp: 'StefanMarr 10/30/2010 13:39'!
+silentRetrieveUrls: urls ontoQueue: queue withWaitSema: waitSema 
+	"download the given list of URLs. The queue will be loaded alternately  
+	with url's and with the retrieved contents. If a download fails, the  
+	contents will be #failed. If all goes well, a special pair with an empty  
+	URL and the contents #finished will be put on the queue. waitSema is  
+	waited on every time before a new document is downloaded; this keeps 
+	the downloader from getting too far  ahead of the main process"
+	"kill the existing downloader if there is one"
+	
+	self zapUpdateDownloader.
+	"fork a new downloading process"
+	UpdateDownloader := [
+			urls do: [:url | 
+					| canPeek front doc | 
+					waitSema wait.
+					queue nextPut: url.
+					doc := HTTPClient httpGet: url.
+					doc isString
+						ifTrue: [queue nextPut: #failed.
+							UpdateDownloader := nil.
+							Processor thisProcess terminate]
+						ifFalse: [canPeek := 120 min: doc size.
+							front := doc next: canPeek.  doc skip: -1 * canPeek.
+							(front beginsWith: '<!!DOCTYPE') ifTrue: [
+								(front includesSubString: 'Not Found') ifTrue: [
+									queue nextPut: #failed.
+									UpdateDownloader := nil.
+									Processor thisProcess terminate]]].
+						UpdateDownloader 
+								ifNotNil: [queue nextPut: doc]].
+			queue nextPut: ''.
+			queue nextPut: #finished.
+			UpdateDownloader := nil] newProcess.
+	UpdateDownloader priority: Processor userInterruptPriority.
+	"start the process running"
+	UpdateDownloader resume! !
+
+!UpdateStreamer methodsFor: 'private actions' stamp: 'StefanMarr 10/30/2010 13:39'!
+verboseRetrieveUrls: urls ontoQueue: queue withWaitSema: waitSema 
+	"download the given list of URLs. The queue will be loaded alternately  
+	with url's and with the retrieved contents. If a download fails, the  
+	contents will be #failed. If all goes well, a special pair with an empty  
+	URL and the contents #finished will be put on the queue. waitSema is  
+	waited on every time before a new document is downloaded; this keeps 
+	the downloader from getting too far  ahead of the main process"
+	"kill the existing downloader if there is one"
+	
+	self zapUpdateDownloader.
+	"fork a new downloading process"
+	UpdateDownloader := [
+		| updateCounter |
+		updateCounter := 0.
+		'Downloading updates' displayProgressAt: World activeHand position from: 0 to: urls size during: [:bar |
+			urls do: [:url | 
+					| canPeek front doc | 
+					waitSema wait.
+					queue nextPut: url.
+					doc := HTTPClient httpGet: url.
+					doc isString
+						ifTrue: [queue nextPut: #failed.
+							UpdateDownloader := nil.
+							Processor thisProcess terminate]
+						ifFalse: [canPeek := 120 min: doc size.
+							front := doc next: canPeek.  doc skip: -1 * canPeek.
+							(front beginsWith: '<!!DOCTYPE') ifTrue: [
+								(front includesSubString: 'Not Found') ifTrue: [
+									queue nextPut: #failed.
+									UpdateDownloader := nil.
+									Processor thisProcess terminate]]].
+						UpdateDownloader 
+								ifNotNil: [queue nextPut: doc. 
+										updateCounter := updateCounter + 1. 
+										bar value: updateCounter]]].
+			queue nextPut: ''.
+			queue nextPut: #finished.
+			UpdateDownloader := nil] newProcess.
+	UpdateDownloader priority: Processor userInterruptPriority.
+	"start the process running"
+	UpdateDownloader resume! !
+
+
+!ProcessTerminateBug methodsFor: 'tests' stamp: 'StefanMarr 10/30/2010 13:37'!
+testSchedulerTermination
+	"self debug: #testSchedulerTermination"
+	
+	| process sema gotHere sema2 |
+	gotHere := false.
+	sema := Semaphore new.
+	sema2 := Semaphore new.
+	process := [
+		sema signal.
+		sema2 wait.
+		"will be suspended here"
+		gotHere := true. "e.g., we must *never* get here" ] forkAt: Processor thisProcess priority.
+	sema wait. "until process gets scheduled"
+ 	process terminate.
+	sema2 signal.
+	Processor yield. "will give process a chance to continue and
+horribly screw up"
+	self assert: gotHere not.
+! !
+
+!ProcessTerminateBug methodsFor: 'tests' stamp: 'StefanMarr 10/30/2010 13:38'!
+testUnwindFromActiveProcess
+	"self debug: #testUnwindFromActiveProcess"
+	
+	| sema process |
+	sema := Semaphore forMutualExclusion.
+	self assert: (sema isSignaled).
+	process := [ sema critical: 
+						[ self deny: sema isSignaled.
+						Processor thisProcess terminate.]] forkAt: Processor userInterruptPriority.
+	self assert: sema isSignaled.! !
+
+!InputEventFetcher methodsFor: 'private' stamp: 'StefanMarr 11/4/2010 00:01' prior: 22276785!
+primGetNextEvent: array
+	"Store the next OS event available into the provided array.
+	Essential."
+	<primitive: 94>
+	array at: 1 put: EventTypeNone. "If there is no event, the primitive will fail, client code expects the indication via the array"
+	^nil! !

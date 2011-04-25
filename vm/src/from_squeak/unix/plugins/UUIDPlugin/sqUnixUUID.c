@@ -8,7 +8,7 @@
 # include <uuid/uuid.h>
 #endif
 #if defined(HAVE_UUID_H)
-  #include <uuid.h>
+# include <uuid.h>
 #endif
 
 #include "sq.h"

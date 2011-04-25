@@ -109,6 +109,7 @@
    By default, the basic ioMSec() clock function is defined
    here as a macro based on the standard C library function clock().
    Any of this can be overridden in sqPlatformSpecific.h.
+
    The wall clock is answered by ioSeconds, which answers the number of seconds
    since the start of the 20th century (12pm Dec 31, 1900).
 
@@ -122,7 +123,7 @@
 */
 
 sqInt ioMSecs(void);
-/* deprecated out ofexistence sqInt ioLowResMSecs(void); */
+/* deprecated out of existence sqInt ioLowResMSecs(void); */
 sqInt ioMicroMSecs(void);
 
 /* duplicate the generated definition in the interpreter.  If they differ the
@@ -145,6 +146,7 @@ extern int numAsyncTickees; /* prodHighPriorityThread unless necessary */
 # endif						/* see platforms/unix/vm/sqUnixHeartbeat.c */
 void	ioGetClockLogSizeUsecsIdxMsecsIdx(sqInt*,void**,sqInt*,void**,sqInt*);
 #endif
+
 
 /* this function should return the value of the high performance
    counter if there is such a thing on this platform (otherwise return 0) */
@@ -416,10 +418,10 @@ typedef struct sqDragDropFilesEvent
   int windowIndex;		/* host window structure */
 } sqDragDropFilesEvent;
 
-#define DragEnter	1 /* drag operation from OS entered Squeak window */
+#define DragEnter	1 /* drag operation from OS entered Squeak window	 */
 #define DragMove	2 /* drag operation from OS moved within Squeak window */
-#define DragLeave	3 /* drag operation from OS left Squeak window */
-#define DragDrop	4 /* drag operation dropped contents onto Squeak. */
+#define DragLeave	3 /* drag operation from OS left Squeak window	 */
+#define DragDrop	4 /* drag operation dropped contents onto Squeak.      */
 #define DragRequest	5 /* data request from other app. */
 
 /* menu event */
@@ -523,7 +525,7 @@ sqInt pushInteger(sqInt integerValue);
 sqInt sizeOfSTArrayFromCPrimitive(void *cPtr);
 sqInt storeIntegerofObjectwithValue(sqInt fieldIndex, sqInt objectPointer, sqInt integerValue);
 
-/* Profiling. */
+/* System attributes. */
 sqInt attributeSize(sqInt indexNumber);
 sqInt getAttributeIntoLength(sqInt indexNumber, sqInt byteArrayIndex, sqInt length);
 

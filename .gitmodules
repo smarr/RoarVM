@@ -1,0 +1,3 @@
+[submodule "vm/googletest"]
+	path = vm/googletest
+	url = git://github.com/smarr/googletest.git

@@ -15,6 +15,7 @@
 // Makefile forces inclusion of this file before EVERY .c or .cpp file
 
 // A collection of all the ifdefs we use for configuring RVM.
+
 // This should be always defined if code is compiled for the RVM/RoarVM.
 // We use it in original Squeak code to indicate our adaptations.
 # ifndef ROAR_VM
@@ -325,6 +326,7 @@
 # ifndef Use_Spin_Locks
 # define Use_Spin_Locks 1
 # endif
+
 # ifndef Dump_Bytecode_Cycles
 # define Dump_Bytecode_Cycles 0 // measuring speed, dmu, 8.2010
 # endif

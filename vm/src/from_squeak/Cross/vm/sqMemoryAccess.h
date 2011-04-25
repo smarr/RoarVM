@@ -16,7 +16,7 @@
 #ifndef __sqMemoryAccess_h
 #define __sqMemoryAccess_h
 
-#include <config.h>
+#include "config.h"
 
 #if defined(HAVE_INTERP_H)
 # include "interp.h"
@@ -82,6 +82,10 @@
   static inline sqInt longAtPointerput(char *ptr, sqInt val)	{ return *(sqInt *)ptr= (sqInt)val; }
   static inline sqInt oopAtPointer(char *ptr)			{ return *(sqInt *)ptr; }
   static inline sqInt oopAtPointerput(char *ptr, sqInt val)	{ return (sqInt)(*(sqInt *)ptr= (sqInt)val); }
+# ifdef ROAR_VM
+  extern char *pointerForOop(sqInt oop);			 // xxx_dmu Renaissance
+  extern sqInt oopForPointer(void *ptr);			 // xxx_dmu Renaissance
+# else
 # if defined(sqMemoryBase) && !sqMemoryBase
   static inline char *pointerForOop(usqInt oop)			{ return (char *)oop; }
   static inline sqInt oopForPointer(char *ptr)			{ return (sqInt)ptr; }
@@ -89,6 +93,8 @@
   static inline char *pointerForOop(usqInt oop)			{ return sqMemoryBase + oop; }
   static inline sqInt oopForPointer(char *ptr)			{ return (sqInt)(ptr - sqMemoryBase); }
 # endif
+# endif // ROAR_VM
+
   static inline sqInt byteAt(sqInt oop)				{ return byteAtPointer(pointerForOop(oop)); }
   static inline sqInt byteAtput(sqInt oop, int val)		{ return byteAtPointerput(pointerForOop(oop), val); }
   static inline sqInt shortAt(sqInt oop)			{ return shortAtPointer(pointerForOop(oop)); }
@@ -100,6 +106,9 @@
   static inline sqInt oopAt(sqInt oop)				{ return oopAtPointer(pointerForOop(oop)); }
   static inline sqInt oopAtput(sqInt oop, sqInt val)		{ return oopAtPointerput(pointerForOop(oop), val); }
 #else
+  # ifdef ROAR_VM
+   # error Use the other ones for the RVM/RoarVM
+  # endif
   /* Use macros when static inline functions aren't efficient. */
 # define byteAtPointer(ptr)		((sqInt)(*((unsigned char *)(ptr))))
 # define byteAtPointerput(ptr, val)	((sqInt)(*((unsigned char *)(ptr))= (unsigned char)(val)))
@@ -115,8 +124,8 @@
 #  define pointerForOop(oop)		((char *)(oop))
 #  define oopForPointer(ptr)		((sqInt)(ptr))
 # else
-# define pointerForOop(oop)		((char *)(sqMemoryBase + ((usqInt)(oop))))
-# define oopForPointer(ptr)		((sqInt)(((char *)(ptr)) - (sqMemoryBase)))
+#  define pointerForOop(oop)		((char *)(sqMemoryBase + ((usqInt)(oop))))
+#  define oopForPointer(ptr)		((sqInt)(((char *)(ptr)) - (sqMemoryBase)))
 # endif
 # define byteAt(oop)			byteAtPointer(pointerForOop(oop))
 # define byteAtput(oop, val)		byteAtPointerput(pointerForOop(oop), (val))

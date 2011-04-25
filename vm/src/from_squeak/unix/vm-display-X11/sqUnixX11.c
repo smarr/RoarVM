@@ -52,6 +52,8 @@
  *	Dave Lewis <lewis@mail.msen.com> Mon Oct 18 20:36:54 EDT 1999
  */
 
+# include "squeak_adapters.h"
+
 #include "sq.h"
 #include "sqMemoryAccess.h"
 
@@ -1317,7 +1319,7 @@ static sqInt display_clipboardReadIntoAt(sqInt count, sqInt byteArrayIndex, sqIn
 #if defined(DEBUG_SELECTIONS)
   fprintf(stderr, "clipboard read: %d selectionSize %d\n", count, stPrimarySelectionSize);
 #endif
-  memcpy(pointerForOop(byteArrayIndex + startIndex), (void *)stPrimarySelection, clipSize);
+  memcpy((char*)pointerForIndex_xxx_dmu(byteArrayIndex + startIndex), (void *)stPrimarySelection, clipSize);
   return clipSize;
 }
 
@@ -1340,11 +1342,12 @@ static void redrawDisplay(int l, int r, int t, int b)
   if ((((((unsigned)(oopAt(displayObj))) >> 8) & 15) <= 4)
       && ((lengthOf(displayObj)) >= 4))
     {
-      sqInt dispBits= fetchPointerofObject(0, displayObj);
+      sqInt dispBits= fetchPointerofObject(0, displayObj); // OK xxx_dmu
       sqInt w= fetchIntegerofObject(1, displayObj);
       sqInt h= fetchIntegerofObject(2, displayObj);
       sqInt d= fetchIntegerofObject(3, displayObj);
-      sqInt dispBitsIndex= dispBits + BaseHeaderSize;
+      // sqInt dispBitsIndex= dispBits + BaseHeaderSize; xxx_dmu
+      sqInt dispBitsIndex = (sqInt)firstFixedField(dispBits); // xxx_dmu
       ioShowDisplay(dispBitsIndex, w, h, d, (sqInt)l, (sqInt)r, (sqInt)t, (sqInt)b);
     }
 }
@@ -2338,7 +2341,7 @@ static int x2sqModifier(int state)
        	/* M - A - */ _|M|_|_,  _|M|_|S,  _|M|_|_,  _|M|_|S,
        	/* M - A C */ O|_|_|_,  O|M|_|S,  O|M|_|_,  O|M|_|S,
       };
-#    if defined(__POWERPC__) || defined(__ppc__)
+#    if defined(__POWERPC__) || defined(__ppc__) || Configure_Squeak_Code_for_Tilera // xxx_dmu
       mods= midofiers[state & 0x1f];
 #    else
       mods= midofiers[state & 0x0f];
@@ -3598,6 +3601,17 @@ static void handleEvent(XEvent *evt)
       {
 	KeySym symbolic;
 	int keyCode= x2sqKey(&evt->xkey, &symbolic);
+
+    if (keyCode == 1  &&  modifierState == 3)  signal_emergency_semaphore();
+    if (keyCode == 1  &&  modifierState == 2)    /* ^a */ print_vm_info();
+# if Multiple_Tileras
+    extern void connect_to_other_chips();
+    extern void send_test_message();
+        
+    if (keyCode == 2  &&  modifierState == 3)  connect_to_other_chips();
+    if (keyCode == 5  &&  modifierState == 3)  send_test_message();//ctrl shift e
+# endif
+
 	int ucs4= xkeysym2ucs4(symbolic);
 	DCONV_FPRINTF(stderr, "symbolic, keyCode, ucs4: %x, %d, %d\n", symbolic, keyCode, ucs4);
 	DCONV_FPRINTF(stderr, "pressed, buffer: %d, %x\n", multi_key_pressed, multi_key_buffer);
@@ -4126,12 +4140,20 @@ static void initWindow(char *displayName)
 
   XSetErrorHandler(xError);
 
-  stDisplay= XOpenDisplay(displayName);
+  // xxx_dmu Tilera sometimes takes time to initialize
+  int xxx_dmu;
+  for (xxx_dmu = 0;  xxx_dmu < 100;  ++xxx_dmu) {
+    stDisplay= XOpenDisplay(displayName);
+    if (stDisplay) break;
+    if (xxx_dmu == 0) fprintf(stderr, "Retrying display\n");
+    sleep(1);
+  }
   if (!stDisplay)
     {
       fprintf(stderr, "Could not open display `%s'.\n", displayName);
       exit(1);
     }
+  if (xxx_dmu != 0) fprintf(stderr, "had to try %d times\n", xxx_dmu + 1);
 
   /* get screen size */
   scrH= (DisplayHeight(stDisplay, DefaultScreen(stDisplay)));
@@ -4607,7 +4629,7 @@ static sqInt display_ioFormPrint(sqInt bitsIndex, sqInt width, sqInt height, sqI
 {
 # if defined(PRINT_PS_FORMS)
 
-  char *bitsAddr= pointerForOop(bitsIndex);
+  char *bitsAddr= pointerForIndex_xxx_dmu(bitsIndex);
   FILE *ppm;
   float scale;			/* scale to use with pnmtops */
   char printCommand[1000];
@@ -4859,8 +4881,8 @@ static sqInt display_ioSetCursorWithMaskBig(sqInt cursorBitsIndex, sqInt cursorM
 
 static sqInt display_ioSetCursorWithMask(sqInt cursorBitsIndex, sqInt cursorMaskIndex, sqInt offsetX, sqInt offsetY)
 {
-  unsigned int *cursorBits= (unsigned int *)pointerForOop(cursorBitsIndex);
-  unsigned int *cursorMask= (unsigned int *)pointerForOop(cursorMaskIndex);
+  unsigned int *cursorBits= (unsigned int *)pointerForIndex_xxx_dmu(cursorBitsIndex);
+  unsigned int *cursorMask= (unsigned int *)pointerForIndex_xxx_dmu(cursorMaskIndex);
   unsigned char data[32], mask[32];	/* cursors are always 16x16 */
   int i;
   Cursor cursor;
@@ -5261,7 +5283,7 @@ static sqInt display_ioShowDisplay(sqInt dispBitsIndex, sqInt width, sqInt heigh
   static sqInt  stDisplayHeight= 0;	/* ditto height */
   static sqInt  stDisplayDepth= 0;	/* ditto depth */
 
-  char *dispBits= pointerForOop(dispBitsIndex);
+  char *dispBits= pointerForIndex_xxx_dmu(dispBitsIndex);
 
   int geometryChanged= ((stDisplayBits != dispBits)
 			|| (stDisplayWidth  != width)

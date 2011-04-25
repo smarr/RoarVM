@@ -17,6 +17,7 @@
  *****************************************************************************/
 #include "sq.h"
 #include "sqMacUIClipBoard.h"
+
 int clipboardSize(void);
 
 /*** Clipboard Support (text only for now) ***/
@@ -52,7 +53,7 @@ sqInt clipboardWriteFromAt(sqInt count, sqInt byteArrayIndex, sqInt startIndex) 
 	PasteboardSynchronize (pb);
 	data = CFDataCreate (kCFAllocatorDefault, (UInt8*) (byteArrayIndex+startIndex), count);
 	if (! data) return 0;
-	
+ 	
 	err = PasteboardPutItemFlavor( pb, (PasteboardItemID)1, kUTTypeUTF8PlainText, data, 0);
 	if (err) return 0;
 	
@@ -120,18 +121,18 @@ sqInt clipboardSize(void) {
 	
 	for (itemIndex = 1; itemIndex <= itemCount; itemIndex++) {
 		
-		PasteboardItemID    itemID;
-		CFArrayRef          flavorTypeArray;
-		CFIndex             flavorCount;
+        PasteboardItemID    itemID;
+        CFArrayRef          flavorTypeArray;
+        CFIndex             flavorCount;
 		
-		err = PasteboardGetItemIdentifier( pb, itemIndex, &itemID );
+        err = PasteboardGetItemIdentifier( pb, itemIndex, &itemID );
 		if (err) continue;
 		err = PasteboardCopyItemFlavors( pb, itemID, &flavorTypeArray );
 		
 		if (err) continue;
-		flavorCount = CFArrayGetCount( flavorTypeArray );
-		for( flavorIndex = 0; flavorIndex < flavorCount; flavorIndex++ )
-		{
+        flavorCount = CFArrayGetCount( flavorTypeArray );
+        for( flavorIndex = 0; flavorIndex < flavorCount; flavorIndex++ )
+        {
 			
 			CFStringRef             flavorType;
 			CFDataRef               flavorData;
@@ -145,8 +146,8 @@ sqInt clipboardSize(void) {
 			 **/
 			
 			if (UTTypeConformsTo(flavorType, kUTTypeUTF16PlainText))
-			{
-				err = PasteboardCopyItemFlavorData(pb, itemID, flavorType, &flavorData );
+            {
+                err = PasteboardCopyItemFlavorData(pb, itemID, flavorType, &flavorData );
 				if (! err) {
 					
 					/** Convert the UTF-16 to UTF-8 by making an intermediate CFString **/
@@ -204,18 +205,18 @@ sqInt clipboardReadIntoAt(sqInt count, sqInt byteArrayPtr, sqInt startIndex) {
 	
 	for (itemIndex = 1; itemIndex <= itemCount; itemIndex++) 	{
 		
-		PasteboardItemID    itemID;
-		CFArrayRef          flavorTypeArray;
-		CFIndex             flavorCount;
+        PasteboardItemID    itemID;
+        CFArrayRef          flavorTypeArray;
+        CFIndex             flavorCount;
 		
-		err = PasteboardGetItemIdentifier( pb, itemIndex, &itemID );
+        err = PasteboardGetItemIdentifier( pb, itemIndex, &itemID );
 		if (err) continue;
-		err = PasteboardCopyItemFlavors( pb, itemID, &flavorTypeArray );
+        err = PasteboardCopyItemFlavors( pb, itemID, &flavorTypeArray );
 		if (err) continue;
 		
-		flavorCount = CFArrayGetCount( flavorTypeArray );
-		for( flavorIndex = 0; flavorIndex < flavorCount; flavorIndex++ )
-		{
+        flavorCount = CFArrayGetCount( flavorTypeArray );
+        for( flavorIndex = 0; flavorIndex < flavorCount; flavorIndex++ )
+        {
 			CFStringRef flavorType;
 			CFDataRef   flavorData;
 			
@@ -226,7 +227,7 @@ sqInt clipboardReadIntoAt(sqInt count, sqInt byteArrayPtr, sqInt startIndex) {
 			 seem not to yield conforming scraps.
 			 **/
 			if (UTTypeConformsTo(flavorType, kUTTypeUTF16PlainText))
-			{
+       		{
 				CFRange range;
 				CFIndex converted, bytesUsed;
 				CFStringRef str;

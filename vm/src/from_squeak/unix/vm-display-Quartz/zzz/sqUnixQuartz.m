@@ -7,15 +7,15 @@
  *   All rights reserved.
  *   
  *   This file is part of Unix Squeak.
- *   
+ * 
  *      You are NOT ALLOWED to distribute modified versions of this file
  *      under its original name.  If you modify this file then you MUST
  *      rename it before making your modifications available publicly.
- *
+ * 
  *   This file is distributed in the hope that it will be useful, but WITHOUT
  *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *   FITNESS FOR A PARTICULAR PURPOSE.
- *
+ *   
  *   You may use and/or distribute this file ONLY as part of Squeak, under
  *   the terms of the Squeak License as described in `LICENSE' in the base of
  *   this distribution, subject to the following additional restrictions:

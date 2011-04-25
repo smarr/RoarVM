@@ -59,12 +59,12 @@ void SetUpMenus(void) {
 	   This is just placeholder stuff to reconcile with the original VM.  */
 
 	if ((! isAqua()) || gSqueakHasQuitWithoutSaving) {
-	InsertMenu(fileMenu  = NewMenu(fileID,  "\pFile"), 0);
+		InsertMenu(fileMenu  = NewMenu(fileID,  "\pFile"), 0);
         	AppendMenu(fileMenu, "\pQuit Without Saving");
 	}
 
 	InsertMenu(editMenu  = NewMenu(editID,  "\pEdit"), 0);
-	
+
 	/* DisableMenuCommand(NULL,'quit');  */
  	AppendMenu(editMenu, "\pUndo/Z;(-;Cut/X;Copy/C;Paste/V;Clear");
 	/* Disable items in the Edit menu */

@@ -145,7 +145,6 @@ size_t      sqImageFileRead(void *ptr, size_t elementSize, size_t count, sqImage
     return 0;
 }
 
-
 void        sqImageFileSeek(sqImageFile f, squeakFileOffsetType pos) {
     if (f != 0)
       fseeko(f, pos, SEEK_SET);
@@ -156,7 +155,3 @@ sqInt sqImageFileWrite(void *ptr, size_t elementSize, size_t count, sqImageFile 
       return fwrite(ptr,elementSize,count,f);
 	return 0;
 }
-
-
-
-

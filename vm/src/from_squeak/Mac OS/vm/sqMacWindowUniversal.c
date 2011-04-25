@@ -256,7 +256,7 @@ static int ioSetFullScreenActual(int fullScreen) {
 	windowDescriptorBlock *	targetWindowBlock  = windowBlockFromIndex(1);
 	extern Boolean gSqueakBrowserWasHeadlessButMadeFullScreen;
 	extern Boolean gSqueakBrowserSubProcess;
-
+	
 	
 	if (browserActiveAndDrawingContextOk()) {
 		if (!gSqueakBrowserWasHeadlessButMadeFullScreen) {
@@ -266,13 +266,13 @@ static int ioSetFullScreenActual(int fullScreen) {
 		}
 		sqShowWindowActual(1);
 		if (targetWindowBlock->context)  //Set context to NULL, if screen is same size as fullscreen we wouldn't get new context
-				QDEndCGContext(GetWindowPort(targetWindowBlock->handle),&targetWindowBlock->context);
+			QDEndCGContext(GetWindowPort(targetWindowBlock->handle),&targetWindowBlock->context);
 		targetWindowBlock->context = NULL;
 	}
-
+	
 	if ((targetWindowBlock == NULL) || (fullScreen && getFullScreenFlag() && !targetWindowBlock->isInvisible))
 		return 0;
-
+	
 	dominantGDevice = getThatDominateGDevice(targetWindowBlock->handle);
     if (dominantGDevice == null) {
         success(false);
@@ -280,9 +280,9 @@ static int ioSetFullScreenActual(int fullScreen) {
     }
     GetAvailableWindowPositioningBounds (dominantGDevice, &workArea);
     screen = (**dominantGDevice).gdRect;
-	        
+	
     if (fullScreen) {
-
+		
 		GetWindowBounds(targetWindowBlock->handle, kWindowContentRgn, &rememberOldLocation);
 		if (targetWindowBlock->isInvisible) {
 			/* I.e. we're going straight to fullscreen */
@@ -302,14 +302,14 @@ static int ioSetFullScreenActual(int fullScreen) {
 			SetFrontProcess(&psn);
 		}
 		MenuBarHide();
-		width  = screen.right - screen.left; 
+		width  = screen.right - screen.left;
 		height = (screen.bottom - screen.top);
 		SetWindowBounds (targetWindowBlock->handle, kWindowContentRgn, &screen);
 		setFullScreenFlag(true);
 		
 	} else {
 		MenuBarRestore();
-	
+		
 		if (gSqueakBrowserWasHeadlessButMadeFullScreen) {
 			HideWindow(targetWindowBlock->handle);
 			{
@@ -324,7 +324,7 @@ static int ioSetFullScreenActual(int fullScreen) {
 				}
 			}
 		}
-
+		
 		
 		if (EmptyRect(&rememberOldLocation)) {
 			Rect newBounds;
@@ -332,11 +332,11 @@ static int ioSetFullScreenActual(int fullScreen) {
 			/* get old window size */
 			width  = (unsigned) getSavedWindowSize() >> 16;
 			height = getSavedWindowSize() & 0xFFFF;
-
+			
 			/* minimum size is 1 x 1 */
-			width  = (width  > 0) ?  width : 64;
+			width  = (width  > 0) ? width : 64;
 			height = (height > 0) ? height : 64;
-
+			
 			workArea.top = workArea.top + 20; 	/* Cheat a bit, for my win title bar's space,
 			 since we have to set bounds via ContentRgn */
 			
@@ -751,7 +751,7 @@ int makeMainWindow(void) {
 	windowBlock-> handle = (wHandleType) window;
 	windowBlock->isInvisible = !MacIsWindowVisible(window);
 
-	 ioLoadFunctionFrom(NULL, "DropPlugin");
+	ioLoadFunctionFrom(NULL, "DropPlugin");
     
 	if (gSqueakWindowHasTitle) {
 		getShortImageNameWithEncoding(shortImageName,gCurrentVMEncoding);
@@ -842,7 +842,7 @@ int ioScreenSize(void) {
 	
 	if (gSqueakHeadless && !browserActiveAndDrawingContextOk())
 		return getSavedWindowSize();
-	
+
 	if (browserActiveAndDrawingContextOkAndNOTInFullScreenMode())
 		return browserGetWindowSize();
 	

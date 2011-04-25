@@ -446,6 +446,10 @@ void *ioFindExternalFunctionIn(const char *lookupName, void *moduleHandle)
     fprintf(stderr, "ioFindExternalFunctionIn(%s, %p):\n  %s\n",
 	    lookupName, moduleHandle, dlerror());
 
+  if (fn == 0) // xxx_dmu
+    fprintf(stderr, "ioFindExternalFunctionIn(%s, %p):\n  %s\n", lookupName, moduleHandle, dlerror());
+
+
   return fn;
 }
 

@@ -1,577 +1,20 @@
-{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
-{\fonttbl\f0\fnil\fcharset0 Geneva;\f1\fnil\fcharset0 Monaco;\f2\fswiss\fcharset0 Helvetica;
-\f3\fnil\fcharset0 Verdana;\f4\fnil\fcharset0 LucidaGrande;}
-{\colortbl;\red255\green255\blue255;\red35\green110\blue37;\red137\green19\blue21;\red0\green0\blue255;
-\red26\green26\blue255;}
-\margl1440\margr1440\vieww18520\viewh17860\viewkind0
+{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf380
+{\fonttbl\f0\fnil\fcharset77 Geneva;\f1\fnil\fcharset77 Monaco;\f2\fswiss\fcharset77 Helvetica;
+\f3\fnil\fcharset77 LucidaGrande;}
+{\colortbl;\red255\green255\blue255;\red137\green19\blue21;\red35\green110\blue37;\red26\green26\blue255;
+}
+\margl1440\margr1440\vieww13660\viewh14740\viewkind0
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
 
-\f0\fs24 \cf0 Mac VM 3.8.18 mach-o build for Carbon, Sophie, (Safari & Firefox browsers) and Croquet. 32bit clean. Scratch VM from MIT uses subset of this VM (less plugins). \
+\f0\fs24 \cf0 Mac VM 3.8.12 mach-o build for Carbon, Sophie, and Croquet\
 \
-Support for Croquet, support for Safari, support for TK4/Sophie, support for Multiple Windows/Ffenestri, full GC instrumentation, configurable quartz flush drawing, MacIntel Machines, mappable mouse buttons, Safari and Firefox browser support .\
-\
+Support for Croquet, support for Safari, support for TK4/Sophie, support for Multiple Windows/Ffenestri, full GC instrumentation, configurable quartz flush drawing, and finally MacIntel Machines.\
 April 24th, 2006 (3.8.12b4)\
 June 5th, 2006 (3.8.12b5)\
-Sept xth, 2006 (3.8.12b5)\
-Sept 22th, 2006 (3.8.12b7)\
-Sept 25th, 2006 (3.8.13b1)\
-Oct 13th, 2006 (3.8.13b3\
-Oct 16th 2006 (3.8.13b4)\
-Nov 10th, 2006 (3.8.14b2)\
-Nov 16th, 2006 (3.8.14b3)\
-Nov 21th, 2006 (3.8.14b5)\
-Nov 23th, 2006 (3.8.14b6)\
-Dec 12th, 2006 (3.8.14b7)\
-Jan  07th, 2007 (3.8.14b8)\
-Jan  22th, 2007 (3.8.15b1)\
-Feb 19th, 2007 (3.8.15b3)\
-Mar 8th, 2007 (3.8.15b4)\
-Mar 10th, 2007 (3.8.15b5)\
-Mar 12th, 2007 (3.8.15b6)\
-Mar 15th, 2007 (3.8.15b8) \
-Mar 16th, 2007 (3.8.16b1)\
-Mar 19th, 2007 (3.8.15b8 Browser plugin)\
-Mar 19th, 2007 (3.8.16b2) \
-Mar 21st, 2007 (3.8.16b3) \
-Mar 22nd, 2007 (3.8.16b4) \
-Mar 30th, 2007 (3.8.16b5) \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
-\cf0 Apr 25th, 2007 (3.8.17b1)  \
-Apr 26th, 2007 (3.8.17b2)\
-Apr 26th, 2007 (3.8.17b3)\
-Apr 27th, 2007 (3.8.17b4)\
-May 1st, 2007 (3.8.17b5)\
-May 16st, 2007 (3.8.17b6)\
-Jun 9th, 2007 (3.8.18b1)\
-Aug 17th, 2007 (3.8.18b2)\
-Apr 10th, 2008 (3.8.18b3)\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-\cf0 May 29th, 2008 (3.8.18b4)\
-Sep   5th, 2008 (3.8.18b5)\
-Oct   28th, 2008 (3.8.19b1)\
-Nov  25th, 2008 (3.8.20b1)\
-Jan  14th, 2008 (3.8.21b1)\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
-\cf0 \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-\cf0 Still yet to do, in future versions -> Verify that file delete rename etc works on aliases, not the targets. (Yawn, someday)\
+\
+Still yet to do, in future versions -> Verify that file delete rename etc works on aliases, not the targets. (Yawn, someday)\
 \
 Pre OS-X users should read about OS-9 packages in the 3.2.4 change notes.\
-\
-3.8.21b1		Revert sqMacMemory.c changes for mmap because of issues with file saving on nfs. \
-			Add 
-\f1\fs20 \CocoaLigature0 gSqueakUseFileMappedMMAP\
-			
-\f2\fs24 \CocoaLigature1 Also forgot to increment version number to 3.8.20b1 for squeak vm version number string (oops)\
-
-\f0 \
-3.8.20b1		Alien FFI support, 32/64 integer fetch/set fixes. \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-
-\f2 \cf0 			Andreas Raab's   VM (callback+ variables) changes of Jun 9th 2006\
-\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
-\cf0 			Alien support from  Cadence Design Systems, Inc.\
-			dumpImage primitive for debugging\
-			BMPReadWritePlugin>>primitiveRead24BmpLine\
-					check for width <=0 if true fail primitive\
-\
-SocketPlugin>> 
-\f3\fs22 primitiveSocketSetReusable  remove
-\f0\fs24 \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-\cf0 3.8.19b2		internal testing\
-\
-3.8.19b1		Altered how memory is allocated for the image oops space. \
-			Now we mmap the image file copy on write onto the 500MB boundary, if this fails the vm quits. \
-			The next page after the end of image file is then mapped as anonymous memory upto the setting for\
-			SqueakMaxHeapSize, if this fails the vm quits. \
-\
-			Fix SQpr role to avoid Error msg\
-				NSDocumentController Info.plist warning: \
-				The values of CFBundleTypeRole entries must be 'Editor', 'Viewer', 'None', or 'Shell'. \
-\
-			sqUnixSoundMacOSXJMM.c	add sound_SetSwitch, sound_GetSwitch, sound_SetDevice as per unix file changes\
-										to avoid link errors\
-			sqMacMain.c				drop cwd to VM directory at startup time to help script writers use ../ or ./\
-									drop unused SqueakTerminate() routine\
-			sqMacMain.h				drop unused SqueakTerminate()\
-			sqMacMemory.c			mmap logic changes\
-			sqMacUnixCommandLineInterface.c	Alter resolveWhatTheImageNameIs() to check in VM directory if not a path\
-										that starts with '.' or '/'\
-			sqMacWindowUniversal.c	ioSetDisplayModeOLD versus ioSetDisplayMode in ioSetDisplayMode but call is never done\
-			sqPlatformSpecific.h		changes for sqMacMemory.c\
-			\
-\
-3.8.18b5		Was used for testing mmap logic, not distributed\
-\
-3.8.18b4		Use NANO-SLEEP logic to ensure sleep is accurate to millisecond, no-usage which is more CPU friendly \
-			would give upwards of 10ms error to delays which is unacceptable. \
-			\
-			Fix issue with arguments passed as parms to the VM, the parm number (2) was treated as being \
-			special by the carbon vm for historical reasons, but in fact it was not actually set. Try to follow the \
-			generic unix rules instead.\
-\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
-\cf0 3.8.18b3		Compile with xcode 2.5.x on powerpc machine os-x 10.4.x\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-\cf0 			set utf832code field to zero on fake wheel event up/down/left/right arrows \
-			print more diagnostic data on failure to allocation virtual memory on browser plugin setup\
-\
-3.8.18b2		The Sophie team noticed that\
-			 
-\f2 InternetConfiguration getMacintoshFileTypeAndCreatorFrom: 'test.jpg'\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
-\cf0 			This returns byte reversed data on macintel #('GEPJ' 'elgo')\
-\
-			sqMacInternetConfiguration.c  use 
-\f1\fs20 \CocoaLigature0 CFSwapInt32BigToHost 
-\f0\fs24 \CocoaLigature1 swap OSType\
-\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-\cf0 3.8.18b1		Thanks to work by David T Lewis we have an interp.c which is more rational when dealing with  oops addresses \
-			As part of this work I changed a large number of support files to use sqInt/usqInt versus integer, and did warning \
-			msg cleanup work, plus dropped Exupery support until Exupery is more stable and someone wants to work on macintel \
-			port. \
-\
-			SecurityPlugin.h			prototype statements coded wrong.\
-\
-			sqMemoryAccess.h		David T Lewis changes for 32/64 bit clean address values\
-\
-			sqMacOpenGL.c			warning msg cleanup, casting\
-			sqMacOpenGLInfo.c		warning msg cleanup, casting\
-			sqMacDragDrop.c			warning msg cleanup, use if sqInt for oops, casting\
-			sqMacUnixFileInterface.c	warning msg cleanup, casting\
-			sqMacHostWindow.c		use sqInt\
-			sqMacHostWindow.h		warning msg cleanup\
-			sqMacInternetConfiguration.c warning msg cleanup\
-			HID_Queue_Utilities.c		warning msg cleanup\
-			HID_Utilities.c				warning msg cleanup\
-			HID_Utilities.h				warning msg cleanup\
-			sqMacMIDI.c				warning msg cleanup\
-			sqMacSecurity.c			warning msg cleanup\
-			sqMacSerialPort.c			warning msg cleanup\
-			sqUnixSoundDebug.h		warning msg cleanup\
-			sqUnixSoundMacOSXJMM.c	warning msg cleanup\
-			sqMacUUID.c				warning msg cleanup\
-			NSCursorWrappers.m		warning msg cleanup\
-			sqMacEncoding.h			warning msg cleanup\
-			sqMacImageIO.c			use sqInt\
-			sqMacMain.c				warning msg cleanup, use sqInt for oops\
-			sqMacMemory.c			use sqInt/usqInt\
-			sqMacMemory.h			use sqInt/usqInt\
-			sqMacNSPluginUILogic2.c	warning msg cleanup\
-			sqMacNSPluginUILogic2.h	warning msg cleanup\
-			sqMacTime.c				warning msg cleanup\
-			sqMacUIClipBoard.c		use sqInt\
-			sqMacUIEvents.h			use sqInt\
-			sqMacUIEventsUniversal.c	warning msg cleanup\
-			sqMacUnixExternalPrims.c	warning msg cleanup\
-			sqMacWindowUniversal.c	use sqInt, warning msg cleanup\
-			sqNamedPrims.h			remove ExuperyPlugin_exports\
-			sqPlatformSpecific.h		use sqInt, warning msg cleanup\
-\
-3.8.17b6		sqMacWindowUniversal.c	Bug fix, If the browser image is full screen it needs to open in the foreground, not the\
-									background\
-\
-3.8.17b5		sqMacUIEventsUniversal.c	Bug fix, Bert noticed if you used the maximize window buttons the mouse tracking didn't\
-									get updated. \
-\
-3.8.17b4 	
-\f4 NSCursorWrappers.m  		Ensure color works on powerpc, and macintel. Also then for 10.2 signal failure and 									code then uses small cursor logic\
-			
-\f0 sqMacUnixFileInterface.c	
-\f1\fs20 \cf2 \CocoaLigature0 Tetsuya HAYASHI, {\field{\*\fldinst{HYPERLINK "mailto:tetha@st.rim.or.jp"}}{\fldrslt \ul \ulc2 tetha@st.rim.or.jp}}, {\field{\*\fldinst{HYPERLINK "mailto:tetha@mac.com"}}{\fldrslt \ul \ulc2 tetha@mac.com}}\
-\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
-\cf2 						I've found the latest mac vm (or recent version) fails to normalize UTF file name. It seems to be the function convertChars() of sqMacUnixFileInterface.c, which normalizes only decompose when converting squeak string to unix, but I think it needs pre-combined when unix string to squeak, and I noticed normalization form should be canonical (exactly should be kCFStringNormalizationFormC) for pre-combined.\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-
-\f0\fs24 \cf0 \CocoaLigature1 \
-3.8.17b3		Oops no-one check large cursors on powerpc. \
-			
-\f4 NSCursorWrappers.m		Ensure works on powerpc, also confirm does not work on 10.2.x (not supported)
-\f0 \
-\
-3.8.17b2		bug fix cursor tracking was not correct, used local coordinates, needed global. \
-			Add large cursor support via unix code for OLPC image\
-			\
-			sqMacUIEventsUniversal.c	large cursor support, switch cursors back on window entry and app activation.\
-			sqMacHostWindow.c		Fix cursor tracking\
-			sqMacWIndowUniversal.c	small cursor logic has to set flag that it's not large cursor so reset cursor knows which\
-					 				cursor to use\
-			
-\f4 NSCursorWrappers.m		new\
-			NSCursorWrappers.h		new\
-
-\f0 \
-3.8.17b1		Logic to enable startup without window, and let Ffenstri later add a window, or let Ffenstri close the main window.\
-			Also put back the os-x 10.2.8 support by coding around missing routines in 10.2\
-\
-			sqMacOpenGL.c\
-			sqMacWindowUniversal.c	In ioShowDisplayOnWindow only force open the window if we are not explicit about the open based on the info.plist flag\
-									For os-x 10.2.8 fallback to old logic in ioSetDisplayMode\
-			sqMacUIEventsUniversal.c	Check for window in record mouse logic, also clean up some warning msgs\
-									For os-x 10.2.8 beware of   kEventParamWindowPartCode, 10.3 feature\
-									Use amIOSX102X call to consider if 10.2 and execute old code instead\
-			sqMacHostWIndow.c		Set window tracking only if window exists\
-			sqMacDragDrop.c			Beware of setting drop handler, but no main window\
-			sqMacOpenGL.c			Watch out for no main window\
-			sqMacMain.c				Add new parm 
-\f1\fs20 \CocoaLigature0 SqueakExplicitWindowOpenNeeded, true if we need to explicit open main window\
-
-\f0\fs24 \CocoaLigature1 			sqMacUnixExternalPrims.c	For os-x 10.2.8 fallback to old logic dl() routines\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-
-\f1\fs20 \cf0 \CocoaLigature0 			
-\f0\fs24 \CocoaLigature1 \
-\
-3.8.16b5		Squeak3d logic did not swap bytes corrrectly for macintel. Add parm to config.h and compiler.\
-\
-3.8.16b4		sqMacSecurity.c	Oops get external char [] wrong and why it crashes on strcpy... \
-\
-3.8.16b3 	Changed SqueakBrowserUntrustedDirectory info.plist to SqueakUntrustedDirectory and added SqueakTrustedDirectory. \
-			\
-			sqMacMain.c		warning msg cleanup, add logic to get gSqueakTrustedDirectoryName\
-\
-			sqMacSecurity.c	Rework how trusted directory is made, always make from info.plist entry, versus old unix hack.\
-							warning msg cleanup. \
-3.8.16b2 \
-			sqMacUIEventsUniversal.c  Bug fix, optimized out stale screen flushing.\
-			experimental, pulled, had bug where asking for vmParm < 0 or >2 < 1000 or 1201 or 1202 \
-			would give uuid back, oops\
-\
-3.8.15b8<<<>>>>browser plugin\
-			\
-			Fixed issue where when we go to setup the shared memory region the file name is not random enough, thus \
-			if timing is right you end up sharing the same shared memory region if you run Safari and FireFox at the \
-			same time. That gave one of our testers interesting visual side effects. \
-\
-			Fixed window draw issue in Safari, would blank Safari window to white, then not redraw properly, have to follow os-9\
-			rules for updatewindow logic on a update window request. \
-\
-			Update cursor logic so that moving out of the plugin window restores the cursor, moving back in \
-			sets the special squeak cursor. \
-\
-			Don't pass activate or update events to the VM, activate is pointless, update is handled internally, we can draw \
-			the screen according to the clip area. \
-\
-			Finally make pipe to VM non-blocking, if we get a EAGAIN, we try 20 times then give up. This solves the issue when\
-			a person uses the Quit Button in the plugin and stops the VM from running. Of course the screen is not updated now\
-			but we still retain control of the cursor,keyboard  so you can reload the etoy application via the browser. Before Safari\
-			would lockup trying to send data to the non-existant VM.\
-\
-3.8.16b1		Revision to 3.8.16 because of adding browser full screen support\
-		\
-			sqMacMain.c				on exit reset menu bar if was headless, browser, and went full screen\
-			\
-			sqMacNSPluginUILogic2.c	add helper methods for when in browser mode and gone full screen, also \
-									then ignore cmds from browser when in full screen mode. \
-			\
-			sqMacNSPluginUILogic2.h	header changes\
-\
-			sqMacUIEvents.h			Add missing RunApplicationEventLoopWithSqueak declare\
-\
-			sqMacUIEventsUniversal.c	When running full screen in browser mode, we need to consider application activation,\
-									deactivation, mouse cursor enter/leave, gSqueakBrowserMouseMappings versus\
-									gSqueakMouseMappings, screen flushing\
-\
-			sqMacWindowUniversal.c	On going full screen we need to fix the menu bar, show the window, ensure window \
-									context is set correctly, send bits to the window, versus browser, flip squeak to\
-									the foreground, and ensure cursor sets go to the foreground versus the browser. \
-						\
-									On leaving full screen, we must flip to the browser, and hide the window. \
-\
-\
-3.8.15b8  	sqMacNSPluginUILogic2.c	Alter shared memory include 20 more bytes to \
-									indicate a drawing request and the co-ordinates versus using the pipe.\
-			\
-			sqMacNSPluginUILogic2.h	structure added.\
-			\
-			sqMacUIEventsUniversal.c	Do not flush hidden squeak window, pointless when running in browser mode. \
-\
-			sqMacWindowUniversal.c	Do not flush hidden squeak window, pointless when running in browser mode. \
-									Alter browser screen update logic, use shared memory to indicate a draw is \
-									needed and where. Later when we come back to draw the next frame, if the \
-									pending draw is not done yet, we wait 1 second in a phtread pause loop in 10 ms\
-									increments. This ensures we do not overrun the ability of the browser to draw frames\
-\
-3.8.15b7		Was test version, not widely distributed. \
-\
-3.8.15b6		sqMacUIEventsUniversal.c 	add logic to swap global to local on mouse point on demand.\
-\
-			sqMacNSPluginUILogic2.c	add logic to avoid swapping local mouse point from browser \
-									to global and back\
-\
-			npsqueak.c (3.8.15b1)		remove aio logic, remove 10.4 only CGimageFromImageRect\
-									cleanup, test on safari and firefox for proper rendering and clipping\
-									when scrolled and placed in arbitrary frame. \
-\
-3.8.15b5\
-			squeakBrowser-info.plist 	add SqueakDebug parm (1) debug msgs, (0) no debug msgs\
-\
-			npsqueak.c		streamline context usage a bit, make local var versus on structure\
-							add logic to print msgs based on info.plist\
-\
-			sqMacMain.c		Add SqueakDebug parm (1) debug msgs, (0) no debug msgs\
-							debug messages for browser interface, and module loading\
-							Add SqueakQuitOnQuitAppleEvent, true if we should quit immediately if \
-							operating system sends us quit msg, as a result of logout. Normally false. \
-\
-			sqMacUIAppleEvents.c	If you logout we get a quit apple event msg, normally we ignore,\
-							unless SqueakQuitOnQuitAppleEvent is set.\
-\
-			sqMacUIEventsUniversal.c  If the user picks edit menu, item one, actually check to see if \
-							the string is "Quit do not save", if so then quit, otherwise pass revised menu\
-							choice to Smalltalk. \
-\
-			sqMacUnixExternalPrims.c	Look to SqueakDebug for msg printing\
-\
-		\
-			sqMacWindowUniversal.c	Look to SqueakDebug for msg printing, mind file does not print any msgs yet\
-						\
-3.8.15b4	\
-			sqMacUnixFileInterface.c\
-				Memory leak issue,  PathToFileViaFSRef  was not freeing mutable string.\
-					Free nav services dialog, cleanup  that routine a bit more. 			\
-			sqMacEncoding.c\
-				Memory leak issue, SetImageNameViaCFString not freeing imageNameString\
-\
-			sqMacMain.c\
-				Add cocoInterfaceForTilda to invoke cocoa interface properly for tilda resolving, to avoid \
-				msg in console log about forgetting to free nsstring.\
-			\
-			sqMacNSPluginUILogic2.c\
-				Ensure SharedBrowserBitMapContextRef is freed early in process of rebuilding to minimize\
-				race conditions. \
-\
-			sqMacWindowUniversal.c\
-				In ioShowDisplayOnWindow be a bit more paranoid if drawing surface exists. \
-				In copy124BitsTheHardWay, cleanup a bit because of a bug Bert found where in a browser \
-				headless app the virtual window size is changed. however the original code asks the hidden\
-				window what it's size is after being resized, but the VM has already see the new size, so 				copy124BitsTheHardWay is using stale information, and we're hosed. Really we want to \
-				use information from the ioShowDisplayOnWindow about the drawing size, and ignore what\
-				size the window is because that's not important. \
-\
-3.8.15b3 		\
-			sqMacUnixFileInterface.c \
-				If you passed in an bad file path, say with incorrect encoding, then in 
-\f1\fs20 \CocoaLigature0 convertChars\
-				
-\f0\fs24 \CocoaLigature1 we would try to convert to UTF8, that would fail, but no check so code to do the \
-				normalization would crash the VM\
-\
-			Cursor support change for Impara. Need the ability to change the cursor back to normal cursor \
-			when we exit the window, or the application. Then when we re-enter the application or window \
-			it should flip back to the cursor that was being used by Squeak when we exited. \
- \
-			sqMacHostWindow.c\
-				\
-				Add CreateMouseTrackingRegion() logic, add call in closeWindow to ReleaseMouseTrackingRegion\
-				In ioSizeOfWindowSetxy call back to reset tracking region size. \
-			\
-			sqMacHostWindow.h\
-				Add windowTrackingRef to window descriptor block\
-\
-			sqMacMain.c\
-				Version number, and uuid change\
-\
-			sqMacUIEventsUniversal.c\
-				When we setup events for window call logic to start mouse region tracking\
-				Add mouse enter/leave logic\
-				On application activate/deactivate need to set squeak cursor or initcursor\
-				Add kEventWindowResizeCompleted to trigger rebuild of mouse tracking region\
-				Add kEventMouseEntered and kEventMouseExited to handle cursor change\
-		\
-\
-				BUG FIX, deal with mouse move and button state, if you had an apple super mouse\
-				you would have noticed if the mouse button was down, and you moved the scroll wheel \
-				it would think the mouse when up, because we forgot to return cached mouse button state. Oops.\
-				BUG was introduced in 3.8.12.b7\
-\
-			SqMacWindowUniversal.c\
-				Add logic to remember cursor on cursor change and set flag if squeak had change cursor. \
-\
-\
-3.8.15b2		had limited release\
-\
-3.8.15b1	interp.c\
-			Alter VMMaker logic to put in missing period in \
-				biasToGrow\
-				| growSize |\
-				growSize :=  growHeadroom*3/2 - (self sizeOfFree: freeBlock).\
-				self growObjectMemory: growSize\
-\
-			sqMacSecurity.c\
-				untrustedUserDirectory  remove fixPath that Tetsuya HAYASHI reported stripping last directory\
-				off of untrusted directory path that is in info.plis\
-		\
-			sqUnixSoundMacOSXJMM.c\
-					dprintf, change to #define otherwise use of dummy method causes compiler to push parms,\
-					resulting in crash if buffer was not allocated on startPlay\
-\
-3.8.14b8	 Basis for MIT Scratch VM \
-			\
-			sqUnixSoundMacOSXJMM.c\
-					Changes to recording buffer logic to watch for buffer being freed by main thread, since \
-					recording buffer logic runs on separate os-x process. Issue was crash on stop recording\
-					Where we seem to stop the recording and dispose of the buffer, but then the buffer \
-					recording logic on the other thread (osx 10.3) wants to memcopy just one more buffer... \
-\
-3.8.14b7	sqMacMain.c	Add signal handler on SIGSEGV, dump all stacks. \
-\
-3.8.14b6  More browser changes\
-\
-		sqMacSecurity	Alter logic to accept plist.info entry for untrustedDirectory. \
-		info.plist			Add mouse button logic for browser events, uses SqueakBrowserMouseNoneButton1\
-						etc. Also add SqueakBrowserUnTrustedDirectory which is\
-						 ~/Library/Preferences/Squeak/Internet/My Squeak/\
-		sqMacMain.c	Add logic to parse new entries (as above) from info.plist\
-		sqMacUIEventsUniversal		On figuring out MouseModifierStateCarbon, consider if it's a browser event, \
-					if so then use SqueakBrowserMouseNoneButton1 entries, versus SqueakMouseNoneButton1\
-\
-\
-3.8.14b5	Alter browser logic\
-		npsqueak.c  	add some more debugging prints\
-\
-		sqMacMain.c	change version number and UUID\
-\
-		sqMacNSPluginUILogic2.c	More debug printing, also get correct mouse and modifer key state when we\
-				 have a keystroke event. \
-\
-		sqMacUIEventsUniversal.c	Get browser mouse position via remembering fake carbon events to avoid\
-				doing the get/setPort and GetMousePoint() 1984 logic.  Add the checkBrowserForHeartBeat \
-				logic which checks every 6.66 seconds if the parent process (the browser) is running, if not then \
-				we ask the VM to quit. This suggestion by 
-\f2 Juergen Gmeiner ensures the VM does not become an\
-				orphaned process if the browser crashes.
-\f0 \
-\
-3.8.14b4 had limited release.\
-\
-3.8.14b3 sqMacWIndowUnversial.c  Ensure window is created when non-headless and not running under the browser\
-		typo in check prevent squeak from showing the window when running standalone for 3.8.14b2.\
-		\
-		sqMacMain.c		Check processsor status at startup, if non-headless and LSBackgroundOnly is true, then\
-						switch process to foreground. \
-		info.plist			rest LSBackgroundOnly to false, from true, to avoid Dock display issue. People \
-						wanting true headless app need then to alter info.plist\
-\
-		revert bitBlt>copyLoop changes, introduced drawing problems, look at fixing later, or never as time permits\
-\
-3.8.14b2 Fixes for browser support\
-		\
-3.8.14b1	New browser support on os-x mac/macintel for safari and firefox. \
-		This logic now follows the example set by the unix plugin, where we \
-		run the VM headless and talk to the browser plugin stub via a two-way pipe to \
-		enable fetching data via a URL, drawing the screen, and setting the cursor.\
-\
-		Thanks to Viewpoint Research for funding this effort. \
-		This VM had limited distribution. \
-\
-		sqMacOpenGL.c			- remove BROWSERPLUGIN\
-		sqMacUnixFileInterface.c 	- needed include for sqUnixCharConv.h\
-		sqMacHostWindow.c		- remove BROWSERPLUGIN\
-		sqMacMain.c				- remove BROWSERPLUGIN, add browser pipe logic, \
-								rearrange startup to handle startup with out window for browser support.\
-		sqMacMemory.c			- remove BROWSERPLUGIN\
-		sqMacTime.c				- remove BROWSERPLUGIN\
-		sqMacUIAppleEvents.c		- remove BROWSERPLUGIN\
-		sqMacUIEventsUniversal.c	- remove BROWSERPLUGIN, expose some internals so new browser \
-								support code can call or access. \
-		sqMacUnixCommandLineInterface.c	- add headfull cmd for browser testing\
-		sqMacUnixExernalPrims.c	- remove BROWSERPLUGIN\
-		sqMacWIndowUnversial.c	- remove BROWSERPLUGIN, changes for browser support, \
-								assume window is hidden which is different from being headless. \
-		sqNamedPrims.h			- remove BROWSERPLUGIN\
-		sqPlatformSpecific.h		- remove BROWSERPLUGIN, add URL_FETCH\
-		npSqueak					- Directory, add plugin for browser into source tree\
-		sqMacNSPLuginUILogic2.c	- new file to replace sqmacNSPluginUILogic.c\
-		sqMacNSPLuginUILogic2.h	- new file to replace sqmacNSPluginUILogic2.c\
-\
-\
-3.8.13.b4  Headless support\
-		sqMacMain.c\
-			headless, set background to false if not headless. \
-			alter uuid returned to signify which VM this is\
-\
-		info.plist\
-		swap buttons to ensure cmd/opt of trackpad is right\
-		Add LSBackgroundOnly to yes i\
-\
-		sqMacEventsUniversal.c\
-		headless support\
-		\
-		sqMacUnixCommandLineInterface.c\
-		headless parm -headless added\
-		\
-		sqMacWindowUniversal.c\
-		headless support\
-		\
-		platforms/Cross/plugins/ExuperyPLugin created\
-\
-3.8.13.b4, b5, b6, b7 \
-		Had limited distribution to test new button modification logic\
-		\
-3.8.13.b3\
-		bitBlt>copyLoop changes, normally it prefetchs the next byte for barrel shifting 64 bits when copying from \
-		one form to another, and a dirty secret and old bug is that it reads one word past the end of the Form\
-		when it processes the last word in the Form. However when you use surfaces where the surface is\
-		allocated elsewhere not in object space and in fact say the allocated form is 2MB and the vm memory \
-		system makes the frame past the 2MB range non-readable, why then you die on a read protection failure. \
-		So alter the loop to consider if it's preload and the last line we don't do the pre-fetch because that could \
-		cause a read failure. \
-3.8.13.b2\
-		
-\f2 Exupery support, via plugin and changes in the VM for Mac Intel, use merged VMMaker-Exupery change set\
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-
-\f0 \cf0 \
-3.8.13.b1\
-		
-\f2 Exupery support, via plugin and changes in the VM for Mac Intel. \
-		http://minnow.cc.gatech.edu/squeak/5672
-\f0 \
-\
-3.8.12.b7 sqMacUIEventsUniversal.c\
-		rewrite 
-\f1\fs20 \CocoaLigature0 MouseModifierStateCarbon() 
-\f0\fs24 \CocoaLigature1 So that we use information in info.plist to map buttons left to right \
-		1, 2, 3 into red, yellow, blue.   Thus on a scroll mouse the buttons read left to right 1, 3, 2  red,blue,yellow\
-		as the mac classic behavior. SqueakMouseCmd is when cmd key is donwn, Option, for option/alt key, and \
-		Control for control key. This then gives you full control over what the mouse button to red/yellow/blue is.\
-\
-	
-\f1\fs20 \cf3 \CocoaLigature0 <key>\cf0 SqueakMouseNoneButton1\cf3 </key>\cf0 \
-\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
-\cf0 	\cf3 <integer>\cf4 1\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseNoneButton2\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 3\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseNoneButton3\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 2\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseCmdButton1\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 2\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseCmdButton2\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 3\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseCmdButton3\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 2\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseOptionButton1\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 3\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseOptionButton2\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 3\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseOptionButton3\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 2\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseControlButton1\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 1\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseControlButton2\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 3\cf3 </integer>\cf0 \
-	\cf3 <key>\cf0 SqueakMouseControlButton3\cf3 </key>\cf0 \
-	\cf3 <integer>\cf4 2\cf3 </integer>\
-\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
-
-\f0\fs24 \cf0 \CocoaLigature1 \
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
-\cf0 3.8.12b6\
-		sqMacUIEventsUniversal.c\
-		First trial at button mapping, not widely distributed and completely changed by 3.8.12b7\
 \
 3.8.12b5\
 		sqMacUnixExternalPrims.c\
@@ -871,7 +314,7 @@ SocketPlugin>>
 			clone of sqUnixExternalPrims.c, \
 				tries to find bundle, then various forms of file as foo, foo.so, foo.dylib, libfoo, libfoo.so (etc) \
 				looks in more places, ./Plugins, ./, Resources/, 
-\f1\fs20 \cf3 \CocoaLigature0 SQUEAK_PLUGIN_PATH, \
+\f1\fs20 \cf2 \CocoaLigature0 SQUEAK_PLUGIN_PATH, \
 				X11 library, /usr/local/lib/squeak/3.8a-2
 \f0\fs24 \cf0 \CocoaLigature1 \
 				various frameworks locations, foo.framework, CoreServices.framework, Applicationservices.framework, Carbon.framework\
@@ -963,7 +406,7 @@ SocketPlugin>>
 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f4 \cf0 		sqMacUIMenuBarUniversal.c\
+\f3 \cf0 		sqMacUIMenuBarUniversal.c\
 			remove hide/show menu bar logic\
 		\
 		sqMacOpenGL.c\
@@ -1127,7 +570,7 @@ SocketPlugin>>
 									Bug was the window would be positioned at 0 & 0 and you could not grab it in order to move it. \
 \
 				
-\f1\fs20 \cf2 \CocoaLigature0 sqMacUIAppleEvents.c	
+\f1\fs20 \cf3 \CocoaLigature0 sqMacUIAppleEvents.c	
 \f0\fs24 \cf0 \CocoaLigature1 Add logic to launch new shell script via apple script to startup same executable with image on an open doc request. \
 									This allows us to double-click on an image when a squeak VM is running. \
 \
@@ -1225,7 +668,7 @@ d\
 \
 3.8.8b2			Revisions to the 32/64bit memory access to improve VM performance\
 				
-\f4 sqMacEncoding.c,			Fix bug reported by Stephan B. Wessels swessels@cox.net, crash on Tiger if squeak.image is in resource folder\
+\f3 sqMacEncoding.c,			Fix bug reported by Stephan B. Wessels swessels@cox.net, crash on Tiger if squeak.image is in resource folder\
 				
 \f0 sqMacJoystickAndTablet.c	More rewrites by Bert.\
 				sqPlatformSpecific.h		Add undefs for dispatchFunctionPointer, dispatchFunctionPointerOnin\
@@ -1233,11 +676,11 @@ d\
 				sqMacMain.c				Fix issue with window title not showing long image name on image selection from dialog prompt. \
 				sqMacUnixCommandLineInterface.c	New, enable command line functions and environment variables. \
 			
-\f1\fs20 \CocoaLigature0  		\cf3 -help                 print this help message, then exit					-memory <size>[mk]    use fixed heap size (added to image size)					-pathenc <enc>        set encoding for pathnames (default: UTF-8)\cf0 \
+\f1\fs20 \CocoaLigature0  		\cf2 -help                 print this help message, then exit					-memory <size>[mk]    use fixed heap size (added to image size)					-pathenc <enc>        set encoding for pathnames (default: UTF-8)\cf0 \
 
 \f0\fs24 \CocoaLigature1 					or as environment variables\
 					
-\f1\fs20 \cf3 \CocoaLigature0 SQUEAK_IMAGE, SQUEAK_MEMORY, SQUEAK_PATHENC
+\f1\fs20 \cf2 \CocoaLigature0 SQUEAK_IMAGE, SQUEAK_MEMORY, SQUEAK_PATHENC
 \f0\fs24 \cf0 \CocoaLigature1 \
 				\
 \
@@ -1274,7 +717,7 @@ d\
 3.8.7b1			sqUIEvents.c changed keyUp/keyDown logic to match Windows pattern, key repeat becomes keyDown/keyDown/keyUp\
 \
 3.8.6b6			
-\f4 sqMacMIDI.c add #def so I can compile under code warrior os-9 again\
+\f3 sqMacMIDI.c add #def so I can compile under code warrior os-9 again\
 				sqMacEncoding.c, sqMacEncoding.h  Minor changes so I can compile user code warrior os-9 again\
 				sqMacUnixInterfaceSound.c  Fix problem with empty buffer being full of junk under certain conditions, that causes a sharp sound  bite. \
 
@@ -1436,7 +879,7 @@ sqMacEncoding.c	Alter SetVMPath()
 \f2 Tetsuya HAYASHI , \
 				add support for 
 \f1\fs20 \CocoaLigature0       \
-				\cf3 "ShiftJIS"\cf0  kCFStringEncodingShiftJIS\
+				\cf2 "ShiftJIS"\cf0  kCFStringEncodingShiftJIS\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
 
 \f2\fs24 \cf0 \CocoaLigature1 \
@@ -1586,9 +1029,9 @@ sqMacWindows.c			- watch out for memory leak when we free the color table. \
 a)Added options SqueakWindowType & SqueakWIndowAttributes to info.plist. The SqueakWindowType of 6 is the standard document window, a type of 8 is the floating utility window. The attributes control with window attributes and behavior according to\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
 
-\f2 \cf5 \ul \ulc5 http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/WindowManager/Window_Manager/wind_mgr_ref/constant_2.html#//apple_ref/c/tdef/WindowAttributes\
+\f2 \cf4 \ul \ulc4 http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/WindowManager/Window_Manager/wind_mgr_ref/constant_2.html#//apple_ref/c/tdef/WindowAttributes\
 &\cf0 \ulnone \
-\cf5 \ul http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/WindowManager/Window_Manager/wind_mgr_ref/constant_1.html#//apple_ref/doc/c_ref/WindowClass\cf0 \ulnone \
+\cf4 \ul http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/WindowManager/Window_Manager/wind_mgr_ref/constant_1.html#//apple_ref/doc/c_ref/WindowClass\cf0 \ulnone \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
 
 \f0 \cf0 b) Sockets are not valid if the network is not initialized. \
@@ -1738,7 +1181,7 @@ Still yet to do, in future versions.\
 Verify that file delete rename etc works on aliases, not the targets.\
 \
 You will need mach-o os-x bundle plugins to work with this VM. example -> 
-\f4 mpeg3Plugin.bundle.\
+\f3 mpeg3Plugin.bundle.\
 Old carbon non-bundled plugins will not work, but keep reading to understand where classic \
 plugins still are needed.\
 
@@ -1782,7 +1225,7 @@ Still yet to do, in future versions.\
 Verify that file delete rename etc works on aliases, not the targets.\
 \
 You will need mach-o os-x bundle plugins to work with this VM. example -> 
-\f4 mpeg3Plugin.bundle.\
+\f3 mpeg3Plugin.bundle.\
 Old carbon non-bundled plugins will not work, but keep reading to understand where classic \
 plugins still are needed.\
 

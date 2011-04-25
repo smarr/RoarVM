@@ -8,12 +8,12 @@
  *   
  *   This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -22,9 +22,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 #include "sq.h"
@@ -34,9 +34,9 @@
 #include <assert.h>
 
 #ifdef DEBUG
-# define debugf printf
+# define DPRINTF printf
 #else
-  static void debugf(char *fmt, ...) {}
+  static void DPRINTF(char *fmt, ...) {}
 #endif
 
 
@@ -102,22 +102,22 @@ static int recording=0;        /* whether this module is recording
 static AuFlowID flow;          /* the NAS flow being used */
 static int semaIndex;          /* the semaphore to signal Squeak with */
 static int stereo;             /* whether Squeak sees stereo or not */
-static sqInt bytesAvail;       /* current number of bytes that may be written
+static int bytesAvail;         /* current number of bytes that may be written
 				  or read from the server */
 static int sampleRate;         /* the sample rate of the device.
 				  Currently not accurate. */
 
 
-static sqInt sound_AvailableSpace(void) 
+static int sound_AvailableSpace(void) 
 {
-  if (server == NULL)
+  if(server == NULL)
     return 0;
 
   return bytesAvail;
 }
 
-static sqInt sound_InsertSamplesFromLeadTime(sqInt frameCount, void *srcBufPtr,
-				  sqInt samplesOfLeadTime)
+static int sound_InsertSamplesFromLeadTime(int frameCount, int srcBufPtr,
+				  int samplesOfLeadTime)
 {
   /* not possible, I don't think using NAS */
   success(false);
@@ -125,9 +125,9 @@ static sqInt sound_InsertSamplesFromLeadTime(sqInt frameCount, void *srcBufPtr,
 }
 
 
-static sqInt sound_Stop(void)
+static int sound_Stop(void)
 {
-  if (server != NULL) {
+  if(server != NULL) {
     aioDisable(AuServerConnectionNumber(server));
 		    
     AuCloseServer(server);
@@ -141,14 +141,15 @@ static sqInt sound_Stop(void)
      
 
      
-static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, void *srcBufPtr, sqInt startIndex)
+static int sound_PlaySamplesFromAtLength(int frameCount, int arrayIndex, int startIndex)
 {
   int bytesToPlay;
   int framesToPlay;
-  char *buf;   /* buffer to play from; it may not be srcBufPtr if a
+  char *buf;   /* buffer to play from; it may not be arrayIndex if a
                   conversion is necessary */
 
-  debugf("PlaySamples(frameCount=%d, srcBufPtr=%d, startIndex=%d\n", frameCount, srcBufPtr, startIndex);
+  DPRINTF("PlaySamples(frameCount=%d, arrayIndex=%d, startIndex=%d\n",
+	  frameCount, arrayIndex, startIndex);
   
   /* figure out how much to play */
   bytesToPlay = frameCount * bytesPerPlayFrame();
@@ -160,19 +161,19 @@ static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, void *srcBufPtr, sq
   /* convert the buffer when not in stereo; when playing back, Squeak
      will send mono data as stereo, where the right channel is to be
      ignored */
-  if (stereo)
+  if(stereo)
     {
-      buf= (char *) (srcBufPtr+ 4*startIndex);
+      buf= (char *) (arrayIndex + 4*startIndex);
     }
   else
     {
       int i;
       short *sbuf;  /* the buffer, as short's instead of char's */
 
-      debugf("converting\n");
+      DPRINTF("converting\n");
       
       buf= malloc(2 * frameCount);
-      if (buf == NULL)
+      if(buf == NULL)
 	{
 	  fprintf(stderr, "out of memory\n");
 	  return 0;
@@ -182,12 +183,12 @@ static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, void *srcBufPtr, sq
 
       for(i=0; i<frameCount; i++)
 	{
-	  sbuf[i]= ((short *) (srcBufPtr + 4*startIndex)) [2*i];
+	  sbuf[i]= ((short *) (arrayIndex + 4*startIndex)) [2*i];
 	}
     }
       
 	
-  debugf("writing %d bytes (%d frames)\n", bytesToPlay, framesToPlay);
+  DPRINTF("writing %d bytes (%d frames)\n", bytesToPlay, framesToPlay);
   AuWriteElement(server, flow, 0,
 		 bytesToPlay,
 		 buf,
@@ -198,7 +199,7 @@ static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, void *srcBufPtr, sq
 
   bytesAvail -= bytesToPlay;
 
-  if (!stereo)
+  if(!stereo)
     {
       free(buf);
     }
@@ -211,8 +212,8 @@ static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, void *srcBufPtr, sq
    whether we are recording or playing back */
 static void handleAudioEvents(int fd, void *data, int flags)
 {
-  if (!server) {
-    debugf( "handleAudioEvents called while unconnected!\n");
+  if(!server) {
+    DPRINTF( "handleAudioEvents called while unconnected!\n");
     return;
   }
 
@@ -223,7 +224,7 @@ static void handleAudioEvents(int fd, void *data, int flags)
   while(AuEventsQueued(server, AuEventsQueuedAlready)) {
     AuEvent event;
     AuNextEvent(server, AuTrue, &event);
-    debugf("event of type %d\n", event.type);
+    DPRINTF("event of type %d\n", event.type);
     
     switch(event.type) {
     case 0:
@@ -245,21 +246,23 @@ static void handleAudioEvents(int fd, void *data, int flags)
 
 	switch(enEvent->kind) {
 	case AuElementNotifyKindLowWater:
-	  debugf("low water event\n");
+	  DPRINTF("low water event\n");
 	  bytesAvail += enEvent->num_bytes;
 	  break;
 	case AuElementNotifyKindHighWater:
-	  debugf("high water event\n");
+	  DPRINTF("high water event\n");
 	  bytesAvail += enEvent->num_bytes;
 	  break;
 	case AuElementNotifyKindState:
-	  debugf("state change (%d->%d)\n", enEvent->prev_state, enEvent->cur_state);
+	  DPRINTF("state change (%d->%d)\n",
+		  enEvent->prev_state,
+		  enEvent->cur_state);
 	  bytesAvail += enEvent->num_bytes;
-	  if (enEvent->cur_state == AuStatePause) {
+	  if(enEvent->cur_state == AuStatePause) {
 	       /* if the flow has stopped, then arrange for it to get started again */
 	       /* XXX there is probably a more intelligent place to do
                   this, in case there is a real reason it has paused */
-	       debugf("unpausing\n");
+	       DPRINTF("unpausing\n");
 	       AuStartFlow(server, flow, NULL);
 	       AuFlush(server);
 	  }
@@ -270,15 +273,15 @@ static void handleAudioEvents(int fd, void *data, int flags)
     }
   }
 
-  if (bytesAvail > 0) {
-    debugf("bytesAvail: %d\n", bytesAvail);
+  if(bytesAvail > 0) {
+    DPRINTF("bytesAvail: %d\n", bytesAvail);
     signalSemaphoreWithIndex(semaIndex);
   }
 
   aioHandle(fd, handleAudioEvents, flags & AIO_RW);
 }
 
-static sqInt sound_PlaySilence(void) 
+static int sound_PlaySilence(void) 
 {
      return 0;
 }
@@ -295,7 +298,7 @@ static AuDeviceID choose_nas_device(AuServer *server, int samplesPerSec, int ste
   
   /* look for a physical device of the proper kind, with the proper number of channels */
   for (i = 0; i < AuServerNumDevices(server); i++) {
-    if ((AuDeviceKind(AuServerDevice(server, i))
+    if((AuDeviceKind(AuServerDevice(server, i))
 	==  desiredDeviceKind)
        && (AuDeviceNumTracks(AuServerDevice(server, i))
 	   ==  desired_channels))
@@ -306,7 +309,7 @@ static AuDeviceID choose_nas_device(AuServer *server, int samplesPerSec, int ste
 
   /* look for a physical device of the proper kind; ignore number of channels */
   for (i = 0; i < AuServerNumDevices(server); i++) {
-    if (AuDeviceKind(AuServerDevice(server, i))
+    if(AuDeviceKind(AuServerDevice(server, i))
        ==  desiredDeviceKind)
 	 return AuDeviceIdentifier(AuServerDevice(server, i));
   }
@@ -316,7 +319,7 @@ static AuDeviceID choose_nas_device(AuServer *server, int samplesPerSec, int ste
   return AuNone;
 }
 
-static sqInt sound_Start(sqInt frameCount, sqInt samplesPerSec, sqInt stereo0, sqInt semaIndex0)
+static int sound_Start(int frameCount, int samplesPerSec, int stereo0, int semaIndex0)
 {
   AuElement elements[2];  /* first is a client element, second is
 			     a device output element */
@@ -324,10 +327,10 @@ static sqInt sound_Start(sqInt frameCount, sqInt samplesPerSec, sqInt stereo0, s
   
 
   /* open the server */
-  debugf("opening server\n");
+  DPRINTF("opening server\n");
   server = AuOpenServer(NULL, 0, NULL, 0, NULL, NULL);
-  if (server == NULL) {
-    debugf("failed to open audio server\n");
+  if(server == NULL) {
+    DPRINTF("failed to open audio server\n");
     return false;
   }
 
@@ -340,8 +343,8 @@ static sqInt sound_Start(sqInt frameCount, sqInt samplesPerSec, sqInt stereo0, s
   
   /* pick a device to play to */ 
   device = choose_nas_device(server, samplesPerSec, stereo, 0);
-  if (device == AuNone) {
-    debugf("no available device on the server!\n");
+  if(device == AuNone) {
+    DPRINTF("no available device on the server!\n");
     AuCloseServer(server);
     server = NULL;
     return false;
@@ -357,12 +360,13 @@ static sqInt sound_Start(sqInt frameCount, sqInt samplesPerSec, sqInt stereo0, s
 
 
   /* create a flow to write on */
-  debugf("creating flow\n");
+  DPRINTF("creating flow\n");
   flow = AuCreateFlow(server, NULL);
 
 
   /* create client and device elements to play with */
-  debugf("creating elements(%d,%d)\n", frameCount, frameCount / 4);
+  DPRINTF("creating elements(%d,%d)\n",
+	 frameCount, frameCount / 4);
   AuMakeElementImportClient(&elements[0],
 			    samplesPerSec,
 			    AuFormatLinearSigned16LSB,  /* XXX this should be chosen based on the platform */
@@ -386,7 +390,7 @@ static sqInt sound_Start(sqInt frameCount, sqInt samplesPerSec, sqInt stereo0, s
 		NULL);
 
   /* start her up */
-  debugf("starting flow\n");
+  DPRINTF("starting flow\n");
   AuStartFlow(server, flow, NULL);
   AuFlush(server);
   
@@ -411,21 +415,21 @@ static sqInt sound_Start(sqInt frameCount, sqInt samplesPerSec, sqInt stereo0, s
    XXX this routine is almost identical to snd_Start().  The two should
    be factored into a single function!
 */
-static sqInt sound_StartRecording(sqInt desiredSamplesPerSec, sqInt stereo0, sqInt semaIndex0)
+static int sound_StartRecording(int desiredSamplesPerSec, int stereo0, int semaIndex0)
 {
   AuElement elements[2];  /* elements for the NAS flow to assemble:
    			        element 0 = physical input
 			        element 1 = client export */
   AuDeviceID device;      /* physical device ID to use */
   
-  debugf("StartRecording\n");
+  DPRINTF("StartRecording\n");
   
   sound_Stop();
 
-  debugf("opening server\n");
+  DPRINTF("opening server\n");
   server = AuOpenServer(NULL, 0, NULL, 0, NULL, NULL);
-  if (server == NULL) {
-    debugf("failed to open audio server\n");
+  if(server == NULL) {
+    DPRINTF("failed to open audio server\n");
     return false;
   }
 
@@ -436,8 +440,8 @@ static sqInt sound_StartRecording(sqInt desiredSamplesPerSec, sqInt stereo0, sqI
   sampleRate= desiredSamplesPerSec;
 
   device= choose_nas_device(server, desiredSamplesPerSec, stereo, 1);
-  if (device == AuNone) {
-    debugf("no available device on the server!\n");
+  if(device == AuNone) {
+    DPRINTF("no available device on the server!\n");
     AuCloseServer(server);
     server = NULL;
     return false;
@@ -454,12 +458,12 @@ static sqInt sound_StartRecording(sqInt desiredSamplesPerSec, sqInt stereo0, sqI
   
 
   /* create a flow to read from */
-  debugf("creating flow\n");
+  DPRINTF("creating flow\n");
   flow = AuCreateFlow(server, NULL);
 
 
   /* create client and device elements to record with */
-  debugf("creating elements\n");
+  DPRINTF("creating elements\n");
 
   
   AuMakeElementImportDevice(&elements[0],
@@ -487,7 +491,7 @@ static sqInt sound_StartRecording(sqInt desiredSamplesPerSec, sqInt stereo0, sqI
 		NULL);
 
   /* start her up */
-  debugf("starting flow\n");
+  DPRINTF("starting flow\n");
   AuStartFlow(server, flow, NULL);
   AuFlush(server);
   
@@ -504,7 +508,7 @@ static sqInt sound_StartRecording(sqInt desiredSamplesPerSec, sqInt stereo0, sqI
 }
 
 
-static sqInt sound_StopRecording(void) 
+static int sound_StopRecording(void) 
 {
      return sound_Stop();
 }
@@ -517,31 +521,33 @@ static double sound_GetRecordingSampleRate(void)
 }
 
      
-static sqInt sound_RecordSamplesIntoAtLength(void *buf, sqInt startSliceIndex,
-				  sqInt bufferSizeInBytes)
+static int sound_RecordSamplesIntoAtLength(int buf, int startSliceIndex,
+				  int bufferSizeInBytes)
 {
   int bytesToRead;
   int sliceSize= (stereo ? 4 : 2);   /* a "slice" seems to be a "frame": one sample from each channel */
   
 
-  debugf("RecordSamplesIntoAtLength(buf=%d, startSliceIndex=%d, bufferSizeInBytes=%d\n",
-	 buf, startSliceIndex, bufferSizeInBytes);
+  DPRINTF("RecordSamplesIntoAtLength(buf=%d, startSliceIndex=%d, bufferSizeInBytes=%d\n",
+	  buf, startSliceIndex, bufferSizeInBytes);
+  
   
   /* sanity checks */
-  if (server==NULL || !recording) {
+  if(server==NULL || !recording) {
     success(false);
     return 0;
   }
 
-  if (bytesAvail <= 0)
+  if(bytesAvail <= 0)
     return 0;
 
   /* figure out how much to read */
   bytesToRead= bufferSizeInBytes - (startSliceIndex * sliceSize);
-  if (bytesToRead > bytesAvail)
+  if(bytesToRead > bytesAvail)
     bytesToRead= bytesAvail;
 
-  debugf("reading %d bytes\n", bytesToRead);
+  DPRINTF("reading %d bytes\n", bytesToRead);
+  
 
   /* read it */
   AuReadElement(server,
@@ -560,7 +566,7 @@ static sqInt sound_RecordSamplesIntoAtLength(void *buf, sqInt startSliceIndex,
 
 
 /* mixer settings */
-static sqInt sound_SetRecordLevel(sqInt level) 
+static int sound_SetRecordLevel(int level) 
 {
   return level;
 }
@@ -578,20 +584,6 @@ static void sound_SetVolume(double left, double right)
   return;
 }
 
-static sqInt sound_SetSwitch(sqInt id, sqInt captureFlag, sqInt parameter)
-{
-  return -1;
-}
-
-static sqInt sound_GetSwitch(sqInt id, sqInt captureFlag, sqInt channel)
-{
-  return -1;
-}
-
-static sqInt sound_SetDevice(sqInt id, char *arg)
-{
-  return -1;
-}
 
 #include "SqSound.h"
 

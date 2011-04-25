@@ -1,2 +1,26 @@
+# OS X
 .DS_Store
+
+# Xcode
 xcuserdata
+vm/RoarVM.xcodeproj/*.pbxuser
+vm/RoarVM.xcodeproj/*.perspectivev3
+*xcworkspace
+
+# Build dir
+vm/build/*.o
+vm/build/*.opt
+vm/build/Makefile
+vm/build/config.last
+vm/build/compiler_check
+vm/build/rvm
+vm/build/Debug/
+vm/build/Release/
+vm/build/RoarVM.build/
+vm/build/libgtest.a
+vm/build/rvm-test
+vm/src/tests/*.o
+
+# Unit tests
+vm/_trial_temp/
+*.pyc

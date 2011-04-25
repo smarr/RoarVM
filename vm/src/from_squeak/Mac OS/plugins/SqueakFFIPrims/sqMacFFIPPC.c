@@ -22,6 +22,7 @@
 #ifndef LONGLONG
 #define LONGLONG long long
 #endif
+
 #define MAX_PATH PATH_MAX
 
 //#define DEBUGFFI 1

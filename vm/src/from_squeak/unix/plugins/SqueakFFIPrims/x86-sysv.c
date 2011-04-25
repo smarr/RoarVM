@@ -1,8 +1,8 @@
-/* x86-sysv.c -- FFI support for i386 SVr4 ABI
+/* ppc-sysv.c -- FFI support for PowerPC SVr4 ABI
  * 
  * Author: Ian.Piumarta@INRIA.Fr
  * 
- * Last edited: 2009-08-19 04:22:59 by piumarta on emilia-2.local
+ * Last edited: 2003-02-06 20:08:58 by piumarta on felina.inria.fr
  * 
  *   Copyright (C) 1996-2004 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
@@ -10,12 +10,12 @@
  *   
  *   This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -24,9 +24,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  *
  * BUGS:
  * 
@@ -39,15 +39,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/param.h>
 
 #ifndef LONGLONG
 # define LONGLONG long long
 #endif
 
 #if 0
-# define debugf(ARGS)printf ARGS
+# define DPRINTF(ARGS)printf ARGS
 #else
-# define debugf(ARGS)
+# define DPRINTF(ARGS)
 #endif
 
 #if defined(FFI_TEST)
@@ -73,6 +74,38 @@ int	*ffiStructReturnValue;
 
 
 extern int ffiCallAddressOf(void *addr, void *stack, int size);
+
+
+static FILE *ffiLogFile = NULL;
+
+int ffiLogFileNameOfLength(void *nameIndex, int nameLength) {
+  char fileName[MAXPATHLEN];
+  FILE *fp;
+
+  if(nameIndex && nameLength) {
+    if(nameLength >= MAXPATHLEN) return 0;
+    strncpy(fileName, nameIndex, nameLength);
+    fileName[nameLength] = 0;
+    /* attempt to open the file and if we can't fail */
+    fp = fopen(fileName, "at");
+    if(fp == NULL) return 0;
+    /* close the old log file if needed and use the new one */
+    if(ffiLogFile) fclose(ffiLogFile);
+    ffiLogFile = fp;
+    fprintf(ffiLogFile, "------- Log started -------\n");
+    fflush(fp);
+  } else {
+    if(ffiLogFile) fclose(ffiLogFile);
+    ffiLogFile = NULL;
+  }
+  return 1;
+}
+
+int ffiLogCallOfLength(void *nameIndex, int nameLength) {
+    if(ffiLogFile == NULL) return 0;
+    fprintf(ffiLogFile, "%.*s\n", nameIndex, nameLength);
+    fflush(ffiLogFile);
+}
 
 
 int ffiInitialize(void)
@@ -132,63 +165,63 @@ int ffiCanReturn(int *structSpec, int specSize)
 
 int ffiPushSignedChar(int value)
 { 
-  debugf(("ffiPushSignedChar %d\n", value));
+  DPRINTF(("ffiPushSignedChar %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushUnsignedChar(int value)
 { 
-  debugf(("ffiPushUnsignedChar %d\n", value));
+  DPRINTF(("ffiPushUnsignedChar %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushSignedByte(int value)
 { 
-  debugf(("ffiPushSignedByte %d\n", value));
+  DPRINTF(("ffiPushSignedByte %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushUnsignedByte(int value)
 { 
-  debugf(("ffiPushUnsignedByte %d\n", value));
+  DPRINTF(("ffiPushUnsignedByte %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushSignedShort(int value)
 { 
-  debugf(("ffiPushSignedShort %d\n", value));
+  DPRINTF(("ffiPushSignedShort %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushUnsignedShort(int value)
 { 
-  debugf(("ffiPushUnsignedShort %d\n", value));
+  DPRINTF(("ffiPushUnsignedShort %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushSignedInt(int value)
 { 
-  debugf(("ffiPushSignedInt %d\n", value));
+  DPRINTF(("ffiPushSignedInt %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushUnsignedInt(int value)
 { 
-  debugf(("ffiPushUnsignedInt %d\n", value));
+  DPRINTF(("ffiPushUnsignedInt %d\n", value));
   pushInt(value);
   return 1; 
 }
 
 int ffiPushSignedLongLong(int low, int high)
 { 
-  debugf(("ffiPushSignedLongLong %d %d\n", low, high));
+  DPRINTF(("ffiPushSignedLongLong %d %d\n", low, high));
   pushInt(low);
   pushInt(high);
   return 1; 
@@ -196,7 +229,7 @@ int ffiPushSignedLongLong(int low, int high)
 
 int ffiPushUnsignedLongLong(int low, int high)
 { 
-  debugf(("ffiPushUnsignedLongLong %d %d\n", low, high));
+  DPRINTF(("ffiPushUnsignedLongLong %d %d\n", low, high));
   pushInt(low);
   pushInt(high);
   return 1; 
@@ -204,7 +237,7 @@ int ffiPushUnsignedLongLong(int low, int high)
 
 int ffiPushPointer(int pointer)
 { 
-  debugf(("ffiPushPointer %d\n", pointer));
+  DPRINTF(("ffiPushPointer %d\n", pointer));
   pushInt(pointer);
   return 1; 
 }
@@ -212,14 +245,14 @@ int ffiPushPointer(int pointer)
 int ffiPushSingleFloat(double value)
 { 
   float f= (float)value;
-  debugf(("ffiPushSingleFloat %f\n", value));
+  DPRINTF(("ffiPushSingleFloat %f\n", value));
   pushInt(*(int *)&f);
   return 1; 
 }
 
 int ffiPushDoubleFloat(double value)
 { 
-  debugf(("ffiPushDoubleFloat %f\n", value));
+  DPRINTF(("ffiPushDoubleFloat %f\n", value));
   pushInt(((int *)&value)[0]);
   pushInt(((int *)&value)[1]);
   return 1; 
@@ -228,12 +261,12 @@ int ffiPushDoubleFloat(double value)
 int ffiPushStringOfLength(int srcIndex, int length)
 {
   char *ptr;
-  debugf(("ffiPushStringOfLength %d\n", length));
+  DPRINTF(("ffiPushStringOfLength %d\n", length));
   checkStack();
   ptr= (char *)malloc(length + 1);
   if (!ptr)
     return primitiveFail();
-  debugf(("  ++ alloc string\n"));
+  DPRINTF(("  ++ alloc string\n"));
   memcpy(ptr, (void *)srcIndex, length);
   ptr[length]= '\0';
   ffiTempStrings[ffiTempStringCount++]= ptr;
@@ -245,7 +278,7 @@ int ffiPushStructureOfLength(int pointer, int *structSpec, int specSize)
 {
   int lbs= *structSpec & FFIStructSizeMask;
   int size= (lbs + sizeof(int) - 1) / sizeof(int);
-  debugf(("ffiPushStructureOfLength %d (%db %dw)\n", specSize, lbs, size));
+  DPRINTF(("ffiPushStructureOfLength %d (%db %dw)\n", specSize, lbs, size));
   if (ffiStackIndex + size > FFI_MAX_STACK)
     return primitiveFail();
   memcpy((void *)(ffiStack + ffiStackIndex), (void *)pointer, lbs);
@@ -261,7 +294,7 @@ int	ffiLongLongResultHigh(void)	{ return ffiLongReturnValue; }
 
 int ffiStoreStructure(int address, int structSize)
 {
-  debugf(("ffiStoreStructure %d %d\n", address, structSize));
+  DPRINTF(("ffiStoreStructure %d %d\n", address, structSize));
   memcpy((void *)address, (ffiStructReturnValue
 			   ? (void *)ffiStructReturnValue
 			   : (void *)&ffiIntReturnValue),
@@ -273,16 +306,16 @@ int ffiStoreStructure(int address, int structSize)
 int ffiCleanup(void)
 {
   int i;
-  debugf(("ffiCleanup\n"));
+  DPRINTF(("ffiCleanup\n"));
   for (i= 0;  i < ffiTempStringCount;  ++i)
     {
-      debugf(("  ++ free string\n"));
+      DPRINTF(("  ++ free string\n"));
       free(ffiTempStrings[i]);
     }
   ffiTempStringCount= 0;
   if (ffiStructReturnValue)
     {
-      debugf(("  ++ free struct\n"));
+      DPRINTF(("  ++ free struct\n"));
       free(ffiStructReturnValue);
       ffiStructReturnValue= 0;
     }

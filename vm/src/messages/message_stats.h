@@ -14,6 +14,10 @@
 
 class Message_Stats {
   Message_Stats() { fatal("Message_Stats is not meant to be instanciated."); }
+<<<<<<< HEAD
+=======
+
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
 public:
 
   typedef struct statistics {
@@ -26,7 +30,11 @@ public:
   
   
   static statistics stats[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];    // threadsafe
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
   static Oop get_stats(int);
   static Oop get_message_names();
 
@@ -48,7 +56,11 @@ public:
   
   static void collect_receive_msg_stats(int m) {
     ++Message_Stats::stats[rank_on_threads_or_zero_on_processes()].receive_tallies[m];
+<<<<<<< HEAD
   };  
+=======
+  };
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
   
 # if  Check_Reliable_At_Most_Once_Message_Delivery
   static int next_transmission_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];

@@ -2,7 +2,7 @@
  * 
  * Author: Ian.Piumarta@INRIA.Fr
  * 
- * Last edited: 2009-08-19 04:35:40 by piumarta on emilia-2.local
+ * Last edited: 2003-08-21 15:02:15 by piumarta on felina.inria.fr
  */
 
 
@@ -17,12 +17,12 @@
  * 
  * This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -31,9 +31,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 
@@ -92,7 +92,7 @@ static int ms_read(_self, unsigned char *out, int limit, int quant, int usecs)
 	int i= 0;
 	while (i < count)
 	  {
-	    debugf("<%02x\n", out[i]);
+	    DPRINTF("<%02x\n", out[i]);
 	    ++i;
 	  }
       }
@@ -200,7 +200,7 @@ static int ms_open(_self, char *msDev, char *msProto)
 	}
     }
 
-  debugf("using: %s (%d), %s\n", self->msName, self->fd, msProto);
+  DPRINTF("using: %s (%d), %s\n", self->msName, self->fd, msProto);
 
   self->init= init;
   self->handleEvents= handler;
@@ -214,7 +214,7 @@ static void ms_close(_self)
   if (self->fd >= 0)
     {
       close(self->fd);
-      debugf("%s (%d) closed\n", self->msName, self->fd);
+      DPRINTF("%s (%d) closed\n", self->msName, self->fd);
       self->fd= -1;
     }
 }

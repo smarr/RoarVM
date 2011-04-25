@@ -139,8 +139,8 @@ extern int isCFramePointerInUse(void);
  * documentation of this API.
  */
 typedef struct {
-	pthread_cond_t	cond;
-	pthread_mutex_t mutex;
+    pthread_cond_t	cond;
+    pthread_mutex_t mutex;
     int				count;
 } sqOSSemaphore;
 #  define ioDestroyOSSemaphore(ptr) 0

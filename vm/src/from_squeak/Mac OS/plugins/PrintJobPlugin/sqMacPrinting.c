@@ -49,7 +49,6 @@ static CTabHandle	stColorTable = nil;
 static PixMapHandle	stPixMap = nil;
 extern struct VirtualMachine *interpreterProxy;
 
-
 /*------------------------------------------------------------------------------
 	Prototypes
 ------------------------------------------------------------------------------*/
@@ -187,7 +186,6 @@ int ioPagePostProcessing(PrintingLogicPtr printJob) {
     
     //	Close the page.
     status = PMSessionEndPage(printJob->printSession);
-
     return status;
 }
 
@@ -399,7 +397,6 @@ OSStatus 	DoPrintDialog(PrintingLogicPtr printJob)
 }	//	DoPrintDialog
 
 
-
 /*------------------------------------------------------------------------------
 	Function:
 		DoPrintLoop
@@ -435,9 +432,8 @@ OSStatus DoPrintLoop(PrintingLogicPtr printJob)
         
     //	Get the current graphics context, in this case a Quickdraw grafPort,
     //	for drawing the page.
-	status = PMSessionGetGraphicsContext (printJob->printSession,
+    status = PMSessionGetGraphicsContext(printJob->printSession, 
             kPMGraphicsContextQuickdraw, (void**) &printingPort);
-
     if (status == noErr) {
         
         //	Set the printing port before drawing the page.
@@ -463,6 +459,7 @@ OSStatus DoPrintLoop(PrintingLogicPtr printJob)
             
     return status;
 }	//	DoPrintLoop
+
 
 
 /*------------------------------------------------------------------------------
@@ -585,14 +582,14 @@ Boolean IncludePostScriptInSpoolFile(PrintingLogicPtr printJob)
         
         for (i=0; i < numSupportedFormats; i++)
         {
-       /*    if ( CFStringCompare(CFArrayGetValueAtIndex(supportedFormats, i),
+           /* if ( CFStringCompare(CFArrayGetValueAtIndex(supportedFormats, i),
                 kPMDocumentFormatPDF, kCFCompareCaseInsensitive) == kCFCompareEqualTo )
                     return true;
                     
             if ( CFStringCompare(CFArrayGetValueAtIndex(supportedFormats, i),
                 kPMDocumentFormatPostScript, kCFCompareCaseInsensitive) == kCFCompareEqualTo )
-                    return true; */
-					
+                    return true;*/
+                    
             if ( CFStringCompare(CFArrayGetValueAtIndex(supportedFormats, i),
                 kPMDocumentFormatPICTPS, kCFCompareCaseInsensitive) == kCFCompareEqualTo )
             {
@@ -867,20 +864,18 @@ int ioPageForm(PrintingLogicPtr printJob, char *aBitMap,int h,int w,int d,float 
         PicComments.
 		
 ------------------------------------------------------------------------------*/
-
 OSStatus DrawPage(PrintingLogicPtr printJob)
 {
     OSStatus status = noErr; 
     CGrafPtr  printerPort;
     Rect	dstRect = { 0, 0, 0, 0 };
     Rect	srcRect = { 0, 0, 0, 0 };
-
+    
     if (printJob->formBitMap != nil) {
-		dstRect.top = printJob->offsetHeight;
+        dstRect.top = printJob->offsetHeight;
         dstRect.left = printJob->offsetWidth;
         dstRect.right = printJob->width*printJob->scaleW + printJob->offsetWidth;
         dstRect.bottom = printJob->height*printJob->scaleH + printJob->offsetHeight;
-
     
         srcRect.right = printJob->width;
         srcRect.bottom = printJob->height;
@@ -901,7 +896,6 @@ OSStatus DrawPage(PrintingLogicPtr printJob)
             (*stPixMap)->cmpSize = 8;
             (*stPixMap)->cmpCount = 3;
         }
-
 
         GetPort((GrafPtr *) &printerPort);
         
@@ -941,6 +935,7 @@ OSStatus DrawPage(PrintingLogicPtr printJob)
 		
     return status;
 }	//	DrawPage
+
 
 
 static void SetUpPixmap(void) {

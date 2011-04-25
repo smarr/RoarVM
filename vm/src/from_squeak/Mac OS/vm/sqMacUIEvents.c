@@ -39,8 +39,6 @@ notes: IsUserCancelEventRef
 #include <DeskBus.h>
 #endif
 
-
-
 #include "sq.h"
 #include "sqMacUIEvents.h"
 #include "sqMacUIMenuBar.h"

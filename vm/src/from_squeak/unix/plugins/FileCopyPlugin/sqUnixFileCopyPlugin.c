@@ -95,7 +95,7 @@ static int copy(char *from, char *to)
 		  && (write(out, mem, stat.st_size) != stat.st_size) >= 0)
 		{
 		  status= 0;      /* success */
-	      }
+		}
 	      munmap(mem, stat.st_size);
 	    }
 	  close(zero);

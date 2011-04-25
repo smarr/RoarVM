@@ -879,7 +879,6 @@ dir_SetMacFileTypeAndCreator(char *filename, int filenameSize,
   char *fType, char *fCreator)												DO_NOTHING
 int dir_Delete(char *pathString, int pathStringLength)						STUBBED_OUT
 
-
 /*** External Primitive Support (No-ops) ***/
 
 int ioLoadModule(char *pluginName) { return 0; }

@@ -178,10 +178,17 @@
 # define CB_REG __asm__("$11")
 #endif
 #if defined(__i386__)
+<<<<<<< HEAD
 #   define IP_REG __asm__("%esi")
 #   define SP_REG __asm__("%edi")
 # if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
 #     define CB_REG __asm__("%ebx")
+=======
+# define IP_REG __asm__("%esi")
+# define SP_REG __asm__("%edi")
+# if (__GNUC__ > 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ >= 95))
+#   define CB_REG __asm__("%ebx")
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
 # else
 #   define CB_REG /* avoid undue register pressure */
 # endif

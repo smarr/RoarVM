@@ -6,7 +6,7 @@
 *   AUTHOR:  
 *   ADDRESS: 
 *   EMAIL:   ]
-*   RCSID:   $Id$
+*   RCSID:   $Id: sqFilePluginBasicPrims.c 1283 2005-12-31 00:51:12Z rowledge $
 *
 *   NOTES: See change log below.
 *	2005-03-26 IKP fix unaligned accesses to file[Size] members
@@ -26,7 +26,7 @@
 * handling code. Note that the win32 platform #defines NO_STD_FILE_SUPPORT
 * and thus bypasses this file
 */
-                                                      
+
 #include <errno.h>
 #include "sq.h"
 #ifndef NO_STD_FILE_SUPPORT
@@ -235,12 +235,11 @@ sqInt sqFileOpen(SQFile *f, char* sqFileName, sqInt sqFileNameSize, sqInt writeF
 	if (sqFileNameSize > 1000) {
 		return interpreterProxy->success(false);
 	}
-
-	  interpreterProxy->ioFilenamefromStringofLengthresolveAliases(cFileName, sqFileName, sqFileNameSize, true);
+	interpreterProxy->ioFilenamefromStringofLengthresolveAliases(cFileName, sqFileName, sqFileNameSize, true);
 
 	if (writeFlag) {
 		/* First try to open an existing file read/write: */
-			setFile(f, fopen(cFileName, "r+b"));
+		setFile(f, fopen(cFileName, "r+b"));
 		if (getFile(f) == NULL) {
 			/* Previous call fails if file does not exist. In that case,
 			   try opening it in write mode to create a new, empty file.
@@ -255,7 +254,7 @@ sqInt sqFileOpen(SQFile *f, char* sqFileName, sqInt sqFileNameSize, sqInt writeF
 		}
 		f->writable = true;
 	} else {
-			setFile(f, fopen(cFileName, "rb"));
+		setFile(f, fopen(cFileName, "rb"));
 		f->writable = false;
 	}
 
@@ -336,7 +335,7 @@ size_t sqFileReadIntoAt(SQFile *f, size_t count, char* byteArrayIndex, size_t st
 	if (!sqFileValid(f))
 		return interpreterProxy->success(false);
 	pentry(sqFileReadIntoAt);
-	file= getFile(f);
+	file = getFile(f);
 	if (f->writable) {
 		if (f->isStdioStream)
 			return interpreterProxy->success(false);
@@ -358,7 +357,7 @@ size_t sqFileReadIntoAt(SQFile *f, size_t count, char* byteArrayIndex, size_t st
 #endif
 	do {
 		clearerr(file);
-	bytesRead = fread(dst, 1, count, file);
+		bytesRead = fread(dst, 1, count, file);
 	} while (bytesRead <= 0 && ferror(file) && errno == EINTR);
 #if COGMTVM
 	if (f->isStdioStream)
@@ -430,7 +429,6 @@ squeakFileOffsetType sqFileSize(SQFile *f) {
 }
 
 sqInt sqFileFlush(SQFile *f) {
-	/* Return the length of the given file. */
 
 	if (!sqFileValid(f))
 		return interpreterProxy->success(false);
@@ -442,7 +440,7 @@ sqInt sqFileFlush(SQFile *f) {
 sqInt sqFileTruncate(SQFile *f,squeakFileOffsetType offset) {
 
 	if (!sqFileValid(f))
-            return interpreterProxy->success(false);
+		return interpreterProxy->success(false);
  	if (sqFTruncate(getFile(f), offset))
 		return interpreterProxy->success(false);
 	setSize(f, ftell(getFile(f)));
@@ -471,7 +469,7 @@ size_t sqFileWriteFromAt(SQFile *f, size_t count, char* byteArrayIndex, size_t s
 	if (!(sqFileValid(f) && f->writable))
 		return interpreterProxy->success(false);
 	pentry(sqFileWriteFromAt);
-	file= getFile(f);
+	file = getFile(f);
 	if (f->lastOp == READ_OP) fseek(file, 0, SEEK_CUR);  /* seek between reading and writing */
 	src = byteArrayIndex + startIndex;
 	bytesWritten = fwrite(src, 1, count, file);
@@ -492,4 +490,3 @@ sqInt sqFileThisSession() {
 	return thisSession;
 }
 #endif /* NO_STD_FILE_SUPPORT */
-

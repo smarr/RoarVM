@@ -30,7 +30,7 @@
 
 #ifdef macintoshSqueak
 #if defined(TARGET_API_MAC_CARBON)
-#include <Types.h>
+# include <Types.h>
 #endif
 #define ENABLE_URL_FETCH
 /* replace the image file manipulation macros with functions */
@@ -56,13 +56,13 @@
 #undef sqFTruncate
 /* sqFTruncate should return 0 on success, ftruncate does also */
 #define sqFTruncate(f,o) ftruncate(fileno(f), o)
-    #define ftell ftello
-    #define fseek fseeko
+#define ftell ftello
+#define fseek fseeko
 
-    typedef FILE *sqImageFile;
+typedef FILE *sqImageFile;
 
-    #undef sqFilenameFromStringOpen
-    #undef sqFilenameFromString
+#undef sqFilenameFromStringOpen
+#undef sqFilenameFromString
 void		sqFilenameFromStringOpen(char *buffer,sqInt fileIndex, long fileLength);
 void		sqFilenameFromString(char *buffer,sqInt fileIndex, long fileLength);
 void        sqImageFileClose(sqImageFile f);
@@ -160,16 +160,16 @@ extern const pthread_key_t tltiIndex;
 #endif /* STACKVM */
 
 #ifdef BROWSERPLUGIN
-    #undef insufficientMemorySpecifiedError
-    #undef insufficientMemoryAvailableError
-    #undef unableToReadImageError
-    #undef browserPluginReturnIfNeeded
-    #undef browserPluginInitialiseIfNeeded
-    #define insufficientMemorySpecifiedError() plugInNotifyUser("The amount of memory specified by the 'memory' EMBED tag is not enough for the installed Squeak image file.")
-    #define insufficientMemoryAvailableError() plugInNotifyUser("There is not enough memory to give Squeak the amount specified by the 'memory' EMBED tag.")
-    #define unableToReadImageError() plugInNotifyUser("Read failed or premature end of image file")
-    #define browserPluginReturnIfNeeded() if (plugInTimeToReturn()) {ReturnFromInterpret();}
-    #define browserPluginInitialiseIfNeeded()
+# undef insufficientMemorySpecifiedError
+# undef insufficientMemoryAvailableError
+# undef unableToReadImageError
+# undef browserPluginReturnIfNeeded
+# undef browserPluginInitialiseIfNeeded
+# define insufficientMemorySpecifiedError() plugInNotifyUser("The amount of memory specified by the 'memory' EMBED tag is not enough for the installed Squeak image file.")
+# define insufficientMemoryAvailableError() plugInNotifyUser("There is not enough memory to give Squeak the amount specified by the 'memory' EMBED tag.")
+# define unableToReadImageError() plugInNotifyUser("Read failed or premature end of image file")
+# define browserPluginReturnIfNeeded() if (plugInTimeToReturn()) {ReturnFromInterpret();}
+# define browserPluginInitialiseIfNeeded()
 #endif
 
 //exupery

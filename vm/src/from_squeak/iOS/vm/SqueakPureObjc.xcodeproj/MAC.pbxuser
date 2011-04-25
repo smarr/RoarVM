@@ -1,0 +1,156 @@
+// !$*UTF8*$!
+{
+	043223A412D3705C00260293 /* SqueakNoOGLIPhone */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = SqueakNoOGLIPhone;
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+	};
+	043223A512D3705C00260293 /* SqueakPureObjc */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = SqueakPureObjc;
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+	};
+	043223A612D3705C00260293 /* SqueakPureObjc64*64 */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = "SqueakPureObjc64*64";
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+	};
+	043223CA12D3706500260293 /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = "";
+			};
+		};
+	};
+	043223CB12D3706500260293 /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	1D6058900D05DD3D006BFB54 /* SqueakNoOGLIPhone */ = {
+		activeExec = 0;
+		executables = (
+			043223A412D3705C00260293 /* SqueakNoOGLIPhone */,
+		);
+	};
+	29B97313FDCFA39411CA2CEA /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = 043223A412D3705C00260293 /* SqueakNoOGLIPhone */;
+		activeTarget = 1D6058900D05DD3D006BFB54 /* SqueakNoOGLIPhone */;
+		codeSenseManager = 043223CB12D3706500260293 /* Code sense */;
+		executables = (
+			043223A412D3705C00260293 /* SqueakNoOGLIPhone */,
+			043223A512D3705C00260293 /* SqueakPureObjc */,
+			043223A612D3705C00260293 /* SqueakPureObjc64*64 */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					341,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 315846749;
+			PBXWorkspaceStateSaveDate = 315846749;
+		};
+		sourceControlManager = 043223CA12D3706500260293 /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	947E626F10AA098300D3B69E /* SqueakPureObjc */ = {
+		activeExec = 0;
+		executables = (
+			043223A512D3705C00260293 /* SqueakPureObjc */,
+		);
+	};
+	948773F910C64DD800E4AEC5 /* SqueakPureObjc64*64 */ = {
+		activeExec = 0;
+		executables = (
+			043223A612D3705C00260293 /* SqueakPureObjc64*64 */,
+		);
+	};
+}

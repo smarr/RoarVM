@@ -1,0 +1,44 @@
+#!/bin/bash
+
+echo_usage () {
+    echo "Usage: $0 <n> <cmd> [args]"
+    echo
+    echo "Runs a command max. n-times and reports whether it failed in the process."
+    echo
+    # return an error code to signal non-success
+    exit 128
+}
+
+if [[ $# -lt 2 ]]
+then
+	echo_usage
+fi
+
+# read the required standard arguments
+n=$1
+cmd=$2
+shift 2
+
+# build the command, there might be a better way...
+while [[ $# -gt 0 ]]
+do
+	cmd="$cmd $1"
+	shift 1
+done
+
+# do the execution
+i=1
+while [[ $n -gt 0 ]]
+do
+	echo "$cmd"
+	$cmd
+	if [[ $? -ne 0 ]]
+	then
+		echo "Reliability test failed after run $i ($cmd)"
+		exit 1
+	fi
+	: $(( n-- ))
+	: $(( i++ ))
+done
+
+echo "Reliability test successful ($cmd)"

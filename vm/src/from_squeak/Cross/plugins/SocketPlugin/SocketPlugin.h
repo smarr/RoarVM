@@ -52,4 +52,7 @@ sqInt sqSocketGetOptionsoptionNameStartoptionNameSizereturnedValue(SocketPtr s, 
 /* tpr 4/12/06 add declarations for two new socket routines */
 void sqSocketBindToPort(SocketPtr s, int addr, int port);
 void sqSocketSetReusable(SocketPtr s);
+<<<<<<< HEAD
 
+=======
+>>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62

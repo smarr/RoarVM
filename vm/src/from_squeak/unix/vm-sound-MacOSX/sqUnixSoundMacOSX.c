@@ -1,21 +1,20 @@
+# if !Configure_Squeak_Code_for_Tilera  // xxx_dmu
 /* sqUnixSoundMacOSX.c -- sound support for CoreAudio on Mac OS 10
  *
  * Author: Ian.Piumarta@squeakland.org
  * 
- * Last edited: 2010-04-01 13:54:58 by piumarta on emilia-2.local
+ * Last edited: 2005-03-17 21:36:05 by piumarta on squeak.hpl.hp.com
  *
  *   Copyright (C) 1996-2005 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
  *   
- *   This file is part of Unix Squeak.
- * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -24,9 +23,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 // Notes:
@@ -45,7 +44,7 @@
 // by the image) when mixing frames into the buffer, or do we reduce
 // the lead time to to an absolute (safe) minimum?
 //
-#define OBEY_LEAD_TIME	1
+#define OBEY_LEAD_TIME	0
 
 /// 
 /// No more user-serviceable parts in this file.  Stop Tweaking Now!
@@ -54,6 +53,8 @@
 
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioConverter.h>
+
+# include "squeak_adapters.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -84,7 +85,7 @@ static inline int max(int i, int j) { return (i > j) ? i : j; }
 
 static void dumpFormat(AudioStreamBasicDescription *fmt); // atend
 
-static void debugf(const char *fmt, ...)
+static void DPRINTF(const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -95,11 +96,11 @@ static void debugf(const char *fmt, ...)
 #else // !DEBUG
 
 static inline void dumpFormat(AudioStreamBasicDescription *fmt) {}
-static inline void debugf(const char *fmt, ...) {}
+static inline void DPRINTF(const char *fmt, ...) {}
 
 #endif // !DEBUG
 
-static void eprintf(const char *fmt, ...)
+static void EPRINTF(const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -123,7 +124,7 @@ static inline int checkError(OSStatus err, char *op, char *param)
 {
   if (kAudioHardwareNoError != noErr)
     {
-      eprintf("sound: %s(%s): error %ld (%s)\n", op, param, err, str4(err));
+      EPRINTF("sound: %s(%s): error %ld (%s)\n", op, param, err, str4(err));
       return 1;
     }
   return 0;
@@ -483,12 +484,12 @@ static Stream *Stream_new(int dir)
 
   if (!(s= (Stream *)calloc(1, sizeof(Stream))))
     {
-      eprintf("out of memory");
+      EPRINTF("out of memory");
       return 0;
     }
   s->id=	id;
   s->direction= dir;
-  debugf("stream %p[%d] created for device %ld\n", s, dir, id);
+  DPRINTF("stream %p[%d] created for device %ld\n", s, dir, id);
 
   return s;
 }
@@ -500,7 +501,7 @@ static void Stream_delete(Stream *s)
 {
   assert(s && s->buffer);
   Buffer_delete(s->buffer);
-  debugf("stream %p[%d] deleted\n", s, s->direction);
+  DPRINTF("stream %p[%d] deleted\n", s, s->direction);
   free(s);
 }
 
@@ -522,22 +523,18 @@ static int Stream_setFormat(Stream *s, int frameCount, int sampleRate, int stere
 		 "GetProperty", "StreamFormat"))
     return 0;
 
-  debugf("stream %p[%d] device format:\n", s, s->direction);  dumpFormat(&devFmt);
+  DPRINTF("stream %p[%d] device format:\n", s, s->direction);  dumpFormat(&devFmt);
 
   imgFmt.mSampleRate	   = sampleRate;
   imgFmt.mFormatID	   = kAudioFormatLinearPCM;
-#if defined(WORDS_BIGENDIAN)
-  imgFmt.mFormatFlags	   = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsBigEndian;
-#else
-  imgFmt.mFormatFlags	   = kLinearPCMFormatFlagIsSignedInteger;
-#endif
+  imgFmt.mFormatFlags	   = kLinearPCMFormatFlagIsBigEndian | kLinearPCMFormatFlagIsSignedInteger;
   imgFmt.mBytesPerPacket   = SqueakFrameSize / (3 - nChannels);
   imgFmt.mFramesPerPacket  = 1;
   imgFmt.mBytesPerFrame    = SqueakFrameSize / (3 - nChannels);
   imgFmt.mChannelsPerFrame = nChannels;
   imgFmt.mBitsPerChannel   = 16;
 
-  debugf("stream %p[%d] image format:\n", s, s->direction);  dumpFormat(&imgFmt);
+  DPRINTF("stream %p[%d] image format:\n", s, s->direction);  dumpFormat(&imgFmt);
 
   if (s->direction) // input
     {
@@ -564,7 +561,7 @@ static int Stream_setFormat(Stream *s, int frameCount, int sampleRate, int stere
 
   s->buffer= Buffer_new((s->direction ? DeviceFrameSize : SqueakFrameSize) * nChannels * frameCount * 2);
 
-  debugf("stream %p[%d] sound buffer size %d/%d (%d)\n", s, s->direction, s->imgBufSize, s->buffer->size, frameCount);
+  DPRINTF("stream %p[%d] sound buffer size %d/%d (%d)\n", s, s->direction, s->imgBufSize, s->buffer->size, frameCount);
 
   return 1;
 }
@@ -576,7 +573,7 @@ static int Stream_startSema(Stream *s, int semaIndex)
 {
   AudioDeviceIOProc ioProc= s->direction ? ioProcInput : ioProcOutput;
 
-  debugf("stream %p[%d] startSema: %d\n", s, s->direction, semaIndex);
+  DPRINTF("stream %p[%d] startSema: %d\n", s, s->direction, semaIndex);
   
   s->semaphore= semaIndex;	// can be zero
   if (checkError(AudioDeviceAddIOProc(s->id, ioProc, (void *)s),
@@ -588,7 +585,7 @@ static int Stream_startSema(Stream *s, int semaIndex)
       AudioDeviceRemoveIOProc(s->id, ioProc);
       return 0;
     }
-  debugf("stream %p[%d] running\n", s, s->direction);
+  DPRINTF("stream %p[%d] running\n", s, s->direction);
   return 1;
 }
 
@@ -602,7 +599,7 @@ static int Stream_stop(Stream *s)
 	     "DeviceStop", s->direction ? "ioProcIn" : "ioProcOut");
   checkError(AudioDeviceRemoveIOProc(s->id, ioProc),
 	     "Remove", s->direction ? "ioProcIn" : "ioProcOut");
-  debugf("stream %p[%d] stopped\n", s, s->direction);
+  DPRINTF("stream %p[%d] stopped\n", s, s->direction);
   return 1;
 }
 
@@ -644,11 +641,11 @@ static void mixFrames(short *out, short *in, int nFrames)
 // Note: this is only used when the "sound quick start" preference is
 // enabled in the image.
 // 
-static sqInt sound_InsertSamplesFromLeadTime(sqInt frameCount, void *srcBufPtr, sqInt framesOfLeadTime)
+static sqInt sound_InsertSamplesFromLeadTime(sqInt frameCount, sqInt srcBufPtr, sqInt framesOfLeadTime)
 {
   Stream *s= output;
 
-  debugf("snd_InsertSamples %d From %p LeadTime %d\n", frameCount, srcBufPtr, framesOfLeadTime);
+  DPRINTF("snd_InsertSamples %d From %p LeadTime %d\n", frameCount, srcBufPtr, framesOfLeadTime);
 
   if (s)
     {
@@ -715,9 +712,9 @@ static sqInt sound_InsertSamplesFromLeadTime(sqInt frameCount, void *srcBufPtr, 
 
       if ((frontFrames + backFrames) >= (frameCount / 2))
 	{
-	  mixFrames((short *)frontData, (short *)srcBufPtr, frontFrames);	// mixFrames((short *)frontData, (short *)pointerForOop(srcBufPtr), frontFrames);
+	  mixFrames((short *)frontData, (short *)pointerForIndex_xxx_dmu(srcBufPtr), frontFrames);
 	  srcBufPtr += frontFrames * SqueakFrameSize;
-	  mixFrames((short *)backData,  (short *)srcBufPtr, backFrames);	// mixFrames((short *)backData,  (short *)pointerForOop(srcBufPtr), backFrames);
+	  mixFrames((short *)backData,  (short *)pointerForIndex_xxx_dmu(srcBufPtr), backFrames);
 	  framesDone= frontFrames + backFrames;
 	}
       return framesDone;
@@ -731,7 +728,7 @@ static sqInt sound_InsertSamplesFromLeadTime(sqInt frameCount, void *srcBufPtr, 
 // play (exactly) frameCount of samples (and no less, since the result is
 // ignored).
 // 
-static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, void *srcBufPtr, sqInt startIndex)
+static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, sqInt arrayIndex, sqInt startIndex)
 {
   if (output)
     {
@@ -739,7 +736,7 @@ static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, void *srcBufPtr, sq
       if (Buffer_free(output->buffer) >= byteCount)
 	{
 	  Buffer_write(output->buffer,
-		       srcBufPtr + (startIndex * SqueakFrameSize),	// pointerForOop(arrayIndex) + (startIndex * SqueakFrameSize),
+		       pointerForIndex_xxx_dmu(arrayIndex) + (startIndex * SqueakFrameSize),
 		       byteCount);
 	  return frameCount;
 	}
@@ -763,7 +760,7 @@ static sqInt sound_PlaySilence(void)
 // 
 static sqInt sound_Stop(void)
 {
-  debugf("snd_Stop\n");
+  DPRINTF("snd_Stop\n");
   
   if (output)
     {
@@ -781,7 +778,7 @@ static sqInt sound_Start(sqInt frameCount, sqInt samplesPerSec, sqInt stereo, sq
 {
   Stream *s= 0;
 
-  debugf("snd_Start frames: %d samplesPerSec: %d stereo: %d semaIndex: %d\n",
+  DPRINTF("snd_Start frames: %d samplesPerSec: %d stereo: %d semaIndex: %d\n",
 	   frameCount, samplesPerSec, stereo, semaIndex);
   
   if (output)	// there might be a change of sample rate
@@ -821,7 +818,7 @@ static double sound_GetRecordingSampleRate(void)
 
 static sqInt sound_StopRecording(void)
 {
-  debugf("snd_StopRecording\n");
+  DPRINTF("snd_StopRecording\n");
 
   if (input)
     {
@@ -839,8 +836,8 @@ static sqInt sound_StartRecording(sqInt samplesPerSec, sqInt stereo, sqInt semaI
 {
   Stream *s= 0;
 
-  debugf("snd_StartRecording rate: %d stereo: %d semaIndex: %d\n",
-	 samplesPerSec, stereo, semaIndex);
+  DPRINTF("snd_StartRecording rate: %d stereo: %d semaIndex: %d\n",
+	   samplesPerSec, stereo, semaIndex);
   
   if (input)	// there might be a change of sample rate
     sound_StopRecording();
@@ -861,7 +858,7 @@ static sqInt sound_StartRecording(sqInt samplesPerSec, sqInt stereo, sqInt semaI
 }
 
 
-static sqInt sound_RecordSamplesIntoAtLength(void *buf, sqInt startSliceIndex, sqInt bufferSizeInBytes)
+static sqInt sound_RecordSamplesIntoAtLength(sqInt buf, sqInt startSliceIndex, sqInt bufferSizeInBytes)
 {
   if (input)
     {
@@ -869,9 +866,8 @@ static sqInt sound_RecordSamplesIntoAtLength(void *buf, sqInt startSliceIndex, s
 	{
 	  int    start= startSliceIndex * SqueakFrameSize / 2;
 	  UInt32 count= min(input->cvtBufSize, bufferSizeInBytes - start);
-	  if (kAudioHardwareNoError == AudioConverterFillBuffer(input->converter,
-								bufferDataProc, input, &count,
-								buf + start))	// pointerForOop(buf) + start))
+	  if (kAudioHardwareNoError == AudioConverterFillBuffer(input->converter, bufferDataProc, input,
+								&count, pointerForIndex_xxx_dmu(buf) + start))
 	    return count / (SqueakFrameSize / 2) / input->channels;
 	}
       return 0;
@@ -976,20 +972,6 @@ static sqInt sound_SetRecordLevel(sqInt level)
   return setVolume(1, (double)level / 1000.0L, (double)level / 1000.0L);
 }
 
-static sqInt sound_SetSwitch(sqInt id, sqInt captureFlag, sqInt parameter)
-{
-  return -1;
-}
-
-static sqInt sound_GetSwitch(sqInt id, sqInt captureFlag, sqInt channel)
-{
-  return -1;
-}
-
-static sqInt sound_SetDevice(sqInt id, char *arg)
-{
-  return -1;
-}
 
 /// 
 /// debugging
@@ -1109,3 +1091,5 @@ int main()
 */
 
 #endif // TESTING
+# endif // !Configure_Squeak_Code_for_Tilera xxx_dmu
+

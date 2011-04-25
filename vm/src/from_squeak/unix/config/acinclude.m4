@@ -26,7 +26,7 @@
 # 
 # Author: Ian.Piumarta@squeakland.org
 # 
-# Last edited: 2009-08-04 18:25:22 by piumarta on emilia-2.local
+# Last edited: Tue Jan 26 11:07:40 PST 2010 by eliot
 
 AC_DEFUN([AC_CHECK_VMM_DIR],[
   AC_MSG_CHECKING([sanity of generated src directory])
@@ -37,14 +37,18 @@ AC_DEFUN([AC_CHECK_VMM_DIR],[
       exit 1
     fi
   }
+  vmmcheck dir  -d ${vmmcfg}
+  vmmcheck file -f ${vmmcfg}/plugins.int
+  vmmcheck file -f ${vmmcfg}/plugins.ext
   vmmcheck dir  -d ${vmmdir}
-  vmmcheck file -f ${vmmdir}/plugins.int
-  vmmcheck file -f ${vmmdir}/plugins.ext
   vmmcheck dir  -d ${vmmdir}/plugins
   vmmcheck dir  -d ${vmmdir}/vm
-  vmmcheck file -f ${vmmdir}/vm/interp.c
-  vmmcheck file -f ${vmmdir}/vm/sqNamedPrims.h
-  vmmcheck dir  -d ${vmmdir}/plugins
+  vmmcheck file -f ${vmmdir}/vm/cogit.c
+  vmmcheck file -f ${vmmdir}/vm/cogit.h
+  vmmcheck file -f ${vmmdir}/vm/cogmethod.h
+  vmmcheck file -f ${vmmdir}/vm/cointerp.c
+  vmmcheck file -f ${vmmdir}/vm/cointerp.h
+  vmmcheck file -f ${vmmdir}/vm/gcc3x-cointerp.c
   AC_MSG_RESULT(okay)])
 
 
@@ -61,7 +65,7 @@ AC_DEFUN([AC_VM_VERSION],[
 
 AC_DEFUN([AC_CHECK_VERSION],[
   gendir="${vmmdir}/vm"
-  version=`${cfgdir}/version ${gendir}/interp.c`
+  version=`${cfgdir}/version ${gendir}/cointerp.c`
   SQ_MAJOR=`echo ${version} | cut -d ' ' -f 1`
   SQ_MINOR=`echo ${version} | cut -d ' ' -f 2`
   SQ_UPDATE=`echo ${version} | cut -d ' ' -f 3`
@@ -111,9 +115,10 @@ AC_DEFUN([AC_GNU_OPT],
 ac_optflags="no"
 if test "$GCC" = yes; then
   case $host_cpu in
-  i?86)
-    ac_optflags="-fomit-frame-pointer"
-    ;;
+# Leave this to the configure command
+# i?86)
+#   ac_optflags="-fomit-frame-pointer"
+#   ;;
   powerpc|ppc)
     ac_optflags="-O3 -funroll-loops -mcpu=750 -mno-fused-madd"
     ;;
@@ -132,29 +137,12 @@ else
 fi])
 
 AC_DEFUN([AC_GNU_INTERP],
-[INTERP="interp"
+[INTERP="cointerp"
 AC_SUBST(INTERP)
 AC_PROG_AWK
-AC_MSG_CHECKING(whether we can gnuify interp.c)
+AC_MSG_CHECKING(whether we can compile gcc3x-cointerp.c)
 if test "$GCC" = "yes"; then
-  case "$GAWK" in
-  no) ;;
-  yes)  AWK=awk; GAWK=yes ;;
-  gawk) AWK=gawk; GAWK=yes ;;
-  *) if test -x /usr/bin/gawk; then
-       GAWK=yes
-       AWK=gawk
-     else
-       if $AWK --version /dev/null </dev/null 2>&1 | fgrep -i gnu >/dev/null
-       then GAWK=yes
-       else GAWK=no
-       fi
-     fi ;;
-  esac
-  if test "$GAWK" = "yes"
-  then INTERP="gnu-$INTERP"; AC_MSG_RESULT(yes)
-  else AC_MSG_RESULT(no)
-  fi
+  INTERP="gcc3x-$INTERP"; AC_MSG_RESULT(yes)
 else
   AC_MSG_RESULT(no)
 fi])
@@ -231,19 +219,10 @@ fi])
 
 AC_DEFUN([AC_C_DOUBLE_ALIGNMENT],
 [AC_CACHE_CHECK([whether unaligned access to doubles is ok], ac_cv_double_align,
-  AC_TRY_RUN([int f(void* i) { *(double *)i=*(double *)(i+4); return *(char*)i; }
-              int main() { char b[[12]]; b[[0]]=1; b[[1]]=2; b[[2]]=3; b[[3]]=4; b[[4]]=0;
-                           b[[5]]=0; b[[6]]=0; b[[7]]=0; b[[8]]=0; b[[9]]=0; b[[10]]=0; b[[11]]=0;
-			   return f(b); }],
+  AC_TRY_RUN([f(int i){*(double *)i=*(double *)(i+4);}
+              int main(){char b[[12]];f(b);return 0;}],
     ac_cv_double_align="yes", ac_cv_double_align="no"))
 test "$ac_cv_double_align" = "no" && AC_DEFINE(DOUBLE_WORD_ALIGNMENT)])
-
-AC_DEFUN([AC_C_DOUBLE_ORDER],
-[AC_CACHE_CHECK([whether doubles are stored in Squeak order], ac_cv_double_order,
-  AC_TRY_RUN([union { double d; int i[[2]]; } d;
-	      int main(void) { d.d= 1.0;  return d.i[[0]] == 0; }],
-    ac_cv_double_order="yes", ac_cv_double_order="no"))
-test "$ac_cv_double_order" = "no" && AC_DEFINE(DOUBLE_WORD_ORDER)])
 
 # this assumes that libtool has already been configured and built --
 # if not then err on the side of conservatism.
@@ -260,7 +239,7 @@ test "$ac_cv_module_prefix" = lib && mkfrags_lib_prefix=lib])
 AC_DEFUN([AC_64BIT_ARCH],
 [AC_MSG_CHECKING(for compiler flags to force 32-bit addresses)
 case $host in
-  alpha*-*-osf*)
+  alpha*)
     CFLAGS_32="-taso"
     test "$GCC" = "yes" && CC="\$(utldir)/decgcc"
     ;;
@@ -300,6 +279,3 @@ AC_DEFUN([AC_PLUGIN_CHECK_LIB],[
     plibs="${plibs} $1",
     AC_MSG_RESULT([******** disabling ${plugin} due to missing libraries])
     disabled_plugins="${disabled_plugins} ${plugin}")])
-
-m4_ifndef([PKG_CHECK_MODULES],[
-  AC_DEFUN([PKG_CHECK_MODULES],[$4])])

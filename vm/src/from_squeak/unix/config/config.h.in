@@ -27,7 +27,7 @@
 
 /* Author: Ian.Piumarta@squeakland.org
  *
- * Last edited: 2009-08-18 14:54:35 by piumarta on emilia-2.local
+ * Last edited: 2006-04-23 12:34:41 by piumarta on emilia.local
  */
 
 #ifndef __sq_config_h
@@ -49,7 +49,6 @@
 
 #undef	HAVE_LIBX11
 #undef	HAVE_LIBXEXT
-#undef	HAVE_LIBXRENDER
 #undef	HAVE_LIBDL
 #undef	HAVE_DYLD
 #undef	HAVE_LIBFFI
@@ -61,8 +60,6 @@
 #undef	USE_AUDIO_OSS
 #undef	USE_AUDIO_MACOSX
 #undef	OSS_DEVICE
-
-#undef	USE_MIDI_ALSA
 
 /* header files */
 
@@ -93,12 +90,6 @@
 #undef	HAVE_OPENGL_GL_H
 
 #undef	NEED_SUNOS_H
-
-#undef	HAVE_FFI_H
-#undef	HAVE_FFI_FFI_H
-
-#undef	HAVE_UUID_H
-#undef	HAVE_UUID_UUID_H
 
 /* system calls/library functions */
 
@@ -156,7 +147,6 @@
 
 #undef	WORDS_BIGENDIAN
 #undef	DOUBLE_WORD_ALIGNMENT
-#undef	DOUBLE_WORD_ORDER
 
 /* damage containment */
 
@@ -170,9 +160,16 @@
 
 #undef SQ_VERSION
 #undef VM_VERSION
-#undef VM_LIBDIR
 #undef VM_MODULE_PREFIX
 #undef VM_DLSYM_PREFIX
 #undef VM_X11DIR
+
+/* avoid dependencies on glibc2.3 */
+
+#undef HAVE_FEATURES_H
+
+#if defined(HAVE_FEATURES_H)
+# include "glibc.h"
+#endif
 
 #endif /* __sq_config_h */

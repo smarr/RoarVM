@@ -26,6 +26,7 @@ typedef unsigned char u_char;
 
 typedef   int32   oop_int_t;
 typedef u_int32 u_oop_int_t;
+
 # ifdef __cplusplus
 
 typedef void* (*fn_t)(...);

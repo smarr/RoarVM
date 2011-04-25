@@ -2,7 +2,7 @@
  * 
  * Author: Ian Piumarta <ian.piumarta@inria.fr>
  * 
- * Last edited: 2009-08-19 04:35:54 by piumarta on emilia-2.local
+ * Last edited: 2003-08-21 16:03:28 by piumarta on felina.inria.fr
  */
 
 
@@ -17,12 +17,12 @@
  * 
  * This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -31,9 +31,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 
@@ -156,7 +156,7 @@ static void kb_loadKernelKeyMap(_self)
 {
   int map;
 
-  debugf("loading kernel keymap\n");
+  DPRINTF("loading kernel keymap\n");
 
   if (!(self->keyMaps= (unsigned short **)calloc(MAX_NR_KEYMAPS, sizeof(unsigned short *))))
     outOfMemory();
@@ -186,7 +186,7 @@ static void kb_loadKernelKeyMap(_self)
 	}
     }
 
-  debugf("kernel keymap loaded\n");
+  DPRINTF("kernel keymap loaded\n");
 }
 
 
@@ -195,7 +195,7 @@ static void kb_initKeyMap(_self, char *mapfile)
   if (!mapfile)
     kb_loadKernelKeyMap(self);
   else if ((kb_loadKeys(self, mapfile)))
-    debugf("using keymap '%s'\n", mapfile);
+    DPRINTF("using keymap '%s'\n", mapfile);
   else
     fatal("could not load keymap '%s'\n", mapfile);
 }

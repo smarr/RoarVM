@@ -2,7 +2,7 @@
  * 
  * Author: Ian Piumarta <ian.piumarta@squeakland.org>
  * 
- * Last edited: 2009-08-19 04:36:13 by piumarta on emilia-2.local
+ * Last edited: 2005-03-17 21:35:14 by piumarta on squeak.hpl.hp.com
  */
 
 
@@ -17,12 +17,12 @@
  * 
  * This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -31,9 +31,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 
@@ -74,7 +74,7 @@ static void updateModifiers(int kstate)
   if (kstate & (1 << KG_CTRL))	modifierState |= CtrlKeyBit;
   if (kstate & (1 << KG_ALT))	modifierState |= CommandKeyBit;
   if (kstate & (1 << KG_ALTGR))	modifierState |= OptionKeyBit;
-  debugf("state %02x mod %02x\n", kstate, modifierState);
+  DPRINTF("state %02x mod %02x\n", kstate, modifierState);
 }
 
 
@@ -110,19 +110,19 @@ static void kb_translate(_self, int code, int up)
   int rep= (!up) && (prev == code);
   prev= up ? 0 : code;
 
-  debugf("+++ code %d up %d prev %d rep %d map %p\n", code, up, prev, rep, keyMap);
+  DPRINTF("+++ code %d up %d prev %d rep %d map %p\n", code, up, prev, rep, keyMap);
 
   if (keyMap)
     {
       int sym=  keyMap[code];
       int type= KTYP(sym);
-      debugf("+++ sym %x (%02x) type %d\n", sym, sym & 255, type);
+      DPRINTF("+++ sym %x (%02x) type %d\n", sym, sym & 255, type);
       sym &= 255;
       if (type >= 0xf0)		// shiftable
 	type -= 0xf0;
       if (KT_LETTER == type)	// lockable
 	type= KT_LATIN;
-      debugf("+++ type %d\n", type);
+      DPRINTF("+++ type %d\n", type);
       switch (type)
 	{
 	case KT_LATIN:
@@ -165,7 +165,7 @@ static void kb_translate(_self, int code, int up)
 
 	default:
 	  if (type > KT_SLOCK)
-	    debugf("ignoring unknown scancode %d.%d\n", type, sym);
+	    DPRINTF("ignoring unknown scancode %d.%d\n", type, sym);
 	  break;
 	}
     }
@@ -177,13 +177,13 @@ static void kb_noCallback(int k, int u, int s) {}
 
 static int kb_handleEvents(_self)
 {
-  debugf("+++ kb_handleEvents\n");
+  DPRINTF("+++ kb_handleEvents\n");
   while (fdReadable(self->fd, 0))
     {
       unsigned char buf;
       if (1 == read(self->fd, &buf, 1))
 	{
-	  debugf("+++ kb_translate %3d %02x + %d\n", buf & 127, buf & 127, (buf >> 7) & 1);
+	  DPRINTF("+++ kb_translate %3d %02x + %d\n", buf & 127, buf & 127, (buf >> 7) & 1);
 	  kb_translate(self, buf & 127, (buf >> 7) & 1);
 	}
     }
@@ -258,7 +258,7 @@ static void kb_initGraphics(_self)
       sa.sa_handler= sigusr1;
       sigemptyset(&sa.sa_mask);
       sa.sa_flags= 0;
-#    if !defined(__ia64) && !defined(__alpha__)
+#    if !defined(__ia64)
       sa.sa_restorer= 0;
 #    endif
       sigaction(SIGUSR1, &sa, 0);
@@ -334,7 +334,7 @@ void kb_close(_self)
       ioctl(self->fd, KDSKBMODE, self->kbMode);
       tcsetattr(self->fd, TCSANOW, &self->tcAttr);
       close(self->fd);
-      debugf("%s (%d) closed\n", self->kbName, self->fd);
+      DPRINTF("%s (%d) closed\n", self->kbName, self->fd);
       self->fd= -1;
     }
 }

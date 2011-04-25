@@ -17,7 +17,7 @@
 
 #ifndef NO_FFI_SUPPORT
 
-# include <ffi.h>
+#include <ffi.h>
 
 #ifndef  FFI_TYPE_STRUCT	/* this is private in libffi-2 */
 # define FFI_TYPE_STRUCT 13

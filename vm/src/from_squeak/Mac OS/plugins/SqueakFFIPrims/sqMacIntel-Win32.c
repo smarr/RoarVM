@@ -19,6 +19,7 @@
 #if !defined(PATH_MAX)
 # include <sys/syslimits.h>
 #endif
+
 extern struct VirtualMachine *interpreterProxy;
 #define primitiveFail() interpreterProxy->primitiveFail();
 

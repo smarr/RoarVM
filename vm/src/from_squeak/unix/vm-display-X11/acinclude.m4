@@ -33,18 +33,11 @@ if test "$have_x" = "yes"; then
     AC_DEFINE_UNQUOTED(VM_X11DIR, "${x_libraries}")
     LIBS="${LIBS} -lX11"
     AC_CHECK_LIB(Xext, XShmAttach)
-    if test "$have_gl" = "yes"; then 
-      have_gl=no
-      AC_CHECK_HEADERS(GL/gl.h, [
-        AC_CHECK_HEADERS(GL/glx.h, [
-          have_gl=yes
-          AC_DEFINE(USE_X11_GLX, [1])
-          AC_CHECK_LIB(GL,glIsEnabled)
-        ])
-      ])
-    fi
-    AC_CHECK_HEADERS(X11/extensions/Xrender.h, [
-      AC_CHECK_LIB(Xrender, XRenderQueryVersion)
+    if test "$have_gl" = ""; then have_gl="no"; fi
+    AC_CHECK_HEADERS(GL/gl.h, [
+      have_gl=yes
+      AC_DEFINE(USE_X11_GLX, [1])
+      AC_CHECK_LIB(GL,glIsEnabled)
     ])
   ],[
     AC_PLUGIN_DISABLE

@@ -6,25 +6,34 @@
 .\"   
 .\"   This file is part of Unix Squeak.
 .\" 
-.\"   Permission is hereby granted, free of charge, to any person obtaining a copy
-.\"   of this software and associated documentation files (the "Software"), to deal
-.\"   in the Software without restriction, including without limitation the rights
-.\"   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-.\"   copies of the Software, and to permit persons to whom the Software is
-.\"   furnished to do so, subject to the following conditions:
-.\"
-.\"   The above copyright notice and this permission notice shall be included in
-.\"   all copies or substantial portions of the Software.
-.\"
-.\"   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-.\"   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-.\"   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-.\"   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-.\"   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-.\"   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-.\"   SOFTWARE.
+.\"      You are NOT ALLOWED to distribute modified versions of this file
+.\"      under its original name.  If you modify this file then you MUST
+.\"      rename it before making your modifications available publicly.
 .\" 
-.\" Last edited: 2009-08-12 11:14:29 by piumarta on emilia-2.local
+.\"   This file is distributed in the hope that it will be useful, but WITHOUT
+.\"   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+.\"   FITNESS FOR A PARTICULAR PURPOSE.
+.\"   
+.\"   You may use and/or distribute this file ONLY as part of Squeak, under
+.\"   the terms of the Squeak License as described in `LICENSE' in the base of
+.\"   this distribution, subject to the following additional restrictions:
+.\" 
+.\"   1. The origin of this software must not be misrepresented; you must not
+.\"      claim that you wrote the original software.  If you use this software
+.\"      in a product, an acknowledgment to the original author(s) (and any
+.\"      other contributors mentioned herein) in the product documentation
+.\"      would be appreciated but is not required.
+.\" 
+.\"   2. You must not distribute (or make publicly available by any
+.\"      means) a modified copy of this file unless you first rename it.
+.\" 
+.\"   3. This notice must not be removed or altered in any source distribution.
+.\" 
+.\"   Using (or modifying this file for use) in any context other than Squeak
+.\"   changes these copyright conditions.  Read the file `COPYING' in the
+.\"   directory `platforms/unix/doc' before proceeding with any such use.
+.\" 
+.\" Last edited: 2005-03-16 21:52:26 by piumarta on squeak.hpl.hp.com
 .\" 
 .if @@\*(lq@ \{\
 .	ds lq "
@@ -412,26 +421,6 @@ instead of looking in the environment variable
 DISPLAY
 (the default behaviour) to find the name of the server to use.
 .TP
-.BI "\-cmdmod " "N"
-tells the VM to map modifier key
-.I N
-on the keyboard to the modifier code that the image expects for the Command key.
-.TP
-.BI "\-optmod " "N"
-tells the VM to map modifier key
-.I N
-on the keyboard to the modifier code that the image expects for the Option key.
-.TP
-.B \-compositioninput
-enables support for an overlay window in which individual characters
-(e.g., Japanese hiragana) are composed before being interpreted as a
-single character (e.g., Japanese kanji) by the image.
-.TP
-.BI "\-xicfont " "font"
-tells the VM to use the named
-.I font
-within the composition overlay window.
-.TP
 .B \-fullscreen
 causes the Squeak window to occupy as much of the screen area as possible.
 Implies '\c
@@ -459,9 +448,6 @@ maps the Delete key onto Backspace.  Backspace deletes the character to the left
 of the cursor and Delete normally deletes the character
 to the right of the cursor.  With this option, Deletes will behave like
 Backspace.  The behaviour of Backspace is not changed.
-.TP
-.B \-noxdnd
-disables support for the X drag-and-drop protocol.
 .TP
 .B \-nointl
 disables the handling of dead keys on international keyboards.
@@ -580,18 +566,6 @@ prefer that Squeak leave these alone (they are, after all, really the
 reponsibility of whichever mixer program or sound control panel you
 use) then this option is for you.
 .PP
-Options specific to the ALSA sound driver are as follows:
-.TP
-.BI "\-capture " "device"
-Uses the named input
-.I device
-for sound capture.
-.TP
-.BI "\-playback " "device"
-Uses the named output
-.I device
-for sound playback.
-.PP
 Several common options are deprecated and are provided only for
 backward compatibility.  These options should not be used and will be
 removed in a future release:
@@ -619,16 +593,6 @@ also be set from environment variables.
 .B SQUEAK_ASYNC
 if set in the environment then equivalent to the '\c
 .B \-xasync\c
-\&' flag.  (The value is ignored.)
-.TP
-.B SQUEAK_CAPTURE
-see '\c
-.B \-capture\c
-\&'.
-.TP
-.B SQUEAK_COMPOSITIONINPUT
-if set in the environment then equivalent to the '\c
-.B \-compositioninput\c
 \&' flag.  (The value is ignored.)
 .TP
 .B SQUEAK_ENCODING
@@ -728,11 +692,6 @@ Equivalent to giving the '\c
 .B \-pathenc\c
 \&' command-line option if set.
 .TP
-.B SQUEAK_PLAYBACK
-see '\c
-.B \-playback\c
-\&'.
-.TP
 .B SQUEAK_PLUGINS
 see '\c
 .B \-plugins\c
@@ -754,11 +713,6 @@ contains the names of one or more drivers to be loaded during initialisation.
 See the '\c
 .B \-vm\c
 \&' option for details.
-.TP
-.B SQUEAK_XICFONT
-if set in the environment then it provides a default name for the composition overlay font; see the '\c
-.B \-xicfont\c
-\&' flag.
 .TP
 .B SQUEAK_XSHM
 equivalent to '\c
@@ -1046,7 +1000,7 @@ The Squeak 'vm-dev' mailing list (amongst others):
 .PP
 The latest source and binary distributions of Unix Squeak:
 .RS
-.B http://squeakvm.org/unix
+.B http://squeak.hpl.hp.com/~piumarta/squeak
 .RE
 .\".PP
 .\"The list of IANA-registered character encoding names, of which a proper subset is recognised by Squeak:

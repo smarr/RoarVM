@@ -2,7 +2,7 @@
  * 
  * Author: Ian.Piumarta@INRIA.Fr
  * 
- * Last edited: 2009-08-19 04:23:16 by piumarta on emilia-2.local
+ * Last edited: 2003-01-30 00:18:07 by piumarta on emilia.inria.fr
  * 
  *   Copyright (C) 1996-2004 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
@@ -10,12 +10,12 @@
  *   
  *   This file is part of Unix Squeak.
  * 
- *   Permission is hereby granted, free of charge, to any person obtaining a copy
- *   of this software and associated documentation files (the "Software"), to deal
- *   in the Software without restriction, including without limitation the rights
- *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- *   copies of the Software, and to permit persons to whom the Software is
- *   furnished to do so, subject to the following conditions:
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
  * 
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
@@ -24,9 +24,9 @@
  *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- *   SOFTWARE.
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  *
  * BUGS:
  * 
@@ -74,9 +74,9 @@
 #endif
 
 #if 0
-# define debugf(ARGS)	printf ARGS
+# define DPRINTF(ARGS)	printf ARGS
 #else
-# define debugf(ARGS)
+# define DPRINTF(ARGS)
 #endif
 
 #if defined(FFI_TEST)
@@ -164,7 +164,7 @@ int ffiFree(int ptr)
 
 int ffiPushSignedChar(int value)
 { 
-  debugf(("ffiPushSignedChar %d\n", value));
+  DPRINTF(("ffiPushSignedChar %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -172,7 +172,7 @@ int ffiPushSignedChar(int value)
 
 int ffiPushUnsignedChar(int value) 
 { 
-  debugf(("ffiPushUnsignedChar %d\n", value));
+  DPRINTF(("ffiPushUnsignedChar %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -180,7 +180,7 @@ int ffiPushUnsignedChar(int value)
 
 int ffiPushSignedByte(int value) 
 { 
-  debugf(("ffiPushSignedByte %d\n", value));
+  DPRINTF(("ffiPushSignedByte %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -188,7 +188,7 @@ int ffiPushSignedByte(int value)
 
 int ffiPushUnsignedByte(int value)
 { 
-  debugf(("ffiPushUnsignedByte %d\n", value));
+  DPRINTF(("ffiPushUnsignedByte %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -196,7 +196,7 @@ int ffiPushUnsignedByte(int value)
 
 int ffiPushSignedShort(int value)
 { 
-  debugf(("ffiPushSignedShort %d\n", value));
+  DPRINTF(("ffiPushSignedShort %d\n", value));
   pushGPR(value); 
   return 1; 
 }
@@ -204,7 +204,7 @@ int ffiPushSignedShort(int value)
 
 int ffiPushUnsignedShort(int value) 
 { 
-  debugf(("ffiPushUnsignedShort %d\n", value));
+  DPRINTF(("ffiPushUnsignedShort %d\n", value));
   pushGPR(value); 
   return 1; 
 }
@@ -212,7 +212,7 @@ int ffiPushUnsignedShort(int value)
 
 int ffiPushSignedInt(int value) 
 { 
-  debugf(("ffiPushSignedInt %d\n", value));
+  DPRINTF(("ffiPushSignedInt %d\n", value));
   pushGPR(value); 
   return 1; 
 }
@@ -220,7 +220,7 @@ int ffiPushSignedInt(int value)
 
 int ffiPushUnsignedInt(int value) 
 { 
-  debugf(("ffiPushUnsignedInt %d\n", value));
+  DPRINTF(("ffiPushUnsignedInt %d\n", value));
   pushGPR(value);
   return 1;
 }
@@ -228,7 +228,7 @@ int ffiPushUnsignedInt(int value)
 
 int ffiPushSignedLongLong(int low, int high)
 {
-  debugf(("ffiPushSignedLongLong %d %d\n", low, high));
+  DPRINTF(("ffiPushSignedLongLong %d %d\n", low, high));
   qalignGPR();
   qalignStack();
   pushGPR(high);
@@ -239,7 +239,7 @@ int ffiPushSignedLongLong(int low, int high)
 
 int ffiPushUnsignedLongLong(int low, int high)
 { 
-  debugf(("ffiPushUnsignedLongLong %d %d\n", low, high));
+  DPRINTF(("ffiPushUnsignedLongLong %d %d\n", low, high));
   qalignGPR();
   qalignStack();
   pushGPR(high);
@@ -250,7 +250,7 @@ int ffiPushUnsignedLongLong(int low, int high)
 
 int ffiPushPointer(int pointer)
 {
-  debugf(("ffiPushPointer %d\n", pointer));
+  DPRINTF(("ffiPushPointer %d\n", pointer));
   pushGPR(pointer);
   return 1;
 }
@@ -265,7 +265,7 @@ int ffiPushPointer(int pointer)
 
 int ffiPushSingleFloat(double value)
 {
-  debugf(("ffiPushSingleFloat %f\n", (float)value));
+  DPRINTF(("ffiPushSingleFloat %f\n", (float)value));
   if (fprCount < FPR_MAX)
     ffiFPRs[fprCount++]= value;
   else
@@ -280,7 +280,7 @@ int ffiPushSingleFloat(double value)
 
 int ffiPushDoubleFloat(double value)
 {
-  debugf(("ffiPushDoubleFloat %f\n", (float)value));
+  DPRINTF(("ffiPushDoubleFloat %f\n", (float)value));
   if (fprCount < FPR_MAX)
     ffiFPRs[fprCount++]= value;
   else
@@ -298,7 +298,7 @@ int ffiPushDoubleFloat(double value)
 int ffiPushStringOfLength(int srcIndex, int length)
 {
   char *ptr;
-  debugf(("ffiPushStringOfLength %d\n", length));
+  DPRINTF(("ffiPushStringOfLength %d\n", length));
   checkGPR();
   ptr= (char *)malloc(length + 1);
   if (!ptr)
@@ -316,7 +316,7 @@ int ffiPushStringOfLength(int srcIndex, int length)
 
 #define pushStruct(type, value)				\
 {							\
-  debugf(("  ++ "#type"\n"));				\
+  DPRINTF(("  ++ "#type"\n"));				\
   if ((structCount + sizeof(type)) > sizeof(structs))	\
     return primitiveFail();				\
   *(type *)(structs + structCount)= value;		\
@@ -327,7 +327,7 @@ int ffiPushStringOfLength(int srcIndex, int length)
 int ffiPushStructureOfLength(int pointer, int *structSpec, int specSize)
 {
   int size= *structSpec & FFIStructSizeMask;
-  debugf(("ffiPushStructureOfLength %d (%db)\n", specSize, size));
+  DPRINTF(("ffiPushStructureOfLength %d (%db)\n", specSize, size));
   salign(16);
   if (structCount + size > sizeof(structs))
     return primitiveFail();

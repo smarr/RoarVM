@@ -13,7 +13,7 @@ sqInt snd_Start(sqInt frameCount, sqInt samplesPerSec, sqInt stereo, sqInt semaI
 sqInt snd_Stop(void);
 
 /* sound input */
-void  snd_SetRecordLevel(sqInt level);
+int snd_SetRecordLevel(sqInt level);
 sqInt snd_StartRecording(sqInt desiredSamplesPerSec, sqInt stereo, sqInt semaIndex);
 sqInt snd_StopRecording(void);
 double snd_GetRecordingSampleRate(void);

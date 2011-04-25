@@ -26,7 +26,7 @@
 
 # Author: Ian.Piumarta@inria.fr
 # 
-# Last edited: 2009-08-01 15:18:41 by piumarta on margaux.piumarta.com
+# Last edited: Tue Jan 26 11:48:03 PST 2010 by eliot
 
 MAKEFLAGS=	--no-print-directory
 
@@ -52,6 +52,7 @@ host_os=	@host_os@
 topdir=		@topdir@
 cfgdir=		@cfgdir@
 srcdir=		@vmmdir@
+vmmcfg=		@vmmcfg@
 blddir=		@blddir@
 
 top_builddir=	@blddir@
@@ -61,7 +62,6 @@ exec_prefix=	@exec_prefix@
 
 bindir=		@bindir@
 libdir=		@libdir@
-datarootdir=	@datarootdir@
 datadir=	@datadir@
 mandir=		@mandir@
 imgdir=		@imgdir@
@@ -69,9 +69,10 @@ plgdir=		@plgdir@
 docdir=		$(prefix)/doc/squeak
 
 SHELL=		@SHELL@
-MKINSTALLDIRS=	$(SHELL) $(cfgdir)/mkinstalldirs
+MKINSTALLDIRS=	mkdir -p
 INSTALL=	@INSTALL@
 INSTALL_PROG=	@INSTALL_PROGRAM@ $(INSTALL_ARGS)
+INSTALL_SCRIPT=	@INSTALL_SCRIPT@ $(INSTALL_ARGS)
 INSTALL_DATA=	@INSTALL_DATA@ $(INSTALL_ARGS)
 UNINSTALL=	$(SHELL) $(cfgdir)/uninstall
 AS=		@AS@
@@ -104,6 +105,9 @@ FFI_DIR=	@FFI_DIR@
 FFI_C=		@FFI_C@
 FFI_S=		@FFI_S@
 FFI_O=		@FFI_O@
+
+PYLIBPATH=	@PYLIBPATH@
+PYINCLUDES=	@PYINCLUDES@
 
 INTERP=		@INTERP@
 

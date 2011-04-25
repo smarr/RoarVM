@@ -1101,9 +1101,9 @@ static pascal void	CarbonSndPlayDoubleBufferCleanUpProc(
 	PerChanInfoPtr	perChanInfoPtr;
 
 	perChanInfoPtr = (PerChanInfoPtr)(theCallBackCmd->param2);
-	#if DEBUG
+#if DEBUG
 		if (perChanInfoPtr->magic != 'SANE') DebugStr("\pBAD in CarbonSndPlayDoubleBufferCleanUpProc");
-	#endif
+#endif
 
 	// Put our per channel data on the free queue so we can clean up later
 	Enqueue ((QElemPtr)perChanInfoPtr, gFreeList);

@@ -1,6 +1,6 @@
 /* sqUnixCustomSound.c -- sound module for custom sound system
  *
- * Last edited: 2009-08-14 12:44:58 by piumarta on emilia-2.local
+ * Last edited: 2005-04-06 05:44:40 by piumarta on pauillac.hpl.hp.com
  *
  * This is a template for creating your own sound drivers for Squeak:
  * 
@@ -28,13 +28,13 @@ static sqInt sound_AvailableSpace(void)
   return 8192;
 }
 
-static sqInt sound_InsertSamplesFromLeadTime(sqInt frameCount, void *srcBufPtr, sqInt samplesOfLeadTime)
+static sqInt sound_InsertSamplesFromLeadTime(sqInt frameCount, sqInt srcBufPtr, sqInt samplesOfLeadTime)
 {
   trace();
   return frameCount;
 }
 
-static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, void *srcBufPtr, sqInt startIndex)
+static sqInt sound_PlaySamplesFromAtLength(sqInt frameCount, sqInt arrayIndex, sqInt startIndex)
 {
   trace();
   return frameCount;
@@ -80,7 +80,7 @@ static double sound_GetRecordingSampleRate(void)
   return 8192;
 }
 
-static sqInt sound_RecordSamplesIntoAtLength(void *buf, sqInt startSliceIndex, sqInt bufferSizeInBytes)
+static sqInt sound_RecordSamplesIntoAtLength(sqInt buf, sqInt startSliceIndex, sqInt bufferSizeInBytes)
 {
   trace();
   return 8192;
@@ -100,28 +100,30 @@ static void sound_SetVolume(double left, double right)
   trace();
 }
 
-static void sound_SetRecordLevel(sqInt level)
+static sqInt sound_SetRecordLevel(sqInt level)
 {
   trace();
-}
-
-static sqInt sound_SetSwitch(sqInt id, sqInt captureFlag, sqInt parameter)
-{
-  trace();
-  return -1;
+  return level;
 }
 
 static sqInt sound_GetSwitch(sqInt id, sqInt captureFlag, sqInt channel)
 {
   trace();
-  return -1;
+  return 0;
+}
+
+static sqInt sound_SetSwitch(sqInt id, sqInt captureFlag, sqInt parameter)
+{
+  trace();
+  return 0;
 }
 
 static sqInt sound_SetDevice(sqInt id, char *arg)
 {
   trace();
-  return -1;
+  return 0;
 }
+
 
 #include "SqSound.h"
 
