@@ -1,6 +1,6 @@
 # Netscape Plugin for Squeak on Unix platforms
 # Author: Bert Freudenberg
-# Last edited: 2007-10-12 20:03:33 by piumarta on emilia
+# Last edited: 2005-02-28 16:57:51 by jens on impara.de
 
 ############ Customize flags here #######################
 
@@ -8,10 +8,10 @@ INC	= -I./include -I/usr/X11R6/include
 CC	= gcc
 CFLAGS	= $(INC) -O2 -fPIC -Wall
 LD	= gcc
-LDFLAGS = -L/usr/X11R6/lib -lXt
+LDFLAGS = -shared
 
 # usually overridden from top level makefile
-VM_VERSION=  3.9-12
+VM_VERSION=  3.7b-5
 bindir=	     /usr/local/bin
 imgdir=	     /usr/local/share/squeak
 plgdir=	     /usr/local/lib/squeak/$(VM_VERSION)
@@ -24,56 +24,52 @@ npsqueakrun=	npsqueakrun
 ############ compile and link ###########################
 all: npsqueak.so npsqueakrun
 
-npsqueak.so : npsqueak.la 
-	-@rm -f npsqueak.so
-	ln .libs/npsqueak npsqueak.so
+npsqueak.so : npsqueak.o npunix.o 
+	$(LD) $(LDFLAGS) npsqueak.o npunix.o -o npsqueak.so 
 
-npsqueak.la : npsqueak.lo npunix.lo 
-	../libtool --mode=link $(LD) $(LDFLAGS) npsqueak.lo npunix.lo -avoid-version -module -rpath $(plgdir) -o npsqueak.la
-
-npsqueak.lo: npsqueak.c ../config.h
-	../libtool --mode=compile $(CC) -c $(CFLAGS) \
+npsqueak.o: npsqueak.c ../config.h
+	$(CC) -c $(CFLAGS) \
 		-DSYSTEM_BIN_DIR=\"$(scriptdir)\" \
 		-DSYSTEM_IMG_DIR=\"$(imgdir)\" \
-		-DNPSQUEAKRUN=\"$(npsqueakrun)\" npsqueak.c
+		-DNPSQUEAKRUN=\"$(npsqueakrun)\" $<
 
-npunix.lo: npunix.c
-	../libtool --mode=compile $(CC) -c $(CFLAGS) npunix.c
+npunix.o: npunix.c
+	$(CC) -c $(CFLAGS) $<
 
 npsqueakrun: npsqueakrun.in 
 	sed "s|@imgdir@|$(imgdir)|; \
 	     s|@VM_VERSION@|$(VM_VERSION)|" \
-		npsqueakrun.in > npsqueakrun
-	chmod +x npsqueakrun
+		npsqueakrun.in > $@
+	chmod +x $@
 
 npsqueakregister: npsqueakregister.in 
 	sed "s|@NPSQUEAK_SO@|$(plgdir)/npsqueak.so|" \
-		npsqueakregister.in > npsqueakregister
-	chmod +x npsqueakregister
+		npsqueakregister.in > $@
+	chmod +x $@
 
 
 clean:
-	-rm -rf *.lo *.la *.o *.so *~ .*~ */*~ */.*~ .libs
+	-rm -f *.o *.so *~ .*~ */*~ */.*~
 
 
 ############ install ####################################
 
 $(ROOT)$(scriptdir):
-	install -d $(ROOT)$(scriptdir)
+	install -d $@
 
 $(ROOT)$(plgdir): 
-	install -d $(ROOT)$(plgdir)
+	install -d $@
 
 $(ROOT)$(plgdir)/npsqueak.so: npsqueak.so $(ROOT)$(plgdir)
-	cp npsqueak.so $(ROOT)$(plgdir)/npsqueak.so
-	strip $(ROOT)$(plgdir)/npsqueak.so
+	cp npsqueak.so $@
+	strip $@
 
 $(ROOT)$(scriptdir)/npsqueakrun: npsqueakrun $(ROOT)$(scriptdir)
-	cp npsqueakrun $(ROOT)$(scriptdir)/npsqueakrun
+	cp npsqueakrun $@
 
 
 $(ROOT)$(imgdir)/npsqueakregister: npsqueakregister $(ROOT)$(scriptdir)
-	cp npsqueakregister $(ROOT)$(imgdir)/npsqueakregister
+	cp npsqueakregister $@
 
 ### Go! ###
 

@@ -108,11 +108,7 @@ static sqInputEvent *allocateInputEvent(int eventType)
       iebAdvance(iebOut);
     }
   evt->type= eventType;
-<<<<<<< HEAD
-  evt->timeStamp= ioMSecs();
-=======
   evt->timeStamp= ioWhicheverMSecs();
->>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
   return evt;
 }
 

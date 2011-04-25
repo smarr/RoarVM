@@ -119,10 +119,7 @@ public:
   }
   
 # endif // Omit_PThread_Locks elif Use_Spin_Locks
-<<<<<<< HEAD
-=======
 
->>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
   static inline int atomic_fetch_and_add(int* mem, int increment) {
     return __sync_fetch_and_add(mem, increment);
   }

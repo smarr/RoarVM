@@ -13,11 +13,7 @@
 
 
 class External_Primitive_Table: public Abstract_Primitive_Table {
-<<<<<<< HEAD
- public:
-=======
 public:
->>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
 
 
   void* operator new(size_t size) {
@@ -26,22 +22,13 @@ public:
 
   External_Primitive_Table() : Abstract_Primitive_Table(4096, true) { }
 
-<<<<<<< HEAD
-   int add(fn_t addr, bool on_main) {
-=======
   int add(fn_t addr, bool on_main) {
->>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
     for (int i = 0;  i < size;  ++i)
       if (contents[i] == NULL) {
         // Entry is empty, lets try to set it
         if (OS_Interface::atomic_compare_and_swap((int*)&contents[i], NULL, (int)addr)) {
-<<<<<<< HEAD
-        execute_on_main[i] = on_main;
-        return i + 1;
-=======
           execute_on_main[i] = on_main;
           return i + 1;
->>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
         }
         else {
           // Setting new address failed because of a concurrent modification

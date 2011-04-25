@@ -69,7 +69,7 @@ sqInt snd_Stop(void){
 }
 
 /* sound input */
-void snd_SetRecordLevel(sqInt level){}
+sqInt snd_SetRecordLevel(sqInt level) { return 0; }
 
 sqInt snd_StartRecording(sqInt desiredSamplesPerSec, sqInt stereo, sqInt semaIndex){
 	return [gDelegateApp.squeakApplication.soundInterfaceLogic snd_StartRecording:desiredSamplesPerSec stereo: stereo semaIndex: semaIndex ];

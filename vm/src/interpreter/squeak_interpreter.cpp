@@ -1752,11 +1752,7 @@ void Squeak_Interpreter::commonAtPut(bool stringy) {
   oop_int_t index = positive32BitValueOf(stackValue(1));
   Oop rcvr = stackValue(2);
   if (!successFlag || !rcvr.is_mem()) {
-<<<<<<< HEAD
-    primitiveFail();  
-=======
     primitiveFail();
->>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
     return;
   }
   Object_p ro = rcvr.as_object();
@@ -2939,11 +2935,7 @@ void Squeak_Interpreter::commonVariableAtPut(Oop rcvr, oop_int_t index, Oop valu
       oop_int_t valToPut = signed32BitValueOf(value); // was positive32BitValueOf
       if (successFlag)
         rcvr.as_object()->storeLong32(index - 1, valToPut);
-<<<<<<< HEAD
-       return;
-=======
       return;
->>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
     }
     Oop valToPut;
     if (fmt >= 16) { // strings

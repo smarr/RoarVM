@@ -29,11 +29,8 @@
  * Last edited: 2009-08-15 12:59:49 by piumarta on emilia-2.local
  */
 
-<<<<<<< HEAD
-=======
 # include "squeak_adapters.h"
 
->>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
 #if !defined(__MACH__)
 # include "sqMemoryAccess.h"
 #endif
@@ -405,11 +402,7 @@ Convert(ux,sq, XWin, uxXWinEncoding, sqTextEncoding, 0, 1);
 void sqFilenameFromString(char *uxName, sqInt sqNameIndex, int sqNameLength)
 {
   /*xxx BUG: lots of code generate from the image assumes 1000 chars max path len */
-<<<<<<< HEAD
-  sq2uxPath(pointerForOop(sqNameIndex), sqNameLength, uxName, 1000, 1);
-=======
   sq2uxPath(pointerForIndex_xxx_dmu(sqNameIndex), sqNameLength, uxName, 1000, 1);
->>>>>>> f4a658a7aeee0ea2d5d8612d75dfb6f910865e62
 }
 
 
