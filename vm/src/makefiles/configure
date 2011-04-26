@@ -12,6 +12,7 @@ echo_usage () {
     echo "    --debug"
     echo "    --enforce-opt       Should be used together with --debug to enforce full optimization"
     echo "    --enable-native-opt Enable optimization for current native architecture"
+    echo "    --show-cmds         Show the command invocations"
     echo
     echo "Libraries:"
     echo "    --x11-lib <path>    Path to the X11 lib folder"
@@ -33,6 +34,7 @@ FOR_DISTRIBUTION=1
 OPT_WORKAROUND=0
 DEBUG=0
 ENFORCE_OPT=0
+SUPPRESS_CMD_OUTPUT=1
 #CC=
 #CXX=
 CONFIGURE_ARGS="$@"
@@ -64,6 +66,10 @@ do
     ;;
     --enforce-opt)
       ENFORCE_OPT=1
+      shift 1
+    ;;
+    --show-cmds)
+      SUPPRESS_CMD_OUTPUT=0
       shift 1
     ;;
     --x11-lib)
@@ -210,6 +216,10 @@ else
     echo "CONFIG_FLAGS = $CONFIG_FLAGS -DMeasure=0 \
  -DWork_Around_Barrier_Bug=1"         >> Makefile
     echo "PLATFORM=Intel"             >> Makefile
+    
+    # for now suppress a number of known warnings
+    # won't work with the tile-cc
+    CONFIG_FLAGS="$CONFIG_FLAGS  -fdiagnostics-show-option -Wno-unused-variable -Wno-unused-value"
 fi
 
 echo "CC = $CC"                >> Makefile
@@ -220,6 +230,7 @@ echo "Xext_PATH=$Xext_PATH"    >> Makefile
 echo "SRC_DIR=$SRC_DIR"        >> Makefile
 echo "LOW_OPTIMIZE_LEVEL = $LOW_OPTIMIZE_LEVEL"  >> Makefile
 echo "HIGH_OPTIMIZE_LEVEL= $HIGH_OPTIMIZE_LEVEL" >> Makefile
+echo "SUPPRESS_CMD_OUTPUT= $SUPPRESS_CMD_OUTPUT" >> Makefile
 
 echo "include $SRC_DIR/makefiles/Makefile.common" >> Makefile
 

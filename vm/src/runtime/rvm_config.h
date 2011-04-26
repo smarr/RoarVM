@@ -324,7 +324,7 @@
 # endif
 
 # ifndef Use_Spin_Locks
-# define Use_Spin_Locks 1
+# define Use_Spin_Locks 0
 # endif
 
 # ifndef Dump_Bytecode_Cycles

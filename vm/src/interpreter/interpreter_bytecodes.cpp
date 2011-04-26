@@ -682,13 +682,13 @@ void Squeak_Interpreter::commonBytecodePrimValue(int nargs, int selector_index) 
   successFlag = true;
   set_argumentCount(nargs);
   Oop klass = block.fetchClass();
+  bool classOK = true;
   
 # if Include_Closure_Support
   if (klass == splObj(Special_Indices::ClassBlockClosure)) {
     externalizeIPandSP();
     primitiveClosureValue();
     internalizeIPandSP();
-    fetchNextBytecode();
   }
   else 
 # endif
@@ -696,8 +696,12 @@ void Squeak_Interpreter::commonBytecodePrimValue(int nargs, int selector_index) 
     externalizeIPandSP();
     primitiveValue();
     internalizeIPandSP();
-    fetchNextBytecode();
   } 
+  else
+    classOK = false;
+  
+  if (classOK && successFlag) 
+    fetchNextBytecode();
   else {
     roots.messageSelector = specialSelector(selector_index);
     normalSend();
