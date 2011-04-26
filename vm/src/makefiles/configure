@@ -213,13 +213,13 @@ then
     echo "OS=Linux"                   >> Makefile
     echo "CONFIG_FLAGS = $CONFIG_FLAGS">>Makefile
 else
-    echo "CONFIG_FLAGS = $CONFIG_FLAGS -DMeasure=0 \
- -DWork_Around_Barrier_Bug=1"         >> Makefile
-    echo "PLATFORM=Intel"             >> Makefile
-    
     # for now suppress a number of known warnings
     # won't work with the tile-cc
     CONFIG_FLAGS="$CONFIG_FLAGS  -fdiagnostics-show-option -Wno-unused-variable -Wno-unused-value"
+    
+    echo "CONFIG_FLAGS = $CONFIG_FLAGS -DMeasure=0 \
+ -DWork_Around_Barrier_Bug=1"         >> Makefile
+    echo "PLATFORM=Intel"             >> Makefile
 fi
 
 echo "CC = $CC"                >> Makefile
