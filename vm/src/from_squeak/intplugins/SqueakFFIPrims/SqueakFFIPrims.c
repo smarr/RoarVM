@@ -769,7 +769,7 @@ ffiArgumentSpecClassin(sqInt oop, sqInt argSpec, sqInt argClass, CalloutState *c
 					}
 					if (isAlien) {
 						/* begin ffiPushPointer:in: */
-						pointer2 = pointerForOop(((longAt(oop + BaseHeaderSize)) > 0
+						pointer2 = pointerForIndex_xxx_dmu(((longAt(oop + BaseHeaderSize)) > 0
 							? (oop + BaseHeaderSize) + BytesPerOop
 							: longAt((oop + BaseHeaderSize) + BytesPerOop)));
 						if ((((calloutState->currentArg)) + 4) > ((calloutState->limit))) {
@@ -994,7 +994,7 @@ ffiAtomicArgByReferenceClassin(sqInt oop, sqInt oopClass, CalloutState *calloutS
 		}
 		if (isAlien) {
 			/* begin ffiPushPointer:in: */
-			pointer2 = pointerForOop(((longAt(oop + BaseHeaderSize)) > 0
+			pointer2 = pointerForIndex_xxx_dmu(((longAt(oop + BaseHeaderSize)) > 0
 				? (oop + BaseHeaderSize) + BytesPerOop
 				: longAt((oop + BaseHeaderSize) + BytesPerOop)));
 			if ((((calloutState->currentArg)) + 4) > ((calloutState->limit))) {
