@@ -23,14 +23,14 @@ sqInt clipboardSize(void) {
 
 sqInt clipboardReadIntoAt(sqInt count, sqInt byteArrayIndex, sqInt startIndex){
 	NSAutoreleasePool * pool = [NSAutoreleasePool new];
-	[(sqSqueakIPhoneApplication*)(SqueakNoOGLIPhoneAppDelegate *)gDelegateApp.squeakApplication clipboardRead: count into: (char *) pointerForOop((usqInt)byteArrayIndex)  startingAt: startIndex];
+	[(sqSqueakIPhoneApplication*)(SqueakNoOGLIPhoneAppDelegate *)gDelegateApp.squeakApplication clipboardRead: count into: (char *) pointerForIndex_xxx_dmu((usqInt)byteArrayIndex)  startingAt: startIndex];
 	[pool drain];
 	return 0;
 }
 
 sqInt clipboardWriteFromAt(sqInt count, sqInt byteArrayIndex, sqInt startIndex){
 	NSAutoreleasePool * pool = [NSAutoreleasePool new];
-	[(sqSqueakIPhoneApplication*)(SqueakNoOGLIPhoneAppDelegate *)gDelegateApp.squeakApplication clipboardWrite: count from: (char *)pointerForOop((usqInt)byteArrayIndex)  startingAt: startIndex];
+	[(sqSqueakIPhoneApplication*)(SqueakNoOGLIPhoneAppDelegate *)gDelegateApp.squeakApplication clipboardWrite: count from: (char *)pointerForIndex_xxx_dmu((usqInt)byteArrayIndex)  startingAt: startIndex];
 	[pool drain];
 	return 0;
 }

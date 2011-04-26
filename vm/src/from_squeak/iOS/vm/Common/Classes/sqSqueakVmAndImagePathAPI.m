@@ -55,13 +55,13 @@ sqInt imageNameSize(void){
 }	
 
 sqInt imageNameGetLength(sqInt sqImageNameIndex, sqInt length){
-	[gDelegateApp.squeakApplication imageNameGet: pointerForOop((usqInt)sqImageNameIndex) length: length];
+	[gDelegateApp.squeakApplication imageNameGet: pointerForIndex_xxx_dmu((usqInt)sqImageNameIndex) length: length];
 	return 0;
 }
 
 sqInt imageNamePutLength(sqInt sqImageNameIndex, sqInt length){
 	if (length > 0 && (length < PATH_MAX)) {
-		strncpy(imageName,pointerForOop((usqInt)sqImageNameIndex),(size_t) length); //This does not need to be strlcpy since the data is not null terminated
+		strncpy(imageName,pointerForIndex_xxx_dmu((usqInt)sqImageNameIndex),(size_t) length); //This does not need to be strlcpy since the data is not null terminated
 		imageName[length] = 0x00;		//Ensure we nil terminate the image name string
 		[gDelegateApp.squeakApplication imageNamePut:imageName];
 
@@ -76,6 +76,6 @@ sqInt vmPathSize(void){
 }	
 
 sqInt vmPathGetLength(sqInt sqVMPathIndex, sqInt length){
-	[gDelegateApp.squeakApplication vmPathGet: pointerForOop((usqInt)sqVMPathIndex) length: length];
+	[gDelegateApp.squeakApplication vmPathGet: pointerForIndex_xxx_dmu((usqInt)sqVMPathIndex) length: length];
 	return 0;
 }

@@ -101,7 +101,7 @@ sqInt ioShowDisplay(
 
 	//API Documented
 	
-	ioShowDisplayOnWindow((unsigned char *)pointerForOop(dispBitsIndex),  width,  height,  depth, affectedL,  affectedR,  affectedT,  affectedB, 1);
+	ioShowDisplayOnWindow((unsigned char *)pointerForIndex_xxx_dmu(dispBitsIndex),  width,  height,  depth, affectedL,  affectedR,  affectedT,  affectedB, 1);
 	return 1;
 }
 

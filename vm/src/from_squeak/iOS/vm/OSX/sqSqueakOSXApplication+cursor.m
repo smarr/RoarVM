@@ -80,12 +80,12 @@ BOOL browserActiveAndDrawingContextOkAndInFullScreenMode(void);
 	mask=planes[1];
 
 	for (i= 0; i < 16; ++i) {
-		unsigned int word= ((unsigned int *)pointerForOop(cursorBitsIndex))[i];
+		unsigned int word= ((unsigned int *)pointerForIndex_xxx_dmu(cursorBitsIndex))[i];
 		data[i*2 + 0]= (word >> 24) & 0xFF;
 		data[i*2 + 1]= (word >> 16) & 0xFF;
 		
 		if (cursorMaskIndex)
-			word= ((unsigned int *)pointerForOop(cursorMaskIndex))[i];
+			word= ((unsigned int *)pointerForIndex_xxx_dmu(cursorMaskIndex))[i];
 		else 
 			word = 0xFFFFFFFF;
 		
@@ -132,7 +132,7 @@ BOOL browserActiveAndDrawingContextOkAndInFullScreenMode(void);
 								bitsPerPixel: 0] autorelease];
 	unsigned int *planes[5];
 	[bitmap getBitmapDataPlanes: (unsigned char **) planes];
-	unsigned int *src= (unsigned int*) pointerForOop(cursorBitsIndex);
+	unsigned int *src= (unsigned int*) pointerForIndex_xxx_dmu(cursorBitsIndex);
 	unsigned int *dst= planes[0];
 	sqInt i;
 	for (i= 0; i < extentX * extentY; ++i, ++dst, ++src) {

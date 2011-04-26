@@ -53,6 +53,6 @@ sqInt attributeSize(sqInt indexNumber)  {
 
 sqInt getAttributeIntoLength(sqInt indexNumber, sqInt byteArrayIndex, sqInt length)  {
 	//API Documented
-	[gDelegateApp.squeakApplication getAttribute: indexNumber into: pointerForOop((usqInt) byteArrayIndex) length: length];
+	[gDelegateApp.squeakApplication getAttribute: indexNumber into: pointerForIndex_xxx_dmu((usqInt) byteArrayIndex) length: length];
 	return 0;
 }
