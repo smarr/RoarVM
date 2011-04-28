@@ -27,7 +27,7 @@ public:
   
   static messages encode_msg_type_for_ack(messages t) { return messages(t + end_of_messages); }
   static messages decode_msg_type_for_ack(messages t) { return messages(t - end_of_messages); }
-  static bool     is_encoded_for_ack(messages t)  { return t >= end_of_messages; }
+  static bool     is_encoded_for_ack(messages t)      { return t >= end_of_messages; }
   
   static const char* message_names[];
   

@@ -146,10 +146,12 @@ bool Message_Statics::receive_and_handle_one_message(bool wait) {
   for (;;) {
     // added this loop and pass in false to receiver prims below in order to do timeout checks
     const bool do_timeout_checks = true; //  tried false but no speedup loading image -- dmu 6/10
+
     u_int64 start = OS_Interface::get_cycle_count();
     buffered_msg = (abstractMessage_class*)Message_Queue::buffered_receive_from_anywhere(wait && !do_timeout_checks, &buffer_owner, interp->my_core());
-    Message_Stats::stats[rank_on_threads_or_zero_on_processes].buf_msg_check_cyc += OS_Interface::get_cycle_count() - start;
-    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes].buf_msg_check_count;
+    u_int64 end = OS_Interface::get_cycle_count();
+    
+    Message_Stats::record_buffered_recieve(rank_on_threads_or_zero_on_processes, end - start);
     
     msg_type_or_encoded_acking_type = buffered_msg == NULL  ?  noMessage  :  buffered_msg->header;
     
@@ -161,9 +163,8 @@ bool Message_Statics::receive_and_handle_one_message(bool wait) {
 # endif
     
     if (msg_type_or_encoded_acking_type != noMessage) {
-# if Collect_Receive_Message_Statistics
-      Message_Stats::collect_receive_msg_stats(msg_type_or_encoded_acking_type);
-# endif
+      if (Collect_Receive_Message_Statistics)
+        Message_Stats::collect_receive_msg_stats(msg_type_or_encoded_acking_type);
       break;
     }
     

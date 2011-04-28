@@ -13,9 +13,8 @@
 
 
 class Message_Stats {
+private:
   Message_Stats() { fatal("Message_Stats is not meant to be instanciated."); }
-
-public:
 
   typedef struct statistics {
     int     send_tallies   [Message_Statics::end_of_messages];
@@ -25,9 +24,10 @@ public:
     int     buf_msg_check_count;
   } statistics;
   
+public:
   
   static statistics stats[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];    // threadsafe
-
+  
   static Oop get_stats(int);
   static Oop get_message_names();
 
@@ -44,12 +44,21 @@ public:
           
         default: lprintf( "->%d sending %d %s\n", cpu_core_my_rank(), m, Message_Statics::message_names[m]); break;
       }
-    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes()].send_tallies[m];
+    ++stats[rank_on_threads_or_zero_on_processes()].send_tallies[m];
   };
   
   static void collect_receive_msg_stats(int m) {
-    ++Message_Stats::stats[rank_on_threads_or_zero_on_processes()].receive_tallies[m];
+    ++stats[rank_on_threads_or_zero_on_processes()].receive_tallies[m];
   };
+  
+  static void record_receive_cycles(Message_Statics::messages msg_type, u_int64 cycles) {
+    stats[rank_on_threads_or_zero_on_processes()].receive_cycles[msg_type] += cycles; 
+  };
+  
+  static void record_buffered_recieve(const int rank_on_threads_or_zero_on_processes, u_int64 cycles) {
+    stats[rank_on_threads_or_zero_on_processes].buf_msg_check_cyc += cycles;
+  ++stats[rank_on_threads_or_zero_on_processes].buf_msg_check_count;
+  };  
   
 # if  Check_Reliable_At_Most_Once_Message_Delivery
   static int next_transmission_serial_number[Message_Statics::end_of_messages][Max_Number_Of_Cores][Memory_Semantics::max_num_threads_on_threads_or_1_on_processes];
