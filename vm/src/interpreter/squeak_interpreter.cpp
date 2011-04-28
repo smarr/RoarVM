@@ -1320,7 +1320,7 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
      Thus to fix this I either need to safepoint or to add a flag to request the yield.
    -- dmu 10/30/08
    */
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("on %d: resume: ", my_rank());
     aProcess.print_process_or_nil(debug_printer);
     debug_printer->printf(" because %s\n", why);
@@ -1335,12 +1335,12 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
   }
   assert(!Scheduler_Mutex::is_held());
 
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("on %d: mid-resume:\n", my_rank());
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
   set_yield_requested(true);
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("on %d: post-resume:\n", my_rank());
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
@@ -1416,7 +1416,7 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
 void Squeak_Interpreter::yield(const char* why) {
   if (do_I_hold_baton())
     assert_external();
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler on %d: pre yield because %s ", my_rank(), why);
     get_running_process().as_object()->print_process_or_nil(debug_printer);
     debug_printer->nl();
@@ -1441,7 +1441,7 @@ Oop Squeak_Interpreter::get_running_process() {
   return roots.running_process_or_nil;
 }
 void Squeak_Interpreter::set_running_process(Oop proc, const char* why) {
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf( "scheduler: on %d: set_running_process: ", my_rank());
     proc.print_process_or_nil(debug_printer);
     debug_printer->printf(", %s prim: 0x%x\n", why, Message_Statics::remote_prim_fn);
@@ -2601,7 +2601,7 @@ void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
   if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
 
   Scheduler_Mutex sm("transferTo"); // in case another cpu starts running this
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d: ", my_rank());
     get_running_process().print_process_or_nil(debug_printer);
     debug_printer->printf( " transferTo ");

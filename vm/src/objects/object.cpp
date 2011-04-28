@@ -529,7 +529,7 @@ Oop Object::get_suspended_context_of_process_and_mark_running() {
   The_Squeak_Interpreter()->assert_registers_stored();
   Oop ctx = fetchPointer(Object_Indices::SuspendedContextIndex);
   assert(ctx != The_Squeak_Interpreter()->roots.nilObj);
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d get_suspended_context_of_process_and_mark_running ", Logical_Core::my_rank());
     this->print_process_or_nil(debug_printer);
     debug_printer->printf(" to nil");
@@ -546,7 +546,7 @@ void Object::set_suspended_context_of_process(Oop ctx) {
   assert(ctx != fetchPointer(Object_Indices::SuspendedContextIndex));
   assert(is_process_running());
   The_Squeak_Interpreter()->assert_registers_stored();
-  if (Print_Scheduler) {
+  if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d set_suspended_context_of_process ", Logical_Core::my_rank());
     this->print_process_or_nil(debug_printer);
     debug_printer->printf(" to ");
@@ -727,9 +727,13 @@ void Object::print_process_or_nil(Printer* p, bool print_stack) {
     return;
   }
   print(p);
+  
   p->printf("(0x%x, hash %d, pri %d, %s, ", as_oop().bits(), hashBits(), priority_of_process(), is_process_running() ? "running" : "not running");
-  p->printf("myList: ");    my_list_of_process().print(p);  p->printf(", ");
-  p->printf("nextLink: ");  fetchPointer(Object_Indices::NextLinkIndex).print(p);  p->printf(", ");
+
+  if (Print_Scheduler_Verbose) {
+    p->printf("myList: ");    my_list_of_process().print(p);  p->printf(", ");
+    p->printf("nextLink: ");  fetchPointer(Object_Indices::NextLinkIndex).print(p);  p->printf(", ");
+  }
   
   Oop name = name_of_process();
   if (name != The_Squeak_Interpreter()->roots.nilObj) {
