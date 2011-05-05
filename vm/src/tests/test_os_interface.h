@@ -43,8 +43,8 @@ public:
     return pthread_mutex_lock(mutex);
   }
   
-  static inline int mutex_trylock(Mutex* mutex) {
-    return pthread_mutex_trylock(mutex);
+  static inline bool mutex_trylock(Mutex* mutex) {
+    return 0 == pthread_mutex_trylock(mutex);
   }
   
   static inline int mutex_unlock(Mutex* mutex) {

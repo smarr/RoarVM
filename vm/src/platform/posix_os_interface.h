@@ -67,7 +67,7 @@ public:
   static inline void mutex_init(Mutex*, void*) {}
   static inline void mutex_destruct(Mutex*)    {}
   static inline int  mutex_lock(Mutex*)        { return 0; }
-  static inline int  mutex_trylock(Mutex*)     { return 0; }
+  static inline bool mutex_trylock(Mutex*)     { return false; }
   static inline int  mutex_unlock(Mutex*)      { return 0; }
   
 # elif Use_Spin_Locks && !On_Apple 
@@ -86,8 +86,8 @@ public:
     return pthread_spin_lock(mutex);
   }
   
-  static inline int mutex_trylock(Mutex* mutex) {
-    return pthread_spin_trylock(mutex);
+  static inline bool mutex_trylock(Mutex* mutex) {
+    return 0 == pthread_spin_trylock(mutex);
   }
   
   static inline int mutex_unlock(Mutex* mutex) {
@@ -110,8 +110,8 @@ public:
     return pthread_mutex_lock(mutex);
   }
   
-  static inline int mutex_trylock(Mutex* mutex) {
-    return pthread_mutex_trylock(mutex);
+  static inline bool mutex_trylock(Mutex* mutex) {
+    return 0 == pthread_mutex_trylock(mutex);
   }
   
   static inline int mutex_unlock(Mutex* mutex) {

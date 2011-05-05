@@ -106,7 +106,7 @@ public:
             logical_core_local.acq_cycles, logical_core_local.rel_cycles);
   }
 
-  inline int try_lock() {
+  inline bool try_lock() {
     return OS_Interface::mutex_trylock(logical_core_global.os_mutex);
   }
 

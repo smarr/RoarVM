@@ -27,7 +27,7 @@ void Scheduler_Mutex_Actions::acquire_action(const char* why) {
 
   // spin and receive to avoid deadlock; other core may be trying to send US something
   Timeout_Timer tt("scheduler mutex", 60, mutex->get_holder()); tt.start();
-  while (0 != mutex->try_lock()) {
+  while (!mutex->try_lock()) {
     Timeout_Timer::check_all();
     mutex->dec_and_check_recursion_depth();
     Message_Statics::process_any_incoming_messages(false); // could check to ensure no_message

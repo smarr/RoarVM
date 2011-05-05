@@ -37,7 +37,7 @@ public:
   static inline void mutex_init(Mutex*, void*) { fatal(); }
   static inline void mutex_destruct(Mutex*)    { fatal(); }
   static inline int  mutex_lock(Mutex*)        { fatal(); return 0; }
-  static inline int  mutex_trylock(Mutex*)     { fatal(); return 0; }
+  static inline bool mutex_trylock(Mutex*)     { fatal(); return false; }
   static inline int  mutex_unlock(Mutex*)      { fatal(); return 0; }
   
   static inline int atomic_fetch_and_add(int*, int) { fatal(); return 0; }

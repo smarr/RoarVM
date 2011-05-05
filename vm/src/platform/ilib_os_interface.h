@@ -66,8 +66,8 @@ public:
     return ilib_mutex_lock(mutex);
   }
   
-  static inline int mutex_trylock(Mutex* mutex) {
-    return ilib_mutex_trylock(mutex);
+  static inline bool mutex_trylock(Mutex* mutex) {
+    return 0 == ilib_mutex_trylock(mutex);
   }
   
   static inline int mutex_unlock(Mutex* mutex) {
