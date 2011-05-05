@@ -367,6 +367,7 @@
 		0A4D8252135C523B00CD74D8 /* sqUnixMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixMain.c; sourceTree = "<group>"; };
 		0A4D8259135C526100CD74D8 /* sqUnixX11.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixX11.c; sourceTree = "<group>"; };
 		0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSoundMacOSX.c; sourceTree = "<group>"; };
+		0A5124F61372077B001008AC /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = iOS/vm/iPhone/config.h; sourceTree = "<group>"; };
 		0A5D7C87135C905800D13E53 /* sq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sq.h; sourceTree = "<group>"; };
 		0A5D7C88135C90BC00D13E53 /* sqMemoryAccess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqMemoryAccess.h; sourceTree = "<group>"; };
 		0A5D7C94135CA28500D13E53 /* rvm_squeak_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rvm_squeak_config.h; sourceTree = "<group>"; };
@@ -472,6 +473,7 @@
 		0A2783F8128DBF7300336BDE /* from_squeak */ = {
 			isa = PBXGroup;
 			children = (
+				0A5124F31372072C001008AC /* iOS */,
 				0A2783F9128DBF7300336BDE /* Cross */,
 				0A27840D128DBF7300336BDE /* intplugins */,
 				0A278422128DBF7300336BDE /* unix */,
@@ -1031,6 +1033,30 @@
 			path = src/types;
 			sourceTree = "<group>";
 		};
+		0A5124F31372072C001008AC /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				0A5124F41372073F001008AC /* vm */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		0A5124F41372073F001008AC /* vm */ = {
+			isa = PBXGroup;
+			children = (
+				0A5124F513720749001008AC /* iPhone */,
+			);
+			name = vm;
+			sourceTree = "<group>";
+		};
+		0A5124F513720749001008AC /* iPhone */ = {
+			isa = PBXGroup;
+			children = (
+				0A5124F61372077B001008AC /* config.h */,
+			);
+			name = iPhone;
+			sourceTree = "<group>";
+		};
 		0A5D7C96135CC81F00D13E53 /* plugins */ = {
 			isa = PBXGroup;
 			children = (
@@ -1282,6 +1308,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 			};
 			name = Debug;
 		};
@@ -1289,6 +1316,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 			};
 			name = Release;
 		};
@@ -1306,6 +1334,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/runtime/rvm_config.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"Use_PerSender_Message_Queue=1",
@@ -1318,7 +1347,12 @@
 					"Trace_Execution=0",
 					"Track_OnStackPointer=1",
 				);
-				HEADER_SEARCH_PATHS = "./**";
+				HEADER_SEARCH_PATHS = (
+					src/runtime,
+					src/from_squeak/iOS/vm/src/vm,
+					src/from_squeak/iOS/vm/iPhone,
+					src/from_squeak/unix/vm,
+				);
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
@@ -1329,6 +1363,7 @@
 					"-Dcheck_many_assertions=1",
 					"-DTrack_OnStackPointer=0",
 					"-DTrace_Execution=0",
+					"-DHAVE_DLOPEN=1",
 				);
 				OTHER_LDFLAGS = (
 					"-lX11",
@@ -1354,6 +1389,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
 				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/runtime/rvm_config.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"Print_Scheduler=0",
@@ -1364,7 +1400,12 @@
 					"Trace_For_Debugging=0",
 					"Trace_Execution=0",
 				);
-				HEADER_SEARCH_PATHS = "./**";
+				HEADER_SEARCH_PATHS = (
+					src/runtime,
+					src/from_squeak/iOS/vm/src/vm,
+					src/from_squeak/iOS/vm/iPhone,
+					src/from_squeak/unix/vm,
+				);
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
