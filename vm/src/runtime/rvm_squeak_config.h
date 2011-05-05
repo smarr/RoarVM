@@ -22,6 +22,10 @@
   to simplify synchronization with the upstream code.
  **/
 
+#ifndef __sq_config_h
+#define __sq_config_h
+
+
 # if On_Apple
 # define DARWIN 1
 # endif
@@ -103,3 +107,5 @@
 # define VM_LIBDIR "/Users/ungar/renaissance/Squeak/vm/newVMbuild/lib/squeak/3.9-4"
 # define VM_MODULE_PREFIX ""
 # define VM_X11DIR "/usr/X11/lib"
+
+#endif /* __sq_config_h */

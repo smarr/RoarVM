@@ -1,3 +1,5 @@
+#include "squeak_adapters.h"
+
 #include "config.h"
 
 #if defined(HAVE_SYS_UUID_H)
