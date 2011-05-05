@@ -215,6 +215,7 @@ static unsigned int * cmMaskTable;
 static int * cmShiftTable;
 static sqInt combinationRule;
 static sqInt destBits;
+static sqInt destBitsOop_xxx_dmu;
 static sqInt destDelta;
 static sqInt destDepth;
 static sqInt destForm;
@@ -277,6 +278,7 @@ static void * querySurfaceFn;
 static sqInt skew;
 static sqInt sourceAlpha;
 static sqInt sourceBits;
+static sqInt sourceBitsOop_xxx_dmu;
 static sqInt sourceDelta;
 static sqInt sourceDepth;
 static sqInt sourceForm;
@@ -1916,6 +1918,7 @@ copyLoopPixMap(void)
 	destPixMask = maskTable[destDepth];
 	mapperFlags = cmFlags & (~ColorMapNewStyle);
 	sourceIndex = (sourceBits + (sy * sourcePitch)) + ((sx / sourcePPW) * 4);
+  
 	scrStartBits = sourcePPW - (sx & (sourcePPW - 1));
 	if (bbW < scrStartBits) {
 		nSourceIncs = 0;
@@ -2478,7 +2481,7 @@ fetchIntOrFloatofObject(sqInt fieldIndex, sqInt objectPointer)
     sqInt fieldOop;
     double  floatValue;
 
-	fieldOop = interpreterProxy->fetchPointerofObject(fieldIndex, objectPointer);
+	fieldOop = interpreterProxy->fetchPointerofObject(fieldIndex, objectPointer); // OK xxx_dmu
 	if ((fieldOop & 1)) {
 		return (fieldOop >> 1);
 	}
@@ -2504,7 +2507,7 @@ fetchIntOrFloatofObjectifNil(sqInt fieldIndex, sqInt objectPointer, sqInt defaul
     sqInt fieldOop;
     double  floatValue;
 
-	fieldOop = interpreterProxy->fetchPointerofObject(fieldIndex, objectPointer);
+	fieldOop = interpreterProxy->fetchPointerofObject(fieldIndex, objectPointer); // OK xxx_dmu
 	if ((fieldOop & 1)) {
 		return (fieldOop >> 1);
 	}
@@ -2736,7 +2739,7 @@ loadBitBltDestForm(void)
 {
     sqInt destBitsSize;
 
-	destBits = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm);
+	destBitsOop_xxx_dmu = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm); // maybe xxx_dmu
 	destWidth = interpreterProxy->fetchIntegerofObject(FormWidthIndex, destForm);
 	destHeight = interpreterProxy->fetchIntegerofObject(FormHeightIndex, destForm);
 	if (!((destWidth >= 0)
@@ -2748,8 +2751,8 @@ loadBitBltDestForm(void)
 	if (destDepth < 0) {
 		destDepth = 0 - destDepth;
 	}
-	if ((destBits & 1)) {
-		if (!(queryDestSurface((destBits >> 1)))) {
+	if ((destBitsOop_xxx_dmu & 1)) {
+		if (!(queryDestSurface((destBitsOop_xxx_dmu >> 1)))) {
 			return 0;
 		}
 		destPPW = 32 / destDepth;
@@ -2758,12 +2761,13 @@ loadBitBltDestForm(void)
 	else {
 		destPPW = 32 / destDepth;
 		destPitch = ((destWidth + (destPPW - 1)) / destPPW) * 4;
-		destBitsSize = interpreterProxy->byteSizeOf(destBits);
-		if (!((interpreterProxy->isWordsOrBytes(destBits))
+		destBitsSize = interpreterProxy->byteSizeOf(destBitsOop_xxx_dmu);
+		if (!((interpreterProxy->isWordsOrBytes(destBitsOop_xxx_dmu))
 			 && (destBitsSize == (destPitch * destHeight)))) {
 			return 0;
 		}
-		destBits = oopForPointer(interpreterProxy->firstIndexableField(destBits));
+		// xxx_dmu destBits = oopForPointer(interpreterProxy->firstIndexableField(destBits));
+		destBits = (sqInt) interpreterProxy->firstIndexableField(destBitsOop_xxx_dmu);
 	}
 	return 1;
 }
@@ -2813,7 +2817,7 @@ loadBitBltFromwarping(sqInt bbObj, sqInt aBool)
 	 && (combinationRule <= 17)) {
 		return 0;
 	}
-	sourceForm = interpreterProxy->fetchPointerofObject(BBSourceFormIndex, bitBltOop);
+	sourceForm = interpreterProxy->fetchPointerofObject(BBSourceFormIndex, bitBltOop); // maybe xxx_dmu
 	/* begin ignoreSourceOrHalftone: */
 	if (sourceForm == (interpreterProxy->nilObject())) {
 		noSource = 1;
@@ -2837,7 +2841,7 @@ loadBitBltFromwarping(sqInt bbObj, sqInt aBool)
 	}
 	noSource = 0;
 l1:	/* end ignoreSourceOrHalftone: */;
-	halftoneForm = interpreterProxy->fetchPointerofObject(BBHalftoneFormIndex, bitBltOop);
+	halftoneForm = interpreterProxy->fetchPointerofObject(BBHalftoneFormIndex, bitBltOop); // maybe xxx_dmu
 	/* begin ignoreSourceOrHalftone: */
 	if (halftoneForm == (interpreterProxy->nilObject())) {
 		noHalftone = 1;
@@ -2861,13 +2865,13 @@ l1:	/* end ignoreSourceOrHalftone: */;
 	}
 	noHalftone = 0;
 l2:	/* end ignoreSourceOrHalftone: */;
-	destForm = interpreterProxy->fetchPointerofObject(BBDestFormIndex, bbObj);
+	destForm = interpreterProxy->fetchPointerofObject(BBDestFormIndex, bbObj); // maybe xxx_dmu
 	if (!((interpreterProxy->isPointers(destForm))
 		 && ((interpreterProxy->slotSizeOf(destForm)) >= 4))) {
 		return 0;
 	}
 	/* begin loadBitBltDestForm */
-	destBits = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm);
+	destBitsOop_xxx_dmu = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm); // maybe xxx_dmu
 	destWidth = interpreterProxy->fetchIntegerofObject(FormWidthIndex, destForm);
 	destHeight = interpreterProxy->fetchIntegerofObject(FormHeightIndex, destForm);
 	if (!((destWidth >= 0)
@@ -2880,8 +2884,8 @@ l2:	/* end ignoreSourceOrHalftone: */;
 	if (destDepth < 0) {
 		destDepth = 0 - destDepth;
 	}
-	if ((destBits & 1)) {
-		if (!(queryDestSurface((destBits >> 1)))) {
+	if ((destBitsOop_xxx_dmu & 1)) {
+		if (!(queryDestSurface((destBitsOop_xxx_dmu >> 1)))) {
 			ok = 0;
 			goto l3;
 		}
@@ -2891,13 +2895,14 @@ l2:	/* end ignoreSourceOrHalftone: */;
 	else {
 		destPPW = 32 / destDepth;
 		destPitch = ((destWidth + (destPPW - 1)) / destPPW) * 4;
-		destBitsSize = interpreterProxy->byteSizeOf(destBits);
-		if (!((interpreterProxy->isWordsOrBytes(destBits))
+		destBitsSize = interpreterProxy->byteSizeOf(destBitsOop_xxx_dmu);
+		if (!((interpreterProxy->isWordsOrBytes(destBitsOop_xxx_dmu))
 			 && (destBitsSize == (destPitch * destHeight)))) {
 			ok = 0;
 			goto l3;
 		}
-		destBits = oopForPointer(interpreterProxy->firstIndexableField(destBits));
+		// xxx_dmu destBits = oopForPointer(interpreterProxy->firstIndexableField(destBits));
+		destBits = (sqInt) interpreterProxy->firstIndexableField(destBitsOop_xxx_dmu);
 	}
 	ok = 1;
 l3:	/* end loadBitBltDestForm */;
@@ -2920,7 +2925,7 @@ l3:	/* end loadBitBltDestForm */;
 			return 0;
 		}
 		/* begin loadBitBltSourceForm */
-		sourceBits = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm);
+		sourceBitsOop_xxx_dmu = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm); // maybe xxx_dmu
 		/* begin fetchIntOrFloat:ofObject: */
 		fieldOop = interpreterProxy->fetchPointerofObject(FormWidthIndex, sourceForm);
 		if ((fieldOop & 1)) {
@@ -2961,8 +2966,8 @@ l3:	/* end loadBitBltDestForm */;
 		if (sourceDepth < 0) {
 			sourceDepth = 0 - sourceDepth;
 		}
-		if ((sourceBits & 1)) {
-			if (!(querySourceSurface((sourceBits >> 1)))) {
+		if ((sourceBitsOop_xxx_dmu & 1)) {
+			if (!(querySourceSurface((sourceBitsOop_xxx_dmu >> 1)))) {
 				ok = 0;
 				goto l10;
 			}
@@ -2972,13 +2977,14 @@ l3:	/* end loadBitBltDestForm */;
 		else {
 			sourcePPW = 32 / sourceDepth;
 			sourcePitch = ((sourceWidth + (sourcePPW - 1)) / sourcePPW) * 4;
-			sourceBitsSize = interpreterProxy->byteSizeOf(sourceBits);
-			if (!((interpreterProxy->isWordsOrBytes(sourceBits))
+			sourceBitsSize = interpreterProxy->byteSizeOf(sourceBitsOop_xxx_dmu);
+			if (!((interpreterProxy->isWordsOrBytes(sourceBitsOop_xxx_dmu))
 				 && (sourceBitsSize == (sourcePitch * sourceHeight)))) {
 				ok = 0;
 				goto l10;
 			}
-			sourceBits = oopForPointer(interpreterProxy->firstIndexableField(sourceBits));
+			// xxx_dmu sourceBits = oopForPointer(interpreterProxy->firstIndexableField(sourceBits));
+			sourceBits = (sqInt)(interpreterProxy->firstIndexableField(sourceBitsOop_xxx_dmu));
 		}
 		ok = 1;
 	l10:	/* end loadBitBltSourceForm */;
@@ -2990,7 +2996,7 @@ l3:	/* end loadBitBltDestForm */;
 		cmShiftTable = null;
 		cmMaskTable = null;
 		cmLookupTable = null;
-		cmOop = interpreterProxy->fetchPointerofObject(BBColorMapIndex, bitBltOop);
+		cmOop = interpreterProxy->fetchPointerofObject(BBColorMapIndex, bitBltOop); // OK xxx_dmu
 		if (cmOop == (interpreterProxy->nilObject())) {
 			ok = 1;
 			goto l4;
@@ -3016,7 +3022,7 @@ l3:	/* end loadBitBltDestForm */;
 				goto l4;
 			}
 			/* begin loadColorMapShiftOrMaskFrom: */
-			mapOop = interpreterProxy->fetchPointerofObject(0, cmOop);
+			mapOop = interpreterProxy->fetchPointerofObject(0, cmOop); // OK xxx_dmu
 			if (mapOop == (interpreterProxy->nilObject())) {
 				cmShiftTable = ((void *) null);
 				goto l6;
@@ -3035,7 +3041,7 @@ l3:	/* end loadBitBltDestForm */;
 			cmShiftTable = ((void *) (interpreterProxy->firstIndexableField(mapOop)));
 		l6:	/* end loadColorMapShiftOrMaskFrom: */;
 			/* begin loadColorMapShiftOrMaskFrom: */
-			mapOop1 = interpreterProxy->fetchPointerofObject(1, cmOop);
+			mapOop1 = interpreterProxy->fetchPointerofObject(1, cmOop); // OK xxx_dmu
 			if (mapOop1 == (interpreterProxy->nilObject())) {
 				cmMaskTable = ((void *) null);
 				goto l7;
@@ -3053,7 +3059,7 @@ l3:	/* end loadBitBltDestForm */;
 			}
 			cmMaskTable = ((void *) (interpreterProxy->firstIndexableField(mapOop1)));
 		l7:	/* end loadColorMapShiftOrMaskFrom: */;
-			oop = interpreterProxy->fetchPointerofObject(2, cmOop);
+			oop = interpreterProxy->fetchPointerofObject(2, cmOop); // maybe xxx_dmu
 			if (oop == (interpreterProxy->nilObject())) {
 				cmSize = 0;
 			}
@@ -3137,7 +3143,8 @@ l3:	/* end loadBitBltDestForm */;
 		halftoneBits = halftoneForm;
 		halftoneHeight = interpreterProxy->slotSizeOf(halftoneBits);
 	}
-	halftoneBase = oopForPointer(interpreterProxy->firstIndexableField(halftoneBits));
+	// xxx_dmu halftoneBase = oopForPointer(interpreterProxy->firstIndexableField(halftoneBits));
+	halftoneBase = (sqInt)(interpreterProxy->firstIndexableField(halftoneBits));
 	ok = 1;
 l5:	/* end loadHalftoneForm */;
 	if (!(ok)) {
@@ -3181,7 +3188,7 @@ loadBitBltSourceForm(void)
     double  floatValue1;
     sqInt sourceBitsSize;
 
-	sourceBits = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm);
+	sourceBitsOop_xxx_dmu = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm); // maybe xxx_dmu
 	/* begin fetchIntOrFloat:ofObject: */
 	fieldOop = interpreterProxy->fetchPointerofObject(FormWidthIndex, sourceForm);
 	if ((fieldOop & 1)) {
@@ -3221,8 +3228,8 @@ l2:	/* end fetchIntOrFloat:ofObject: */;
 	if (sourceDepth < 0) {
 		sourceDepth = 0 - sourceDepth;
 	}
-	if ((sourceBits & 1)) {
-		if (!(querySourceSurface((sourceBits >> 1)))) {
+	if ((sourceBitsOop_xxx_dmu & 1)) {
+		if (!(querySourceSurface((sourceBitsOop_xxx_dmu >> 1)))) {
 			return 0;
 		}
 		sourcePPW = 32 / sourceDepth;
@@ -3231,12 +3238,13 @@ l2:	/* end fetchIntOrFloat:ofObject: */;
 	else {
 		sourcePPW = 32 / sourceDepth;
 		sourcePitch = ((sourceWidth + (sourcePPW - 1)) / sourcePPW) * 4;
-		sourceBitsSize = interpreterProxy->byteSizeOf(sourceBits);
-		if (!((interpreterProxy->isWordsOrBytes(sourceBits))
+		sourceBitsSize = interpreterProxy->byteSizeOf(sourceBitsOop_xxx_dmu);
+		if (!((interpreterProxy->isWordsOrBytes(sourceBitsOop_xxx_dmu))
 			 && (sourceBitsSize == (sourcePitch * sourceHeight)))) {
 			return 0;
 		}
-		sourceBits = oopForPointer(interpreterProxy->firstIndexableField(sourceBits));
+		// xxx_dmu sourceBits = oopForPointer(interpreterProxy->firstIndexableField(sourceBits));
+		sourceBits = (sqInt)(interpreterProxy->firstIndexableField(sourceBitsOop_xxx_dmu));
 	}
 	return 1;
 }
@@ -3260,7 +3268,7 @@ loadColorMap(void)
 	cmShiftTable = null;
 	cmMaskTable = null;
 	cmLookupTable = null;
-	cmOop = interpreterProxy->fetchPointerofObject(BBColorMapIndex, bitBltOop);
+	cmOop = interpreterProxy->fetchPointerofObject(BBColorMapIndex, bitBltOop); // OK xxx_dmu
 	if (cmOop == (interpreterProxy->nilObject())) {
 		return 1;
 	}
@@ -3284,7 +3292,7 @@ loadColorMap(void)
 			return 0;
 		}
 		/* begin loadColorMapShiftOrMaskFrom: */
-		mapOop = interpreterProxy->fetchPointerofObject(0, cmOop);
+		mapOop = interpreterProxy->fetchPointerofObject(0, cmOop);  // OK xxx_dmu
 		if (mapOop == (interpreterProxy->nilObject())) {
 			cmShiftTable = ((void *) null);
 			goto l1;
@@ -3303,7 +3311,7 @@ loadColorMap(void)
 		cmShiftTable = ((void *) (interpreterProxy->firstIndexableField(mapOop)));
 	l1:	/* end loadColorMapShiftOrMaskFrom: */;
 		/* begin loadColorMapShiftOrMaskFrom: */
-		mapOop1 = interpreterProxy->fetchPointerofObject(1, cmOop);
+		mapOop1 = interpreterProxy->fetchPointerofObject(1, cmOop); // maybe xxx_dmu
 		if (mapOop1 == (interpreterProxy->nilObject())) {
 			cmMaskTable = ((void *) null);
 			goto l2;
@@ -3321,7 +3329,7 @@ loadColorMap(void)
 		}
 		cmMaskTable = ((void *) (interpreterProxy->firstIndexableField(mapOop1)));
 	l2:	/* end loadColorMapShiftOrMaskFrom: */;
-		oop = interpreterProxy->fetchPointerofObject(2, cmOop);
+		oop = interpreterProxy->fetchPointerofObject(2, cmOop);  // OK xxx_dmu
 		if (oop == (interpreterProxy->nilObject())) {
 			cmSize = 0;
 		}
@@ -3418,7 +3426,8 @@ loadHalftoneForm(void)
 		halftoneBits = halftoneForm;
 		halftoneHeight = interpreterProxy->slotSizeOf(halftoneBits);
 	}
-	halftoneBase = oopForPointer(interpreterProxy->firstIndexableField(halftoneBits));
+	// xxx_dmu halftoneBase = oopForPointer(interpreterProxy->firstIndexableField(halftoneBits));
+	halftoneBase = (sqInt)(interpreterProxy->firstIndexableField(halftoneBits));
 	return 1;
 }
 
@@ -3521,6 +3530,7 @@ lockSurfaces(void)
 					sourceBits = fn(sourceHandle, &sourcePitch, 0,0, sourceWidth, sourceHeight);
 				}
 				destBits = sourceBits;
+				destBitsOop_xxx_dmu = sourceBitsOop_xxx_dmu;
 				destPitch = sourcePitch;
 				hasSurfaceLock = 1;
 				return destBits != 0;
@@ -5738,7 +5748,7 @@ unlockSurfaces(void)
 		}
 		fn = ((sqInt (*)(sqInt, sqInt, sqInt, sqInt, sqInt)) unlockSurfaceFn);
 		destLocked = 0;
-		destHandle = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm);
+		destHandle = interpreterProxy->fetchPointerofObject(FormBitsIndex, destForm); // maybe xxx_dmu
 		if ((destHandle & 1)) {
 
 			/* The destBits are always assumed to be dirty */
@@ -5749,7 +5759,7 @@ unlockSurfaces(void)
 			destLocked = 1;
 		}
 		if (!(noSource)) {
-			sourceHandle = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm);
+			sourceHandle = interpreterProxy->fetchPointerofObject(FormBitsIndex, sourceForm); // maybe xxx_dmu
 			if ((sourceHandle & 1)) {
 
 				/* Only unlock sourceHandle if different from destHandle */
@@ -5897,6 +5907,7 @@ warpLoop(void)
     sqInt skewWord;
     sqInt smoothingCount;
     sqInt sourceMapOop;
+    sqInt sourceMapIndex_xxx_dmu; 
     sqInt sourcePix;
     sqInt sourcePix1;
     sqInt sourcePix2;
@@ -6127,12 +6138,14 @@ l14:	/* end deltaFrom:to:nSteps: */;
 			if ((interpreterProxy->slotSizeOf(sourceMapOop)) < (1 << sourceDepth)) {
 				return interpreterProxy->primitiveFail();
 			}
-			sourceMapOop = oopForPointer(interpreterProxy->firstIndexableField(sourceMapOop));
+			// xxx_dmu sourceMapOop = oopForPointer(interpreterProxy->firstIndexableField(sourceMapOop));
+			sourceMapIndex_xxx_dmu = (sqInt)(interpreterProxy->firstIndexableField(sourceMapOop));
 		}
 	}
 	else {
 		smoothingCount = 1;
 		sourceMapOop = interpreterProxy->nilObject();
+		sourceMapIndex_xxx_dmu = 0;
 	}
 	nSteps = width - 1;
 	if (nSteps <= 0) {
@@ -6354,7 +6367,7 @@ l14:	/* end deltaFrom:to:nSteps: */;
 				skewWord = destWord1;
 			}
 			else {
-				skewWord = warpPickSmoothPixelsxDeltahyDeltahxDeltavyDeltavsourceMapsmoothingdstShiftInc(nPix, xDelta, yDelta, deltaP12x, deltaP12y, sourceMapOop, smoothingCount, dstShiftInc);
+				skewWord = warpPickSmoothPixelsxDeltahyDeltahxDeltavyDeltavsourceMapsmoothingdstShiftInc(nPix, xDelta, yDelta, deltaP12x, deltaP12y, sourceMapIndex_xxx_dmu, smoothingCount, dstShiftInc);
 			}
 			dstBitShift = dstShiftLeft;
 			if (destMask == AllOnes) {
