@@ -1302,7 +1302,7 @@ static sqInt display_clipboardSize(void)
 
 static sqInt display_clipboardWriteFromAt(sqInt count, sqInt byteArrayIndex, sqInt startIndex)
 {
-  display_clipboardWriteWithType(pointerForOop(byteArrayIndex + startIndex), count, NULL, 0, 0, 1);
+  display_clipboardWriteWithType(pointerForIndex_xxx_dmu(byteArrayIndex + startIndex), count, NULL, 0, 0, 1);
   return 0;
 }
 
@@ -4941,8 +4941,8 @@ static sqInt display_ioSetCursorWithMask(sqInt cursorBitsIndex, sqInt cursorMask
 
 static sqInt display_ioSetCursorWithMaskBig(sqInt cursorBitsIndex, sqInt cursorMaskIndex, sqInt offsetX, sqInt offsetY)
 {
-  unsigned int *cursorBits= (unsigned int *)pointerForOop(cursorBitsIndex);
-  unsigned int *cursorMask= (unsigned int *)pointerForOop(cursorMaskIndex);
+  unsigned int *cursorBits= (unsigned int *)pointerForIndex_xxx_dmu(cursorBitsIndex);
+  unsigned int *cursorMask= (unsigned int *)pointerForIndex_xxx_dmu(cursorMaskIndex);
   unsigned int data[32], mask[32], d, m;	/* cursors are rescaled from 16x16 to 32x32*/
   int i, j;
   Cursor cursor;
@@ -5019,7 +5019,7 @@ static sqInt display_ioSetCursorARGB(sqInt cursorBitsIndex, sqInt extentX, sqInt
   if (!(major > 0 || minor >= 5))
     return 0;
 
-  image= XCreateImage(stDisplay, DefaultVisual(stDisplay, DefaultScreen(stDisplay)), 32, ZPixmap, 0, (char *)pointerForOop(cursorBitsIndex), extentX, extentY, 32, 0);
+  image= XCreateImage(stDisplay, DefaultVisual(stDisplay, DefaultScreen(stDisplay)), 32, ZPixmap, 0, (char *)pointerForIndex_xxx_dmu(cursorBitsIndex), extentX, extentY, 32, 0);
   pixmap= XCreatePixmap (stDisplay, DefaultRootWindow(stDisplay), extentX, extentY, 32);
   gc= XCreateGC(stDisplay, pixmap, 0, 0);
   XPutImage(stDisplay, pixmap, gc, image, 0, 0, 0, 0, extentX, extentY);
