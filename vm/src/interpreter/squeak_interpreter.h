@@ -1515,7 +1515,7 @@ public:
   }
   static int ioCPUMSecs();
     
-  static int getNextEvent_any_platform(void*);
+  static void getNextEvent_any_platform(void*);
 };
 
 

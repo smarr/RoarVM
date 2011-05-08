@@ -999,9 +999,9 @@ void Squeak_Interpreter::primitiveGetNextEvent() {
   const bool print = false;
   int evtBuf[evtBuf_size];
   for (int i = 0;  i < evtBuf_size;  ++i)  evtBuf[i] = 0;
-  bool got_one = The_Interactions.getNextEvent_on_main(evtBuf); // do this from here so we can GC if need be
-   if (!got_one)
-    primitiveFail();
+  
+  The_Interactions.getNextEvent_on_main(evtBuf); // do this from here so we can GC if need be
+  
   if (!successFlag) return;
 
   Oop arg = stackTop(); Object_p ao;

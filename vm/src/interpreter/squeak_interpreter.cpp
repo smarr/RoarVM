@@ -3266,10 +3266,6 @@ bool Squeak_Interpreter::roomToPushNArgs(int n) {
   return stackPointerIndex() + n  <=  cntxSize;
 }
 
-int Squeak_Interpreter::getNextEvent_any_platform(void* p) {
-  int r = ioGetNextEvent(p);
-# if On_iOS
-    r = The_Squeak_Interpreter()->successFlag;
-# endif
-  return r;
+void Squeak_Interpreter::getNextEvent_any_platform(void* p) {
+  ioGetNextEvent(p);
 }

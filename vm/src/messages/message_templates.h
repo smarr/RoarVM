@@ -38,7 +38,7 @@ template(broadcastInterpreterDatumMessage,abstractMessage, (int s, int o, u_int6
 template(doAllRootsHereMessage,abstractMessage, (Oop_Closure* oc, bool igp), (), { closure = oc; is_gc_permitted = igp; }, Oop_Closure* closure; bool is_gc_permitted; , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
 template(getNextEventMessage,abstractMessage, (), (), , , no_ack, dont_delay_when_have_acquired_safepoint) \
-template(getNextEventResponse,abstractMessage, (), (), , int evtBuf[evtBuf_size]; bool got_one; , no_ack, dont_delay_when_have_acquired_safepoint) \
+template(getNextEventResponse,abstractMessage, (), (), , int evtBuf[evtBuf_size]; , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
 template(selfDestructMessage,abstractMessage, (const char* w), (), {why = w;}, const char* why; , no_ack, dont_delay_when_have_acquired_safepoint) \
 \

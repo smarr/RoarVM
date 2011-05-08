@@ -366,12 +366,12 @@ void screenInfoResponse_class::handle_me() {}
 void getNextEventMessage_class::handle_me() {
   assert(Logical_Core::running_on_main());
   getNextEventResponse_class m;
-  m.got_one = Squeak_Interpreter::getNextEvent_any_platform(m.evtBuf);
+  Squeak_Interpreter::getNextEvent_any_platform(m.evtBuf);
   m.send_to(sender);
 }
 
 void getNextEventResponse_class::handle_me() {
-  if (false && got_one && evtBuf[0] == 2)
+  if (false && evtBuf[0] == 2)
     lprintf("getNextEventResponse_class::handle_me key: %d, state %d\n", evtBuf[2], evtBuf[3]);
 }
 
