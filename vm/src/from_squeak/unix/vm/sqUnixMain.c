@@ -211,33 +211,27 @@ sqInt ioLowResMSecs(void)
 }
 
 # ifdef ROAR_VM
-// STEFAN: copied from sqUnixHeartbeat, since we are not using a heartbeat thread
-sqLong
-ioHighResClock(void)
-{
-  /* return the value of the high performance counter */
-  sqLong value = 0;
-#if defined(__GNUC__) && ( defined(i386) || defined(__i386) || defined(__i386__)  \
-			|| defined(i486) || defined(__i486) || defined (__i486__) \
-			|| defined(intel) || defined(x86) || defined(i86pc) )
-    __asm__ __volatile__ ("rdtsc" : "=A"(value));
-#elif __tile__
-  value = get_cycle_count();
-#else
-# error "no high res clock defined"
-#endif
-  return value;
-}
-
-// we are not yet using the new timer infrastructure
 usqLong
 ioUTCMicroseconds()
 {
   return ioMSecs();
 }
 
-# endif // ROAR_VM
+// For the RoarVM we corrently do not use the new timer infrastructure, thus, we use the old code here
+sqInt ioMSecs(void)
+{
+  struct timeval now;
+  gettimeofday(&now, 0);
+  if ((now.tv_usec-= startUpTime.tv_usec) < 0)
+  {
+    now.tv_usec+= 1000000;
+    now.tv_sec-= 1;
+  }
+  now.tv_sec-= startUpTime.tv_sec;
+  return lowResMSecs= (now.tv_usec / 1000 + now.tv_sec * 1000);
+}
 
+# else // ROAR_VM
 sqInt ioMSecs(void)
 {
   struct timeval now;
@@ -292,6 +286,8 @@ sqInt ioMSecs(void)
 #endif
   return lowResMSecs= nowMSecs;
 }
+# endif // ROAR_VM
+
 
 sqInt ioMicroMSecs(void)
 {
