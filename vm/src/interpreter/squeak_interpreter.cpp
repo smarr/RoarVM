@@ -328,6 +328,7 @@ void Squeak_Interpreter::interpret() {
     bc_cycles[bc_cycles_index] = OS_Interface::get_cycle_count();
 #   endif
     
+    Performance_Counters::count_bytecodes_executed();
     dispatch(currentBytecode);
     
 #   if Dump_Bytecode_Cycles
@@ -1829,6 +1830,8 @@ void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool defer) {
 
 
 void Squeak_Interpreter::internalExecuteNewMethod() {
+  Performance_Counters::count_methods_executed();
+  
   assert_stored_if_no_proc();
   if (primitiveIndex  > 0) {
     if (255 < primitiveIndex  &&  primitiveIndex < 520) {
@@ -2378,6 +2381,8 @@ void Squeak_Interpreter::multicore_interrupt() {
   if (doing_primitiveClosureValueNoContextSwitch)
     return;
   
+  Performance_Counters::count_multicore_interrupts();
+  
   u_int64 start = OS_Interface::get_cycle_count();
 
   if (multicore_interrupt_check)       ++multicore_interrupt_check_count;
@@ -2554,6 +2559,8 @@ void Squeak_Interpreter::dispatchFunctionPointer(fn_t f, bool on_main) {
   ++recurse;
 # endif
 
+  Performance_Counters::count_primitive_invokations();
+  
   if (on_main) {
     The_Interactions.run_primitive(Logical_Core::main_rank, f);
     assert_method_is_correct_internalizing(true, "after run_primitive_on_main");

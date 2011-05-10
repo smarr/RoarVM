@@ -32,6 +32,8 @@ public:
   static Oop get_message_names();
 
   static void collect_send_msg_stats(int m) {
+    Performance_Counters::count_send_intercore_messages();
+    
     const bool verbose = false;
     if (verbose)
       switch(m) {

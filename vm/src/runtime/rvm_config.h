@@ -82,6 +82,7 @@
   template(Trace_Execution) \
   template(Trace_For_Debugging) \
   template(Track_Last_BC_For_Debugging) \
+  template(Collect_Performance_Counters) \
   template(Compile_Debug_Store_Checks) \
   template(Profile_Image) \
   template(Print_Scheduler) \
@@ -198,6 +199,10 @@
 // Thus, it is only enabled when assertions are checked currently. STEFAN 2011-01-28
 # ifndef Collect_Receive_Message_Statistics
 # define Collect_Receive_Message_Statistics check_assertions
+# endif
+
+# ifndef Collect_Performance_Counters
+#   define Collect_Performance_Counters 0
 # endif
 
 # ifndef CountByteCodesAndStopAt

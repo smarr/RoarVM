@@ -34,6 +34,8 @@ void Scheduler_Mutex_Actions::acquire_action(const char* why) {
     mutex->check_and_inc_recursion_depth();
   }
   if (tracking) mutex->set_holder(Logical_Core::my_rank());
+  
+  Performance_Counters::count_acquire_scheduler_mutex();
 }
 
 void Scheduler_Mutex_Actions::release_action(const char*) {

@@ -103,6 +103,8 @@
 # include "posix_os_interface.h"
 # include "osx_os_interface.h"
 
+# include "performance_counters.h"
+
 # include "safepoint_ability.h"
 # include "safepoint_request_queue.h"
 

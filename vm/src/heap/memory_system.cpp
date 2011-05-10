@@ -120,6 +120,8 @@ Oop Memory_System::get_stats(int what_to_sample) {
 void Memory_System::fullGC(const char* why) {
   if (The_Squeak_Interpreter()->am_receiving_objects_from_snapshot())
     fatal("cannot gc now");
+  
+  Performance_Counters::count_full_gc();
 
   lprintf("about to fullGC: %s\n", why);
   global_GC_values->inter_gc_ms = global_GC_values->mutator_start_time ? The_Squeak_Interpreter()->ioWhicheverMSecs() - global_GC_values->mutator_start_time : 0;
