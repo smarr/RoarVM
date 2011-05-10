@@ -22,6 +22,9 @@ FOR_ALL_PERFORMANCE_COUNTERS_DO(DECLARE_COUNTER_INITIALIZERS)
 
 
 void Performance_Counters::print() {
+  if (!Collect_Performance_Counters)
+    return;
+  
   fprintf(stdout, "Performance Counters:\n");
   # define PRINT(name, type, initial_value) fprintf(stdout, " %-30s = %8d\n", #name, name);
   FOR_ALL_PERFORMANCE_COUNTERS_DO(PRINT)

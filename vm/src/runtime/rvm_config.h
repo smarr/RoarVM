@@ -202,7 +202,7 @@
 # endif
 
 # ifndef Collect_Performance_Counters
-#   define Collect_Performance_Counters 0
+#  define Collect_Performance_Counters 0
 # endif
 
 # ifndef CountByteCodesAndStopAt

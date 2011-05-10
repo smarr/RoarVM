@@ -15,5 +15,6 @@
 #include "headers.h"
 
 void rvm_exit() {
+  Performance_Counters::print();
   OS_Interface::exit();
 }
