@@ -373,6 +373,15 @@
 
 
 
+// Macro to ensure that the compiler does inlining
+# ifndef FORCE_INLINE
+  # ifdef __GNUC__
+    # define FORCE_INLINE __attribute__((always_inline))
+  # else
+    # define FORCE_INLINE inline
+    # warning Try to find some compiler pragma or directive to enforce inlining for this compiler
+  # endif
+# endif
 
 // for Squeak:
 
