@@ -28,6 +28,11 @@ static const char *moduleName =
 
 static u_int64 cycle_count_at_last_sample[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes] = { 0 };  // threadsafe
 
+
+/**
+ * Was used to find a bug with sampling, primitives, and safepoint interaction.
+ * Might still be usefull for other debugging purposes.  2011-05-23 dmu+sm
+ */
 void* primitiveDebugSampleRVM() {
   static int n = 0;
   printf("<%d", ++n);
