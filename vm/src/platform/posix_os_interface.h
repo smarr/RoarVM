@@ -162,6 +162,8 @@ public:
   }
 # endif
   
+  static inline void  mem_fence() { __sync_synchronize(); /*This is a GCC build-in might need to be replaced */ }
+  
 private:
   static inline void* memalign(int align, int sz) { return (void*) ( (int(malloc(sz + align)) + align - 1) & ~(align-1) ); }
 public:

@@ -56,8 +56,6 @@ public:
    */
   static inline int atomic_compare_and_swap_val(int* ptr, int old_value, int new_value) { fatal(); return *ptr; }
   
-  
-  
   static inline uint32_t leading_zeros(uint32_t x)    { fatal(); return 0; }
   static inline uint32_t population_count(uint32_t x) { fatal(); return 0; }
   
@@ -70,7 +68,7 @@ public:
   static inline void* malloc_in_mem(int /* alignment */, int /* size */) { fatal(); return NULL; }
   static inline void  invalidate_mem(void*, size_t) {}
   static inline void  mem_flush(void* ptr, size_t size) {}
-  static inline void  mem_fence() {}
+  static inline void  mem_fence() { fatal(); }
   static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool replicate) { fatal(); return 0; }
   
   /* To enable the RVM to use more than one core, one of the following functions
