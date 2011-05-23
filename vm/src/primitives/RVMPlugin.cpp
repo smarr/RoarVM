@@ -543,10 +543,16 @@ static int primitivePrintStats() {
           The_Interactions.remote_prim_count,  The_Interactions.remote_prim_cycles);
 
   The_Squeak_Interpreter()->pop(The_Squeak_Interpreter()->get_argumentCount());
+  
+  Performance_Counters::print();
+  
   return 0;
 }
 
-
+static int primitiveResetPerfCounters() {
+  Performance_Counters::reset();
+}
+  
 static int primitivePrintExecutionTrace() { The_Squeak_Interpreter()->print_execution_trace(); return 0; }
 
 
@@ -783,6 +789,7 @@ void* RVMPlugin_exports[][3] = {
   {(void*) "RVMPlugin", (void*)"primitiveThisProcess", (void*)primitiveThisProcess},
   {(void*) "RVMPlugin", (void*)"primitivePrint", (void*)primitivePrint},
   {(void*) "RVMPlugin", (void*)"primitivePrintStats", (void*)primitivePrintStats},
+  {(void*) "RVMPlugin", (void*)"primitiveResetPerfCounters", (void*)primitiveResetPerfCounters},
   {(void*) "RVMPlugin", (void*)"primitiveCoreCount", (void*)primitiveCoreCount},
   {(void*) "RVMPlugin", (void*)"primitiveRunningProcessByCore", (void*)primitiveRunningProcessByCore},
 

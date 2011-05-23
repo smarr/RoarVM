@@ -56,5 +56,16 @@ public:
   
   
   static void print();
+
+  static void reset() {
+    # define RESET_ALL_COUNTERS(name, type, initial_value) \
+      name = initial_value;
+    
+    FOR_ALL_PERFORMANCE_COUNTERS_DO(RESET_ALL_COUNTERS)
+    
+    # undef RESET_ALL_COUNTERS
+    
+    OS_Interface::mem_fence(); // STEFAN: I think, I actually want a flush here, but do not see it in the GCC manual
+  };
   
 };

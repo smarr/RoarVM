@@ -110,6 +110,7 @@ Obsolete_Named_Primitive_Table::entry Obsolete_Named_Primitive_Table::contents[]
   { "primitiveThisProcess",              "RVMPlugin", "primitiveThisProcess",              false },
   { "primitivePrint",                    "RVMPlugin", "primitivePrint",                    false },
   { "primitivePrintStats",               "RVMPlugin", "primitivePrintStats",               false },
+  { "primitiveResetPerfCounters",        "RVMPlugin", "primitiveResetPerfCounters",        false },
 
 
   { "primitiveAllObjectsInHeap",         "RVMPlugin", "primitiveAllObjectsInHeap",         false },
