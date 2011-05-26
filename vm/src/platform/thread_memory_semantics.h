@@ -56,8 +56,8 @@ public:
   static const size_t max_num_threads_on_threads_or_1_on_processes = Max_Number_Of_Cores;
   
   static Logical_Core* my_core();
-  static int my_rank();
-  static u_int64 my_rank_mask();
+  static int           my_rank();
+  static u_int64       my_rank_mask();
   static inline size_t rank_on_threads_or_zero_on_processes() { return my_rank(); } 
 
   static void initialize_logical_cores();
@@ -101,9 +101,9 @@ class Memory_System;
 
   //#define The_Squeak_Interpreter() (&_interpreter)
   // At least the Tilera compiler does not like the inlines, costs about 2-5% performance
-  inline  __attribute__((always_inline)) Squeak_Interpreter* The_Squeak_Interpreter() { return &_interpreter;  }
+  inline FORCE_INLINE Squeak_Interpreter* The_Squeak_Interpreter() { return &_interpreter;  }
 # else
-  inline __attribute__((always_inline)) Squeak_Interpreter* The_Squeak_Interpreter() {
+  inline FORCE_INLINE Squeak_Interpreter* The_Squeak_Interpreter() {
     assert(Thread_Memory_Semantics::interpreter_key !=0 /* ensure it is initialized */);
     return (Squeak_Interpreter*)pthread_getspecific(Thread_Memory_Semantics::interpreter_key);
   }
