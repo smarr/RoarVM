@@ -242,7 +242,11 @@ public:
   fn_t    primitiveFunctionPointer; bool do_primitive_on_main;
 
 
-
+#pragma mark -
+#pragma mark Statistical Information
+// STEFAN: added those pragmas here for the first time
+//         think it helps with Xcode, and should be applied gradually throughout the whole code
+  
   oop_int_t interruptChecksEveryNms;
 
 
@@ -260,10 +264,10 @@ public:
 
   Performance_Counters perf_counter;
   
+#pragma mark -
+  
   int     methodArgumentCount() { return get_argumentCount(); }
   int     methodPrimitiveIndex() { return primitiveIndex; }
-
-
 
  private:
   Object_p get_addr_to_cache(Oop x) { return x.as_object_if_mem(); }
