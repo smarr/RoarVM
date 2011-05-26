@@ -258,6 +258,8 @@ public:
   u_int64 cyclesMovingMutatedRead_MostlyObjects;
   u_int32 numberOfMovedMutatedRead_MostlyObjects;
 
+  Performance_Counters perf_counter;
+  
   int     methodArgumentCount() { return get_argumentCount(); }
   int     methodPrimitiveIndex() { return primitiveIndex; }
 
@@ -556,7 +558,7 @@ public:
     if (!Dont_Trace_Bytecode_Fetching)
       traceFetchNextBytecode(currentBytecode);
     
-    Performance_Counters::count_bytecodes_executed();
+    perf_counter.count_bytecodes_executed();
   }
 
   u_char fetchByte() {
