@@ -54,7 +54,7 @@ public:
   # define DECLARE_COUNTER_METHODS(name, type, initial_value) \
     FORCE_INLINE void count_##name() const {} \
     \
-    static FORCE_INLINE void count_static_##name() const {};
+    static FORCE_INLINE void count_static_##name() {};
 
   
 # endif  
