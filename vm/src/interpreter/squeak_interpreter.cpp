@@ -257,8 +257,6 @@ void Squeak_Interpreter::interpret() {
   assert_message(Header_Type::Shift == 0  &&  Header_Type::Width >= Tag_Size,
          "lots of code, including Oop packing into class headers, and the mem_bits fns on Oops depends on this");
 
-	// "record entry time when running as a browser plug-in"
-	browserPluginInitialiseIfNeeded();
   Safepoint_Ability sa(false); // about to internalize things
 	internalizeIPandSP();
 	fetchNextBytecode();
@@ -1872,10 +1870,9 @@ void Squeak_Interpreter::internalExecuteNewMethod() {
 
     if (process_is_scheduled_and_executing())
       internalizeIPandSP();
-    if (successFlag) {
-      browserPluginReturnIfNeeded();
+    
+    if (successFlag)
       return;
-    }
   }
   // "if not primitive, or primitive failed, activate the method"
   internalActivateNewMethod();

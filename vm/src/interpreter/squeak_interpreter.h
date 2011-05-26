@@ -469,8 +469,6 @@ public:
   void flushExternalPrimitives();
 
   void interpret();
-  void browserPluginInitialiseIfNeeded() {}
-  void browserPluginReturnIfNeeded() {}
 
   void internalizeIPandSP() {
     // Copy local instruction ptr and SP to locals for speed
@@ -943,7 +941,6 @@ public:
     if (--interruptCheckCounter <= 0) {
       externalizeIPandSP();
       checkForInterrupts();
-      browserPluginReturnIfNeeded();
       internalizeIPandSP();
     }
   }
