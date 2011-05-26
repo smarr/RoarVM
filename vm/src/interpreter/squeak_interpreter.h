@@ -18,7 +18,7 @@ public:
   
 #if On_Tilera
 public:
-  inline int my_rank()       const { return Logical_Core::my_rank(); }
+  inline int           my_rank() const { return Logical_Core::my_rank(); }
   inline Logical_Core* my_core() const { return Logical_Core::my_core(); }
   inline int rank_on_threads_or_zero_on_processes()  const { return Memory_Semantics::rank_on_threads_or_zero_on_processes(); }
   
@@ -555,6 +555,8 @@ public:
 
     if (!Dont_Trace_Bytecode_Fetching)
       traceFetchNextBytecode(currentBytecode);
+    
+    Performance_Counters::count_bytecodes_executed();
   }
 
   u_char fetchByte() {

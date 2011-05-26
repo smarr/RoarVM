@@ -328,7 +328,6 @@ void Squeak_Interpreter::interpret() {
     bc_cycles[bc_cycles_index] = OS_Interface::get_cycle_count();
 #   endif
     
-    Performance_Counters::count_bytecodes_executed();
     dispatch(currentBytecode);
     
 #   if Dump_Bytecode_Cycles

@@ -66,6 +66,8 @@ public:
     # undef RESET_ALL_COUNTERS
     
     OS_Interface::mem_fence(); // STEFAN: I think, I actually want a flush here, but do not see it in the GCC manual
+    
+    print();
   };
   
 };
