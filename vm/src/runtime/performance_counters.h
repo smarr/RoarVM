@@ -26,26 +26,35 @@ private:
   
   
   # define DECLARE_COUNTER_MEMBERS(name, type, initial_value) \
-      static type name;
+      type name;
 
   FOR_ALL_PERFORMANCE_COUNTERS_DO(DECLARE_COUNTER_MEMBERS)
   
   # undef DECLARE_COUNTER_MEMBERS
 
+  static Performance_Counters* _all_perf_counters[Max_Number_Of_Cores];
   
 public:
+  
+  Performance_Counters();
   
 # if Collect_Performance_Counters
   
   # define DECLARE_COUNTER_METHODS(name, type, initial_value) \
-      static FORCE_INLINE void count_##name() { \
-        OS_Interface::atomic_fetch_and_add(&name, 1); \
-      }
+    FORCE_INLINE void count_##name() { \
+      /* Not necessary anymore OS_Interface::atomic_fetch_and_add(&name, 1); */ \
+      name += 1; \
+    } \
+    \
+    static void count_static_##name();
 
+  
 # else
 
   # define DECLARE_COUNTER_METHODS(name, type, initial_value) \
-      static FORCE_INLINE void count_##name() {}
+    FORCE_INLINE void count_##name() const {} \
+    \
+    static FORCE_INLINE void count_static_##name() const {};
 
   
 # endif  
@@ -57,17 +66,5 @@ public:
   
   static void print();
 
-  static void reset() {
-    # define RESET_ALL_COUNTERS(name, type, initial_value) \
-      name = initial_value;
-    
-    FOR_ALL_PERFORMANCE_COUNTERS_DO(RESET_ALL_COUNTERS)
-    
-    # undef RESET_ALL_COUNTERS
-    
-    OS_Interface::mem_fence(); // STEFAN: I think, I actually want a flush here, but do not see it in the GCC manual
-    
-    print();
-  };
-  
+  static void reset();  
 };

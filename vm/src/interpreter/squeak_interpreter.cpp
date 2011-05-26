@@ -1829,7 +1829,7 @@ void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool defer) {
 
 
 void Squeak_Interpreter::internalExecuteNewMethod() {
-  Performance_Counters::count_methods_executed();
+  perf_counter.count_methods_executed();
   
   assert_stored_if_no_proc();
   if (primitiveIndex  > 0) {
@@ -2380,7 +2380,7 @@ void Squeak_Interpreter::multicore_interrupt() {
   if (doing_primitiveClosureValueNoContextSwitch)
     return;
   
-  Performance_Counters::count_multicore_interrupts();
+  perf_counter.count_multicore_interrupts();
   
   u_int64 start = OS_Interface::get_cycle_count();
 
@@ -2558,7 +2558,7 @@ void Squeak_Interpreter::dispatchFunctionPointer(fn_t f, bool on_main) {
   ++recurse;
 # endif
 
-  Performance_Counters::count_primitive_invokations();
+  perf_counter.count_primitive_invokations();
   
   if (on_main) {
     The_Interactions.run_primitive(Logical_Core::main_rank, f);

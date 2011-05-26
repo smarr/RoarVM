@@ -35,7 +35,7 @@ void Scheduler_Mutex_Actions::acquire_action(const char* why) {
   }
   if (tracking) mutex->set_holder(Logical_Core::my_rank());
   
-  Performance_Counters::count_acquire_scheduler_mutex();
+  The_Squeak_Interpreter()->perf_counter.count_acquire_scheduler_mutex();
 }
 
 void Scheduler_Mutex_Actions::release_action(const char*) {

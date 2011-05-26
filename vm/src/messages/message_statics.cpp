@@ -163,7 +163,7 @@ bool Message_Statics::receive_and_handle_one_message(bool wait) {
 # endif
     
     if (msg_type_or_encoded_acking_type != noMessage) {
-      Performance_Counters::count_received_intercore_messages();
+      interp->perf_counter.count_received_intercore_messages();
       
       if (Collect_Receive_Message_Statistics)
         Message_Stats::collect_receive_msg_stats(msg_type_or_encoded_acking_type);

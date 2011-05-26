@@ -71,7 +71,7 @@ class Safepoint_Tracker {
     _is_every_other_core_safe = true;
     _sequence_number_of_last_granted_safepoint = seq_no;
     
-    Performance_Counters::count_acquire_safepoint();
+    Performance_Counters::count_static_acquire_safepoint();
   }
   void every_other_core_no_longer_safe() {
     if (verbose) lprintf("every_other_core_no_longer_safe()\n");

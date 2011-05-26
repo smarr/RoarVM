@@ -13,12 +13,35 @@
 # include "headers.h"
 
 
-# define DECLARE_COUNTER_INITIALIZERS(name, type, initial_value) \
-  type Performance_Counters::name = initial_value;
+Performance_Counters* Performance_Counters::_all_perf_counters[Max_Number_Of_Cores] = { NULL };
 
-FOR_ALL_PERFORMANCE_COUNTERS_DO(DECLARE_COUNTER_INITIALIZERS)
+Performance_Counters::Performance_Counters() {
+  // First, lets register this performce counter in the static array
+  // this will allow us to easily get all instances for printing, etc.
+  _all_perf_counters[Logical_Core::my_rank()] = this;
+  
+  // Now initialize everything with its initial value
+  # define DECLARE_COUNTER_INITIALIZERS(name, type, initial_value) \
+    name = initial_value;
+  
+  FOR_ALL_PERFORMANCE_COUNTERS_DO(DECLARE_COUNTER_INITIALIZERS)
+  
+  # undef DECLARE_COUNTER_INITIALIZERS
+}
 
-# undef DECLARE_COUNTER_INITIALIZERS
+# if Collect_Performance_Counters
+
+# define IMPL_STATIC_COUNTER_METHODS(name, type, initial_value) \
+  void Performance_Counters::count_static_##name() {\
+    The_Squeak_Interpreter()->perf_counter.count_##name(); \
+  }
+
+FOR_ALL_PERFORMANCE_COUNTERS_DO(IMPL_STATIC_COUNTER_METHODS)
+
+# undef IMPL_STATIC_COUNTER_METHODS
+
+
+# endif // Collect_Performance_Counters
 
 
 void Performance_Counters::print() {
@@ -26,8 +49,35 @@ void Performance_Counters::print() {
     return;
   
   fprintf(stdout, "Performance Counters:\n");
-  # define PRINT(name, type, initial_value) fprintf(stdout, " %-30s = %8d\n", #name, name);
-  FOR_ALL_PERFORMANCE_COUNTERS_DO(PRINT)
-  fprintf(stdout, "\n");
-# undef PRINT
+  
+  FOR_ALL_RANKS(r) {
+    fprintf(stdout, "\tRank %d:\n", r);
+    
+    # define PRINT(name, type, initial_value) fprintf(stdout, "\t %-30s = %8d\n", #name, _all_perf_counters[r]->name);
+
+    FOR_ALL_PERFORMANCE_COUNTERS_DO(PRINT)
+    
+    fprintf(stdout, "\n");
+    
+    # undef PRINT
+  }
+
 }
+
+void Performance_Counters::reset() {
+  if (!Collect_Performance_Counters)
+    return;
+  
+  FOR_ALL_RANKS(r) {
+  
+    # define RESET_ALL_COUNTERS(name, type, initial_value) \
+      _all_perf_counters[r]->name = initial_value;
+  
+    FOR_ALL_PERFORMANCE_COUNTERS_DO(RESET_ALL_COUNTERS)
+  
+    # undef RESET_ALL_COUNTERS
+  
+    OS_Interface::mem_fence(); // STEFAN: I think, I actually want a flush here, but do not see it in the GCC manual
+  }
+}
+
