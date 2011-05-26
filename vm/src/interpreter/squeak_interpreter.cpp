@@ -194,7 +194,7 @@ void Squeak_Interpreter::loadInitialContext() {
     fetchContextRegisters(activeContext(), activeContext_obj());
   }
   else
-    release_baton();
+    unset_running_process();
   reclaimableContextCount = 0;
 }
 
@@ -341,7 +341,7 @@ void Squeak_Interpreter::interpret() {
     }
 # endif
 
-    assert(!do_I_hold_baton() || get_running_process().as_object()->is_process_running());
+    assert(!process_is_scheduled_and_executing() || get_running_process().as_object()->is_process_running());
 
     assert_stored_if_no_proc();
 
@@ -892,10 +892,12 @@ bool Squeak_Interpreter::balancedStackAfterPrimitive(int delta, int primIdx, int
   // primIndex with nArgs args. Delta is 'stackPointer - activeContext' which
   // is a relative measure for the stack pointer
   // (so we don't have to relocate it during the primitive)
-  if (!do_I_hold_baton())
-    return true; // prim gave up baton
+  if (!process_is_scheduled_and_executing())
+    return true; // prim put last executing process to sleep
+  
   if (activeContext() != pre_prim_active_context)
     return true; // prim changed process or context
+  
   switch (primIdx) {
     default: break;
     case 81: case 82: case 83: case 84: case 85: case 86: case 87: case 88:
@@ -1402,7 +1404,7 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
   if (Check_Prefetch)  assert_always(have_executed_currentBytecode);
   storeContextRegisters(activeContext_obj()); // xxxxxx redundant maybe with newActiveContext call in start_running
   aProcess.as_object()->set_suspended_context_of_process(activeContext());
-  release_baton();
+  unset_running_process();
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d, AFTER put_running_process_to_sleep: ", my_rank());
     aProcess.print_process_or_nil(debug_printer);
@@ -1414,7 +1416,7 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
 
 
 void Squeak_Interpreter::yield(const char* why) {
-  if (do_I_hold_baton())
+  if (process_is_scheduled_and_executing())
     assert_external();
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler on %d: pre yield because %s ", my_rank(), why);
@@ -1426,7 +1428,7 @@ void Squeak_Interpreter::yield(const char* why) {
   put_running_process_to_sleep(why);
   assert_registers_stored();
   transfer_to_highest_priority(why);
-  if (Check_Prefetch && do_I_hold_baton()) assert_always(have_executed_currentBytecode);
+  if (Check_Prefetch && process_is_scheduled_and_executing()) assert_always(have_executed_currentBytecode);
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler on %d: post yield because %s ", my_rank(), why);
     get_running_process().as_object()->print_process_or_nil(debug_printer);
@@ -1868,7 +1870,7 @@ void Squeak_Interpreter::internalExecuteNewMethod() {
         printUnbalancedStack(primitiveIndex, primitiveFunctionPointer);
     }
 
-    if (do_I_hold_baton())
+    if (process_is_scheduled_and_executing())
       internalizeIPandSP();
     if (successFlag) {
       browserPluginReturnIfNeeded();
@@ -1984,7 +1986,7 @@ void Squeak_Interpreter::snapshot(bool embedded) {
     lprintf("snapshot: quiesced\n");
     {
       Scheduler_Mutex sm("snapshot prep");
-      if (!do_I_hold_baton()) 
+      if (!process_is_scheduled_and_executing()) 
         transferTo(activeProc, "snapshot prep");
     }
 
@@ -2392,7 +2394,7 @@ void Squeak_Interpreter::multicore_interrupt() {
   multicore_interrupt_check = false;
   assert_method_is_correct(false, "near start of multicore_interrupt");
 
-  if (do_I_hold_baton()) {
+  if (process_is_scheduled_and_executing()) {
     internal_undo_prefetch();
     externalizeIPandSP();
   }
@@ -2427,7 +2429,7 @@ void Squeak_Interpreter::multicore_interrupt() {
 
     mi_cyc_1 += OS_Interface::get_cycle_count() - start;
 
-    while (!do_I_hold_baton()) 
+    while (!process_is_scheduled_and_executing()) 
       try_to_find_a_process_to_run_and_start_running_it();
   } // end safepoint ability true
   internalizeIPandSP();
@@ -2499,7 +2501,7 @@ void Squeak_Interpreter::give_up_CPU_instead_of_spinning(uint32_t& busyWaitCount
 
 
 void Squeak_Interpreter::fixup_localIP_after_being_transferred_to() {
-  if (do_I_hold_baton()) {
+  if (process_is_scheduled_and_executing()) {
     internalizeIPandSP();
     if (Check_Prefetch)  assert_always(have_executed_currentBytecode);
     fetchNextBytecode(); // because normally transferTo is called as primitive, and caller does this
@@ -2625,15 +2627,17 @@ void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
 void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
   assert_registers_stored();
   assert(Scheduler_Mutex::is_held());
+  
   if (newProc == roots.nilObj) {
     // print_process_lists(debug_printer);
-    release_baton();
+    unset_running_process();
     return;
   }
+  
   Object_p newProc_obj = newProc.as_object();
   if (newProc_obj->is_process_running()) {
-    lprintf("releasing baton in start_running\n");
-    release_baton();
+    lprintf("releasing/unset currently running process in start_running\n");
+    unset_running_process();
     multicore_interrupt_check = true; // so we stop running
     return;
   }
@@ -2655,7 +2659,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
 void Squeak_Interpreter::newActiveContext(Oop aContext, Object_p aContext_obj) {
   assert(aContext_obj->as_oop() == aContext);
   // internalNewActiveContext must stay consistent with this
-  if (do_I_hold_baton())
+  if (process_is_scheduled_and_executing())
     storeContextRegisters(activeContext_obj());
   aContext.beRootIfOld();
   assert(aContext != roots.nilObj); // looking for bug with nil ctx, nonnil proc
@@ -2988,18 +2992,22 @@ void Squeak_Interpreter::print_execution_trace() {
 }
 
 
-void Squeak_Interpreter::release_baton() {
+void Squeak_Interpreter::unset_running_process() {
   set_activeContext(roots.nilObj);
-  multicore_interrupt_check = true; // must go into multicore_interrupt to wait for baton
+  multicore_interrupt_check = true; // must go into multicore_interrupt to wait for a new process to execute
+
   assert(    roots.running_process_or_nil == roots.nilObj
          || !roots.running_process_or_nil.as_object()->is_process_running());
+  
   roots.running_process_or_nil = roots.nilObj;
+  
   if (Track_Processes)
     running_process_by_core[my_rank()] = roots.running_process_or_nil;
+  
   assert_registers_stored();
 }
 
-bool Squeak_Interpreter::do_I_hold_baton() {
+bool Squeak_Interpreter::process_is_scheduled_and_executing() {
   assert(activeContext() == roots.nilObj  ||  roots.running_process_or_nil != roots.nilObj);
   return activeContext() != roots.nilObj;
 }
@@ -3011,7 +3019,7 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
   Oop lit;
   int litx;
 
-  if (!do_I_hold_baton())
+  if (!process_is_scheduled_and_executing())
     return;
 
 
@@ -3110,12 +3118,12 @@ void Squeak_Interpreter::receive_initial_interpreter_from_main(Squeak_Interprete
 }
 
 void Squeak_Interpreter::print_method_info(const char* msg) {
-  error_printer->printf("%d on %d: %s, do_I_hold_baton %d, method 0x%x, method_obj 0x%x, localIP 0x%x, instructionPointer 0x%x, activeContext_obj() 0x%x, activeContext().as_object() 0x%x, freeContexts 0x%x\n",
+  error_printer->printf("%d on %d: %s, process_is_scheduled_and_executing %d, method 0x%x, method_obj 0x%x, localIP 0x%x, instructionPointer 0x%x, activeContext_obj() 0x%x, activeContext().as_object() 0x%x, freeContexts 0x%x\n",
                         increment_print_sequence_number(),
-                        my_rank(), msg, do_I_hold_baton(), method().bits(), (Object*)method_obj(), _localIP, _instructionPointer,
+                        my_rank(), msg, process_is_scheduled_and_executing(), method().bits(), (Object*)method_obj(), _localIP, _instructionPointer,
                         (Object*)activeContext_obj(), activeContext().as_untracked_object_ptr(),
                         roots.freeContexts.bits());
-  if (do_I_hold_baton()) {
+  if (process_is_scheduled_and_executing()) {
     method_obj()->print_compiled_method(error_printer);
     error_printer->nl();
   }
@@ -3126,7 +3134,7 @@ void Squeak_Interpreter::preGCAction_here(bool fullGC) {
   if (check_many_assertions) activeContext_obj()->check_all_IPs_in_chain();
   const bool print = false;
   if (print) print_method_info(fullGC ? "pre preGCAction_here fullGC" : "pre preGCAction_here !fullGC");
-  if (do_I_hold_baton())
+  if (process_is_scheduled_and_executing())
     storeContextRegisters(activeContext_obj());
   if (fullGC)   flushInterpreterCaches();
   if (print) print_method_info(fullGC ? "post preGCAction_here fullGC" : "pre preGCAction_here !fullGC");
@@ -3136,7 +3144,7 @@ void Squeak_Interpreter::preGCAction_here(bool fullGC) {
 void Squeak_Interpreter::postGCAction_here(bool fullGC) {
   const bool print = false;
   sync_with_roots();
-  if (do_I_hold_baton()) {
+  if (process_is_scheduled_and_executing()) {
     // next line is for assertions only, 
     // because none of the routines called below can receive a message -- dmu 7/12/10
     Safepoint_Ability sa(false); 

@@ -771,7 +771,7 @@ public:
 
     internalFindNewMethod();
     internalExecuteNewMethod();
-    if (do_I_hold_baton()) // xxxxxxx predicate only needed to satisfy assertions?
+    if (process_is_scheduled_and_executing()) // xxxxxxx predicate only needed to satisfy assertions?
       fetchNextBytecode();
   }
 
@@ -1388,13 +1388,16 @@ public:
   bool verify_active_context_through_internal_stack_top();
   void let_one_through();
  public:
-  // TODO: Rename baton related functions into something like: currently_interpreting
-  void release_baton();
-  bool do_I_hold_baton();
+
+#pragma mark -
+#pragma mark Scheduling
+  
+  void unset_running_process();
+  bool process_is_scheduled_and_executing();
 
  private:
   void check_for_multicore_interrupt() {
-    assert(multicore_interrupt_check  ||  do_I_hold_baton());
+    assert(multicore_interrupt_check  ||  process_is_scheduled_and_executing());
     // xxxxxx If set multicore_interrupt_check whenever yield_requested() 
     //        will be true, could speed up this test.
     // -- dmu 4/09
@@ -1405,6 +1408,9 @@ public:
   void multicore_interrupt();
   void try_to_find_a_process_to_run_and_start_running_it();
   void minimize_scheduler_mutex_load_by_spinning_till_there_might_be_a_runnable_process();
+
+#pragma mark -
+  
   void give_up_CPU_instead_of_spinning(uint32_t&);
   void fixup_localIP_after_being_transferred_to();
  private:
@@ -1437,12 +1443,12 @@ public:
   }
   
   void assert_method_is_correct_internalizing(bool will_be_fetched, const char* where) {
-    if ((Always_Check_Method_Is_Correct  || check_assertions) && do_I_hold_baton())
+    if ((Always_Check_Method_Is_Correct  || check_assertions) && process_is_scheduled_and_executing())
       assert_always_method_is_correct_internalizing(will_be_fetched, where);
   }
   
   void assert_always_method_is_correct_internalizing(bool will_be_fetched, const char* where) {
-    if (do_I_hold_baton()) {
+    if (process_is_scheduled_and_executing()) {
       Safepoint_Ability sa(false);
       internalizeIPandSP();
       check_method_is_correct(will_be_fetched, where);
