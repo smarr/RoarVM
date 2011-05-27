@@ -63,14 +63,14 @@ void Performance_Counters::print() {
   FOR_ALL_RANKS(r) {
     fprintf(stdout, "\tRank %d:\n", r);
     
-    # define PRINT(name, type, initial_value) fprintf(stdout, "\t %-30s = %8d\n", #name, _all_perf_counters[r]->name);
+    # define PRINT(name, type, initial_value) fprintf(stdout, "\t %-30s = %10d\n", #name, _all_perf_counters[r]->name);
 
     FOR_ALL_PERFORMANCE_COUNTERS_DO(PRINT)
     
     # undef PRINT
 
     
-    # define PRINT(name, type, initial_value) fprintf(stdout, "\t %-30s = %8lld\n", #name, _all_perf_counters[r]->name);
+    # define PRINT(name, type, initial_value) fprintf(stdout, "\t %-30s = %10lld\n", #name, _all_perf_counters[r]->name);
     
     FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(PRINT)
     
