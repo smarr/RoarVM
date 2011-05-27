@@ -82,12 +82,12 @@ public:
   # define DECLARE_COUNTER_METHODS(name, type, initial_value) \
     FORCE_INLINE void count_##name() const {} \
     \
-    static FORCE_INLINE void count_static_##name() {};
+    static FORCE_INLINE void count_##name##_static() {};
   
   # define DECLARE_ACCUMULATOR_METHODS(name, type, initial_value) \
     FORCE_INLINE void add_##name(type) const {} \
     \
-    static void add_##name##_static() {}
+    static void add_##name##_static(type value) {}
 
 # endif  
 
