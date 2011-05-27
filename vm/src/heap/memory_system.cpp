@@ -122,7 +122,7 @@ void Memory_System::fullGC(const char* why) {
   if (interp->am_receiving_objects_from_snapshot())
     fatal("cannot gc now");
   
-  interp->perf_counter.count_full_gc();
+  PERF_CNT(interp, count_full_gc());
 
   lprintf("about to fullGC: %s\n", why);
   global_GC_values->inter_gc_ms = global_GC_values->mutator_start_time ? interp->ioWhicheverMSecs() - global_GC_values->mutator_start_time : 0;

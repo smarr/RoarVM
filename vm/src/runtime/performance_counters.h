@@ -10,6 +10,20 @@
  ******************************************************************************/
 
 
+#pragma mark Global Macros
+
+# if Collect_Performance_Counters
+  // use like PERF_CNT(The_Squeak_Interpreter(), add_interpret_cycles(foo - start));
+  # define PERF_CNT(interp, counter_or_accumulator_call) interp->perf_counter.counter_or_accumulator_call
+  
+# else
+  # define PERF_CNT(interp, counter_or_accumulator_call)
+
+# endif  // Collect_Performance_Counters
+
+#pragma mark -
+
+
 class Performance_Counters {
 private:
 

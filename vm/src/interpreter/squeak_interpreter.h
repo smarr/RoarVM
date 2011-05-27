@@ -557,7 +557,7 @@ public:
     if (!Dont_Trace_Bytecode_Fetching)
       traceFetchNextBytecode(currentBytecode);
     
-    perf_counter.count_bytecodes_executed();
+    PERF_CNT(this, count_bytecodes_executed());
   }
 
   u_char fetchByte() {

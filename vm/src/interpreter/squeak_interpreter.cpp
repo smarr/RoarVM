@@ -338,7 +338,7 @@ void Squeak_Interpreter::interpret() {
 
     assert_stored_if_no_proc();
 
-    perf_counter.add_interpret_cycles(OS_Interface::get_cycle_count() - start);
+    PERF_CNT(this, add_interpret_cycles(OS_Interface::get_cycle_count() - start));
   }
   internal_undo_prefetch();
 	externalizeIPandSP();
@@ -1824,7 +1824,7 @@ void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool defer) {
 
 
 void Squeak_Interpreter::internalExecuteNewMethod() {
-  perf_counter.count_methods_executed();
+  PERF_CNT(this, count_methods_executed());
   
   assert_stored_if_no_proc();
   if (primitiveIndex  > 0) {
@@ -2377,13 +2377,13 @@ void Squeak_Interpreter::multicore_interrupt() {
     return;
   
   /* Record some performance counters */
-  perf_counter.count_multicore_interrupts();
+  PERF_CNT(this, count_multicore_interrupts());
   if (multicore_interrupt_check)
-    perf_counter.count_multicore_interrupt_check();
+    PERF_CNT(this, count_multicore_interrupt_check());
   if (yield_requested())
-    perf_counter.count_yield_requested();
+    PERF_CNT(this, count_yield_requested());
   if (Message_Queue::are_data_available(my_core()))
-    perf_counter.count_data_available();
+    PERF_CNT(this, count_data_available());
 
   const u_int64 start = OS_Interface::get_cycle_count();
 
@@ -2398,17 +2398,18 @@ void Squeak_Interpreter::multicore_interrupt() {
   
   {
     Safepoint_Ability sa(true);
+    
     move_mutated_read_mostly_objects();
+    PERF_CNT(this, add_mi_cyc_1a(OS_Interface::get_cycle_count() - start));
 
-    perf_counter.add_mi_cyc_1a(OS_Interface::get_cycle_count() - start);
     Message_Statics::process_any_incoming_messages(false);
+    PERF_CNT(this, add_mi_cyc_1a1(OS_Interface::get_cycle_count() - start));
 
-    perf_counter.add_mi_cyc_1a1(OS_Interface::get_cycle_count() - start);
     assert_method_is_correct_internalizing(true, "after processing incoming messages");
-    perf_counter.add_mi_cyc_1a2(OS_Interface::get_cycle_count() - start);
+    PERF_CNT(this, add_mi_cyc_1a2(OS_Interface::get_cycle_count() - start));
+    
     safepoint_tracker->spin_if_safepoint_requested();
-
-    perf_counter.add_mi_cyc_1b(OS_Interface::get_cycle_count() - start);
+    PERF_CNT(this, add_mi_cyc_1b(OS_Interface::get_cycle_count() - start));
     
     if (emergency_semaphore_signal_requested) {
       Safepoint_Ability sa(false);
@@ -2424,7 +2425,7 @@ void Squeak_Interpreter::multicore_interrupt() {
       assert_method_is_correct_internalizing(true, "after fixup_localIP_after_being_transferred_to");
     }
 
-    perf_counter.add_mi_cyc_1(OS_Interface::get_cycle_count() - start);
+    PERF_CNT(this, add_mi_cyc_1(OS_Interface::get_cycle_count() - start));
 
     while (!process_is_scheduled_and_executing()) 
       try_to_find_a_process_to_run_and_start_running_it();
@@ -2433,7 +2434,7 @@ void Squeak_Interpreter::multicore_interrupt() {
   if (Check_Prefetch) assert_always(have_executed_currentBytecode);
   fetchNextBytecode(); // redo prefetch
 
-  perf_counter.add_multicore_interrupt_cycles(OS_Interface::get_cycle_count() - start);
+  PERF_CNT(this, add_multicore_interrupt_cycles(OS_Interface::get_cycle_count() - start));
   
   assert(is_ok_to_run_on_me());
 }
@@ -2557,7 +2558,7 @@ void Squeak_Interpreter::dispatchFunctionPointer(fn_t f, bool on_main) {
   ++recurse;
 # endif
 
-  perf_counter.count_primitive_invokations();
+  PERF_CNT(this, count_primitive_invokations());
   
   if (on_main) {
     The_Interactions.run_primitive(Logical_Core::main_rank, f);
