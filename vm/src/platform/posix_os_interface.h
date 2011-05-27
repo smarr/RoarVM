@@ -52,12 +52,12 @@ public:
   static inline u_int64 get_cycle_count() {
     uint64_t result;
     
-    if (Dont_Count_Cycles)
-      return 0;
-    else {
+    if (Count_Cycles) {
       asm volatile("rdtsc" : "=A" (result));
+      return result;
     }
-    return result;
+    else
+      return 0;
   }
   
   

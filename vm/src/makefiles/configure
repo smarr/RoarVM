@@ -213,7 +213,7 @@ fi
 
 if [ $PERF_COUNTERS -eq 1 ]
 then
-    CONFIG_FLAGS="$CONFIG_FLAGS -DCollect_Performance_Counters=1"
+    CONFIG_FLAGS="$CONFIG_FLAGS -DCollect_Performance_Counters=1 -DCount_Cycles=1"
 fi
 
 if [ $USE_TILERA -eq 1 ]

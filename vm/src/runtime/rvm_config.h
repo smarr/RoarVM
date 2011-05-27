@@ -102,7 +102,7 @@
   template(Force_Direct_Timeout_Timer_List_Head_Access) \
   template(Omit_PThread_Locks) \
   template(Use_Spin_Locks) \
-  template(Dont_Count_Cycles) \
+  template(Count_Cycles) \
   \
   template(Extra_Preheader_Word_Experiment) \
   template(Use_BufferedChannelDebug) \
@@ -334,13 +334,13 @@
 # define Dont_Dump_Primitive_Cycles 1
 # endif
 
-# ifndef Dont_Count_Cycles
-# define Dont_Count_Cycles 1 //xxxxxxx was 1, when I needed to find a deadlock -- dmu 5/10, but it slows image loading -- dmu 6/10
+# ifndef Count_Cycles
+# define Count_Cycles 0 //xxxxxxx was 0, when I needed to find a deadlock -- dmu 5/10, but it slows image loading -- dmu 6/10
 # endif
 
 # if Dump_Bytecode_Cycles
-# undef Dont_Count_Cycles
-# define Dont_Count_Cycles 0
+# undef  Count_Cycles
+# define Count_Cycles 1
 # endif
 
 
