@@ -24,7 +24,7 @@ void Shared_Memory_Message_Queue_Per_Sender::buffered_send_buffer(void* p, int s
 void* Shared_Memory_Message_Queue_Per_Sender::buffered_receive_from_anywhere(bool wait, Logical_Core** buffer_owner, Logical_Core* const me) {
   do {
     size_t size;
-    for (size_t i = 0; i < Max_Number_Of_Cores; i++) {
+    FOR_ALL_OTHER_RANKS(i) {
       if (me->message_queue.buffered_channels[i].channel.hasData()) {
         *buffer_owner = me;
         return (void*)me->message_queue.buffered_channels[i].channel.receive(size);
