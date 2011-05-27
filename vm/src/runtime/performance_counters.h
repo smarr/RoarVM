@@ -12,6 +12,10 @@
 
 class Performance_Counters {
 private:
+
+  static Performance_Counters* _all_perf_counters[Max_Number_Of_Cores];
+  
+#pragma mark Standard Counters
   
   # define FOR_ALL_PERFORMANCE_COUNTERS_DO(template) \
     template(acquire_safepoint,           int, 0) \
@@ -22,17 +26,35 @@ private:
     template(methods_executed,            int, 0) \
     template(primitive_invokations,       int, 0) \
     template(bytecodes_executed,          int, 0) \
+    \
+    /* Stats from within Squeak_Interpreter::multicore_interrupt() */ \
     template(multicore_interrupts,        int, 0) \
+    template(multicore_interrupt_check,   int, 0) \
+    template(yield_requested,             int, 0) \
+    template(data_available,              int, 0) \
   
+#pragma mark Accumulators for other Values
   
-  # define DECLARE_COUNTER_MEMBERS(name, type, initial_value) \
-      type name;
+  # define FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(template) \
+    template(interpret_cycles,            u_int64, 0LL) \
+    template(multicore_interrupt_cycles,  u_int64, 0LL) \
+    template(mi_cyc_1,                    u_int64, 0LL) \
+    template(mi_cyc_1a,                   u_int64, 0LL) \
+    template(mi_cyc_1a1,                  u_int64, 0LL) \
+    template(mi_cyc_1a2,                  u_int64, 0LL) \
+    template(mi_cyc_1b,                   u_int64, 0LL) \
 
-  FOR_ALL_PERFORMANCE_COUNTERS_DO(DECLARE_COUNTER_MEMBERS)
-  
-  # undef DECLARE_COUNTER_MEMBERS
+#pragma mark -
 
-  static Performance_Counters* _all_perf_counters[Max_Number_Of_Cores];
+  # define DECLARE_MEMBERS(name, type, initial_value) \
+    type name;
+  
+  FOR_ALL_PERFORMANCE_COUNTERS_DO(DECLARE_MEMBERS)
+
+  FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(DECLARE_MEMBERS)
+  
+  # undef DECLARE_MEMBERS
+
   
 public:
   
@@ -46,8 +68,14 @@ public:
       name += 1; \
     } \
     \
-    static void count_static_##name();
+    static void count_##name##_static();
 
+  #define DECLARE_ACCUMULATOR_METHODS(name, type, initial_value) \
+    FORCE_INLINE void add_##name(type value) {\
+      name += value; \
+    } \
+    \
+    static void add_##name##_static(type value);
   
 # else
 
@@ -55,16 +83,45 @@ public:
     FORCE_INLINE void count_##name() const {} \
     \
     static FORCE_INLINE void count_static_##name() {};
+  
+  # define DECLARE_ACCUMULATOR_METHODS(name, type, initial_value) \
+    FORCE_INLINE void add_##name(type) const {} \
+    \
+    static void add_##name##_static() {}
+
+# endif  
 
   
-# endif  
+  FOR_ALL_PERFORMANCE_COUNTERS_DO    (DECLARE_COUNTER_METHODS)
+  FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(DECLARE_ACCUMULATOR_METHODS)
   
-  FOR_ALL_PERFORMANCE_COUNTERS_DO(DECLARE_COUNTER_METHODS)
   
   # undef DECLARE_COUNTER_METHODS
+  # undef DECLARE_ACCUMULATOR_METHODS
   
+  
+  # define DECLARE_GETTERS(name, type, initial_value) \
+    type get_##name() const {\
+      return name; \
+    }
+  
+  FOR_ALL_PERFORMANCE_COUNTERS_DO    (DECLARE_GETTERS)
+  FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(DECLARE_GETTERS)
+
+  # undef DECLARE_GETTERS
+  
+
   
   static void print();
-
-  static void reset();  
+  static void reset();
+  
+  void reset_accumulators() {
+    # define INITIALIZE(name, type, initial_value) \
+      name = initial_value;
+    
+    FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(INITIALIZE)
+    
+    # undef INITIALIZE
+  }
+  
 };

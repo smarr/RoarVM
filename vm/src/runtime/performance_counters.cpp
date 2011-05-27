@@ -21,24 +21,34 @@ Performance_Counters::Performance_Counters() {
   _all_perf_counters[Logical_Core::my_rank()] = this;
   
   // Now initialize everything with its initial value
-  # define DECLARE_COUNTER_INITIALIZERS(name, type, initial_value) \
+  # define INITIALIZE(name, type, initial_value) \
     name = initial_value;
   
-  FOR_ALL_PERFORMANCE_COUNTERS_DO(DECLARE_COUNTER_INITIALIZERS)
+  FOR_ALL_PERFORMANCE_COUNTERS_DO(INITIALIZE)
+  FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(INITIALIZE)
   
-  # undef DECLARE_COUNTER_INITIALIZERS
+  # undef INITIALIZE
 }
 
 # if Collect_Performance_Counters
 
 # define IMPL_STATIC_COUNTER_METHODS(name, type, initial_value) \
-  void Performance_Counters::count_static_##name() {\
+  void Performance_Counters::count_##name##_static() {\
     The_Squeak_Interpreter()->perf_counter.count_##name(); \
   }
 
+# define IMPL_STATIC_ACCUMULATOR_METHODS(name, type, initial_value) \
+  void Performance_Counters::add_##name##_static(type value) {\
+    The_Squeak_Interpreter()->perf_counter.add_##name(value); \
+  }
+
+
 FOR_ALL_PERFORMANCE_COUNTERS_DO(IMPL_STATIC_COUNTER_METHODS)
 
+FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(IMPL_STATIC_ACCUMULATOR_METHODS)
+
 # undef IMPL_STATIC_COUNTER_METHODS
+# undef IMPL_STATIC_ACCUMULATOR_METHODS
 
 
 # endif // Collect_Performance_Counters
@@ -57,9 +67,17 @@ void Performance_Counters::print() {
 
     FOR_ALL_PERFORMANCE_COUNTERS_DO(PRINT)
     
-    fprintf(stdout, "\n");
+    # undef PRINT
+
+    
+    # define PRINT(name, type, initial_value) fprintf(stdout, "\t %-30s = %8lld\n", #name, _all_perf_counters[r]->name);
+    
+    FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(PRINT)
     
     # undef PRINT
+
+    fprintf(stdout, "\n");
+    
   }
 
 }

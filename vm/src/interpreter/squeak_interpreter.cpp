@@ -65,11 +65,6 @@ Squeak_Interpreter::Squeak_Interpreter()
   FOR_ALL_FORMERLY_BROADCAST(INIT_FORMERLY_BROADCAST)
   FOR_ALL_HELD_IN_SHARED_MEMORY(INIT_SHARED_MEMORY_VARS)
 
-  interpret_cycles = 0LL;
-  multicore_interrupt_cycles = 0LL;
-  mi_cyc_1 = mi_cyc_1a = mi_cyc_1a1 = mi_cyc_1a2 = mi_cyc_1b = 0LL;
-
-  multicore_interrupt_check_count = yield_request_count = data_available_count = 0;
   doing_primitiveClosureValueNoContextSwitch = false;
 }
 
@@ -343,7 +338,7 @@ void Squeak_Interpreter::interpret() {
 
     assert_stored_if_no_proc();
 
-    interpret_cycles += OS_Interface::get_cycle_count() - start;
+    perf_counter.add_interpret_cycles(OS_Interface::get_cycle_count() - start);
   }
   internal_undo_prefetch();
 	externalizeIPandSP();
@@ -2269,17 +2264,19 @@ Oop Squeak_Interpreter::get_stats(int what_to_sample) {
     PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(safepointRelCycles);
   }
   if (what_to_sample & (1 << SampleValues::interpreterLoopStats)) {
-    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(interpret_cycles);  interpret_cycles = 0LL;
-    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(multicore_interrupt_cycles);  multicore_interrupt_cycles = 0LL;
-    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(mi_cyc_1);   mi_cyc_1 = 0LL;
-    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(mi_cyc_1a);   mi_cyc_1a = 0LL;
-    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(mi_cyc_1a1);   mi_cyc_1a1 = 0LL;
-    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(mi_cyc_1a2);   mi_cyc_1a2 = 0LL;
-    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(mi_cyc_1b);   mi_cyc_1b = 0LL;
+    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_interpret_cycles());
+    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_multicore_interrupt_cycles());
+    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_mi_cyc_1());
+    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_mi_cyc_1a());
+    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_mi_cyc_1a1());
+    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_mi_cyc_1a2());
+    PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_mi_cyc_1b());
 
-    PUSH_POSITIVE_32_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(multicore_interrupt_check_count);  multicore_interrupt_check_count = 0;
-    PUSH_POSITIVE_32_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(yield_request_count);  yield_request_count = 0;
-    PUSH_POSITIVE_32_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(data_available_count);  data_available_count = 0;
+    PUSH_POSITIVE_32_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_multicore_interrupt_check());
+    PUSH_POSITIVE_32_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_yield_requested());
+    PUSH_POSITIVE_32_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(perf_counter.get_data_available());
+    
+    perf_counter.reset_accumulators();
   }
   return  makeArray(s);
 }
@@ -2379,13 +2376,16 @@ void Squeak_Interpreter::multicore_interrupt() {
   if (doing_primitiveClosureValueNoContextSwitch)
     return;
   
+  /* Record some performance counters */
   perf_counter.count_multicore_interrupts();
-  
-  u_int64 start = OS_Interface::get_cycle_count();
+  if (multicore_interrupt_check)
+    perf_counter.count_multicore_interrupt_check();
+  if (yield_requested())
+    perf_counter.count_yield_requested();
+  if (Message_Queue::are_data_available(my_core()))
+    perf_counter.count_data_available();
 
-  if (multicore_interrupt_check)       ++multicore_interrupt_check_count;
-  if (yield_requested())      ++yield_request_count;
-  if (Message_Queue::are_data_available(my_core()))  ++data_available_count;
+  const u_int64 start = OS_Interface::get_cycle_count();
 
 
   multicore_interrupt_check = false;
@@ -2400,15 +2400,15 @@ void Squeak_Interpreter::multicore_interrupt() {
     Safepoint_Ability sa(true);
     move_mutated_read_mostly_objects();
 
-    mi_cyc_1a += OS_Interface::get_cycle_count() - start;
+    perf_counter.add_mi_cyc_1a(OS_Interface::get_cycle_count() - start);
     Message_Statics::process_any_incoming_messages(false);
 
-    mi_cyc_1a1 += OS_Interface::get_cycle_count() - start;
+    perf_counter.add_mi_cyc_1a1(OS_Interface::get_cycle_count() - start);
     assert_method_is_correct_internalizing(true, "after processing incoming messages");
-    mi_cyc_1a2 += OS_Interface::get_cycle_count() - start;
+    perf_counter.add_mi_cyc_1a2(OS_Interface::get_cycle_count() - start);
     safepoint_tracker->spin_if_safepoint_requested();
 
-    mi_cyc_1b += OS_Interface::get_cycle_count() - start;
+    perf_counter.add_mi_cyc_1b(OS_Interface::get_cycle_count() - start);
     
     if (emergency_semaphore_signal_requested) {
       Safepoint_Ability sa(false);
@@ -2424,7 +2424,7 @@ void Squeak_Interpreter::multicore_interrupt() {
       assert_method_is_correct_internalizing(true, "after fixup_localIP_after_being_transferred_to");
     }
 
-    mi_cyc_1 += OS_Interface::get_cycle_count() - start;
+    perf_counter.add_mi_cyc_1(OS_Interface::get_cycle_count() - start);
 
     while (!process_is_scheduled_and_executing()) 
       try_to_find_a_process_to_run_and_start_running_it();
@@ -2433,7 +2433,7 @@ void Squeak_Interpreter::multicore_interrupt() {
   if (Check_Prefetch) assert_always(have_executed_currentBytecode);
   fetchNextBytecode(); // redo prefetch
 
-  multicore_interrupt_cycles += OS_Interface::get_cycle_count() - start;
+  perf_counter.add_multicore_interrupt_cycles(OS_Interface::get_cycle_count() - start);
   
   assert(is_ok_to_run_on_me());
 }

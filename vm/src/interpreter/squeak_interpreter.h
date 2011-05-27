@@ -182,12 +182,9 @@ public:
 
 
  public:
-  u_int64 interpret_cycles, multicore_interrupt_cycles, mi_cyc_1, mi_cyc_1a, mi_cyc_1a1, mi_cyc_1a2, mi_cyc_1b;
-  int multicore_interrupt_check_count, yield_request_count, data_available_count;
-
   void remember_to_move_mutated_read_mostly_object(Oop x);
 
- public:
+  
   Safepoint_Tracker* safepoint_tracker;
   Safepoint_Master_Control* safepoint_master_control;
 
