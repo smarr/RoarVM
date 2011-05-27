@@ -13,6 +13,7 @@ echo_usage () {
     echo "    --enforce-opt       Should be used together with --debug to enforce full optimization"
     echo "    --enable-native-opt Enable optimization for current native architecture"
     echo "    --show-cmds         Show the command invocations"
+    echo "    --enable-perfcnt    Enable internal performance counters"
     echo
     echo "Libraries:"
     echo "    --x11-lib <path>    Path to the X11 lib folder"
@@ -35,6 +36,7 @@ OPT_WORKAROUND=0
 DEBUG=0
 ENFORCE_OPT=0
 SUPPRESS_CMD_OUTPUT=1
+PERF_COUNTERS=0
 #CC=
 #CXX=
 CONFIGURE_ARGS="$@"
@@ -66,6 +68,10 @@ do
     ;;
     --enforce-opt)
       ENFORCE_OPT=1
+      shift 1
+    ;;
+    --enable-perfcnt)
+      PERF_COUNTERS=1
       shift 1
     ;;
     --show-cmds)
@@ -205,6 +211,11 @@ then
     fi
 fi
 
+if [ $PERF_COUNTERS -eq 1 ]
+then
+    CONFIG_FLAGS="$CONFIG_FLAGS -DCollect_Performance_Counters=1"
+fi
+
 if [ $USE_TILERA -eq 1 ]
 then
     echo "TILERA_ROOT=$TILERA_ROOT"   >> Makefile
@@ -213,13 +224,13 @@ then
     echo "OS=Linux"                   >> Makefile
     echo "CONFIG_FLAGS = $CONFIG_FLAGS">>Makefile
 else
-    echo "CONFIG_FLAGS = $CONFIG_FLAGS -DMeasure=0 \
- -DWork_Around_Barrier_Bug=1"         >> Makefile
-    echo "PLATFORM=Intel"             >> Makefile
-    
     # for now suppress a number of known warnings
     # won't work with the tile-cc
     CONFIG_FLAGS="$CONFIG_FLAGS  -fdiagnostics-show-option -Wno-unused-variable -Wno-unused-value"
+
+    echo "CONFIG_FLAGS = $CONFIG_FLAGS -DMeasure=0 \
+ -DWork_Around_Barrier_Bug=1"         >> Makefile
+    echo "PLATFORM=Intel"             >> Makefile
 fi
 
 echo "CC = $CC"                >> Makefile
