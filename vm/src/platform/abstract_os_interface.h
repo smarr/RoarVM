@@ -20,6 +20,7 @@ public:
   static inline void abort() { fatal(); }
   static inline void die(const char* err_msg) { fatal(); }
   static inline void exit()  { fatal(); }
+  static inline void breakpoint() {}
   
   static inline void initialize() {}
   

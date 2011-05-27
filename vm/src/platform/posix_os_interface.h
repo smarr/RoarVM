@@ -35,6 +35,7 @@ public:
     abort();
   }
   static inline void exit()  { ::exit(0); }
+  static inline void breakpoint() { /*asm ("int 3");*/ raise(SIGTRAP); }
   
   static void ensure_Time_Machine_backs_up_run_directory() {}
 
