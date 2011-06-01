@@ -171,7 +171,7 @@ public:
   static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }
   static inline void* rvm_memalign(OS_Heap, int al, int sz) { return rvm_memalign(al, sz); }
   static inline void* malloc_in_mem(int /* alignment */, int size) { return malloc(size); }
-  static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool replicate) { heap = NULL; /* unused on POSIX */ return 0; }
+  static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool /* replicate */) { heap = NULL; /* unused on POSIX */ return 0; }
   
   static void start_threads  (void (*)(/* helper_core_main */), char* /* argv */[]);
   static void start_processes(void (*)(/* helper_core_main */), char* /* argv */[]) { fatal(); }

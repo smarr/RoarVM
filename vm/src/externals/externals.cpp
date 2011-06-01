@@ -17,7 +17,7 @@
 
 char* ioListExternalModule(int) {  unimpExt(); return NULL; }
 
-int setCompilerInitialized(int flagValue) {unimpExt(); return 0; }
+int setCompilerInitialized(int /* flagValue */) { unimpExt(); return 0; }
 
 int (*compilerHooks[])() = {NULL};
 

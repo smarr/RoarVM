@@ -18,7 +18,7 @@ class Thread_Memory_Semantics : public Abstract_Memory_Semantics {
 private:
   static pthread_key_t my_core_key;
   
-  static void _dtor_my_core_key(void* value) {
+  static void _dtor_my_core_key(void* /* value */) {
     pthread_setspecific(my_core_key, NULL);
   }
 

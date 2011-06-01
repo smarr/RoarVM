@@ -16,15 +16,15 @@ class Abstract_Object_Table {
  public:
   Abstract_Object_Table() {}
 
-  Oop allocate_OTE_for_object_in_snapshot(Object*) { fatal(); return Oop::from_bits(0); }
-  int rank_for_adding_object_from_snapshot(Oop) { fatal(); return -1; }
+  Oop allocate_OTE_for_object_in_snapshot(Object*)  { fatal(); return Oop::from_bits(0); }
+  int rank_for_adding_object_from_snapshot(Oop)     { fatal(); return -1; }
 
-  Oop allocate_oop_and_set_backpointer(Object*, int COMMA_DCL_ESB) { fatal(); return Oop::from_bits(0); }
-  Oop allocate_oop_and_set_preheader(Object* obj, int  COMMA_DCL_ESB) { fatal(); return Oop::from_bits(0); }
+  Oop allocate_oop_and_set_backpointer(Object*, int           COMMA_DCL_ESB) { fatal(); return Oop::from_bits(0); }
+  Oop allocate_oop_and_set_preheader(Object* /* obj */, int   COMMA_DCL_ESB) { fatal(); return Oop::from_bits(0); }
 
   void prepare_for_objects(int /* about_how_many */) { }
 
-  void save_baseHeader(Oop, Object*) { fatal(); }
+  void save_baseHeader(Oop, Object*)    { fatal(); }
   void restore_baseHeader(Oop, Object*) { fatal(); }
 
   Object* local_object_for(Oop) { fatal(); return NULL; }
