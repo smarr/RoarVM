@@ -24,8 +24,8 @@ class Multicore_Object_Heap: public Abstract_Object_Heap {
   bool verify_homing(int);
   public:
 
-  int heap_byte_size() { return fatal("innapropriate"); }
-  void* allocate_my_space(int) { return (void*)fatal("innapropriate"); }
+  int heap_byte_size() { fatal("innapropriate"); return -1; }
+  void* allocate_my_space(int) { fatal("innapropriate"); return NULL; }
 
   inline int32 newObjectHash();
   void set_lastHash(int x) { lastHash = x; }
