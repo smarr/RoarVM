@@ -89,11 +89,15 @@ public:
 
 
 public:
-  static void initialize();
-
-  Timeout_Timer(const char* w)                { add_me(get_head()); why = w; stop(); timeout_secs = default_timeout_secs;  timeout_cycles = timeout_secs * cycles_per_sec; who_I_am_waiting_for = any; }
-  Timeout_Timer(const char* w, int ts)        { add_me(get_head()); why = w; stop(); timeout_secs = ts;  timeout_cycles = timeout_secs * cycles_per_sec;  who_I_am_waiting_for = any; }
-  Timeout_Timer(const char* w, int ts, int r) { add_me(get_head()); why = w; stop(); timeout_secs = ts;  timeout_cycles = timeout_secs * cycles_per_sec;  who_I_am_waiting_for = r; }
+  Timeout_Timer(const char* w, int ts = default_timeout_secs, int r = any) {
+    add_me(The_Timeout_Timer_List_Head());
+    why = w;
+    stop();
+    timeout_secs = ts;
+    timeout_cycles = timeout_secs * cycles_per_sec;
+    who_I_am_waiting_for = r;
+  }
+  
   ~Timeout_Timer() { stop(); remove_me(); }
 
   void start() { start_time = OS_Interface::get_cycle_count(); assert(is_running()); }
