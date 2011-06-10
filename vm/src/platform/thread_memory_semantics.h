@@ -49,8 +49,27 @@ public:
   
   static void initialize_interpreter();
   static void initialize_local_interpreter();
+  
+#pragma mark Timeout Timers
+  
+# if Force_Direct_Timeout_Timer_List_Head_Access
+private:
+  static Timeout_Timer_List_Head _head;
+public:
+  static void initialize_timeout_timer()       {}
+  static void initialize_local_timeout_timer() {}
+  
+# else
+private:
+  static void _dtor_timeout(void* local_head);
+public:
+  static pthread_key_t timeout_key;
+  static void initialize_timeout_timer();
+  static void initialize_local_timeout_timer();
+# endif
 
-#pragma mark Miscellaneous 
+
+#pragma mark Miscellaneous
   
 private:
   static pthread_key_t my_core_key;
@@ -58,7 +77,8 @@ private:
   static void _dtor_my_core_key(void* value) {
     pthread_setspecific(my_core_key, NULL);
   }
-  
+
+public:  
   static inline bool cores_are_initialized() { return my_core_key != 0; }
   
   static const size_t max_num_threads_on_threads_or_1_on_processes = Max_Number_Of_Cores;
@@ -117,6 +137,20 @@ class Memory_System;
   inline FORCE_INLINE Squeak_Interpreter* The_Squeak_Interpreter() {
     assert(Thread_Memory_Semantics::interpreter_key !=0 /* ensure it is initialized */);
     return (Squeak_Interpreter*)pthread_getspecific(Thread_Memory_Semantics::interpreter_key);
+  }
+# endif
+
+class Timeout_Timer_List_Head;
+# if Force_Direct_Timeout_Timer_List_Head_Access
+  extern Timeout_Timer_List_Head _timeout_head;
+
+  inline FORCE_INLINE Timeout_Timer_List_Head* The_Timeout_Timer_List_Head() {
+    return &_head;
+  }
+
+# else
+  inline FORCE_INLINE Timeout_Timer_List_Head* The_Timeout_Timer_List_Head() {
+    return (Timeout_Timer_List_Head*)pthread_getspecific(Thread_Memory_Semantics::timeout_key);
   }
 # endif
 

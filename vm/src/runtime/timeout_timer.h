@@ -57,24 +57,6 @@ class Timeout_Timer : public Timeout_Timer_List_Head {
 # endif
 
 
-  // introduced for thread-based version, as abstraction for threadlocal
-  // timeout lists
-  static Timeout_Timer_List_Head* get_head();
-
-# if On_Tilera  || Force_Direct_Timeout_Timer_List_Head_Access
-private:
-  static Timeout_Timer_List_Head _head;
-public:
-  static void init_threadlocal() {}
-  
-# else
-private:
-  static void _dtor_threadlocal(void* local_head);
-  static pthread_key_t threadlocal_head;
-public:
-  static void init_threadlocal();
-# endif
-
   u_int64 start_time;
   int timeout_secs;
   u_int64 timeout_cycles;
@@ -112,7 +94,7 @@ public:
   static void restart_all();
 
 # define FOR_ALL_TIMEOUT_TIMERS(p) \
-  Timeout_Timer_List_Head* head = get_head(); \
+  Timeout_Timer_List_Head* head = The_Timeout_Timer_List_Head(); \
   for ( Timeout_Timer* p  = (Timeout_Timer*)head->next;  \
                        p != (Timeout_Timer*)head; \
                        p  = (Timeout_Timer*)p->next)

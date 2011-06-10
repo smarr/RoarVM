@@ -336,7 +336,7 @@ int MAIN(int argc, char *argv[]) {
 
   OS_Interface::initialize();
 
-  Timeout_Timer::initialize();
+  Memory_Semantics::initialize_timeout_timer();
   Memory_Semantics::initialize_memory_system();
   
 

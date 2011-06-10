@@ -14,8 +14,8 @@
 
 # include "headers.h"
 
-pthread_key_t Thread_Memory_Semantics::my_core_key = 0;
 
+#pragma mark Memory System
 
 # if !Replicate_PThread_Memory_System
   Memory_System _memory_system;
@@ -40,6 +40,8 @@ pthread_key_t Thread_Memory_Semantics::my_core_key = 0;
   }
 
 #   endif
+
+#pragma mark Interpreter
 
 # if Force_Direct_Squeak_Interpreter_Access
   Squeak_Interpreter _interpreter;
@@ -67,6 +69,32 @@ pthread_key_t Thread_Memory_Semantics::my_core_key = 0;
 # endif // Force_Direct_Squeak_Interpreter_Access
 
 
+#pragma mark Timeout Timers
+
+# if !Force_Direct_Timeout_Timer_List_Head_Access
+  pthread_key_t Thread_Memory_Semantics::timeout_key;
+
+  void Thread_Memory_Semantics::initialize_timeout_timer() {
+    timeout_key = 0;
+    pthread_key_create(&timeout_key, _dtor_timeout);
+  }
+
+  void Thread_Memory_Semantics::_dtor_timeout(void* local_head) {
+    Timeout_Timer_List_Head* head = (Timeout_Timer_List_Head*)local_head;
+    delete head;
+  }
+
+  void Thread_Memory_Semantics::initialize_local_timeout_timer() {
+    Timeout_Timer_List_Head* head = new Timeout_Timer_List_Head();
+    pthread_setspecific(timeout_key, head);
+  }
+# endif // !Force_Direct_Timeout_Timer_List_Head_Access
+
+
+#pragma mark Miscellaneous
+
+pthread_key_t Thread_Memory_Semantics::my_core_key = 0;
+
 void Thread_Memory_Semantics::initialize_logical_cores() {
   my_core_key = 0;
   pthread_key_create(&my_core_key, _dtor_my_core_key);
@@ -88,7 +116,7 @@ void Thread_Memory_Semantics::initialize_local_logical_core() {
 
 void Thread_Memory_Semantics::initialize_local_logical_core(int rank) {
   pthread_setspecific(my_core_key, &logical_cores[rank]);
-  Timeout_Timer::init_threadlocal();
+  initialize_local_timeout_timer();
   if (!Logical_Core::running_on_main())
     initialize_local_interpreter(); // must precede argument processing
   initialize_local_memory_system();
