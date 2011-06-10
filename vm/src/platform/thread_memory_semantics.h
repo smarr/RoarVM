@@ -15,13 +15,9 @@
 # if !On_Tilera
 
 class Thread_Memory_Semantics : public Abstract_Memory_Semantics {
-private:
-  static pthread_key_t my_core_key;
-  
-  static void _dtor_my_core_key(void* value) {
-    pthread_setspecific(my_core_key, NULL);
-  }
 
+#pragma mark Memory System
+  
 // It is not necessary to replicate the memory system in shared-memory
 // environments, this is the standard case for the RVM.
 // However, to have a version with equal functionallity, this flag can be
@@ -36,6 +32,9 @@ public:
 public:
   static void initialize_memory_system();
   static void initialize_local_memory_system();
+
+
+#pragma mark Interpreter
   
 # if !Force_Direct_Squeak_Interpreter_Access
   // For test it can be enforced to use the same strategy as for processes
@@ -50,6 +49,15 @@ public:
   
   static void initialize_interpreter();
   static void initialize_local_interpreter();
+
+#pragma mark Miscellaneous 
+  
+private:
+  static pthread_key_t my_core_key;
+  
+  static void _dtor_my_core_key(void* value) {
+    pthread_setspecific(my_core_key, NULL);
+  }
   
   static inline bool cores_are_initialized() { return my_core_key != 0; }
   
@@ -80,6 +88,9 @@ public:
       
   static inline bool is_using_threads() { return true; }
 };
+
+#pragma mark -
+#pragma mark Global Accessor Functions
 
 class Memory_System;
 # if  !Replicate_PThread_Memory_System
