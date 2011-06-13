@@ -30,6 +30,7 @@ void* Shared_Memory_Message_Queue_Per_Sender::buffered_receive_from_anywhere(boo
         return (void*)me->message_queue.buffered_channels[i].channel.receive(size);
       }
     }
+    OS_Interface::mem_fence();
   }
   while (wait);
   *buffer_owner = NULL;
