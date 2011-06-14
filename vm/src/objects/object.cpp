@@ -166,7 +166,9 @@ Oop Object::name_of_class_or_metaclass(bool* is_meta) {
 
 Oop Object::positive32BitIntegerFor(u_int32 integerValue) {
   // "Note - integerValue is interpreted as POSITIVE, eg, as the result of Bitmap>at:, or integer>bitAnd:."
-  if ((int)integerValue >= 0  &&  Oop::isIntegerValue(integerValue))
+  // Changed test below from integerValue >= 0  to !(integerValue & 0xc0000000 because 
+  // value of 0x40000000 when shifted up will yield a negative number -- dmu 6/13/11
+  if (!(integerValue & 0xc0000000)  &&  Oop::isIntegerValue(integerValue))
     return Oop::from_int(integerValue);
   Object_p clpi = The_Squeak_Interpreter()->splObj_obj(Special_Indices::ClassLargePositiveInteger);
   Object_p newLargeInteger =
