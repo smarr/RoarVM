@@ -257,7 +257,7 @@
 # endif
 
 # ifndef Use_CMem
-#  define Use_CMem 0
+#  define Use_CMem 1
 # endif
 
 // This flag is for debugging. -- dmu 6/10

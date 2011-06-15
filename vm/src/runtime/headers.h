@@ -37,6 +37,7 @@
 # include <errno.h>
 
 # if On_Tilera
+#  include <tmc/mem.h>
 #  include <asm/page.h>
 #  include <arch/sim.h>
 #  include <ilib.h>
@@ -44,7 +45,6 @@
 #  include <arch/udn.h> 
 #  if Multiple_Tileras
 #    include <tilepci.h>
-#    include <asm/cache.h>
 #  endif
 
 #  if Use_CMem

@@ -103,10 +103,15 @@ public:
 # if Use_CMem
   // Named rvm_?alloc_shared since Tilera headers are using macros with the same name
   static inline void* rvm_malloc_shared(size_t sz) {
+    rvm_malloc_shared_init(); // called by static ctor, so need to do it here, sigh
     return tmc_cmem_malloc(sz);
   }
   static inline void* rvm_calloc_shared(size_t num_members, size_t mem_size)  {
+    rvm_malloc_shared_init(); // called by static ctor, so need to do it here, sigh
     return tmc_cmem_calloc(num_members, mem_size);
+  }
+  static inline void* rvm_malloc_shared_init() {  
+    abort_if_error("tmc_cmem_init failed", tmc_cmem_init(0)); 
   }
 # else
   static inline void* rvm_malloc_shared(size_t sz) {
@@ -115,6 +120,7 @@ public:
   static inline void* rvm_calloc_shared(size_t num_members, size_t mem_size)  {
     return calloc_shared(num_members, mem_size);
   }
+  static inline void* rvm_malloc_shared_init() {}
 # endif
   
   typedef ilibHeap OS_Heap;
