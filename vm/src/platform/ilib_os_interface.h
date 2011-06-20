@@ -101,6 +101,15 @@ public:
   static inline uint32_t population_count(uint32_t x) { return __insn_pcnt(x); }
   
 # if Use_CMem
+  // About tmc_cmem_init:
+  // It would be more sensible to call it indirectly from main, but static constructors
+  // run before main, so that won't work.
+  // It might seem better to only call it on the first allocation, which would require this code
+  // to keep and test a static flag. However, the Tilera documentation implies that the tmc_cmem_init
+  // routine itself handles this case, so why complicate our code to do it, too?
+  // See tile64/doc/html/application_libraries_reference/index.html
+  
+  
   // Named rvm_?alloc_shared since Tilera headers are using macros with the same name
   static inline void* rvm_malloc_shared(size_t sz) {
     rvm_malloc_shared_init(); // called by static ctor, so need to do it here, sigh
