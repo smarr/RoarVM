@@ -791,7 +791,7 @@ void Squeak_Interpreter::findNewMethodInClass(Oop klass) {
 
 Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
   assert(safepoint_ability->is_able()); // need to be able to allocate message object without deadlock
-  Object_p currentClass_obj = NULL;
+  Object_p currentClass_obj = (Object_p)NULL;
   for (  Oop currentClass = lkupClass;
          currentClass != roots.nilObj;
        currentClass = currentClass_obj->superclass()) {
@@ -2098,7 +2098,7 @@ Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_proces
 
     Oop        proc = first_proc;
     Object_p proc_obj = proc.as_object();
-    Object_p prior_proc_obj = NULL;
+    Object_p prior_proc_obj = (Object_p)NULL;
     for (;;)  {
       if (verbose) {
         debug_printer->printf("on %d: find_and_move_to_end_highest_priority_non_running_process proc: ",
