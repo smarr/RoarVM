@@ -29,12 +29,12 @@
 class POSIX_OS_Interface : public Abstract_OS_Interface {
 public:
   
-  static inline void abort() { ::abort(); }
-  static inline void die(const char* err_msg) {
+  static inline void abort() __attribute__((noreturn)) { ::abort(); }
+  static inline void die(const char* err_msg) __attribute__((noreturn)) {
     warnx("%s", err_msg);
     abort();
   }
-  static inline void exit()  { ::exit(0); }
+  static inline void exit() __attribute__((noreturn))  { ::exit(0); }
   static inline void breakpoint() { /*asm ("int 3");*/ raise(SIGTRAP); }
   
   static void ensure_Time_Machine_backs_up_run_directory() {}
@@ -171,7 +171,7 @@ public:
   static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }
   static inline void* rvm_memalign(OS_Heap, int al, int sz) { return rvm_memalign(al, sz); }
   static inline void* malloc_in_mem(int /* alignment */, int size) { return malloc(size); }
-  static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool replicate) { heap = NULL; /* unused on POSIX */ return 0; }
+  static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool /* replicate */) { heap = NULL; /* unused on POSIX */ return 0; }
   
   static void start_threads  (void (*)(/* helper_core_main */), char* /* argv */[]);
   static void start_processes(void (*)(/* helper_core_main */), char* /* argv */[]) { fatal(); }

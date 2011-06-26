@@ -39,16 +39,16 @@ class Abstract_Object_Heap {
   // make these static as an optimization for how
 
 
-  static void check_store( Oop* p ) {
+  static void check_store( Oop* /* p */) {
     // gc
   }
   void check_multiple_stores_for_generations_only( Oop dsts[], oop_int_t n);
   void multistore( Oop* dst, Oop* src, oop_int_t n);
   void multistore( Oop* dst, Oop  src, oop_int_t n);
   void multistore( Oop* dst, Oop* end, Oop src);
-  static void record_class_header(Object* obj, Oop klass) { if (klass.is_new()) unimplemented();  }
+  static void record_class_header(Object* /* obj */, Oop klass) { if (klass.is_new()) unimplemented();  }
 
-  static void possibleRootStore(Oop holder, Oop contents) { /*unimplemented*/ }
+  static void possibleRootStore(Oop /* holder */, Oop /* contents */) { /*unimplemented*/ }
   static void clearRootsTable() { lprintf("no clearRootsTable()\n"); }
 
 

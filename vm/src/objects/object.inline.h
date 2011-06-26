@@ -239,7 +239,7 @@ inline Oop  Object::fetchPointer(oop_int_t fieldIndex) {
 }
 
 
-inline void Object::catch_stores_of_method_in_home_ctxs(Oop* addr, int n,  Oop x) {
+inline void Object::catch_stores_of_method_in_home_ctxs(Oop* /* addr */, int /* n */,  Oop /* x */) {
 # if Extra_OTE_Words_for_Debugging_Block_Context_Method_Change_Bug
   if (n != Object_Indices::MethodIndex)  return;
   if (get_count_of_blocks_homed_to_this_method_ctx() <= 0)   return;
@@ -727,7 +727,7 @@ inline Oop Object::get_original_block_IP() {
 }
 
 
-inline void Object::set_count_of_blocks_homed_to_this_method(oop_int_t x) {
+inline void Object::set_count_of_blocks_homed_to_this_method(oop_int_t /* x */) {
 # if Extra_OTE_Words_for_Debugging_Block_Context_Method_Change_Bug
   The_Memory_System()->object_table->set_dbg_t(as_oop(), x);
 # endif

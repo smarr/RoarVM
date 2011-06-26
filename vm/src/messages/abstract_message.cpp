@@ -28,7 +28,7 @@ int abstractMessage_class::compute_checksum() {
 
 bool abstractMessage_class::should_ack(bool has_been_handled, int receiver_rank) {
   switch (get_ack_setting()) {
-    default:                          return fatal("???");
+    default:                          { fatal("???"); return false; }
     case no_ack:                      return false;
     case post_ack_for_correctness:    return sender != receiver_rank  &&  has_been_handled;
   }

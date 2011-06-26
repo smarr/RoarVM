@@ -38,7 +38,7 @@
 class Debug_Store_Checks {
   public:
   
-  static void debug_store_check(const oop_int_t* addr, oop_int_t contents) {
+  static void debug_store_check(const oop_int_t* /* addr */, oop_int_t /* contents */) {
     // your code here
   }
   

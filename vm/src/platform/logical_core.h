@@ -29,9 +29,9 @@ public:
     coordinate.initialize(rank);
   }
   
-  inline int  rank()      const { assert(this != NULL); return _rank; }
-  inline int  rank_mask() const { assert(this != NULL); return _rank_mask; }
-  inline bool is_main()   const { return main_rank == _rank; }
+  inline int      rank()      const { assert(this != NULL); return _rank; }
+  inline u_int64  rank_mask() const { assert(this != NULL); return _rank_mask; }
+  inline bool     is_main()   const { return main_rank == _rank; }
   
   void print_string(char* buf, int buf_size) {
     char coord[16] = { 0 };

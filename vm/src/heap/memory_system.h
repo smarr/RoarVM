@@ -327,8 +327,9 @@ public:
     assert(contains(p));
     if (is_address_read_mostly(p))  pre_cohere(p, nbytes);
   }
-  void enforce_coherence_after_store_into_object_by_interpreter(void* p, int nbytes) {
-  }
+  
+  void enforce_coherence_after_store_into_object_by_interpreter(void* /* p */, int /* nbytes */) {}
+  
   void enforce_coherence_after_store(void* p, int nbytes)  {
     assert(contains(p));
     if (is_address_read_mostly(p)) post_cohere(p, nbytes);

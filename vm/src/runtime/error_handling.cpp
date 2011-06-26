@@ -14,7 +14,7 @@
 
 #include "headers.h"
 
-int assert_failure(const char* func, const char* file, const int line, const char* pred, const char* msg) {
+void assert_failure(const char* func, const char* file, const int line, const char* pred, const char* msg) {
    const char* safe_func = On_Tilera ? "<unknown>" : func;
 
   if (Memory_Semantics::cores_are_initialized())
@@ -25,21 +25,19 @@ int assert_failure(const char* func, const char* file, const int line, const cha
                           msg, file, line, safe_func, pred, getpid());
 
   OS_Interface::abort();
-  return 0;
 }
 
-int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void* a, void* b) {
+void assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void* a, void* b) {
   static char buf[10000];   // threadsafe? does not really matter here anymore...
   error_printer->printf("%s: file %s, line %d, function %s, predicate %s, pid %d, 0x%x != 0x%x",
           msg, file, line, func, pred, getpid(), a, b);
   error_printer->printf("%s\n", buf);
   
   OS_Interface::abort();
-  return 0;
 }
 
-int assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, int a, int b) {
-  return assert_eq_failure(func, file, line, pred, msg, (void*)a, (void*)b);
+void assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, int a, int b) {
+  assert_eq_failure(func, file, line, pred, msg, (void*)a, (void*)b);
 }
 
 void breakpoint() {
