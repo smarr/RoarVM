@@ -1141,7 +1141,7 @@ void Squeak_Interpreter::primitiveIntegerAt() {
   Oop rcvr = stackValue(1);
   Object_p ro;
   if (!rcvr.is_mem()  ||  !(ro = rcvr.as_object())->isWords()
-      || index < 1  || index > ro->lengthOf() ) {
+      || index < 1  || index > (oop_int_t)ro->lengthOf() ) {
     success(false); return;
   }
   int32 value = ro->as_int32_p()[Object::BaseHeaderSize/sizeof(int32) + index - 1];
@@ -1161,7 +1161,7 @@ void Squeak_Interpreter::primitiveIntegerAtPut() {
 
   if (!rcvr.is_mem() || !(ro = rcvr.as_object())->isWords()
     ||  index < 1
-    ||  index > ro->lengthOf() ) {
+    ||  index > (oop_int_t)ro->lengthOf() ) {
     success(false);
     return;
   }

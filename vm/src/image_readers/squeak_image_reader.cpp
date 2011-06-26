@@ -245,7 +245,7 @@ Oop Squeak_Image_Reader::oop_for_addr(Object* obj) {
 
 
 Oop Squeak_Image_Reader::oop_for_relative_addr(int relative_addr) {
-  assert(relative_addr < dataSize);
+  assert(u_int32(relative_addr) < dataSize);
   Oop* addr_in_table = &object_oops[relative_addr / sizeof(Oop)];
   Object* obj = (Object*) &memory[relative_addr];
   if (addr_in_table->bits() == 0) {

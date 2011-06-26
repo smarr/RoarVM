@@ -20,7 +20,7 @@ bool Object::verify() {
   if (isFreeObject()) {
     return true;
   }
-  assert_always(sizeBits() >= sizeof(baseHeader));
+  assert_always(size_t(sizeBits()) >= sizeof(baseHeader));
   verify_preheader();
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oop_ptr)
     oop_ptr->verify_oop();
@@ -140,7 +140,7 @@ void Object::print_compiled_method(Printer* p) {
   for (int i = 0;  i < literalCount();  ++i) {
     p->printf("literal %d: ", i);  literal(i).print(p); p->nl();
   }
-  for (int i = 0;  i < byteSize() - sizeof(oop_int_t);  ++i) {
+  for (size_t i = 0;  i < byteSize() - sizeof(oop_int_t);  ++i) {
     u_char* bcp = (u_char*)&first_byte_address()[i];
     u_char bc = *bcp;
     p->printf("0x%x: byte %d: %d %s\n", bcp, i,  bc, Squeak_Interpreter::bytecode_name(bc));
@@ -1066,7 +1066,7 @@ Object_p Object::get_external_primitive_literal_of_method() {
   Oop lit = literal(Object_Indices::External_Primitive_Literal_Index);
   if (!lit.is_mem()) return (Object_p)NULL;
   Object_p lo = lit.as_object();
-  return lo->isArray()  &&  lo->lengthOf() == Object_Indices::EPL_Length  ?  lo  :  (Object_p)NULL;
+  return lo->isArray()  &&  lo->lengthOf() == u_oop_int_t(Object_Indices::EPL_Length)  ?  lo  :  (Object_p)NULL;
 }
 
 

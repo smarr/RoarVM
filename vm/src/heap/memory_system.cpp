@@ -975,7 +975,7 @@ bool Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
     move_read_mostly_to_read_write       ? read_write  :
     obj->mutability();
     int dst_rank = spread ?  smallest_heap(dst_mutability)  :   j++ % num_cores  +  first;
-    if (obj->sizeBits() + 2500  >  heaps[dst_rank][dst_mutability]->bytesLeft(false)) {
+    if (u_int32(obj->sizeBits() + 2500)  >  heaps[dst_rank][dst_mutability]->bytesLeft(false)) {
       return false;
     }
     else {
@@ -1022,7 +1022,7 @@ bool Memory_System::moveAllToRead_MostlyHeaps() {
           return false;
         }
 
-        if (obj->sizeBits() + 32 + heaps[dst_rank][read_mostly]->lowSpaceThreshold  >  heaps[dst_rank][read_mostly]->bytesLeft(false))
+        if (u_int32(obj->sizeBits() + 32 + heaps[dst_rank][read_mostly]->lowSpaceThreshold)  >  heaps[dst_rank][read_mostly]->bytesLeft(false))
           continue;
 
         obj->move_to_heap(dst_rank, read_mostly, false);
