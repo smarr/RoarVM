@@ -1115,7 +1115,7 @@
 			buildPhases = (
 			);
 			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = /Users/smarr/Projects/PhD/IBM/github/vm/build;
+			buildWorkingDirectory = "$(SRCROOT)/build/";
 			dependencies = (
 			);
 			name = make;
