@@ -119,7 +119,7 @@ void Safepoint_Tracker::another_core_no_longer_needs_me_to_spin(int seq_no) {
 }
 
 
-void Safepoint_Tracker::spin_in_safepoint(const char* fn, const char* file,  int line) {
+void Safepoint_Tracker::spin_in_safepoint(const char* /* fn */, const char* /* file */,  int /* line */) {
   assert(_spin_depth == 0);
   ++_spin_depth;
 
@@ -144,6 +144,7 @@ void Safepoint_Tracker::self_destruct_all() {
     selfDestructMessage_class("waiting too long for safepoint").send_to(r);
   }
   *(int*)0 = 17;
+  OS_Interface::abort();
 }
 
 

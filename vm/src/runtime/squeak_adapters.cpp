@@ -178,7 +178,7 @@ void*  arrayValueOf(sqInt oop) { return Oop::from_bits(oop).arrayValue(); }
 
 void assert(sqInt b) { if (!b) fatal(); }
 
-sqInt becomewith(sqInt array1, sqInt array2) {
+sqInt becomewith(sqInt /* array1 */, sqInt /* array2 */) {
   unimpExt(); return 0;
 }
 
@@ -296,13 +296,13 @@ sqInt isBytes(sqInt x) { return Oop::from_bits(x).isBytes(); }
 
 sqInt isFloatObject(sqInt oop) { return Oop::from_bits(oop).is_mem() && Oop::from_bits(oop).as_object()->isFloatObject(); }
 
-sqInt isInMemory(sqInt address) { unimpExt(); return 1;}
+sqInt isInMemory(sqInt /* address */) { unimpExt(); return 1;}
 
 sqInt isKindOf(sqInt oop, char *aString) { return Oop::from_bits(oop).isKindOf(aString); }
-sqInt isKindOfClass(sqInt oop, sqInt aClass)  { unimpExt(); return 0; }  // STEFAN TODO: necessary for the FFI I think
+sqInt isKindOfClass(sqInt /* oop */, sqInt /* aClass */)  { unimpExt(); return 0; }  // STEFAN TODO: necessary for the FFI I think
 
 
-sqInt includesBehaviorThatOf(sqInt aClass, sqInt aSuperClass) { unimpExt(); return 0; }
+sqInt includesBehaviorThatOf(sqInt /* aClass */, sqInt /* aSuperClass */) { unimpExt(); return 0; }
 sqInt isArray(sqInt oop) { return Oop::from_bits(oop).isArray(); }
 sqInt isIndexable(sqInt oop) { return Oop::from_bits(oop).isIndexable(); }
 sqInt isIntegerObject(sqInt objectPointer) { return Oop::from_bits(objectPointer).is_int(); }
@@ -324,18 +324,18 @@ sqInt  literalCountOf(sqInt methodPointer) { return Oop::from_bits(methodPointer
 
 sqInt  literalofMethod(sqInt offset, sqInt methodPointer) { return Oop::from_bits(methodPointer).as_object()->literal(offset).bits(); }
 
-sqInt loadBitBltFrom(sqInt bbOop) { unimpExt(); return 0; }
+sqInt loadBitBltFrom(sqInt /* bbOop */) { unimpExt(); return 0; }
 
 sqInt makePointwithxValueyValue(sqInt xValue, sqInt yValue) { return Object::makePoint(xValue, yValue)->as_oop().bits(); }
 
 
 sqInt  methodArgumentCount(void) { return The_Squeak_Interpreter()->methodArgumentCount(); }
 sqInt  methodPrimitiveIndex(void)  { return The_Squeak_Interpreter()->methodPrimitiveIndex(); }
-sqInt  methodReturnValue(sqInt oop) { unimpExt(); return 0; }
+sqInt  methodReturnValue(sqInt /* oop */) { unimpExt(); return 0; }
 
 sqInt nilObject() { return The_Squeak_Interpreter()->roots.nilObj.bits(); }
 
-sqInt  obsoleteDontUseThisFetchWordofObject(sqInt index, sqInt oop) {unimpExt(); return 0;}
+sqInt  obsoleteDontUseThisFetchWordofObject(sqInt /* index */, sqInt /* oop */) {unimpExt(); return 0;}
 
 sqInt popRemappableOop(void) { return The_Squeak_Interpreter()->popRemappableOop().bits(); }
 sqInt topRemappableOop(void) { return The_Squeak_Interpreter()->topRemappableOop().bits(); }

@@ -74,7 +74,7 @@ void POSIX_OS_Interface::create_threads(const size_t num_of_threads, void (*help
 }
 
 
-void POSIX_OS_Interface::start_threads(void (*helper_core_main)(), char* argv[]) {
+void POSIX_OS_Interface::start_threads(void (*helper_core_main)(), char** /* argv[] */) {
   // first initialize the main core, always rank==0 for threads
   threads[0] = pthread_self();
   pthread_key_create(&rank_key, NULL);

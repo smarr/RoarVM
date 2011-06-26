@@ -776,6 +776,7 @@ void Squeak_Interpreter::sendLiteralSelectorBytecode() {
     p->nl();
 
     *(int*)0 = 17;
+    OS_Interface::abort();
   }
   assert(roots.messageSelector.is_mem());
 	set_argumentCount( ((currentBytecode >> 4) & 3) - 1 );

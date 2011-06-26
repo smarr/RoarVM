@@ -169,9 +169,9 @@ inline oop_int_t Object::sizeBits() {
   // "Answer the number of bytes in the given object, including its base header, rounded up to an integral number of words."
   // "Note: byte indexable objects need to have low bits subtracted from this size."
   if (check_many_assertions) assert_always(!isFreeObject());
-  oop_int_t r =  contains_sizeHeader()
-  ?  longSizeBits()
-  :  shortSizeBits();
+  oop_int_t r = contains_sizeHeader()
+                  ?  longSizeBits()
+                  :  shortSizeBits();
   if (check_many_assertions) assert_always((size_t)r >= sizeof(baseHeader));
   return r;
 }

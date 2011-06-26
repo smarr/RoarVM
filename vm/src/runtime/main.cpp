@@ -404,7 +404,7 @@ int MAIN(int argc, char *argv[]) {
   }
   
   if (OS_Interface::get_power_source() == OS_Interface::battery) {
-    fprintf(stdout, "running on battery power: saving cycles but idle cores will slow things down\n", buf);
+    fprintf(stdout, "running on battery power: saving cycles but idle cores will slow things down\n");
     The_Squeak_Interpreter()->set_idle_cores_relinquish_cpus(true);
   }
   // Doesn't work yet:  The_Memory_System()->moveAllToRead_MostlyHeaps();

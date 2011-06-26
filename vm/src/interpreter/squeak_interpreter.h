@@ -234,7 +234,7 @@ public:
 
   u_char  prevBytecode; // interp version is out of order
   int     _argumentCount;
-  int     get_argumentCount() { return _argumentCount; }
+  int     get_argumentCount() const { return _argumentCount; }
   void    set_argumentCount(int x) { _argumentCount = x; } // for debugging, easy point to catch changes -- dmu 5/10
 
   fn_t    primitiveFunctionPointer; bool do_primitive_on_main;
@@ -393,10 +393,10 @@ public:
   void flushObsoleteIndexedPrimitives();
   void flushExternalPrimitiveTable();
 
-  void primitiveFail() { successFlag = false; }
-  void primitiveFailFor(int32 reasonCode) { successFlag = false; primFailCode = reasonCode; }
-  bool failed() { return !successFlag; }
-  void success(bool b) { successFlag = successFlag && b; }
+  void inline primitiveFail() { successFlag = false; }
+  void inline primitiveFailFor(int32 reasonCode) { successFlag = false; primFailCode = reasonCode; }
+  bool inline failed() const { return !successFlag; }
+  void inline success(bool b) { successFlag = successFlag && b; }
 
 
   void loadInitialContext();

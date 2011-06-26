@@ -598,7 +598,7 @@ int Memory_System::calculate_total_read_write_pages(int page_size) {
 }
 
 
-int Memory_System::calculate_bytes_per_read_mostly_heap(int page_size) {
+int Memory_System::calculate_bytes_per_read_mostly_heap(int /* page_size */) {
   int min_bytes_per_core = divide_and_round_up(min_heap_MB * Mega,  Logical_Core::group_size);
   return round_up_to_power_of_two(min_bytes_per_core);
 }
@@ -619,8 +619,8 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
   snapshot_window_size.initialize(sws, fsf);
 
 
-  int total_read_write_memory_size     =  rw_pages *  page_size_used_in_heap;
-  int total_read_mostly_memory_size    =  rm_pages *  page_size_used_in_heap;
+  u_int32 total_read_write_memory_size     =  rw_pages *  page_size_used_in_heap;
+  u_int32 total_read_mostly_memory_size    =  rm_pages *  page_size_used_in_heap;
 
   read_mostly_memory_base = read_write_memory_base = NULL;
 
@@ -1064,7 +1064,7 @@ void Memory_System::save_to_checkpoint(FILE* f) {
 }
 
 
-void Memory_System::restore_from_checkpoint(FILE* f, int dataSize, int lastHash, int savedWindowSize, int fullScreenFlag) {
+void Memory_System::restore_from_checkpoint(FILE* /* f */, int /* dataSize */, int /* lastHash */, int /* savedWindowSize */, int /* fullScreenFlag */) {
 # if true
   assert_always_msg(false, "deactivated checkpointing until threadsafe memory_system is ready for Tilera");
 # else
@@ -1121,7 +1121,7 @@ void Memory_System::invalidate_heaps_and_fence(bool mine_too) {
   OS_Interface::mem_fence();
 }
 
-void Memory_System::enforce_coherence_before_store_into_object_by_interpreter(void* p, int nbytes, Object_p dst_obj_to_be_evacuated) {
+void Memory_System::enforce_coherence_before_store_into_object_by_interpreter(void* p, int /* nbytes */, Object_p dst_obj_to_be_evacuated) {
   // to avoid deadlock caused by asking other cores to invalidate lines in the middle of interpreter and not being able to gc when another core asks me,
   // just move this object to read-write heap afterwards. Don't do enforce_coherence_before_store stuff.
   assert(contains(p));
@@ -1199,11 +1199,11 @@ void Memory_System::print_heaps() {
 
 # define DEF_SEC(T) \
 void Memory_System::store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_evacuated_or_null) { \
-  if (sizeof(T) == bytes_per_oop) DEBUG_STORE_CHECK((oop_int_t*)(p), (oop_int_t)(x)); \
+  if (sizeof(T) == bytes_per_oop) { DEBUG_STORE_CHECK((oop_int_t*)(p), (oop_int_t)(x)); } \
   assert(contains(p)); \
   if (is_address_read_write(p)) { *p = x; return; } \
   assert(!Safepoint_Ability::is_interpreter_able()); \
-  if (*p == x) return ; \
+  if (*p == x) return; \
   pre_cohere(p, sizeof(x));  \
   *p = x;  \
   post_cohere(p, sizeof(x)); \

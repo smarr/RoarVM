@@ -454,7 +454,7 @@ static const char* getModuleName() { return moduleName; }
 
 /*	Note: This is coded so that is can be run from Squeak. */
 
-static int setInterpreter(struct VirtualMachine* anInterpreter) {
+static int setInterpreter(struct VirtualMachine* /* anInterpreter */) {
 	return 1;
 }
 
@@ -551,6 +551,7 @@ static int primitivePrintStats() {
 
 static int primitiveResetPerfCounters() {
   Performance_Counters::reset();
+  return 0;
 }
   
 static int primitivePrintExecutionTrace() { The_Squeak_Interpreter()->print_execution_trace(); return 0; }

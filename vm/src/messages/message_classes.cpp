@@ -404,10 +404,10 @@ void recycleContextIfPossibleMessage_class::do_all_roots(Oop_Closure* oc) {
 void flushByMethodMessage_class::do_all_roots(Oop_Closure* oc) {
   oc->value(&method, (Object_p)NULL);
 }
-void addObjectFromSnapshotResponse_class::do_all_roots(Oop_Closure* oc) {
+void addObjectFromSnapshotResponse_class::do_all_roots(Oop_Closure* /* oc */) {
   fatal("unimp, but should not be called");
 }
-void hereIsARootResponse_class::do_all_roots(Oop_Closure* oc) {
+void hereIsARootResponse_class::do_all_roots(Oop_Closure* /* oc */) {
   fatal("unimp, but should not be called");
 }
 void updateEnoughInterpreterToTransferControlMessage_class::do_all_roots(Oop_Closure* oc) {

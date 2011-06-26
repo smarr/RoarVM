@@ -791,7 +791,7 @@ void Squeak_Interpreter::findNewMethodInClass(Oop klass) {
 
 Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
   assert(safepoint_ability->is_able()); // need to be able to allocate message object without deadlock
-  Object_p currentClass_obj;
+  Object_p currentClass_obj = NULL;
   for (  Oop currentClass = lkupClass;
          currentClass != roots.nilObj;
        currentClass = currentClass_obj->superclass()) {
@@ -1775,7 +1775,7 @@ void Squeak_Interpreter::commonAtPut(bool stringy) {
 
 
 
-void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool defer) {
+void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool /* defer */) {
    /*
    "Change the class of the receiver into the class specified by the argument
     given that the format of the receiver matches the format of the argument.
@@ -2098,7 +2098,7 @@ Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_proces
 
     Oop        proc = first_proc;
     Object_p proc_obj = proc.as_object();
-    Object_p prior_proc_obj;
+    Object_p prior_proc_obj = NULL;
     for (;;)  {
       if (verbose) {
         debug_printer->printf("on %d: find_and_move_to_end_highest_priority_non_running_process proc: ",
@@ -2491,7 +2491,7 @@ void Squeak_Interpreter::give_up_CPU_instead_of_spinning(uint32_t& busyWaitCount
   }
   
   useconds_t sleep = 1 << (busyWaitCount - 32); // wait an exponentially growing time span
-  static const int max_sleep_usecs = 500; // experimentally determined on Mac by watching Kiviats, etc -- dmu 10/1/10
+  static const u_int32 max_sleep_usecs = 500; // experimentally determined on Mac by watching Kiviats, etc -- dmu 10/1/10
   if (Logical_Core::running_on_main())
     ioRelinquishProcessorForMicroseconds(min(max_sleep_usecs, sleep));
   else 
@@ -3016,7 +3016,7 @@ bool Squeak_Interpreter::process_is_scheduled_and_executing() {
 void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const char* where) {
   const char* msg = "";
   Oop lit;
-  int litx;
+  int litx = 0;
 
   if (!process_is_scheduled_and_executing())
     return;

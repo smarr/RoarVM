@@ -121,12 +121,12 @@ public:
     int32 snapshot_bytes, sws, fsf, lastHash;
     char* read_mostly_memory_base;
     char* read_write_memory_base;
-    int32 total_read_write_memory_size;
-    int32 memory_per_read_write_heap;
-    int32 log_memory_per_read_write_heap;
-    int32 total_read_mostly_memory_size;
-    int32 memory_per_read_mostly_heap;
-    int32 log_memory_per_read_mostly_heap;
+    u_int32 total_read_write_memory_size;
+    u_int32 memory_per_read_write_heap;
+    u_int32 log_memory_per_read_write_heap;
+    u_int32 total_read_mostly_memory_size;
+    u_int32 memory_per_read_mostly_heap;
+    u_int32 log_memory_per_read_mostly_heap;
     int32 page_size;
     int32 main_pid;
     Multicore_Object_Table* object_table;
