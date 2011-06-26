@@ -242,9 +242,9 @@ public:
       Object_p obj1 = o1[i].as_object();  oop_int_t* hdr1p = &obj1->baseHeader;  oop_int_t hdr1 = *hdr1p;
       Object_p obj2 = o2[i].as_object();  oop_int_t* hdr2p = &obj2->baseHeader;  oop_int_t hdr2 = *hdr2p;
       if (twoWay) {
-        The_Memory_System()->store_enforcing_coherence(hdr1p, hdr1 & ~Object::HashMask  |  hdr2 & Object::HashMask, obj1);
+        The_Memory_System()->store_enforcing_coherence(hdr1p, (hdr1 & ~Object::HashMask)  |  (hdr2 & Object::HashMask), obj1);
       }
-      The_Memory_System()->store_enforcing_coherence(hdr2p, hdr2 & ~Object::HashMask  |  hdr1 & Object::HashMask, obj2);
+      The_Memory_System()->store_enforcing_coherence(hdr2p, (hdr2 & ~Object::HashMask)  |  (hdr1 & Object::HashMask), obj2);
     }
   }
 

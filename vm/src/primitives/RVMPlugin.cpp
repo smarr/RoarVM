@@ -234,8 +234,9 @@ void* primitiveSetCoordinatesFor() {
   Object_p obj = oop.as_object();
   int32 total_bytes = obj->extra_header_bytes() + obj->sizeBits();
 
-  if ( rank < 0  ||  rank >= Logical_Core::group_size
-  ||  mutability == Memory_System::read_mostly  &&  !obj->is_suitable_for_replication()
+  if ( rank < 0
+  ||  rank >= Logical_Core::group_size
+  ||  (mutability == Memory_System::read_mostly  &&  !obj->is_suitable_for_replication())
   ||  !The_Memory_System()->heaps[rank][mutability]->sufficientSpaceToAllocate(2500 + total_bytes)) {
     The_Squeak_Interpreter()->primitiveFail();
   }

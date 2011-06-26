@@ -302,7 +302,7 @@ inline Object_p Object::instantiateSmallClass(oop_int_t sizeInBytes) {
   if (sizeInBytes & (bytesPerWord - 1))  { fatal("size must be integral number of words"); }
   Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write];
   oop_int_t hash = h->newObjectHash();
-	oop_int_t header1 = (hash << HashBitsOffset) & HashBits  |  formatOfClass();
+	oop_int_t header1 = ((hash << HashBitsOffset) & HashBits)  |  formatOfClass();
 	Oop header2 = as_oop();
   int hdrSize =
   (header1 & CompactClassMask) > 0 // "is this a compact class"
@@ -458,7 +458,7 @@ inline Object_p Object::instantiateContext(oop_int_t  sizeInBytes ) {
    */
   Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write];
 	int hash = h->newObjectHash();
-  oop_int_t	header1 = (hash << HashShift) & HashMask | formatOfClass();
+  oop_int_t	header1 = ((hash << HashShift) & HashMask) | formatOfClass();
 	Oop header2 = as_oop();
 	int hdrSize =
   header1 & CompactClassMask  // "are contexts compact?"

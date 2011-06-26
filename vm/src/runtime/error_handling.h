@@ -28,7 +28,7 @@ extern void assert_eq_failure(const char* func, const char* file, const int line
 
 
 # define assert_message(pred, msg) \
-  assert_always_msg((!check_assertions || pred), msg)
+  assert_always_msg((!check_assertions || (pred)), msg)
 
 # define assert(pred) assert_message(pred, "")
 

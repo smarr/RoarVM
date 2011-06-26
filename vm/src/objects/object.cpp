@@ -285,7 +285,7 @@ Object_p Object::instantiateClass(oop_int_t size, Logical_Core* where) {
   int hash = h->newObjectHash();
   oop_int_t classFormat = formatOfClass();
   // low 2 bits are 0
-  oop_int_t header1 = (classFormat & 0x1ff00) | (hash << HashShift) & HashMask;
+  oop_int_t header1 = (classFormat & 0x1ff00) | ((hash << HashShift) & HashMask);
   Oop header2 = as_oop();
   oop_int_t header3 = 0;
   oop_int_t cClass = header1 & CompactClassMask;
@@ -508,7 +508,7 @@ Oop Object::clone() {
   oop_int_t hash = h->newObjectHash(); // even though newChunk may be in global heap
   The_Memory_System()->store_enforcing_coherence(&newObj->baseHeader,
                                               newObj->baseHeader & (Header_Type::Mask | SizeMask | CompactClassMask | FormatMask)
-                                              |   (hash << HashShift) & HashMask,
+                                              |   ((hash << HashShift) & HashMask),
                                               newObj);
 
   The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, Logical_Core::my_rank()  COMMA_TRUE_OR_NOTHING);

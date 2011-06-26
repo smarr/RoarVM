@@ -20,7 +20,7 @@ int Obsolete_Named_Primitive_Table::find(char* name, int name_len, char* module_
   for (entry* p = contents;  p->oldName;  ++p)
     if (strncmp(p->oldName, name, name_len) == 0  &&  p->oldName[name_len] == '\0')
       if ( module_length_if_specified == 0  
-      ||  strncmp(p->plugin, module_if_specified, module_length_if_specified) == 0  &&  p->plugin[module_length_if_specified] == '\0')
+      ||  (strncmp(p->plugin, module_if_specified, module_length_if_specified) == 0  &&  p->plugin[module_length_if_specified] == '\0'))
         return p - contents;
   return -1;
 }

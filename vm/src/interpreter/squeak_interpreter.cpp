@@ -925,7 +925,7 @@ void Squeak_Interpreter::internalActivateNewMethod() {
     nco = newContext.as_object();
     assert(nco->my_heap_contains_me());
     Oop nfc = nco->fetchPointer(Object_Indices::Free_Chain_Index);
-    assert(nfc == Object::NilContext()  ||  nfc.is_mem() && nfc.as_object()->headerType() == Header_Type::Short);
+    assert(nfc == Object::NilContext()  ||  (nfc.is_mem() && nfc.as_object()->headerType() == Header_Type::Short));
     roots.freeContexts = nfc;
   }
   else {
@@ -1961,7 +1961,7 @@ void Squeak_Interpreter::primitivePerformAt(Oop lookupClass) {
 }
 
 
-void Squeak_Interpreter::snapshot(bool embedded) {
+void Squeak_Interpreter::snapshot(bool /* embedded */) {
 
   Oop r = popStack();
   pushBool(true);

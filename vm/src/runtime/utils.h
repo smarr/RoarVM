@@ -32,7 +32,7 @@ inline int round_up(int x, int y) {
 # define max(a,b) ((a) >= (b)  ?  (a)  :  (b))
 
 inline void swap_bytes_long(int32* p) {
-  *p = (*p << 24)  |  (*p << 8) & 0xff0000  |  (*p >> 8) & 0xff00  |  (*p >> 24) & 0xff;
+  *p = (*p << 24)  |  ((*p << 8) & 0xff0000)  |  ((*p >> 8) & 0xff00)  |  ((*p >> 24) & 0xff);
 }
 inline void reverseBytes(int32* start, int32* stop) {
   fprintf(stdout, "reversing bytes\n");
