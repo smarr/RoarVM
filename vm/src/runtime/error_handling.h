@@ -58,6 +58,5 @@ extern void unte(const char*, const char*);
 #define assert_active_process_not_nil() \
   if ( \
     The_Squeak_Interpreter()->schedulerPointer_obj()->fetchPointer(Object_Indices::ActiveProcessIndex) == The_Squeak_Interpreter()->roots.nilObj ) \
-  assert_failure(__func__, __FILE__, __LINE__, "Processor activeProcess must not be nil", "activeProcess is nil"); \
-  else 
+  { assert_failure(__func__, __FILE__, __LINE__, "Processor activeProcess must not be nil", "activeProcess is nil"); }
 
