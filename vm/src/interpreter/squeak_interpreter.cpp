@@ -2830,7 +2830,7 @@ Oop Squeak_Interpreter::stObjectAt(Object_p a, oop_int_t index) {
   oop_int_t fmt = a->format();
   oop_int_t fixedFields = a->fixedFieldsOfArray();
   oop_int_t stSize =  Object::Format::might_be_context(fmt) && a->hasContextHeader()
-  ? a->fetchStackPointer()  :  a->lengthOf() - fixedFields;
+  ? a->fetchStackPointer()  :  oop_int_t(a->lengthOf() - fixedFields);
   if ( u_oop_int_t(index) >= u_oop_int_t(1)  &&  u_oop_int_t(index) <= u_oop_int_t(stSize))
     return subscript(a, index + fixedFields);
   successFlag = false;
