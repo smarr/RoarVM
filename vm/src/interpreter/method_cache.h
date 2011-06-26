@@ -52,8 +52,8 @@ class Method_Cache {
     }
     bool verify() {
       return is_empty()
-      ||    selector.verify_object()  &&  klass.verify_object()
-          &&  method.verify_object()  &&  native.verify_object_or_null();
+      || (  selector.verify_object()  &&  klass.verify_object()
+          &&  method.verify_object()  &&  native.verify_object_or_null());
     }
   };
  private:

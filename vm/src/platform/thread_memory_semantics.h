@@ -92,7 +92,7 @@ private:
 # else
   static pthread_key_t my_core_key;
   
-  static void _dtor_my_core_key(void* value) {
+  static void _dtor_my_core_key(void*) {
     pthread_setspecific(my_core_key, NULL);
   }
 # endif // if !On_Intel_Linux

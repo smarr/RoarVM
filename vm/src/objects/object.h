@@ -299,7 +299,7 @@ public:
     static bool is_valid(int fmt) { return fmt != unused  &&  fmt != indexable_long_fields_only; }
     static bool isWordsOrBytes(int fmt) {
       return fmt == indexable_word_fields_only
-      ||     has_bytes(fmt) && !isCompiledMethod(fmt);
+      ||   ( has_bytes(fmt)  &&  !isCompiledMethod(fmt) );
     }
     static bool isIndexable(int fmt) { return fmt >= indexable_fields_only; }
     static bool isWords(int fmt) { return fmt == indexable_word_fields_only; }
@@ -449,7 +449,7 @@ public:
   Oop name_of_class_or_metaclass(bool* is_meta);
 
   inline u_oop_int_t lengthOf();
-  oop_int_t byteSize() { return isBytes() ? slotSize() : slotSize() * sizeof(Oop); }
+  oop_int_t byteSize() { return isBytes() ? slotSize() : oop_int_t(slotSize() * sizeof(Oop)); }
   inline oop_int_t byteLength();
   oop_int_t slotSize() { return lengthOf(); }
   inline u_oop_int_t fixedFieldsOfArray();

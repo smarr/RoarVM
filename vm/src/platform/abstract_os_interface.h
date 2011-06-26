@@ -18,7 +18,7 @@ class Abstract_OS_Interface {
 public:
   
   static inline void abort()                         __attribute__((noreturn)) { fatal(); }
-  static inline void die(const char* /* err_msg */ ) __attribute__((noreturn)) { fatal(); }
+  static inline void die(const char* /* err_msg */)  __attribute__((noreturn)) { fatal(); }
   static inline void exit()                          __attribute__((noreturn)) { fatal(); }
   static inline void breakpoint() {}
   
@@ -57,12 +57,12 @@ public:
    */
   static inline int atomic_compare_and_swap_val(int* ptr, int /* old_value */, int /* new_value */) { fatal(); return *ptr; }
   
-  static inline uint32_t leading_zeros(uint32_t    /* x */) { fatal(); return 0; }
+  static inline uint32_t leading_zeros   (uint32_t /* x */) { fatal(); return 0; }
   static inline uint32_t population_count(uint32_t /* x */) { fatal(); return 0; }
   
   struct OS_Heap {};
   
-  static inline void* rvm_malloc_shared(uint32_t /* sz */ )                                   { fatal(); return NULL; }
+  static inline void* rvm_malloc_shared(uint32_t /* sz */)                                    { fatal(); return NULL; }
   static inline void* rvm_calloc_shared(uint32_t /* num_members */, uint32_t /* mem_size */)  { fatal(); return NULL; }
   static inline void* rvm_memalign(OS_Heap, int /* al */, int /* sz */)                       { fatal(); return NULL; }
   static inline void* rvm_memalign(int /* al */, int /* sz */)                                { fatal(); return NULL; }
