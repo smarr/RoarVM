@@ -35,6 +35,7 @@ public:
     abort();
   }
   static inline void exit()  { ::exit(0); }
+  static inline void breakpoint() { /*asm ("int 3");*/ raise(SIGTRAP); }
   
   static void ensure_Time_Machine_backs_up_run_directory() {}
 
@@ -51,12 +52,12 @@ public:
   static inline u_int64 get_cycle_count() {
     uint64_t result;
     
-    if (Dont_Count_Cycles)
-      return 0;
-    else {
+    if (Count_Cycles) {
       asm volatile("rdtsc" : "=A" (result));
+      return result;
     }
-    return result;
+    else
+      return 0;
   }
   
   
@@ -67,7 +68,7 @@ public:
   static inline void mutex_init(Mutex*, void*) {}
   static inline void mutex_destruct(Mutex*)    {}
   static inline int  mutex_lock(Mutex*)        { return 0; }
-  static inline int  mutex_trylock(Mutex*)     { return 0; }
+  static inline bool mutex_trylock(Mutex*)     { return false; }
   static inline int  mutex_unlock(Mutex*)      { return 0; }
   
 # elif Use_Spin_Locks && !On_Apple 
@@ -86,8 +87,8 @@ public:
     return pthread_spin_lock(mutex);
   }
   
-  static inline int mutex_trylock(Mutex* mutex) {
-    return pthread_spin_trylock(mutex);
+  static inline bool mutex_trylock(Mutex* mutex) {
+    return 0 == pthread_spin_trylock(mutex);
   }
   
   static inline int mutex_unlock(Mutex* mutex) {
@@ -110,8 +111,8 @@ public:
     return pthread_mutex_lock(mutex);
   }
   
-  static inline int mutex_trylock(Mutex* mutex) {
-    return pthread_mutex_trylock(mutex);
+  static inline bool mutex_trylock(Mutex* mutex) {
+    return 0 == pthread_mutex_trylock(mutex);
   }
   
   static inline int mutex_unlock(Mutex* mutex) {
@@ -161,6 +162,8 @@ public:
     return sum;
   }
 # endif
+  
+  static inline void  mem_fence() { __sync_synchronize(); /*This is a GCC build-in might need to be replaced */ }
   
 private:
   static inline void* memalign(int align, int sz) { return (void*) ( (int(malloc(sz + align)) + align - 1) & ~(align-1) ); }

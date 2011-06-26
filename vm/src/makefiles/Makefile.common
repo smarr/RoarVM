@@ -205,6 +205,7 @@ RVM_HEADERS = \
   execution_tracer.h \
   profiling_tracer.h \
   debugging_tracer.h \
+  performance_counters.h \
   safepoint.h \
   abstract_mutex.h \
   scheduler_mutex.h \
@@ -281,7 +282,7 @@ info:
 
 #Hack to satisfy make, to force override buildin rules, even if its not able to find all prerequisites.
 $(RVM_HEADERS):
-	echo The following RVM_HEADER files have not been found and cause unnecessary rebuilds: $@
+	@echo The following RVM_HEADER files have not been found and cause unnecessary rebuilds: $@
 
 #Hack to satisfy make, to force override buildin rules, even if its not able to find all prerequisites.
 $(SQ_HEADERS):
@@ -478,6 +479,7 @@ OBJS = \
   execution_tracer.opt \
   profiling_tracer.opt \
   debugging_tracer.opt \
+  performance_counters.opt \
   safepoint.opt \
   abstract_mutex.opt \
   scheduler_mutex.opt \
@@ -555,7 +557,7 @@ else
 endif
 
 
-rvm: $(OBJS) main.opt
+$(EXECUTABLE): $(OBJS) main.opt
 	$(CXX) $(LDFLAGS) $(OBJS) main.opt -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
 
 # Test Related targets, we use the googletest framework for unit tests
@@ -586,5 +588,7 @@ test: rvm-test
 clean:
 	rm -f *.o *.opt $(EXECUTABLE) compiler_check rvm-test libgtest.a $(TEST_OBJS)
 
+install: $(EXECUTABLE)
+	install $(EXECUTABLE) /usr/local/bin
 
 .PHONY: all clean run test run_pci test_pci info

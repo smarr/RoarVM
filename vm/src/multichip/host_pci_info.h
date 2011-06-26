@@ -21,7 +21,10 @@ class Host_PCI_Info {
       template(Host_Link_Index) \
       template(Max_Payload_Size) \
       template(Max_Read_Size) \
-      template(Link_Width)
+      template(Link_Width) \
+      template(LINK_BAR1_SIZE) \
+      template(LINK_BAR1_ADDRESS) \
+      template(PREBOOTER_VERSION)
   
   void read_info_file();
   

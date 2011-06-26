@@ -43,6 +43,7 @@ int assert_eq_failure(const char* func, const char* file, const int line, const 
 }
 
 void breakpoint() {
+  OS_Interface::breakpoint();
   dittoing_stdout_printer->printf("breakpoint\n");
 }
 

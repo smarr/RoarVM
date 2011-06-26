@@ -19,7 +19,7 @@ void updateEnoughInterpreterToTransferControlMessage_class::send_to(int r) {
 
   The_Squeak_Interpreter()->storeContextRegisters(The_Squeak_Interpreter()->activeContext_obj()); // added for the invarients xxxxxx rm when debugged?
   The_Squeak_Interpreter()->set_activeContext(The_Squeak_Interpreter()->roots.nilObj); // so this core won't try to update active context when GC happens
-  The_Squeak_Interpreter()->multicore_interrupt_check = true; // go into multicore_interrupt to wait for baton; probably not really needed, since interp should get restored before top of interp loop
+  The_Squeak_Interpreter()->multicore_interrupt_check = true; // go into multicore_interrupt to wait for a process to execute; probably not really needed, since interp should get restored before top of interp loop
   The_Squeak_Interpreter()->set_running_process(The_Squeak_Interpreter()->roots.nilObj, "send_for_control_transfer"); // prevent setting saved CTX to nil in the process
 
   abstractMessage_class::send_to(r);

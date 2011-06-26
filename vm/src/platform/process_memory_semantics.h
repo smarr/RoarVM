@@ -28,6 +28,9 @@ public:
   static inline void initialize_local_memory_system() {}
   static inline void initialize_interpreter()         {}
   static inline void initialize_local_interpreter()   {}
+  static inline void initialize_timeout_timer()       {}
+  static inline void initialize_local_timeout_timer() {}
+
 
   static inline bool cores_are_initialized() { return true; }
   static inline Logical_Core* my_core() { return _my_core; }
@@ -58,14 +61,19 @@ extern Memory_System _memory_system;
 
 //#define The_Memory_System() (&_memory_system)
 // At least the Tilera compiler does not like the inlines, costs about 2-5% performance
-inline  __attribute__((always_inline))  Memory_System* The_Memory_System() { return &_memory_system;  };
+inline  FORCE_INLINE  Memory_System* The_Memory_System() { return &_memory_system;  };
 
 
 extern Squeak_Interpreter _interpreter;
 
 //#define The_Squeak_Interpreter() (&_interpreter)
 // At least the Tilera compiler does not like the inlines, costs about 2-5% performance
-inline  __attribute__((always_inline)) Squeak_Interpreter* The_Squeak_Interpreter() { return &_interpreter;  }
+inline  FORCE_INLINE Squeak_Interpreter* The_Squeak_Interpreter() { return &_interpreter;  }
+
+
+class  Timeout_Timer_List_Head;
+extern Timeout_Timer_List_Head _timeout_head;
+inline FORCE_INLINE Timeout_Timer_List_Head* The_Timeout_Timer_List_Head() { return &_timeout_head; }
 
 
 # endif

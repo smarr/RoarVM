@@ -32,6 +32,9 @@ public:
   static inline void initialize_interpreter()         { fatal(); }
   static inline void initialize_local_interpreter()   { fatal(); }
   
+  static inline void initialize_timeout_timer()       { fatal(); }
+  static inline void initialize_local_timeout_timer() { fatal(); }
+  
   static void go_parallel(void (*)(/* helper_core_main */), char* /* argv */[]) { fatal (); };
   static inline int get_group_rank() { fatal(); return -1; }
   

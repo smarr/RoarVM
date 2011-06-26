@@ -27,8 +27,10 @@ Timeout_Deferral::~Timeout_Deferral() {
 
 
 bool Timeout_Deferral::are_timeouts_deferred() {
-  for (int i = 0;  i < Max_Number_Of_Cores;  ++i)
-    if (The_Squeak_Interpreter()->timeout_deferral_counters[i]) return true;
+  FOR_ALL_RANKS(i) {
+    if (The_Squeak_Interpreter()->timeout_deferral_counters[i])
+      return true;
+  }
   return false;
 }
 

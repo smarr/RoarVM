@@ -118,12 +118,15 @@ Oop Memory_System::get_stats(int what_to_sample) {
 
 
 void Memory_System::fullGC(const char* why) {
-  if (The_Squeak_Interpreter()->am_receiving_objects_from_snapshot())
+  Squeak_Interpreter * const interp = The_Squeak_Interpreter();
+  if (interp->am_receiving_objects_from_snapshot())
     fatal("cannot gc now");
+  
+  PERF_CNT(interp, count_full_gc());
 
   lprintf("about to fullGC: %s\n", why);
-  global_GC_values->inter_gc_ms = global_GC_values->mutator_start_time ? The_Squeak_Interpreter()->ioWhicheverMSecs() - global_GC_values->mutator_start_time : 0;
-  u_int32 last_gc_start = The_Squeak_Interpreter()->ioWhicheverMSecs();
+  global_GC_values->inter_gc_ms = global_GC_values->mutator_start_time ? interp->ioWhicheverMSecs() - global_GC_values->mutator_start_time : 0;
+  u_int32 last_gc_start = interp->ioWhicheverMSecs();
   
   global_GC_values->gcCycles -= OS_Interface::get_cycle_count();
   
@@ -131,10 +134,10 @@ void Memory_System::fullGC(const char* why) {
   msc.gc();
   
   ++global_GC_values->gcCount;
-  global_GC_values->gcMilliseconds += (global_GC_values->last_gc_ms = The_Squeak_Interpreter()->ioWhicheverMSecs() - last_gc_start);
+  global_GC_values->gcMilliseconds += (global_GC_values->last_gc_ms = interp->ioWhicheverMSecs() - last_gc_start);
   global_GC_values->gcCycles += OS_Interface::get_cycle_count();
   
-  global_GC_values->mutator_start_time = The_Squeak_Interpreter()->ioWhicheverMSecs();
+  global_GC_values->mutator_start_time = interp->ioWhicheverMSecs();
 
   level_out_heaps_if_needed();
 }

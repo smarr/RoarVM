@@ -18,7 +18,7 @@ public:
   
 #if On_Tilera
 public:
-  inline int my_rank()       const { return Logical_Core::my_rank(); }
+  inline int           my_rank() const { return Logical_Core::my_rank(); }
   inline Logical_Core* my_core() const { return Logical_Core::my_core(); }
   inline int rank_on_threads_or_zero_on_processes()  const { return Memory_Semantics::rank_on_threads_or_zero_on_processes(); }
   
@@ -183,12 +183,9 @@ public:
 
 
  public:
-  u_int64 interpret_cycles, multicore_interrupt_cycles, mi_cyc_1, mi_cyc_1a, mi_cyc_1a1, mi_cyc_1a2, mi_cyc_1b;
-  int multicore_interrupt_check_count, yield_request_count, data_available_count;
-
   void remember_to_move_mutated_read_mostly_object(Oop x);
 
- public:
+  
   Safepoint_Tracker* safepoint_tracker;
   Safepoint_Master_Control* safepoint_master_control;
 
@@ -243,7 +240,11 @@ public:
   fn_t    primitiveFunctionPointer; bool do_primitive_on_main;
 
 
-
+#pragma mark -
+#pragma mark Statistical Information
+// STEFAN: added those pragmas here for the first time
+//         think it helps with Xcode, and should be applied gradually throughout the whole code
+  
   oop_int_t interruptChecksEveryNms;
 
 
@@ -259,10 +260,12 @@ public:
   u_int64 cyclesMovingMutatedRead_MostlyObjects;
   u_int32 numberOfMovedMutatedRead_MostlyObjects;
 
+  Performance_Counters perf_counter;
+  
+#pragma mark -
+  
   int     methodArgumentCount() { return get_argumentCount(); }
   int     methodPrimitiveIndex() { return primitiveIndex; }
-
-
 
  private:
   Object_p get_addr_to_cache(Oop x) { return x.as_object_if_mem(); }
@@ -465,8 +468,6 @@ public:
   void flushExternalPrimitives();
 
   void interpret();
-  void browserPluginInitialiseIfNeeded() {}
-  void browserPluginReturnIfNeeded() {}
 
   void internalizeIPandSP() {
     // Copy local instruction ptr and SP to locals for speed
@@ -557,6 +558,8 @@ public:
 
     if (!Dont_Trace_Bytecode_Fetching)
       traceFetchNextBytecode(currentBytecode);
+    
+    PERF_CNT(this, count_bytecodes_executed());
   }
 
   u_char fetchByte() {
@@ -765,7 +768,7 @@ public:
 
     internalFindNewMethod();
     internalExecuteNewMethod();
-    if (do_I_hold_baton()) // xxxxxxx predicate only needed to satisfy assertions?
+    if (process_is_scheduled_and_executing()) // xxxxxxx predicate only needed to satisfy assertions?
       fetchNextBytecode();
   }
 
@@ -937,7 +940,6 @@ public:
     if (--interruptCheckCounter <= 0) {
       externalizeIPandSP();
       checkForInterrupts();
-      browserPluginReturnIfNeeded();
       internalizeIPandSP();
     }
   }
@@ -1382,13 +1384,16 @@ public:
   bool verify_active_context_through_internal_stack_top();
   void let_one_through();
  public:
-  // TODO: Rename baton related functions into something like: currently_interpreting
-  void release_baton();
-  bool do_I_hold_baton();
+
+#pragma mark -
+#pragma mark Scheduling
+  
+  void unset_running_process();
+  bool process_is_scheduled_and_executing();
 
  private:
   void check_for_multicore_interrupt() {
-    assert(multicore_interrupt_check  ||  do_I_hold_baton());
+    assert(multicore_interrupt_check  ||  process_is_scheduled_and_executing());
     // xxxxxx If set multicore_interrupt_check whenever yield_requested() 
     //        will be true, could speed up this test.
     // -- dmu 4/09
@@ -1399,6 +1404,9 @@ public:
   void multicore_interrupt();
   void try_to_find_a_process_to_run_and_start_running_it();
   void minimize_scheduler_mutex_load_by_spinning_till_there_might_be_a_runnable_process();
+
+#pragma mark -
+  
   void give_up_CPU_instead_of_spinning(uint32_t&);
   void fixup_localIP_after_being_transferred_to();
  private:
@@ -1431,12 +1439,12 @@ public:
   }
   
   void assert_method_is_correct_internalizing(bool will_be_fetched, const char* where) {
-    if ((Always_Check_Method_Is_Correct  || check_assertions) && do_I_hold_baton())
+    if ((Always_Check_Method_Is_Correct  || check_assertions) && process_is_scheduled_and_executing())
       assert_always_method_is_correct_internalizing(will_be_fetched, where);
   }
   
   void assert_always_method_is_correct_internalizing(bool will_be_fetched, const char* where) {
-    if (do_I_hold_baton()) {
+    if (process_is_scheduled_and_executing()) {
       Safepoint_Ability sa(false);
       internalizeIPandSP();
       check_method_is_correct(will_be_fetched, where);

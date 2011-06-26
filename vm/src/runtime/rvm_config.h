@@ -88,6 +88,7 @@
   template(Trace_Execution) \
   template(Trace_For_Debugging) \
   template(Track_Last_BC_For_Debugging) \
+  template(Collect_Performance_Counters) \
   template(Compile_Debug_Store_Checks) \
   template(Profile_Image) \
   template(Print_Scheduler) \
@@ -107,7 +108,7 @@
   template(Force_Direct_Timeout_Timer_List_Head_Access) \
   template(Omit_PThread_Locks) \
   template(Use_Spin_Locks) \
-  template(Dont_Count_Cycles) \
+  template(Count_Cycles) \
   \
   template(Extra_Preheader_Word_Experiment) \
   template(Use_BufferedChannelDebug) \
@@ -206,6 +207,10 @@
 # define Collect_Receive_Message_Statistics check_assertions
 # endif
 
+# ifndef Collect_Performance_Counters
+#  define Collect_Performance_Counters 0
+# endif
+
 # ifndef CountByteCodesAndStopAt
 #  define CountByteCodesAndStopAt 0
 # endif
@@ -258,7 +263,7 @@
 # endif
 
 # ifndef Use_CMem
-#  define Use_CMem 0
+#  define Use_CMem 1
 # endif
 
 // This flag is for debugging. -- dmu 6/10
@@ -335,13 +340,13 @@
 # define Dont_Dump_Primitive_Cycles 1
 # endif
 
-# ifndef Dont_Count_Cycles
-# define Dont_Count_Cycles 1 //xxxxxxx was 1, when I needed to find a deadlock -- dmu 5/10, but it slows image loading -- dmu 6/10
+# ifndef Count_Cycles
+# define Count_Cycles 0 //xxxxxxx was 0, when I needed to find a deadlock -- dmu 5/10, but it slows image loading -- dmu 6/10
 # endif
 
 # if Dump_Bytecode_Cycles
-# undef Dont_Count_Cycles
-# define Dont_Count_Cycles 0
+# undef  Count_Cycles
+# define Count_Cycles 1
 # endif
 
 
@@ -379,6 +384,15 @@
 
 
 
+// Macro to ensure that the compiler does inlining
+# ifndef FORCE_INLINE
+  # ifdef __GNUC__
+    # define FORCE_INLINE __attribute__((always_inline))
+  # else
+    # define FORCE_INLINE inline
+    # warning Try to find some compiler pragma or directive to enforce inlining for this compiler
+  # endif
+# endif
 
 // for Squeak:
 # ifndef USE_INLINE_MEMORY_ACCESSORS

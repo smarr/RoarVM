@@ -14,40 +14,6 @@
 
 #include "headers.h"
 
-# if On_Tilera ||  Force_Direct_Timeout_Timer_List_Head_Access
-  Timeout_Timer_List_Head Timeout_Timer::_head;
-
-  Timeout_Timer_List_Head* Timeout_Timer::get_head() {
-    return &_head;
-  }
-
-  void Timeout_Timer::initialize() {}
-# else
-  pthread_key_t Timeout_Timer::threadlocal_head;
-
-  void Timeout_Timer::initialize() {
-    threadlocal_head = 0;
-    pthread_key_create(&threadlocal_head, _dtor_threadlocal);
-  }
-
-  void Timeout_Timer::_dtor_threadlocal(void* local_head) {
-    Timeout_Timer_List_Head* head = (Timeout_Timer_List_Head*)local_head;
-    delete head;
-  }
-
-  void Timeout_Timer::init_threadlocal() {
-    Timeout_Timer_List_Head* head = new Timeout_Timer_List_Head();
-    pthread_setspecific(threadlocal_head, head);
-  }
-
-  Timeout_Timer_List_Head* Timeout_Timer::get_head() {
-    return (Timeout_Timer_List_Head*)pthread_getspecific(threadlocal_head);
-  }
-
-# endif
-
-
-
 
 void Timeout_Timer::check() {
   //static const char* check_for = NULL; // "addedScheduledProcessResponse";

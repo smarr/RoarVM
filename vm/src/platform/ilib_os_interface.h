@@ -66,8 +66,8 @@ public:
     return ilib_mutex_lock(mutex);
   }
   
-  static inline int mutex_trylock(Mutex* mutex) {
-    return ilib_mutex_trylock(mutex);
+  static inline bool mutex_trylock(Mutex* mutex) {
+    return 0 == ilib_mutex_trylock(mutex);
   }
   
   static inline int mutex_unlock(Mutex* mutex) {
@@ -101,12 +101,26 @@ public:
   static inline uint32_t population_count(uint32_t x) { return __insn_pcnt(x); }
   
 # if Use_CMem
+  // About tmc_cmem_init:
+  // It would be more sensible to call it indirectly from main, but static constructors
+  // run before main, so that won't work.
+  // It might seem better to only call it on the first allocation, which would require this code
+  // to keep and test a static flag. However, the Tilera documentation implies that the tmc_cmem_init
+  // routine itself handles this case, so why complicate our code to do it, too?
+  // See tile64/doc/html/application_libraries_reference/index.html
+  
+  
   // Named rvm_?alloc_shared since Tilera headers are using macros with the same name
   static inline void* rvm_malloc_shared(size_t sz) {
+    rvm_malloc_shared_init(); // called by static ctor, so need to do it here, sigh
     return tmc_cmem_malloc(sz);
   }
   static inline void* rvm_calloc_shared(size_t num_members, size_t mem_size)  {
+    rvm_malloc_shared_init(); // called by static ctor, so need to do it here, sigh
     return tmc_cmem_calloc(num_members, mem_size);
+  }
+  static inline void* rvm_malloc_shared_init() {  
+    abort_if_error("tmc_cmem_init failed", tmc_cmem_init(0)); 
   }
 # else
   static inline void* rvm_malloc_shared(size_t sz) {
@@ -115,6 +129,7 @@ public:
   static inline void* rvm_calloc_shared(size_t num_members, size_t mem_size)  {
     return calloc_shared(num_members, mem_size);
   }
+  static inline void* rvm_malloc_shared_init() {}
 # endif
   
   typedef ilibHeap OS_Heap;

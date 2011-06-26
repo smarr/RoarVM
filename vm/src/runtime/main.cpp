@@ -248,6 +248,7 @@ void helper_core_main() {
 
 
 # if On_iOS
+#warning STEFAN TODO: get that streamlined!!!!
 
 void basic_init() {
   Memory_System::min_heap_MB = 32;
@@ -257,7 +258,7 @@ void basic_init() {
 
   OS_Interface::initialize();
 
-  Timeout_Timer::initialize();
+  Memory_Semantics::initialize_timeout_timer();
   Memory_Semantics::initialize_memory_system();
   
   Printer::init_globals();
@@ -336,7 +337,7 @@ int MAIN(int argc, char *argv[]) {
 
   OS_Interface::initialize();
 
-  Timeout_Timer::initialize();
+  Memory_Semantics::initialize_timeout_timer();
   Memory_Semantics::initialize_memory_system();
   
 

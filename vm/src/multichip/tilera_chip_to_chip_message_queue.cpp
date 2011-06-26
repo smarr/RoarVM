@@ -19,8 +19,8 @@
 Tilera_Chip_to_Chip_Message_Queue The_Tilera_Chip_to_Chip_Message_Queue;
 
 
-// Use pagesize for now; works for both waysw
-u_int32 Abstract_Zero_Copy_Command_Queue_Endpoint::data_buf_size = L2_CACHE_ALIGN(getpagesize());;
+// Use pagesize for now; works for both ways
+u_int32 Abstract_Zero_Copy_Command_Queue_Endpoint::data_buf_size = max(getpagesize(), __ILIB_L2_CACHELINE_SIZE);
 
 
 # define FOR_ALL_CHIPS_BUT_ME(index) \

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A040E2213B7526D007E172E /* performance_counters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A040E2013B7526D007E172E /* performance_counters.cpp */; };
 		0A4EFFDC13317C0D004BC399 /* iPhone.changes in Resources */ = {isa = PBXBuildFile; fileRef = 0A4EFFD913317C0D004BC399 /* iPhone.changes */; };
 		0A4EFFDD13317C0D004BC399 /* iPhone.image in Resources */ = {isa = PBXBuildFile; fileRef = 0A4EFFDA13317C0D004BC399 /* iPhone.image */; };
 		0A4EFFDE13317C0D004BC399 /* SqueakV3-minimum-MVC.sources in Resources */ = {isa = PBXBuildFile; fileRef = 0A4EFFDB13317C0D004BC399 /* SqueakV3-minimum-MVC.sources */; };
@@ -254,6 +255,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0A040E2013B7526D007E172E /* performance_counters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = performance_counters.cpp; sourceTree = "<group>"; };
+		0A040E2113B7526D007E172E /* performance_counters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = performance_counters.h; sourceTree = "<group>"; };
 		0A4EFFD913317C0D004BC399 /* iPhone.changes */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = iPhone.changes; path = iPhone/iPhone.changes; sourceTree = "<group>"; };
 		0A4EFFDA13317C0D004BC399 /* iPhone.image */ = {isa = PBXFileReference; lastKnownFileType = file; name = iPhone.image; path = iPhone/iPhone.image; sourceTree = "<group>"; };
 		0A4EFFDB13317C0D004BC399 /* SqueakV3-minimum-MVC.sources */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "SqueakV3-minimum-MVC.sources"; path = "iPhone/SqueakV3-minimum-MVC.sources"; sourceTree = "<group>"; };
@@ -1078,6 +1081,8 @@
 				0A5D7D46135E37CB00D13E53 /* my_rank.h */,
 				0A5D7D47135E37CB00D13E53 /* oop_tracer.cpp */,
 				0A5D7D48135E37CB00D13E53 /* oop_tracer.h */,
+				0A040E2013B7526D007E172E /* performance_counters.cpp */,
+				0A040E2113B7526D007E172E /* performance_counters.h */,
 				0A5D7D49135E37CB00D13E53 /* printer.cpp */,
 				0A5D7D4A135E37CB00D13E53 /* printer.h */,
 				0A5D7D4B135E37CB00D13E53 /* profiling_tracer.cpp */,
@@ -2509,6 +2514,7 @@
 				0ADE8ACD135F392E00D37EAD /* UUIDPlugin.c in Sources */,
 				0ADE8ACE135F392E00D37EAD /* ZipPlugin.c in Sources */,
 				0ADE8ACF135F399D00D37EAD /* sqUnixSocket.c in Sources */,
+				0A040E2213B7526D007E172E /* performance_counters.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

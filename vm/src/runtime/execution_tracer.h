@@ -12,6 +12,16 @@
  ******************************************************************************/
 
 
+/**
+ * The Execution_Tracer recordes a number of events and reporting for them.
+ *
+ * Currently supported events:
+ *   - k_proc:         scheduling a process
+ *   - k_aux:          mutex events
+ *   - k_gc:           GCs
+ *   - k_rcved_interp: received interpreter instance
+ *   - k_bc:           execution of a bytecode
+ */
 class Execution_Tracer: public Abstract_Tracer {
   int gc_count;
   void check_it(Oop);

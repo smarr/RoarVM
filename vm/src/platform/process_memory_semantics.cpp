@@ -23,6 +23,7 @@ u_int64 Process_Memory_Semantics::_my_rank_mask = -1;
 
 Memory_System _memory_system;
 Squeak_Interpreter _interpreter;
+Timeout_Timer_List_Head _timeout_head;
 
 # endif
 

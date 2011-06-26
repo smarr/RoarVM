@@ -34,7 +34,7 @@ void Semaphore_Mutex_Actions::acquire_action(const char*) {
 
   assert_always(!mutex->is_held()); // deadlock check
   Timeout_Timer tt("semaphore mutex", check_assertions ? 300 : 60, mutex->get_holder()); tt.start();
-  while (0 != mutex->try_lock()) {
+  while (!mutex->try_lock()) {
     Timeout_Timer::check_all();
     mutex->dec_and_check_recursion_depth();
     Message_Statics::process_any_incoming_messages(false); // could check to ensure no_message

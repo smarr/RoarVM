@@ -28,6 +28,11 @@ static const char *moduleName =
 
 static u_int64 cycle_count_at_last_sample[Memory_Semantics::max_num_threads_on_threads_or_1_on_processes] = { 0 };  // threadsafe
 
+
+/**
+ * Was used to find a bug with sampling, primitives, and safepoint interaction.
+ * Might still be usefull for other debugging purposes.  2011-05-23 dmu+sm
+ */
 void* primitiveDebugSampleRVM() {
   static int n = 0;
   printf("<%d", ++n);
@@ -506,15 +511,15 @@ static int primitivePrintStats() {
   lprintf( "Safepoint_Mutex: ");
   The_Squeak_Interpreter()->get_safepoint_mutex()->print_stats();
 
-  lprintf( "interpret_cycles = %lld,  multicore_interrupt_cycles = %lld, mi_cyc_1a = %lld, mi_cyc_1a1 = %lld, mi_cyc_1a2 = %lld, mi_cyc_1b = %lld, mi_cyc_1 = %lld\n",
+/*  lprintf( "interpret_cycles = %lld,  multicore_interrupt_cycles = %lld, mi_cyc_1a = %lld, mi_cyc_1a1 = %lld, mi_cyc_1a2 = %lld, mi_cyc_1b = %lld, mi_cyc_1 = %lld\n",
           The_Squeak_Interpreter()->interpret_cycles,  The_Squeak_Interpreter()->multicore_interrupt_cycles,
           The_Squeak_Interpreter()->mi_cyc_1a, The_Squeak_Interpreter()->mi_cyc_1a1, The_Squeak_Interpreter()->mi_cyc_1a2, 
-          The_Squeak_Interpreter()->mi_cyc_1b, The_Squeak_Interpreter()->mi_cyc_1);
+          The_Squeak_Interpreter()->mi_cyc_1b, The_Squeak_Interpreter()->mi_cyc_1);*/
 
-  lprintf( "multicore_interrupt_check_count = %d, yield_request_count = %d, data_available_count = %d\n",
+/*  lprintf( "multicore_interrupt_check_count = %d, yield_request_count = %d, data_available_count = %d\n",
             The_Squeak_Interpreter()->multicore_interrupt_check_count,
           The_Squeak_Interpreter()->yield_request_count,
-          The_Squeak_Interpreter()->data_available_count);
+          The_Squeak_Interpreter()->data_available_count);*/
 
   int rank_on_threads_or_zero_on_processes = Memory_Semantics::rank_on_threads_or_zero_on_processes();
 
@@ -538,10 +543,16 @@ static int primitivePrintStats() {
           The_Interactions.remote_prim_count,  The_Interactions.remote_prim_cycles);
 
   The_Squeak_Interpreter()->pop(The_Squeak_Interpreter()->get_argumentCount());
+  
+  Performance_Counters::print();
+  
   return 0;
 }
 
-
+static int primitiveResetPerfCounters() {
+  Performance_Counters::reset();
+}
+  
 static int primitivePrintExecutionTrace() { The_Squeak_Interpreter()->print_execution_trace(); return 0; }
 
 
@@ -707,7 +718,7 @@ static int primitiveCycleCounter() {
   The_Squeak_Interpreter()->primitiveFail();
   return 0;
   
-  // burrow down below OS_Interface level to avoid effect of Dont_Count_Cycles
+  // burrow down below OS_Interface level to avoid effect of Count_Cycles flag
 # elif On_Tilera
   cycles = ::get_cycle_count();
   
@@ -778,6 +789,7 @@ void* RVMPlugin_exports[][3] = {
   {(void*) "RVMPlugin", (void*)"primitiveThisProcess", (void*)primitiveThisProcess},
   {(void*) "RVMPlugin", (void*)"primitivePrint", (void*)primitivePrint},
   {(void*) "RVMPlugin", (void*)"primitivePrintStats", (void*)primitivePrintStats},
+  {(void*) "RVMPlugin", (void*)"primitiveResetPerfCounters", (void*)primitiveResetPerfCounters},
   {(void*) "RVMPlugin", (void*)"primitiveCoreCount", (void*)primitiveCoreCount},
   {(void*) "RVMPlugin", (void*)"primitiveRunningProcessByCore", (void*)primitiveRunningProcessByCore},
 

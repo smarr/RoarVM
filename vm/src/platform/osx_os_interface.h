@@ -46,7 +46,7 @@ public:
     return 0;
   }
   
-  static inline int mutex_trylock(Mutex* mutex) {
+  static inline bool mutex_trylock(Mutex* mutex) {
     return OSSpinLockTry(mutex);
   }
   
