@@ -64,7 +64,7 @@
 		0A278569128DBF7400336BDE /* abstract_tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784DB128DBF7400336BDE /* abstract_tracer.cpp */; };
 		0A27856A128DBF7400336BDE /* bytemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784DD128DBF7400336BDE /* bytemap.cpp */; };
 		0A27856B128DBF7400336BDE /* core_tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784DF128DBF7400336BDE /* core_tracer.cpp */; };
-		0A27856C128DBF7400336BDE /* debugging_tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784E2128DBF7400336BDE /* debugging_tracer.cpp */; };
+		0A27856C128DBF7400336BDE /* gc_debugging_tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784E2128DBF7400336BDE /* gc_debugging_tracer.cpp */; };
 		0A27856D128DBF7400336BDE /* error_handling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784E4128DBF7400336BDE /* error_handling.cpp */; };
 		0A27856E128DBF7400336BDE /* execution_tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784E6128DBF7400336BDE /* execution_tracer.cpp */; };
 		0A27856F128DBF7400336BDE /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784E9128DBF7400336BDE /* main.cpp */; };
@@ -309,8 +309,8 @@
 		0A2784DF128DBF7400336BDE /* core_tracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = core_tracer.cpp; sourceTree = "<group>"; };
 		0A2784E0128DBF7400336BDE /* core_tracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = core_tracer.h; sourceTree = "<group>"; };
 		0A2784E1128DBF7400336BDE /* debug_store_checks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_store_checks.h; sourceTree = "<group>"; };
-		0A2784E2128DBF7400336BDE /* debugging_tracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debugging_tracer.cpp; sourceTree = "<group>"; };
-		0A2784E3128DBF7400336BDE /* debugging_tracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debugging_tracer.h; sourceTree = "<group>"; };
+		0A2784E2128DBF7400336BDE /* gc_debugging_tracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gc_debugging_tracer.cpp; sourceTree = "<group>"; };
+		0A2784E3128DBF7400336BDE /* gc_debugging_tracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gc_debugging_tracer.h; sourceTree = "<group>"; };
 		0A2784E4128DBF7400336BDE /* error_handling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = error_handling.cpp; sourceTree = "<group>"; };
 		0A2784E5128DBF7400336BDE /* error_handling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error_handling.h; sourceTree = "<group>"; };
 		0A2784E6128DBF7400336BDE /* execution_tracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = execution_tracer.cpp; sourceTree = "<group>"; };
@@ -955,8 +955,8 @@
 				0A2784DF128DBF7400336BDE /* core_tracer.cpp */,
 				0A2784E0128DBF7400336BDE /* core_tracer.h */,
 				0A2784E1128DBF7400336BDE /* debug_store_checks.h */,
-				0A2784E2128DBF7400336BDE /* debugging_tracer.cpp */,
-				0A2784E3128DBF7400336BDE /* debugging_tracer.h */,
+				0A2784E2128DBF7400336BDE /* gc_debugging_tracer.cpp */,
+				0A2784E3128DBF7400336BDE /* gc_debugging_tracer.h */,
 				0A2784E4128DBF7400336BDE /* error_handling.cpp */,
 				0A2784E5128DBF7400336BDE /* error_handling.h */,
 				0A2784E6128DBF7400336BDE /* execution_tracer.cpp */,
@@ -1246,7 +1246,7 @@
 				0A278569128DBF7400336BDE /* abstract_tracer.cpp in Sources */,
 				0A27856A128DBF7400336BDE /* bytemap.cpp in Sources */,
 				0A27856B128DBF7400336BDE /* core_tracer.cpp in Sources */,
-				0A27856C128DBF7400336BDE /* debugging_tracer.cpp in Sources */,
+				0A27856C128DBF7400336BDE /* gc_debugging_tracer.cpp in Sources */,
 				0A27856D128DBF7400336BDE /* error_handling.cpp in Sources */,
 				0A27856E128DBF7400336BDE /* execution_tracer.cpp in Sources */,
 				0A27856F128DBF7400336BDE /* main.cpp in Sources */,

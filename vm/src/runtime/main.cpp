@@ -308,7 +308,7 @@ void interpret_rvm(char* image_path) {
     if (check_assertions)
       The_Squeak_Interpreter()->verify_all_processes_in_scheduler();
     if (Trace_Execution) The_Squeak_Interpreter()->trace_execution();
-    if (Trace_For_Debugging) The_Squeak_Interpreter()->trace_for_debugging();
+    if (Trace_GC_For_Debugging) The_Squeak_Interpreter()->trace_for_debugging();
     startInterpretingMessage_class().send_to_other_cores();
   }
   
@@ -399,7 +399,7 @@ int MAIN(int argc, char *argv[]) {
     if (check_assertions)
       The_Squeak_Interpreter()->verify_all_processes_in_scheduler();
     if (Trace_Execution) The_Squeak_Interpreter()->trace_execution();
-    if (Trace_For_Debugging) The_Squeak_Interpreter()->trace_for_debugging();
+    if (Trace_GC_For_Debugging) The_Squeak_Interpreter()->trace_for_debugging();
     startInterpretingMessage_class().send_to_other_cores();
   }
   

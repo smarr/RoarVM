@@ -2787,7 +2787,7 @@ void Squeak_Interpreter::recycleContextIfPossible_here(Oop ctx) {
 
 
 Object_p Squeak_Interpreter::allocateOrRecycleContext(bool needsLarge) {
-  if (Trace_For_Debugging  &&  debugging_tracer() != NULL
+  if (Trace_GC_For_Debugging  &&  debugging_tracer() != NULL
   &&  debugging_tracer()->force_real_context_allocation())
     ;
   else {
@@ -2981,8 +2981,8 @@ void Squeak_Interpreter::trace_execution() {
 }
 
 void Squeak_Interpreter::trace_for_debugging() {
-  if (!Trace_For_Debugging) fatal("should never happen");
-  set_debugging_tracer(new Debugging_Tracer());
+  if (!Trace_GC_For_Debugging) fatal("should never happen");
+  set_debugging_tracer(new GC_Debugging_Tracer());
   lprintf("Tracing for debugging\n");
 }
 

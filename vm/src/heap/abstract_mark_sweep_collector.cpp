@@ -30,7 +30,7 @@ void Abstract_Mark_Sweep_Collector::gc() {
 
   if (Trace_Execution  &&  The_Squeak_Interpreter()->execution_tracer() != NULL)
     The_Squeak_Interpreter()->execution_tracer()->record_gc();
-  if (Trace_For_Debugging  &&  The_Squeak_Interpreter()->debugging_tracer() != NULL)
+  if (Trace_GC_For_Debugging  &&  The_Squeak_Interpreter()->debugging_tracer() != NULL)
     The_Squeak_Interpreter()->debugging_tracer()->record_gc();
 
   Safepoint_for_moving_objects sf("gc");

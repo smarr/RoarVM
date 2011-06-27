@@ -14,6 +14,11 @@
 
 # if Profile_Image
 
+/**
+ * The Profiling_Tracer counts all Smalltalk message sends.
+ * The messages are counted individually depending on their name/class.
+#warning STEFAN: currently not threadsafe...
+ */
 class Profiling_Tracer: public Execution_Tracer {
 public:
   Profiling_Tracer(int n): Execution_Tracer(n) {};

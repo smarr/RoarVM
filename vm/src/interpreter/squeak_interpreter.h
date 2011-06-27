@@ -88,7 +88,7 @@ public:
   template(Core_Tracer*,int32,core_tracer, NULL) \
   template(Oop_Tracer*,int32,mutated_read_mostly_object_tracer, NULL) \
   template(Execution_Tracer*,int32,execution_tracer, NULL) \
-  template(Debugging_Tracer*,int32,debugging_tracer, NULL) \
+  template(GC_Debugging_Tracer*,int32,debugging_tracer, NULL) \
   \
   template(bool,bool,am_receiving_objects_from_snapshot, true) \
   \

@@ -86,7 +86,7 @@
   template(Omit_Duplicated_OT_Overhead) \
   template(Omit_Spare_Bit) \
   template(Trace_Execution) \
-  template(Trace_For_Debugging) \
+  template(Trace_GC_For_Debugging) \
   template(Track_Last_BC_For_Debugging) \
   template(Collect_Performance_Counters) \
   template(Compile_Debug_Store_Checks) \
@@ -279,8 +279,8 @@
 #  define Trace_Execution 0 // or could be: check_assertions
 # endif
 
-# ifndef Trace_For_Debugging
-#  define Trace_For_Debugging 0
+# ifndef Trace_GC_For_Debugging
+#  define Trace_GC_For_Debugging 0
 # endif
 
 # ifndef Track_Last_BC_For_Debugging

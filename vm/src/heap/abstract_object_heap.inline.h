@@ -40,7 +40,7 @@ inline void Abstract_Object_Heap::enforce_coherence_after_store_into_object_by_i
 inline bool Abstract_Object_Heap::sufficientSpaceToAllocate(oop_int_t bytes) {
   u_oop_int_t minFree = lowSpaceThreshold + bytes + Object::BaseHeaderSize;
 
-  if (Trace_For_Debugging && The_Squeak_Interpreter()->debugging_tracer() != NULL  &&  The_Squeak_Interpreter()->debugging_tracer()->force_gc())
+  if (Trace_GC_For_Debugging && The_Squeak_Interpreter()->debugging_tracer() != NULL  &&  The_Squeak_Interpreter()->debugging_tracer()->force_gc())
     ;
   else if (bytesLeft(false) >= minFree)
     return true;

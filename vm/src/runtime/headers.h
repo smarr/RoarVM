@@ -183,7 +183,7 @@
 # include       "oop_tracer.h"
 # include "execution_tracer.h"
 # include "profiling_tracer.h"
-# include "debugging_tracer.h"
+# include "gc_debugging_tracer.h"
 
 
 

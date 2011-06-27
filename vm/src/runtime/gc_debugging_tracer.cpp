@@ -14,7 +14,7 @@
 
 #include "headers.h"
 
-bool Debugging_Tracer::force_real_context_allocation() {
+bool GC_Debugging_Tracer::force_real_context_allocation() {
   const int period = 1;
   if (!is_during_remote_context_allocation)
     return false;
@@ -23,7 +23,7 @@ bool Debugging_Tracer::force_real_context_allocation() {
   return true;
 }
 
-bool Debugging_Tracer::force_gc() {
+bool GC_Debugging_Tracer::force_gc() {
   const int period = 2;
   if (!is_during_remote_context_allocation)
     return false;
@@ -35,7 +35,7 @@ bool Debugging_Tracer::force_gc() {
   return true;
 }
 
-void Debugging_Tracer::record_gc() {
+void GC_Debugging_Tracer::record_gc() {
   ++gc_count;
   if (is_during_remote_context_allocation)
     lprintf( "GC during remote context allocation, %d RCA, %d gc\n",

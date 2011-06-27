@@ -12,13 +12,17 @@
  ******************************************************************************/
 
 
-class Debugging_Tracer : public Abstract_Tracer {
+/**
+ * Record basic GC execution information.
+ * Similar to some of the new performance counters.
+ */
+class GC_Debugging_Tracer : public Abstract_Tracer {
   bool is_during_remote_context_allocation;
   int remote_context_allocation_requests;
   int remote_context_allocations;
   int gc_count;
  public:
-  Debugging_Tracer() : Abstract_Tracer(1, 1, 1) {
+  GC_Debugging_Tracer() : Abstract_Tracer(1, 1, 1) {
     is_during_remote_context_allocation = false;
     remote_context_allocation_requests = 0;
     remote_context_allocations = 0;
