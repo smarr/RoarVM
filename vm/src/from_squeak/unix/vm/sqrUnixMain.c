@@ -469,8 +469,9 @@ sqInt ioFormPrint(sqInt bitsAddr, sqInt width, sqInt height, sqInt depth, double
 
 sqInt ioRelinquishProcessorForMicroseconds(sqInt us)
 {
-  // was: int nwt= getNextWakeupTick();
-  int nwt = 0;  // original squeak version would hang all threads if there was an active Delay -- dmu
+# ifdef DEACTIVATED_ORIGINAL_SQUEAK_CODE
+  // this original squeak version would hang all threads if there was an active Delay -- dmu
+  int nwt = getNextWakeupTick();  
   int ms=  0;
 
   if (nwt)
@@ -481,6 +482,11 @@ sqInt ioRelinquishProcessorForMicroseconds(sqInt us)
 
   dpy->ioRelinquishProcessorForMicroseconds(ms*1000);
   setInterruptCheckCounter(0);
+# else /* ROAR_VM */
+  dpy->ioRelinquishProcessorForMicroseconds(0);
+  setInterruptCheckCounter(0);
+# endif
+  
 
   return 0;
 }
