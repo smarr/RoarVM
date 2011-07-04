@@ -1523,7 +1523,7 @@ public:
   }
   static int ioCPUMSecs();
     
-  static void getNextEvent_any_platform(void*);
+  bool getNextEvent_any_platform(void*);
 };
 
 

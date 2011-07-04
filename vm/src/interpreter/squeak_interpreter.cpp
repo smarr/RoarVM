@@ -3278,6 +3278,10 @@ bool Squeak_Interpreter::roomToPushNArgs(int n) {
   return stackPointerIndex() + n  <=  cntxSize;
 }
 
-void Squeak_Interpreter::getNextEvent_any_platform(void* p) {
+bool Squeak_Interpreter::getNextEvent_any_platform(void* p) {
+  bool preserved_successFlag = successFlag;
   ioGetNextEvent(p);
+  int successFlag_value = successFlag;
+  successFlag = preserved_successFlag;
+  return successFlag_value;
 }

@@ -1347,12 +1347,14 @@
 					"Print_Scheduler=0",
 					"Extra_Preheader_Word_Experiment=1",
 					"check_assertions=1",
-					"check_many_assertions=1",
+					"check_many_assertions=0",
 					"Include_Debugging_Code=1",
 					"Trace_For_Debugging=0",
 					"Trace_Execution=0",
-					"Track_OnStackPointer=1",
-					"Collect_Performance_Counters=1",
+					"Track_OnStackPointer=0",
+					"Collect_Performance_Counters=0",
+					LSB_FIRST,
+					ROAR_VM,
 				);
 				HEADER_SEARCH_PATHS = (
 					src/runtime,
@@ -1363,15 +1365,7 @@
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
-				OTHER_CFLAGS = (
-					"-DLSB_FIRST",
-					"-DROAR_VM",
-					"-Dcheck_assertions=1",
-					"-Dcheck_many_assertions=1",
-					"-DTrack_OnStackPointer=0",
-					"-DTrace_Execution=0",
-					"-DHAVE_DLOPEN=1",
-				);
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lX11",
 					"-lXext",
@@ -1406,6 +1400,8 @@
 					"Include_Debugging_Code=0",
 					"Trace_For_Debugging=0",
 					"Trace_Execution=0",
+					LSB_FIRST,
+					ROAR_VM,
 				);
 				HEADER_SEARCH_PATHS = (
 					src/runtime,
@@ -1416,10 +1412,7 @@
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH)";
-				OTHER_CFLAGS = (
-					"-DLSB_FIRST",
-					"-DROAR_VM",
-				);
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lX11",
 					"-lXext",

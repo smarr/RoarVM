@@ -37,7 +37,7 @@ public:
   fn_t load_function_from_plugin(int dst, const char* fn, const char* plugin);
 
   void get_screen_info(int*, int*);
-  void getNextEvent_on_main(int*);
+  bool getNextEvent_on_main(int*);
   // no faster void init_ctx(Object*, Oop, Oop, int, Oop, int, Oop*);
   Oop sample_each_core(int what_to_sample);
 
