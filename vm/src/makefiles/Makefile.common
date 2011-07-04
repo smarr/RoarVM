@@ -204,7 +204,7 @@ RVM_HEADERS = \
   oop_tracer.h \
   execution_tracer.h \
   profiling_tracer.h \
-  debugging_tracer.h \
+  gc_debugging_tracer.h \
   performance_counters.h \
   safepoint.h \
   abstract_mutex.h \
@@ -478,7 +478,7 @@ OBJS = \
   utils.opt \
   execution_tracer.opt \
   profiling_tracer.opt \
-  debugging_tracer.opt \
+  gc_debugging_tracer.opt \
   performance_counters.opt \
   safepoint.opt \
   abstract_mutex.opt \
