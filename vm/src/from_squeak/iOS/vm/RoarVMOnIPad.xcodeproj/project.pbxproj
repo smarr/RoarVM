@@ -60,7 +60,6 @@
 		0A5D7D98135E37CB00D13E53 /* bytemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D34135E37CB00D13E53 /* bytemap.cpp */; };
 		0A5D7D99135E37CB00D13E53 /* core_tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D36135E37CB00D13E53 /* core_tracer.cpp */; };
 		0A5D7D9A135E37CB00D13E53 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D38135E37CB00D13E53 /* debug_helper.cpp */; };
-		0A5D7D9B135E37CB00D13E53 /* debugging_tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D3B135E37CB00D13E53 /* debugging_tracer.cpp */; };
 		0A5D7D9C135E37CB00D13E53 /* error_handling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D3D135E37CB00D13E53 /* error_handling.cpp */; };
 		0A5D7D9D135E37CB00D13E53 /* execution_tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D3F135E37CB00D13E53 /* execution_tracer.cpp */; };
 		0A5D7D9E135E37CB00D13E53 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D42135E37CB00D13E53 /* main.cpp */; };
@@ -162,6 +161,7 @@
 		0AA32C18135EC70F00B97FB8 /* sqSqueakSoundCoreAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C14135EC70F00B97FB8 /* sqSqueakSoundCoreAudio.m */; };
 		0AA32C19135EC70F00B97FB8 /* sqSqueakSoundCoreAudioAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C16135EC70F00B97FB8 /* sqSqueakSoundCoreAudioAPI.m */; };
 		0AA32C7B135ECFDD00B97FB8 /* sqUnixExternalPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32C1B135EC76600B97FB8 /* sqUnixExternalPrims.c */; };
+		0ABEA92513C26C7A003108B9 /* gc_debugging_tracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ABEA92313C26C7A003108B9 /* gc_debugging_tracer.cpp */; };
 		0ADE8A8F135F38B200D37EAD /* AsynchFilePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A7C135F38B200D37EAD /* AsynchFilePlugin.c */; };
 		0ADE8A90135F38B200D37EAD /* B2DPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A7E135F38B200D37EAD /* B2DPlugin.c */; };
 		0ADE8A91135F38B200D37EAD /* BitBltPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0ADE8A80135F38B200D37EAD /* BitBltPlugin.c */; };
@@ -393,8 +393,6 @@
 		0A5D7D38135E37CB00D13E53 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
 		0A5D7D39135E37CB00D13E53 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0A5D7D3A135E37CB00D13E53 /* debug_store_checks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_store_checks.h; sourceTree = "<group>"; };
-		0A5D7D3B135E37CB00D13E53 /* debugging_tracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debugging_tracer.cpp; sourceTree = "<group>"; };
-		0A5D7D3C135E37CB00D13E53 /* debugging_tracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debugging_tracer.h; sourceTree = "<group>"; };
 		0A5D7D3D135E37CB00D13E53 /* error_handling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = error_handling.cpp; sourceTree = "<group>"; };
 		0A5D7D3E135E37CB00D13E53 /* error_handling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error_handling.h; sourceTree = "<group>"; };
 		0A5D7D3F135E37CB00D13E53 /* execution_tracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = execution_tracer.cpp; sourceTree = "<group>"; };
@@ -567,6 +565,8 @@
 		0AA32C16135EC70F00B97FB8 /* sqSqueakSoundCoreAudioAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = sqSqueakSoundCoreAudioAPI.m; sourceTree = "<group>"; };
 		0AA32C1B135EC76600B97FB8 /* sqUnixExternalPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqUnixExternalPrims.c; path = ../../unix/vm/sqUnixExternalPrims.c; sourceTree = "<group>"; };
 		0AB173FB135F2A2F0095BF89 /* sqVirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqVirtualMachine.h; sourceTree = "<group>"; };
+		0ABEA92313C26C7A003108B9 /* gc_debugging_tracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gc_debugging_tracer.cpp; sourceTree = "<group>"; };
+		0ABEA92413C26C7A003108B9 /* gc_debugging_tracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gc_debugging_tracer.h; sourceTree = "<group>"; };
 		0ADE8A7C135F38B200D37EAD /* AsynchFilePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = AsynchFilePlugin.c; sourceTree = "<group>"; };
 		0ADE8A7E135F38B200D37EAD /* B2DPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = B2DPlugin.c; sourceTree = "<group>"; };
 		0ADE8A80135F38B200D37EAD /* BitBltPlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = BitBltPlugin.c; sourceTree = "<group>"; };
@@ -1067,8 +1067,8 @@
 				0A5D7D38135E37CB00D13E53 /* debug_helper.cpp */,
 				0A5D7D39135E37CB00D13E53 /* debug_helper.h */,
 				0A5D7D3A135E37CB00D13E53 /* debug_store_checks.h */,
-				0A5D7D3B135E37CB00D13E53 /* debugging_tracer.cpp */,
-				0A5D7D3C135E37CB00D13E53 /* debugging_tracer.h */,
+				0ABEA92313C26C7A003108B9 /* gc_debugging_tracer.cpp */,
+				0ABEA92413C26C7A003108B9 /* gc_debugging_tracer.h */,
 				0A5D7D3D135E37CB00D13E53 /* error_handling.cpp */,
 				0A5D7D3E135E37CB00D13E53 /* error_handling.h */,
 				0A5D7D3F135E37CB00D13E53 /* execution_tracer.cpp */,
@@ -2391,7 +2391,6 @@
 				0A5D7D98135E37CB00D13E53 /* bytemap.cpp in Sources */,
 				0A5D7D99135E37CB00D13E53 /* core_tracer.cpp in Sources */,
 				0A5D7D9A135E37CB00D13E53 /* debug_helper.cpp in Sources */,
-				0A5D7D9B135E37CB00D13E53 /* debugging_tracer.cpp in Sources */,
 				0A5D7D9C135E37CB00D13E53 /* error_handling.cpp in Sources */,
 				0A5D7D9D135E37CB00D13E53 /* execution_tracer.cpp in Sources */,
 				0A5D7D9E135E37CB00D13E53 /* main.cpp in Sources */,
@@ -2515,6 +2514,7 @@
 				0ADE8ACE135F392E00D37EAD /* ZipPlugin.c in Sources */,
 				0ADE8ACF135F399D00D37EAD /* sqUnixSocket.c in Sources */,
 				0A040E2213B7526D007E172E /* performance_counters.cpp in Sources */,
+				0ABEA92513C26C7A003108B9 /* gc_debugging_tracer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
