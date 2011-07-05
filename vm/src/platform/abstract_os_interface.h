@@ -17,9 +17,9 @@ extern "C" { void rvm_exit(); }
 class Abstract_OS_Interface {
 public:
   
-  static inline void abort()                         __attribute__((noreturn)) { fatal(); }
-  static inline void die(const char* /* err_msg */)  __attribute__((noreturn)) { fatal(); }
-  static inline void exit()                          __attribute__((noreturn)) { fatal(); }
+  static inline void abort()                         __attribute__((noreturn)) { ::exit(255); }
+  static inline void die(const char* /* err_msg */)  __attribute__((noreturn)) { ::exit(255); }
+  static inline void exit()                          __attribute__((noreturn)) { ::exit(255); }
   static inline void breakpoint() {}
   
   static inline void initialize() {}

@@ -240,11 +240,6 @@ public:
   fn_t    primitiveFunctionPointer; bool do_primitive_on_main;
 
 
-#pragma mark -
-#pragma mark Statistical Information
-// STEFAN: added those pragmas here for the first time
-//         think it helps with Xcode, and should be applied gradually throughout the whole code
-  
   oop_int_t interruptChecksEveryNms;
 
 
@@ -262,7 +257,6 @@ public:
 
   Performance_Counters perf_counter;
   
-#pragma mark -
   
   int     methodArgumentCount() { return get_argumentCount(); }
   int     methodPrimitiveIndex() { return primitiveIndex; }
@@ -1385,8 +1379,6 @@ public:
   void let_one_through();
  public:
 
-#pragma mark -
-#pragma mark Scheduling
   
   void unset_running_process();
   bool process_is_scheduled_and_executing();
@@ -1405,7 +1397,6 @@ public:
   void try_to_find_a_process_to_run_and_start_running_it();
   void minimize_scheduler_mutex_load_by_spinning_till_there_might_be_a_runnable_process();
 
-#pragma mark -
   
   void give_up_CPU_instead_of_spinning(uint32_t&);
   void fixup_localIP_after_being_transferred_to();
