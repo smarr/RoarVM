@@ -79,9 +79,9 @@
   template(NthSendForStopping) \
   template(PrintMethodDictionaryLookups) \
   template(Multicore) \
-  template(Work_Around_Barrier_Bug) \
   template(Print_Barriers) \
   template(Include_Debugging_Code) \
+  template(Debugging) \
   template(Track_OnStackPointer) \
   template(Omit_Duplicated_OT_Overhead) \
   template(Omit_Spare_Bit) \
@@ -120,6 +120,19 @@
   template(Dont_Dump_Primitive_Cycles)
 
 
+
+// Flag to indicate the VM is meant for debugging.
+// This will ensure that the code itself is as debuggable
+// as possible (for instance disabling FORCE_INLINE)
+// without enforcing any extra debugging capabilities to
+// be included.
+// Will be used by some other flags as an indication if they
+// have not been defined explicitly.
+# ifndef Debugging
+  # define Debugging 0
+# endif
+
+
 # ifndef On_Intel_Linux
   # define On_Intel_Linux 0
 # endif
@@ -152,14 +165,6 @@
   # endif
 # endif
 
-# ifndef check_assertions
-  # define check_assertions 0
-# endif
-
-# ifndef check_many_assertions
-  # define check_many_assertions 0
-# endif
-
 # ifndef Measure
   # define Measure 0
 # endif
@@ -177,16 +182,21 @@
 # endif
 
 
-# ifndef Work_Around_Barrier_Bug
-  # define Work_Around_Barrier_Bug 1
-# endif
-
 # ifndef Print_Barriers
 # define Print_Barriers 0
 # endif
 
+// Flag to include general debugging code
 # ifndef Include_Debugging_Code
-# define Include_Debugging_Code 0
+# define Include_Debugging_Code Debugging
+# endif
+
+# ifndef check_assertions
+# define check_assertions Debugging
+# endif
+
+# ifndef check_many_assertions
+# define check_many_assertions 0
 # endif
 
 # ifndef Track_OnStackPointer
@@ -386,11 +396,15 @@
 
 // Macro to ensure that the compiler does inlining
 # ifndef FORCE_INLINE
-  # ifdef __GNUC__
-    # define FORCE_INLINE __attribute__((always_inline))
+  # if Debugging
+    # define FORCE_INLINE
   # else
-    # define FORCE_INLINE inline
-    # warning Try to find some compiler pragma or directive to enforce inlining for this compiler
+    # ifdef __GNUC__
+      # define FORCE_INLINE __attribute__((always_inline))
+    # else
+      # define FORCE_INLINE inline
+      # warning Try to find some compiler pragma or directive to enforce inlining for this compiler
+    # endif
   # endif
 # endif
 

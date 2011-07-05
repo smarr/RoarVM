@@ -108,14 +108,19 @@ then
 else
 	LOW_OPTIMIZE_LEVEL=-O1
 	HIGH_OPTIMIZE_LEVEL=-O3
-	CONFIG_FLAGS="$CONFIG_FLAGS -DCHECK_FOR_PROBLEMATIC_COMPILER=0"
+	CONFIG_FLAGS="$CONFIG_FLAGS \\
+	    -DCHECK_FOR_PROBLEMATIC_COMPILER=0"
 fi
 
 if [ $DEBUG -eq 0 ]
 then
     CONFIG_FLAGS="$CONFIG_FLAGS"
 else
-    CONFIG_FLAGS="$CONFIG_FLAGS -g3 -Dcheck_assertions=1 -Dcheck_many_assertions=1 -DTrace_Execution=0 -DInclude_Debugging_Code=1"
+    CONFIG_FLAGS="$CONFIG_FLAGS \\
+        -g3 \\
+        -DDebugging=1 \\
+        -Dcheck_many_assertions=1 \\
+        -DTrace_Execution=0"
 	if [ $ENFORCE_OPT -eq 0 ]
     then
 	    LOW_OPTIMIZE_LEVEL=-O0
@@ -213,7 +218,8 @@ fi
 
 if [ $PERF_COUNTERS -eq 1 ]
 then
-    CONFIG_FLAGS="$CONFIG_FLAGS -DCollect_Performance_Counters=1 -DCount_Cycles=1"
+    CONFIG_FLAGS="$CONFIG_FLAGS \\
+        -DCollect_Performance_Counters=1 -DCount_Cycles=1"
 fi
 
 if [ $USE_TILERA -eq 1 ]
@@ -226,10 +232,10 @@ then
 else
     # for now suppress a number of known warnings
     # won't work with the tile-cc
-    CONFIG_FLAGS="$CONFIG_FLAGS  -fdiagnostics-show-option -Wno-unused-variable -Wno-unused-value"
+    CONFIG_FLAGS="$CONFIG_FLAGS  \\
+        -fdiagnostics-show-option -Wno-unused-variable -Wno-unused-value"
 
-    echo "CONFIG_FLAGS = $CONFIG_FLAGS -DMeasure=0 \
- -DWork_Around_Barrier_Bug=1"         >> Makefile
+    echo "CONFIG_FLAGS = $CONFIG_FLAGS -DMeasure=0"         >> Makefile
     echo "PLATFORM=Intel"             >> Makefile
 fi
 
