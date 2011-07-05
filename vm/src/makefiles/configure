@@ -115,7 +115,7 @@ if [ $DEBUG -eq 0 ]
 then
     CONFIG_FLAGS="$CONFIG_FLAGS"
 else
-    CONFIG_FLAGS="$CONFIG_FLAGS -g3 -Dcheck_assertions=1 -Dcheck_many_assertions=1 -DTrace_Execution=0"
+    CONFIG_FLAGS="$CONFIG_FLAGS -g3 -Dcheck_assertions=1 -Dcheck_many_assertions=1 -DTrace_Execution=0 -DInclude_Debugging_Code=1"
 	if [ $ENFORCE_OPT -eq 0 ]
     then
 	    LOW_OPTIMIZE_LEVEL=-O0
