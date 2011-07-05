@@ -199,7 +199,7 @@ typedef struct VirtualMachine {
 
 #if VM_PROXY_MINOR > 3
 
-	void *(*ioLoadFunctionFrom)(char *fnName, char *modName);
+	void *(*ioLoadFunctionFrom)(const char *fnName, const char *modName);
 	sqInt (*ioMicroMSecs)(void);
 
 #endif

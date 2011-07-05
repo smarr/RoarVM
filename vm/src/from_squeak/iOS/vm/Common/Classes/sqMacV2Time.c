@@ -51,7 +51,6 @@ such third-party acknowledgments.
 #include <sys/time.h>
 
 static struct timeval	 startUpTime;
-#define MillisecondClockMask 536870911
 
 #if STACKVM
 /* all three methods have their roots in the original unix port from the late 90's */

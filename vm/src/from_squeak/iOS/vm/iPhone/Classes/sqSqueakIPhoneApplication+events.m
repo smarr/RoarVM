@@ -48,8 +48,6 @@ Some of this code was funded via a grant from the European Smalltalk User Group 
 #import "RoarVMAbstractEvent.h"
 #import "RoarVMSwipeEvent.h"
 
-#define MillisecondClockMask 536870911
-
 extern SqueakNoOGLIPhoneAppDelegate *gDelegateApp;
 extern struct	VirtualMachine* interpreterProxy;
 sqInt	windowActive=1;

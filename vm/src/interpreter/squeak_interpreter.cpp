@@ -259,7 +259,8 @@ void Squeak_Interpreter::interpret() {
 
   for (let_one_through();  ; ) {
     check_for_multicore_interrupt();
-    u_int64 start = OS_Interface::get_cycle_count();
+    if (Collect_Performance_Counters)
+      u_int64 start = OS_Interface::get_cycle_count();
 
     assert(activeContext_obj()->is_read_write());
 
@@ -2386,7 +2387,8 @@ void Squeak_Interpreter::multicore_interrupt() {
   if (Message_Queue::are_data_available(my_core()))
     PERF_CNT(this, count_data_available());
 
-  const u_int64 start = OS_Interface::get_cycle_count();
+  if (Collect_Performance_Counters)
+    const u_int64 start = OS_Interface::get_cycle_count();
 
 
   multicore_interrupt_check = false;
