@@ -1300,6 +1300,7 @@ public:
   void fullDisplayUpdate();
 
   void print_stack_trace(Printer*, Object_p proc = (Object_p)NULL);
+  uint32_t count_stack_depth();
   void print_all_stack_traces(Printer*);
   void print_process_lists(Printer*);
   void print_all_processes_in_scheduler(Printer*, bool);

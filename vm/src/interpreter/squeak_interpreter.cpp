@@ -340,6 +340,12 @@ void Squeak_Interpreter::interpret() {
     assert_stored_if_no_proc();
 
     PERF_CNT(this, add_interpret_cycles(OS_Interface::get_cycle_count() - start));
+    
+    // for debugging check that the stack is not growing to big
+    if (Include_Debugging_Code && (count_stack_depth() > 1000)) {
+      OS_Interface::breakpoint();
+    }
+    
   }
   internal_undo_prefetch();
 	externalizeIPandSP();
@@ -1616,6 +1622,31 @@ void Squeak_Interpreter::print_stack_trace(Printer* p, Object_p proc) {
   }
 }
 
+
+uint32_t Squeak_Interpreter::count_stack_depth() {
+  Object_p proc = get_running_process().as_object();
+  if (proc == roots.nilObj.as_object())
+    return 0;
+
+  Oop cntxt = proc->fetchPointer(Object_Indices::SuspendedContextIndex);
+  if (cntxt != roots.nilObj) ;
+  else if ((cntxt = activeContext()) != roots.nilObj) ;
+  else
+    return 0;
+
+  
+  uint32_t stack_depth = 0;
+  for (Oop c = cntxt;
+       c != roots.nilObj;
+       c = c.as_object()->fetchPointer(Object_Indices::SenderIndex)) {
+    if (c.bits() == 0) {
+      break;
+    }
+    stack_depth++;
+  }
+  
+  return stack_depth;
+}
 
 void Squeak_Interpreter::print_all_stack_traces(Printer* pr) {
   // print_all_processes_in_scheduler(pr, true);
