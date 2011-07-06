@@ -23,7 +23,7 @@ u_int32  Memory_System::log_memory_per_read_mostly_heap = 0;
 u_int32  Memory_System::memory_per_read_mostly_heap = 0;
 u_int32  Memory_System::log_memory_per_read_write_heap = 0;
   int    Memory_System::round_robin_period = 1;
-  size_t Memory_System::min_heap_MB = On_Tilera ? 256 : 1024; // Fewer GCs on Mac
+  size_t Memory_System::min_heap_MB =  On_iOS ? 32 : On_Tilera ? 256 : 1024; // Fewer GCs on Mac
 
 # define FOR_ALL_HEAPS(rank, mutability) \
   FOR_ALL_RANKS(rank) \

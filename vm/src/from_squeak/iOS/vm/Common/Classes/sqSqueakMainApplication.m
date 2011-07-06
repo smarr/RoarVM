@@ -65,10 +65,17 @@ extern sqSqueakAppDelegate *gDelegateApp;
 @synthesize soundInterfaceLogic;
 @synthesize argsArguments;
 
-# ifndef ROAR_VM
-//STEFAN: todo
-extern sqInt interpret(void);  //This is a VM Callback
-# endif // ROAR_VM
+// Define the VM call backs for initalization and similar purposes
+# ifdef ROAR_VM
+extern void initialize_basic_subsystems();
+extern void initialize_interpreter_instances_selftest_and_interpreter_proxy(char** orig_argv);
+extern void read_image(char* image_path);
+extern void begin_interpretation();
+extern void set_num_cores(char* num_cores_str);
+# else
+extern sqInt interpret(void);
+extern void sqMacMemoryFree(void);
+# endif // ! ROAR_VM
 
 - (void) setupFloat {
 }
@@ -128,11 +135,6 @@ extern sqInt interpret(void);  //This is a VM Callback
 	return [sqSqueakFileDirectoryInterface new];
 }
 
-// STEFAN: TODO clean up
-void basic_init();
-void set_num_cores(char* num_cores_str);
-void go_parallel();
-void interpret_rvm(char* image_name);
 - (void) runSqueak {
   //STEFAN: here is were we need to hack into
   
@@ -167,7 +169,6 @@ void interpret_rvm(char* image_name);
 		return;
 	}
 	
-// STEFAN: TODO clean up
 # ifdef ROAR_VM
     char * characterPathForImage = (char *) [[NSFileManager defaultManager] fileSystemRepresentationWithPath: [self.imageNameURL path]];
 # else
@@ -184,28 +185,25 @@ void interpret_rvm(char* image_name);
 	[self setupSoundLogic];
 	[gDelegateApp makeMainWindow];
 	
-// STEFAN: TODO clean up
+
 # ifdef ROAR_VM
-  basic_init();
+  initialize_basic_subsystems();
   set_num_cores("1"); //STEFAN TODO try 2
   
-  go_parallel();
+  initialize_interpreter_instances_selftest_and_interpreter_proxy(NULL);
   
-  interpret_rvm(characterPathForImage);
+  read_image(characterPathForImage);
+  begin_interpretation();
 # else
 	interpret();
 # endif // ROAR_VM
+  
 	[pool drain];  //may not return here, could call exit() via quit image
 	[self release];
 }
 
 - (void) MenuBarRestore {
 }
-
-// STEFAN: TODO cleanup
-# ifndef ROAR_VM
-void sqMacMemoryFree(void);
-# endif // !ROAR_VM
 
 - (void) ioExit {
 	[self ioExitWithErrorCode: 0];

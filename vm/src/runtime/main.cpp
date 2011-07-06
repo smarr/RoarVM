@@ -247,149 +247,29 @@ void helper_core_main() {
 }
 
 
-# if On_iOS
-#warning STEFAN TODO: get that streamlined!!!!
-
-void basic_init() {
-  Memory_System::min_heap_MB = 32;
-
+void initialize_basic_subsystems() {
   OS_Interface::profiler_disable();
   OS_Interface::profiler_clear();
-
+  
   OS_Interface::initialize();
-
+  
   Memory_Semantics::initialize_timeout_timer();
   Memory_Semantics::initialize_memory_system();
   
   Printer::init_globals();
-  
-  Memory_System::min_heap_MB = 32;
 }
 
-
-void go_parallel() {
-  Memory_System::min_heap_MB = 32;
-  
-  Memory_Semantics::go_parallel(helper_core_main, NULL);
-  
-  char buf[BUFSIZ];
-  Logical_Core::my_print_string(buf, sizeof(buf));
-  fprintf(stdout, "main running: %s\n", buf);
-  print_time(); fprintf(stderr, "\n");
-  
-  
-  print_config();
-  
-  Runtime_Tester::test();
-  
-  
-  
-  extern void initip();
-  initip();
-  
-}
-
-void interpret_rvm(char* image_path) {
-  Squeak_Image_Reader::read(image_path, The_Memory_System(), The_Squeak_Interpreter());
-  
-  
-  //  extern char** environ;
-  //  sqr_main(argc, argv, environ);
-  
-  if (The_Squeak_Interpreter()->make_checkpoint())
-    The_Squeak_Interpreter()->save_all_to_checkpoint();
-  
-  assert_always(The_Squeak_Interpreter()->safepoint_ability == NULL);
-  The_Squeak_Interpreter()->distribute_initial_interpreter();
-  Message_Statics::run_timer = true;
-  {
-    Safepoint_Ability sa(true);
-    The_Memory_System()->verify_if(check_assertions);
-    if (check_assertions)
-      The_Squeak_Interpreter()->verify_all_processes_in_scheduler();
-    if (Trace_Execution) The_Squeak_Interpreter()->trace_execution();
-    if (Trace_GC_For_Debugging) The_Squeak_Interpreter()->trace_for_debugging();
-    startInterpretingMessage_class().send_to_other_cores();
-  }
-  
-  // Doesn't work yet:  The_Memory_System()->moveAllToRead_MostlyHeaps();
-  The_Squeak_Interpreter()->interpret();
-  ioExit();
-}
-
-# define MAIN rvm_main
-
-# else // not IPHONE
-# define MAIN main
-# endif
-
-int MAIN(int argc, char *argv[]) {
-  struct rlimit rl = {100000000, 100000000}; //{ RLIM_INFINITY, RLIM_INFINITY };
-  // The rlimit was an attempt to get core dumps for a MDE version that broke them.
-  // It didn't work, but we might need it someday. -- dmu 4/09
-  if (false && setrlimit( RLIMIT_CORE, &rl)) {
-    perror("setrlimit");
-    fatal("rlimit");
-  }
-  // set_sim_tracing(SIM_TRACE_NONE);
-  OS_Interface::profiler_disable();
-  OS_Interface::profiler_clear();
-
-  OS_Interface::initialize();
-
-  Memory_Semantics::initialize_timeout_timer();
-  Memory_Semantics::initialize_memory_system();
-  
-
-  Printer::init_globals();
-
-  char** orig_argv = new char*[argc + 1];
-  for (int i = 0;  i <= argc;  ++i)  orig_argv[i] = argv[i];
-  process_arguments(argc, argv);
-
-  if (MakeByteCodeTrace) {
-    BytecodeTraceFile = fopen("bytecode_trace", "w");
-    if (BytecodeTraceFile == NULL) {
-      perror("bytecode trace file");
-      exit(1);
-    }
-  }
-      
-  OS_Interface::ensure_Time_Machine_backs_up_run_directory();
-
-  Memory_Semantics::go_parallel(helper_core_main, orig_argv);
-
-  char buf[BUFSIZ];
-  Logical_Core::my_print_string(buf, sizeof(buf));
-  fprintf(stdout, "main running: %s\n", buf);
-  print_time(); fprintf(stderr, "\n");
-
-  
-  print_config();
-
-  Runtime_Tester::test();
-  
-
-
-  extern void initip();
-  initip();
-  
-  char image_path[PATH_MAX];
-  realpath(argv[1], image_path);
-  
+void read_image(char* image_path) {
   if (The_Squeak_Interpreter()->use_checkpoint())
     Squeak_Image_Reader::fake_read(image_path, The_Memory_System(), The_Squeak_Interpreter());
   else
     Squeak_Image_Reader::read(image_path, The_Memory_System(), The_Squeak_Interpreter());
-
-  # if !On_iOS
-  extern char** environ;
-  sqr_main(argc, argv, environ);
-  # endif
-
+}
+   
+void begin_interpretation() {
   if (The_Squeak_Interpreter()->make_checkpoint())
     The_Squeak_Interpreter()->save_all_to_checkpoint();
-
+  
   assert_always(The_Squeak_Interpreter()->safepoint_ability == NULL);
   The_Squeak_Interpreter()->distribute_initial_interpreter();
   Message_Statics::run_timer = true;
@@ -407,9 +287,73 @@ int MAIN(int argc, char *argv[]) {
     fprintf(stdout, "running on battery power: saving cycles but idle cores will slow things down\n");
     The_Squeak_Interpreter()->set_idle_cores_relinquish_cpus(true);
   }
+  
   // Doesn't work yet:  The_Memory_System()->moveAllToRead_MostlyHeaps();
   The_Squeak_Interpreter()->interpret();
   ioExit();
+}
+
+void initialize_interpreter_instances_selftest_and_interpreter_proxy(char** orig_argv) {
+  Memory_Semantics::go_parallel(helper_core_main, orig_argv);
+  
+  char buf[BUFSIZ];
+  Logical_Core::my_print_string(buf, sizeof(buf));
+  fprintf(stdout, "main running: %s\n", buf);
+  print_time(); fprintf(stderr, "\n");
+  
+  
+  print_config();
+  
+  Runtime_Tester::test();
+    
+  
+  extern void initip();
+  initip();
+  
+}
+
+
+# if !On_iOS
+int main(int argc, char *argv[]) {
+  struct rlimit rl = {100000000, 100000000}; //{ RLIM_INFINITY, RLIM_INFINITY };
+  // The rlimit was an attempt to get core dumps for a MDE version that broke them.
+  // It didn't work, but we might need it someday. -- dmu 4/09
+  if (false && setrlimit( RLIMIT_CORE, &rl)) {
+    perror("setrlimit");
+    fatal("rlimit");
+  }
+  // set_sim_tracing(SIM_TRACE_NONE);
+  
+  initialize_basic_subsystems();
+  
+  char** orig_argv = new char*[argc + 1];
+  for (int i = 0;  i <= argc;  ++i)  orig_argv[i] = argv[i];
+  process_arguments(argc, argv);
+
+  if (MakeByteCodeTrace) {
+    BytecodeTraceFile = fopen("bytecode_trace", "w");
+    if (BytecodeTraceFile == NULL) {
+      perror("bytecode trace file");
+      exit(1);
+    }
+  }
+      
+  OS_Interface::ensure_Time_Machine_backs_up_run_directory();
+
+  initialize_interpreter_instances_selftest_and_interpreter_proxy(orig_argv);
+  
+  char image_path[PATH_MAX];
+  realpath(argv[1], image_path);
+  
+  read_image(image_path);
+  
+  extern char** environ;
+  sqr_main(argc, argv, environ);
+  
+  begin_interpretation();
+  
   return 0;
 }
+# endif /* ! On_iOS */
+
 
