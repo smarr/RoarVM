@@ -75,7 +75,8 @@ void* primitiveSampleRVM() {
 
     default:
       The_Squeak_Interpreter()->primitiveFail();
-      break;
+      The_Squeak_Interpreter()->assert_external();
+      return 0;
   }
   The_Squeak_Interpreter()->assert_external();
   if (The_Squeak_Interpreter()->failed()) { return 0; }
