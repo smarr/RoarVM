@@ -50,6 +50,9 @@
     # define On_OSX 1
     # define On_iOS 0
   # endif
+# else
+  # define On_iOS 0
+  # define On_OSX 0
 # endif
 
 
