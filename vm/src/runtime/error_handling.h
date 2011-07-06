@@ -14,17 +14,28 @@
 
 # undef assert
 
+/* Making the assert_* void and adapting the macros to not give warnings on GCC and Clang triggers a bug in the tile-cc
+ * Thus, we use the following hack to work around this problem.
+ */
 
-extern void assert_failure(   const char* func, const char* file, const int line, const char* pred, const char* msg) __attribute__((noreturn));
-extern void assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void*, void*) __attribute__((noreturn));
-extern void assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, int, int) __attribute__((noreturn));
+# if On_Tilera
+  # define ON_TILERA_OR_ELSE(tilera, or_else) tilera
+# else
+  # define ON_TILERA_OR_ELSE(tilera, or_else) or_else
+# endif
+
+
+
+extern ON_TILERA_OR_ELSE(int, void) assert_failure(   const char* func, const char* file, const int line, const char* pred, const char* msg) __attribute__((noreturn));
+extern ON_TILERA_OR_ELSE(int, void) assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, void*, void*) __attribute__((noreturn));
+extern ON_TILERA_OR_ELSE(int, void) assert_eq_failure(const char* func, const char* file, const int line, const char* pred, const char* msg, int, int) __attribute__((noreturn));
 
 
 // use this in verify:
 # define assert_always(pred) assert_always_msg(pred, "")
-# define assert_always_msg(pred, msg) ((pred) ? ({}) : assert_failure(__func__, __FILE__, __LINE__, #pred, msg))
+# define assert_always_msg(pred, msg) ((pred) ? ON_TILERA_OR_ELSE(0, ({})) : assert_failure(__func__, __FILE__, __LINE__, #pred, msg))
 # define assert_always_eq(a, b) \
-  ((a) == (b) ? ({}) : assert_eq_failure(__func__, __FILE__, __LINE__, #a "  ==  " #b, "", (a), (b)))
+  ((a) == (b) ? ON_TILERA_OR_ELSE(0, ({})) : assert_eq_failure(__func__, __FILE__, __LINE__, #a "  ==  " #b, "", (a), (b)))
 
 
 # define assert_message(pred, msg) \
@@ -38,7 +49,7 @@ extern void assert_eq_failure(const char* func, const char* file, const int line
 
 
 # define assert_eq(a, b, msg) \
-  (!check_assertions ||  (a) == (b) ?  ({}) : assert_eq_failure(__func__, __FILE__, __LINE__, #a "  ==  " #b, msg, (a), (b)))
+  (!check_assertions ||  (a) == (b) ? ON_TILERA_OR_ELSE(0, ({})) : assert_eq_failure(__func__, __FILE__, __LINE__, #a "  ==  " #b, msg, (a), (b)))
 
 # define fatal(msg) assert_always_msg(0, "Fatal: " msg)
 # define unimplemented() assert_message(0, "Unimplemented")
