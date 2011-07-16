@@ -37,10 +37,12 @@ class Squeak_Image_Reader {
   void check_image_version();
   int32 get_long();
   static bool readable_format(int32);
+  bool is_cog_image_with_reodered_floats();
   static int32 image_format_version();
   void read_header();
 
   void byteSwapByteObjects();
+  void normalize_float_ordering_in_image();
   void distribute_objects();
   
 
@@ -61,5 +63,6 @@ private:
   
   static const int Pre_Closure_32_Bit_Image_Version = 6502;
   static const int Post_Closure_32_Bit_Image_Version = 6504;
+  static const int Post_Closure_With_Reordered_Floats_32_Bit_Image_Version = 6505;
  };
 

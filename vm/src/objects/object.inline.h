@@ -540,6 +540,20 @@ inline void Object::storeFloat(double d) {
     &as_int32_p()[0 + BaseHeaderSize/sizeof(int32)], ((int32*)&d)[1],((int32*)&d)[0], (Object_p)this);
 }
 
+/** Floats are stored in platform order in Cog images.
+    This function here is used during image load to make sure that
+    the floats are stored in normalized, i.e., swaped order, since
+    the standard interpreter and the RoarVM do not use platform order.
+ 
+ REM: should NOT be called in normal operation. */
+inline void Object::swapFloatParts_for_cog_compatibility() {
+  int32* data = &as_int32_p()[0 + BaseHeaderSize/sizeof(int32)];
+  
+  The_Memory_System()->store_2_enforcing_coherence(
+    data, data[1], data[0], (Object_p)this);
+}
+
+
 inline bool Object::equals_string(const char* s) {
   return strlen(s) == lengthOf()  &&  strncmp(s, first_byte_address(), lengthOf()) == 0;
 }
