@@ -525,6 +525,15 @@ public:
   bool isEmptyList();
   inline static Oop floatObject(double);
   inline void storeFloat(double);
+
+   /** Floats are stored in platform order in Cog images.
+    This function here is used during image load to make sure that
+    the floats are stored in normalized, i.e., swaped order, since
+    the standard interpreter and the RoarVM do not use platform order.
+    
+    REM: should NOT be called in normal operation. */
+  inline void swapFloatParts_for_cog_compatibility();
+   
   void storeStackPointerValue(oop_int_t v) {
     storePointerUnchecked(Object_Indices::StackPointerIndex, Oop::from_int(v));
   }

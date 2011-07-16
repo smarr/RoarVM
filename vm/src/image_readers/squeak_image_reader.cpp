@@ -102,10 +102,36 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
 
   // "Second, return the bytes of bytes-type objects to their orginal order."
   if (swap_bytes) byteSwapByteObjects();
-
+  
   Safepoint_Ability sa(false); // for distributing objects and putting image name
   distribute_objects();
   imageNamePut_on_all_cores(file_name, strlen(file_name));
+  
+  // we need to reoder floats if the image was a Cog image
+  if (is_cog_image_with_reodered_floats()) {
+    normalize_float_ordering_in_image();
+  }
+}
+
+
+/** Inspired by:
+ !Interpreter methodsFor: 'image save/restore' stamp: 'dtl 10/5/2010 23:54'!
+ normalizeFloatOrderingInImage
+ 
+ "Float objects were saved in platform word ordering. Reorder them into the
+ traditional object format."
+*/
+void Squeak_Image_Reader::normalize_float_ordering_in_image() {
+  Squeak_Interpreter* const interp = The_Squeak_Interpreter();
+  Memory_System* const mem_sys = The_Memory_System();
+  
+  Oop cls = interp->splObj(Special_Indices::ClassFloat);
+  for (Oop floatInstance = mem_sys->initialInstanceOf(cls);
+       floatInstance != interp->roots.nilObj;
+       floatInstance  = mem_sys->nextInstanceAfter(floatInstance) ) {
+    /* Swap words within Float objects, taking them out of native platform ordering */
+    floatInstance.as_object()->swapFloatParts_for_cog_compatibility();
+  }
 }
 
 
@@ -167,10 +193,14 @@ bool Squeak_Image_Reader::readable_format(int32 version) {
   /* Check against a magic constant that changes when the image format
      changes. Since the image reading code uses this to detect byte ordering,
      one must avoid version numbers that are invariant under byte reversal. */
-  return version == Pre_Closure_32_Bit_Image_Version ||  version == Post_Closure_32_Bit_Image_Version;
+  return   version == Pre_Closure_32_Bit_Image_Version
+       ||  version == Post_Closure_32_Bit_Image_Version
+       ||  version == Post_Closure_With_Reordered_Floats_32_Bit_Image_Version;
 }
 
-
+bool Squeak_Image_Reader::is_cog_image_with_reodered_floats() {
+  return interpreter->image_version == Post_Closure_With_Reordered_Floats_32_Bit_Image_Version;
+}
 
 
 void Squeak_Image_Reader::byteSwapByteObjects() {
