@@ -439,7 +439,7 @@
 				0A2783F5128DBF7300336BDE /* externals */,
 				0A2783F8128DBF7300336BDE /* from_squeak */,
 				0A278443128DBF7300336BDE /* heap */,
-				0A278457128DBF7300336BDE /* ilib-intel */,
+				0A278457128DBF7300336BDE /* message_buffers */,
 				0A27845F128DBF7300336BDE /* image_readers */,
 				0A278462128DBF7300336BDE /* interpreter */,
 				0A278475128DBF7400336BDE /* makefiles */,
@@ -742,7 +742,7 @@
 			path = src/heap;
 			sourceTree = "<group>";
 		};
-		0A278457128DBF7300336BDE /* ilib-intel */ = {
+		0A278457128DBF7300336BDE /* message_buffers */ = {
 			isa = PBXGroup;
 			children = (
 				0A278458128DBF7300336BDE /* buffered_channel.cpp */,
@@ -753,8 +753,8 @@
 				0A27845D128DBF7300336BDE /* synced_queue.cpp */,
 				0A27845E128DBF7300336BDE /* synced_queue.h */,
 			);
-			name = "ilib-intel";
-			path = "src/ilib-intel";
+			name = message_buffers;
+			path = "src/message_buffers";
 			sourceTree = "<group>";
 		};
 		0A27845F128DBF7300336BDE /* image_readers */ = {
