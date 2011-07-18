@@ -128,6 +128,8 @@
 # include "oop.h"
 # include "oop_closure.h"
 
+# include "interprocess_allocator.h"
+
 # include "abstract_cpu_coordinate.h"
 # include "dummy_cpu_coordinate.h"
 # include "tile_cpu_coordinate.h"
