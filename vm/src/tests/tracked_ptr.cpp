@@ -12,6 +12,10 @@
 
 # if !On_Tilera
 
+# ifdef Track_OnStackPointer
+# undef Track_OnStackPointer
+# endif
+
 # define Track_OnStackPointer 1  /* Enforce this here for the tests */
 
 # include <gtest/gtest.h>
