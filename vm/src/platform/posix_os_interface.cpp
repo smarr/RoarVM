@@ -15,7 +15,9 @@
 #include "headers.h"
 
 
-pthread_t     POSIX_OS_Interface::threads[Max_Number_Of_Cores];
+pthread_t     POSIX_OS_Interface::threads  [Max_Number_Of_Cores];
+pid_t         POSIX_OS_Interface::processes[Max_Number_Of_Cores];
+
 pthread_key_t POSIX_OS_Interface::rank_key = 0;
 
 /**
@@ -104,6 +106,33 @@ void POSIX_OS_Interface::start_threads(void (*helper_core_main)(), char** /* arg
   OS_Interface::pin_thread_to_core(0);
 }
 
+
+void POSIX_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]) {
+  processes[0] = getpid();
+  
+  create_processes(Logical_Core::num_cores, helper_core_main);
+}
+
+
+void POSIX_OS_Interface::create_processes(const size_t num_of_processes, void (*helper_core_main)()) {
+  for (size_t i = 1; i < num_of_processes; i++) {
+    pid_t result = fork();
+    if (EAGAIN == result || ENOMEM == result) {
+      // TODO: do it properly
+      perror("Failed to fork of a child process.");
+      fatal("Failed to fork of a child process.");
+    }
+    
+    if (result == 0) {  // child process
+      printf("Child started successfully with PID: %d for Rank: %zu\n", getpid(), i);
+      // TODO: think i need to set the rank somewhere now
+      helper_core_main();
+    }
+    else {
+      processes[i] = result;
+    }
+  }
+}
 
 
 int POSIX_OS_Interface::abort_if_error(const char* msg, int err) {

@@ -24,12 +24,14 @@ public:
   static const size_t max_num_threads_on_threads_or_1_on_processes = 1;
   static inline size_t rank_on_threads_or_zero_on_processes() { return 0; }
 
+  /** Only relevant for Thread_Memory_Semantics */
   static inline void initialize_memory_system()       {}
   static inline void initialize_local_memory_system() {}
   static inline void initialize_interpreter()         {}
   static inline void initialize_local_interpreter()   {}
   static inline void initialize_timeout_timer()       {}
   static inline void initialize_local_timeout_timer() {}
+  static inline void initialize_logical_cores()       {}
 
 
   static inline bool cores_are_initialized() { return true; }

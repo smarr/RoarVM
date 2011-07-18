@@ -119,6 +119,8 @@
 		0ACF551912E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */; };
 		0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
+		34CFFD1A13D474810053F752 /* process_memory_semantics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784CD128DBF7400336BDE /* process_memory_semantics.cpp */; };
+		34CFFD1C13D474820053F752 /* process_memory_semantics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784CD128DBF7400336BDE /* process_memory_semantics.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1283,6 +1285,7 @@
 				0A5D7C99135CC84700D13E53 /* sqUnixSound.c in Sources */,
 				0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */,
 				0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */,
+				34CFFD1A13D474810053F752 /* process_memory_semantics.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1307,6 +1310,7 @@
 				0A4D8256135C523B00CD74D8 /* sqUnixExternalPrims.c in Sources */,
 				0A4D8258135C523B00CD74D8 /* sqUnixMain.c in Sources */,
 				0A4D825B135C526100CD74D8 /* sqUnixX11.c in Sources */,
+				34CFFD1C13D474820053F752 /* process_memory_semantics.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1365,9 +1369,9 @@
 					src/from_squeak/unix/vm,
 				);
 				INSTALL_PATH = /usr/local/bin;
-				OTHER_CFLAGS = "";
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lX11",
 					"-lXext",

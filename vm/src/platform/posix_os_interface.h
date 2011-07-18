@@ -178,8 +178,8 @@ public:
   static inline void* malloc_in_mem(int /* alignment */, int size) { return malloc(size); }
   static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool /* replicate */) { heap = NULL; /* unused on POSIX */ return 0; }
   
-  static void start_threads  (void (*)(/* helper_core_main */), char* /* argv */[]);
-  static void start_processes(void (*)(/* helper_core_main */), char* /* argv */[]) { fatal(); }
+  static void start_threads  (void (*helper_core_main)(), char* /* argv */[]);
+  static void start_processes(void (*helper_core_main)(), char* argv[]);
   
   static inline int get_thread_rank() { return (int)pthread_getspecific(rank_key); }
   
@@ -193,8 +193,12 @@ private:
   static void* pthread_thread_main(void* param);
   static int32_t       last_rank;  // needs to be accessed atomically (__sync_fetch_and_add)
   static pthread_key_t rank_key;
-  static pthread_t     threads[Max_Number_Of_Cores];
+  
+  static pthread_t     threads  [Max_Number_Of_Cores];
+  static pid_t         processes[Max_Number_Of_Cores];
+  
   static void create_threads(const size_t num_of_threads, void (*helper_core_main)());
+  static void create_processes(const size_t num_of_processes, void (*helper_core_main)());
   
 };
 

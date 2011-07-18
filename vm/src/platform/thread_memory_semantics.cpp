@@ -15,7 +15,7 @@
 # include "headers.h"
 
 
-#pragma mark Memory System
+# if Using_Threads
 
 # if !Replicate_PThread_Memory_System
   Memory_System _memory_system;
@@ -178,4 +178,6 @@ u_int64 Thread_Memory_Semantics::my_rank_mask() {
   assert(cores_are_initialized());
   return my_core()->rank_mask();
 }
+
+# endif // Using_Threads
 
