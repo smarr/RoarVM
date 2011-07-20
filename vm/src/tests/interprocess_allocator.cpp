@@ -21,60 +21,55 @@
 # include "headers.h"
 
 
-TEST(Interprocess_Allocator, FreeItemAndUsedItem) {
-  Interprocess_Allocator::Free_Item free_item;
+TEST(Interprocess_Allocator, FreeItem) {
+  Interprocess_Allocator::Item free_item;
   memset(&free_item, 0, sizeof(free_item));
   
   ASSERT_FALSE(free_item.is_actually_free_item());
   
   free_item.set_size(4);
+  ASSERT_FALSE(free_item.is_actually_free_item());
+  
+  free_item.become_free();
   ASSERT_TRUE (free_item.is_actually_free_item());
   ASSERT_EQ(4, free_item.get_size());
   
-  Interprocess_Allocator::Used_Item* used_item = (Interprocess_Allocator::Used_Item*)&free_item;
-  
-  ASSERT_TRUE (used_item->is_actually_free_item());
-  ASSERT_EQ(4, used_item->get_size());
-  
-  used_item->set_size(8);
-  ASSERT_EQ(8, used_item->get_size());
-  ASSERT_FALSE(used_item->is_actually_free_item());
-  
+  free_item.become_used();
+  ASSERT_EQ(4, free_item.get_size());
   ASSERT_FALSE(free_item.is_actually_free_item());
-  ASSERT_EQ(8, free_item.get_size());
 }
 
 TEST(Interprocess_Allocator, UsedItemContent) {
-  Interprocess_Allocator::Used_Item item;
+  Interprocess_Allocator::Item item;
   
   // The round-trip should work as expected
   
   void* content = item.get_content();
   ASSERT_NE(&item, content);
   
-  ASSERT_EQ(&item, Interprocess_Allocator::Used_Item::from_content(content));
+  ASSERT_EQ(&item, Interprocess_Allocator::Item::from_content(content));
 }
 
 
 TEST(Interprocess_Allocator, PadForWordAlignment) {
-  ASSERT_EQ(0,  Interprocess_Allocator::pad_for_word_alignment(0));
-  ASSERT_EQ(4,  Interprocess_Allocator::pad_for_word_alignment(1));
-  ASSERT_EQ(4,  Interprocess_Allocator::pad_for_word_alignment(2));
-  ASSERT_EQ(4,  Interprocess_Allocator::pad_for_word_alignment(3));
-  ASSERT_EQ(4,  Interprocess_Allocator::pad_for_word_alignment(4));
+  // We need to guarantee some additionally free space for the management of the free items
+  // since this is done inplace.
+  ASSERT_EQ(12,  Interprocess_Allocator::Item::manage_and_pad(0));
+  ASSERT_EQ(12,  Interprocess_Allocator::Item::manage_and_pad(3));
   
-  ASSERT_EQ(8,  Interprocess_Allocator::pad_for_word_alignment(5));
-  ASSERT_EQ(8,  Interprocess_Allocator::pad_for_word_alignment(6));
-  ASSERT_EQ(8,  Interprocess_Allocator::pad_for_word_alignment(7));
-  ASSERT_EQ(8,  Interprocess_Allocator::pad_for_word_alignment(8));
-
-  ASSERT_EQ(12,  Interprocess_Allocator::pad_for_word_alignment(9));
+  ASSERT_EQ(12,  Interprocess_Allocator::Item::manage_and_pad(7));
+  ASSERT_EQ(12,  Interprocess_Allocator::Item::manage_and_pad(8));
+  ASSERT_EQ(16,  Interprocess_Allocator::Item::manage_and_pad(9));
   
-  ASSERT_EQ(128,  Interprocess_Allocator::pad_for_word_alignment(127));
+  ASSERT_EQ(16,  Interprocess_Allocator::Item::manage_and_pad(12));
+  ASSERT_EQ(20,  Interprocess_Allocator::Item::manage_and_pad(13));
   
-  ASSERT_EQ(256,  Interprocess_Allocator::pad_for_word_alignment(255));
-  ASSERT_EQ(256,  Interprocess_Allocator::pad_for_word_alignment(256));
-  ASSERT_EQ(260,  Interprocess_Allocator::pad_for_word_alignment(257));
+  ASSERT_EQ(20,  Interprocess_Allocator::Item::manage_and_pad(16));
+  ASSERT_EQ(24,  Interprocess_Allocator::Item::manage_and_pad(17));
+  
+  ASSERT_EQ(256, Interprocess_Allocator::Item::manage_and_pad(251));
+  ASSERT_EQ(256, Interprocess_Allocator::Item::manage_and_pad(252));
+  ASSERT_EQ(260, Interprocess_Allocator::Item::manage_and_pad(253));
 }
 
 
@@ -83,7 +78,7 @@ TEST(Interprocess_Allocator, BasicAllocation) {
   
   Interprocess_Allocator ia(mem, 512);
   
-  for (size_t i = 0; i < 60; i++) {        // not 64 elements in total because we do not split very small elements
+  for (size_t i = 0; i < 40; i++) {        // not 64 elements in total because we do not split very small elements
     ASSERT_NE(ia.allocate(4), (void*)NULL);
   }
   ASSERT_NE(ia.allocate(4), (void*)NULL);  // this is the last one because of the hyristic that is ment to reduce fragmentation
@@ -98,7 +93,7 @@ TEST(Interprocess_Allocator, UniqueAllocationResultsInMemRegion) {
   Interprocess_Allocator ia(mem, 512);
   
   void* prev = NULL;
-  for (size_t i = 0; i < 61; i++) {     // not 64 elements in total because we do not split very small elements
+  for (size_t i = 0; i < 41; i++) {     // not 64 elements in total because we do not split very small elements
     void* result = ia.allocate(4);
     
     ASSERT_NE(result, (void*)NULL);
@@ -123,44 +118,44 @@ TEST(Interprocess_Allocator, AllocationAndDeallocation) {
   void* m3 = ia.allocate(4);
   void* m4 = ia.allocate(4);
   
-  for (size_t i = 0; i < 57; i++) {       // not 64 elements in total because we do not split very small elements
+  for (size_t i = 0; i < 37; i++) {        // not 64 elements in total because we do not split very small elements
     ASSERT_NE((void*)NULL, ia.allocate(4));
   }
   
   ASSERT_EQ((void*)NULL, ia.allocate(4));  // too much requested
   
   ia.free(m1);
-  ASSERT_EQ((void*)NULL, ia.allocate(8));  // too much requested
+  ASSERT_EQ((void*)NULL, ia.allocate(42)); // there should be 32bytes left, so not enough
   ASSERT_NE((void*)NULL, ia.allocate(4));
 
   ia.free(m2);
   ia.free(m3);
-  ASSERT_EQ((void*)NULL, ia.allocate(16));  // too much requested, so should fail
-  ASSERT_NE((void*)NULL, ia.allocate(12));  // that should be ok
-  ASSERT_EQ((void*)NULL, ia.allocate(4));   // too much requested
+  ASSERT_EQ((void*)NULL, ia.allocate(16)); // too much segmentation
+  ASSERT_NE((void*)NULL, ia.allocate(4));  // that should be ok
+  ASSERT_NE((void*)NULL, ia.allocate(4));  // too much requested
   
   ia.free(m4);
-  ASSERT_EQ((void*)NULL, ia.allocate(8));   // too much requested
+  ASSERT_EQ((void*)NULL, ia.allocate(32)); // too much requested
   ASSERT_NE((void*)NULL, ia.allocate(4));
 
-  ASSERT_EQ((void*)NULL, ia.allocate(4));   // all full again -> failing allocate
+  ASSERT_EQ((void*)NULL, ia.allocate(4));  // all full again -> failing allocate
   free(mem);
 }
 
 
 TEST(Interprocess_Allocator, NonOverlapping) {
   void* mem = malloc(512);
-  int* allocated_elements[61];
+  int* allocated_elements[41];
   
   Interprocess_Allocator ia(mem, 512);
   
-  for (size_t i = 0; i < 61; i++) {         // not 64 elements in total because we do not split very small elements
+  for (size_t i = 0; i < 41; i++) {         // not 64 elements in total because we do not split very small elements
     allocated_elements[i] = (int*)ia.allocate(sizeof(int));
     ASSERT_NE((void*)NULL, allocated_elements[i]);
     *allocated_elements[i] = i;
   }
   
-  for (size_t i = 0; i < 61; i++) {
+  for (size_t i = 0; i < 41; i++) {
     ASSERT_EQ(i, *allocated_elements[i]);
   }
   

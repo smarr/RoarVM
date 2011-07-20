@@ -21,38 +21,10 @@ private:
   size_t free_area;
 
 public:
-  class Free_Item {
-  private:
-    size_t size;
+  class Item {
   public:
-    
-    size_t get_size() const {
-      return (size & 0xFFFFFFFE);
-    }
-    
-    void set_size(size_t sz) {
-      assert(sz % sizeof(void*) == 0); // make sure that we are aligned
-      size = (sz | 1);
-    }
-    
-    bool is_actually_free_item() const {
-      return (size & 1);
-    }
-    
-    void become_free_item() {
-      size = size | 1 ;
-    }
-    
-    Free_Item* next;
-    Free_Item* prev;
-  };
-   
-  class Used_Item {
-  private:
     size_t size;
-    char   content[0];
     
-  public:
     size_t get_size() const {
       return (size & 0xFFFFFFFE);
     }
@@ -66,22 +38,41 @@ public:
       return (size & 1);
     }
     
-    bool become_used_item() {
+    void become_free() {
+      size = size | 1 ;
+    }
+
+    bool become_used() {
       size = (size & 0xFFFFFFFE);
     }
-    
+
+    /* For used objects we do not need next/prev,
+       so, we just use that for the content. */
     void* get_content() {
-      return &content;
+      return (void*)&next;
     }
     
-    static Used_Item* from_content(void* value) {
-      return (Used_Item*)((intptr_t)value - offsetof(Used_Item, content));
+    static Item* from_content(void* value) {
+      return (Item*)((intptr_t)value - offsetof(Item, next));
     }
     
+    /** Pad for word alignment, but also make sure
+     that the return items are never smaller than the item we use to manage
+     the free spots in the heap. */
+    static inline size_t manage_and_pad(size_t sz) {
+      const size_t with_overhead = offsetof(Item, next) + sz;
+      const size_t padded = with_overhead + ((sizeof(void*) - (with_overhead % sizeof(void*))) % sizeof(void*));
+      
+      return max(padded, sizeof(Item));
+    }
+
+    Item* next;
+    Item* prev;
   };
    
+   
 private:
-  Free_Item* free_list;
+  Item* free_list;
 
   OS_Interface::Mutex mtx;
 
@@ -103,7 +94,7 @@ public:
     if (sz == 0)
       return NULL;
     
-    size_t managed_and_padded = pad_for_word_alignment(sz + sizeof(Used_Item));
+    size_t managed_and_padded = Item::manage_and_pad(sz);
     void* result = NULL;
     
     if (managed_and_padded <= free_area) {
@@ -131,11 +122,14 @@ public:
     
     OS_Interface::mutex_lock(&mtx);
     
-    Free_Item* freed_item = (Free_Item*)Used_Item::from_content(item);
-    freed_item->become_free_item();
+    Item* freed_item = (Item*)Item::from_content(item);
+    
+    size_t additional_free_size = freed_item->get_size();
+    
+    freed_item->become_free();
     freed_item->prev = NULL;
     
-    Free_Item* following_item = (Free_Item*)((intptr_t)freed_item + freed_item->get_size());
+    Item* following_item = (Item*)((intptr_t)freed_item + freed_item->get_size());
     
     if ((intptr_t)following_item < (intptr_t)allocation_area + size) {
       if (following_item->is_actually_free_item()) {
@@ -151,7 +145,8 @@ public:
           freed_item->prev->next = freed_item;
         }
         else {
-          assert_eq(following_item, free_list, "In case there is no previous item, we should be at the head of the free list.");
+          assert_eq(following_item, free_list,
+                    "In case there is no previous item, we should be at the head of the free list.");
           free_list = freed_item->next;
         }
       }
@@ -159,6 +154,8 @@ public:
     
     freed_item->next = free_list;
     free_list = freed_item;
+    
+    free_area += additional_free_size;
     
     OS_Interface::mutex_unlock(&mtx);
   }
@@ -179,17 +176,18 @@ private:
   void initalize_allocator() {
     OS_Interface::mutex_init_for_cross_process_use(&mtx);
     
-    free_list = (Free_Item*)allocation_area;
+    free_list = (Item*)allocation_area;
     free_list->set_size(size);
+    free_list->become_free();
     free_list->next = NULL;
     free_list->prev = NULL;
   }
   
   void* allocate_chunk(size_t managed_and_padded_size) {
-    Used_Item* result = NULL;
+    Item* result = NULL;
     assert(free_area >= managed_and_padded_size);  // should have been checked already
     
-    Free_Item* current = free_list;
+    Item* current = free_list;
     
     // first fit: find the first free spot that is big enough
     while (current != NULL && current->get_size() < managed_and_padded_size) {
@@ -201,11 +199,11 @@ private:
       return NULL;
     
     assert(current->get_size() >= managed_and_padded_size);
-    result = (Used_Item*)current;
+    result = current;
     
     // now two possible cases, either the found free_item is a perfect fit, or we split it up
     
-    if (managed_and_padded_size + (2 * sizeof(Free_Item)) >= current->get_size()) {
+    if (managed_and_padded_size + (2 * sizeof(Item)) >= current->get_size()) {
       // the current chunk is perfect, almost perfect
       // now just use it
       if (free_list == current) {
@@ -228,13 +226,14 @@ private:
       // Save the current content, might be overriden when allocation
       // requests are very small
       size_t chunk_size = current->get_size();
-      Free_Item* next = current->next;
-      Free_Item* prev = current->prev;
+      Item* next = current->next;
+      Item* prev = current->prev;
       
       result->set_size(managed_and_padded_size);
       
-      Free_Item* remaining_chunk = (Free_Item*)((intptr_t)current + managed_and_padded_size);
+      Item* remaining_chunk = (Item*)((intptr_t)current + managed_and_padded_size);
       remaining_chunk->set_size(chunk_size - managed_and_padded_size);
+      remaining_chunk->become_free();
       remaining_chunk->prev = prev;
       remaining_chunk->next = next;
       
@@ -247,15 +246,11 @@ private:
     }
     
     assert_eq(current->get_size(), result->get_size(),
-              "Unexpectedly the structs of used and free items do not match on the size attributed, needs to be fixed.");
+              "Unexpectedly used and free items do not match "
+              "on the size attribute, needs to be fixed.");
     
-    result->become_used_item();
+    result->become_used();
     return result->get_content();
-  }
-
-public:
-  static inline size_t pad_for_word_alignment(size_t sz) {
-    return sz + ((sizeof(void*) - (sz % sizeof(void*))) % sizeof(void*));
   }
 
 };
