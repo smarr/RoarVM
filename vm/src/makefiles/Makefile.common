@@ -75,7 +75,7 @@ INCLUDES = \
 	
 ifeq "$(PLATFORM)" "Intel"
 INCLUDES += \
-	-I$(SRC_DIR)/ilib-intel \
+	-I$(SRC_DIR)/message_buffers \
 	-I$(SRC_DIR)/ibm
 endif
 
@@ -414,10 +414,10 @@ vpath %.h $(SRC_DIR)/messages
 vpath %.h $(SRC_DIR)/multichip
 
 ifeq "$(PLATFORM)" "Intel"
-vpath %.cpp $(SRC_DIR)/ilib-intel
+vpath %.cpp $(SRC_DIR)/message_buffers
 vpath %.cpp $(SRC_DIR)/ibm
 
-vpath %.h $(SRC_DIR)/ilib-intel
+vpath %.h $(SRC_DIR)/message_buffers
 vpath %.h $(SRC_DIR)/ibm
 endif
 
