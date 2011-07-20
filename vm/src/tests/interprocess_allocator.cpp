@@ -10,7 +10,13 @@
  ******************************************************************************/
 
 
-#include <gtest/gtest.h>
+# include <gtest/gtest.h>
+
+# ifdef Debugging
+# undef Debugging
+# endif
+
+# define Debugging 1
 
 # include "headers.h"
 
@@ -42,11 +48,32 @@ TEST(Interprocess_Allocator, BasicAllocation) {
   
   Interprocess_Allocator ia(mem, 512);
   
-  for (size_t i = 0; i < 64; i++) {
+  for (size_t i = 0; i < 60; i++) {        // not 64 elements in total because we do not split very small elements
     ASSERT_NE(ia.allocate(4), (void*)NULL);
   }
+  ASSERT_NE(ia.allocate(4), (void*)NULL);  // this is the last one because of the hyristic that is ment to reduce fragmentation
   
   ASSERT_EQ(NULL, ia.allocate(4));
+  
+  free(mem);
+}
+
+TEST(Interprocess_Allocator, UniqueAllocationResultsInMemRegion) {
+  void* mem = malloc(512);
+  Interprocess_Allocator ia(mem, 512);
+  
+  void* prev = NULL;
+  for (size_t i = 0; i < 61; i++) {     // not 64 elements in total because we do not split very small elements
+    void* result = ia.allocate(4);
+    
+    ASSERT_NE(result, (void*)NULL);
+    ASSERT_NE(result, prev);
+    
+    ASSERT_TRUE(result >= mem);
+    ASSERT_TRUE(((intptr_t)result + 4) <= ((intptr_t)mem + 512));
+    
+    prev = result;
+  }
   
   free(mem);
 }
@@ -61,7 +88,7 @@ TEST(Interprocess_Allocator, AllocationAndDeallocation) {
   void* m3 = ia.allocate(4);
   void* m4 = ia.allocate(4);
   
-  for (size_t i = 0; i < 60; i++) {
+  for (size_t i = 0; i < 57; i++) {       // not 64 elements in total because we do not split very small elements
     ASSERT_NE((void*)NULL, ia.allocate(4));
   }
   
@@ -88,18 +115,18 @@ TEST(Interprocess_Allocator, AllocationAndDeallocation) {
 
 TEST(Interprocess_Allocator, NonOverlapping) {
   void* mem = malloc(512);
-  int* allocated_elements[64];
+  int* allocated_elements[61];
   
   Interprocess_Allocator ia(mem, 512);
   
-  for (size_t i = 0; i < 64; i++) {
+  for (size_t i = 0; i < 61; i++) {         // not 64 elements in total because we do not split very small elements
     allocated_elements[i] = (int*)ia.allocate(sizeof(int));
     ASSERT_NE((void*)NULL, allocated_elements[i]);
     *allocated_elements[i] = i;
   }
   
-  for (size_t i = 0; i < 64; i++) {
-    ASSERT_NE(i, *allocated_elements[i]);
+  for (size_t i = 0; i < 61; i++) {
+    ASSERT_EQ(i, *allocated_elements[i]);
   }
   
   free(mem);
