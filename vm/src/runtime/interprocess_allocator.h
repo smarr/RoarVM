@@ -20,18 +20,68 @@ private:
   size_t const size;
   size_t free_area;
 
-  typedef struct free_item {
+public:
+  class Free_Item {
+  private:
     size_t size;
-    struct free_item* next;
-    struct free_item* prev;
-  } free_item_t;
+  public:
+    
+    size_t get_size() const {
+      return (size & 0xFFFFFFFE);
+    }
+    
+    void set_size(size_t sz) {
+      assert(sz % sizeof(void*) == 0); // make sure that we are aligned
+      size = (sz | 1);
+    }
+    
+    bool is_actually_free_item() const {
+      return (size & 1);
+    }
+    
+    void become_free_item() {
+      size = size | 1 ;
+    }
+    
+    Free_Item* next;
+    Free_Item* prev;
+  };
    
-  typedef struct used_item {
+  class Used_Item {
+  private:
     size_t size;
     char   content[0];
-  } used_item_t;
+    
+  public:
+    size_t get_size() const {
+      return (size & 0xFFFFFFFE);
+    }
+    
+    void set_size(size_t sz) {
+      assert(sz % sizeof(void*) == 0); // make sure that we are aligned
+      size = sz;
+    }
+    
+    bool is_actually_free_item() const {
+      return (size & 1);
+    }
+    
+    bool become_used_item() {
+      size = (size & 0xFFFFFFFE);
+    }
+    
+    void* get_content() {
+      return &content;
+    }
+    
+    static Used_Item* from_content(void* value) {
+      return (Used_Item*)((intptr_t)value - offsetof(Used_Item, content));
+    }
+    
+  };
    
-  free_item_t* free_list;
+private:
+  Free_Item* free_list;
 
   OS_Interface::Mutex mtx;
 
@@ -53,7 +103,7 @@ public:
     if (sz == 0)
       return NULL;
     
-    size_t managed_and_padded = pad_for_word_alignment(sz + sizeof(used_item_t));
+    size_t managed_and_padded = pad_for_word_alignment(sz + sizeof(Used_Item));
     void* result = NULL;
     
     if (managed_and_padded <= free_area) {
@@ -76,7 +126,42 @@ public:
     return result;
   }
   
-  void  free(void* item) {}
+  void free(void* item) {
+    assert(item >= allocation_area && ((intptr_t)item < (intptr_t) allocation_area + size));
+    
+    OS_Interface::mutex_lock(&mtx);
+    
+    Free_Item* freed_item = (Free_Item*)Used_Item::from_content(item);
+    freed_item->become_free_item();
+    freed_item->prev = NULL;
+    
+    Free_Item* following_item = (Free_Item*)((intptr_t)freed_item + freed_item->get_size());
+    
+    if ((intptr_t)following_item < (intptr_t)allocation_area + size) {
+      if (following_item->is_actually_free_item()) {
+        freed_item->set_size(freed_item->get_size() + following_item->get_size());
+        freed_item->next = following_item->next;
+        freed_item->prev = following_item->prev;
+        
+        following_item->next = NULL;
+        following_item->prev = NULL;
+        following_item->set_size(0);
+        
+        if (freed_item->prev) {
+          freed_item->prev->next = freed_item;
+        }
+        else {
+          assert_eq(following_item, free_list, "In case there is no previous item, we should be at the head of the free list.");
+          free_list = freed_item->next;
+        }
+      }
+    }
+    
+    freed_item->next = free_list;
+    free_list = freed_item;
+    
+    OS_Interface::mutex_unlock(&mtx);
+  }
 
 /** For Debugging */
 public:
@@ -94,20 +179,20 @@ private:
   void initalize_allocator() {
     OS_Interface::mutex_init_for_cross_process_use(&mtx);
     
-    free_list = (free_item_t*)allocation_area;
-    free_list->size = size;
+    free_list = (Free_Item*)allocation_area;
+    free_list->set_size(size);
     free_list->next = NULL;
     free_list->prev = NULL;
   }
   
   void* allocate_chunk(size_t managed_and_padded_size) {
-    void* result = NULL;
+    Used_Item* result = NULL;
     assert(free_area >= managed_and_padded_size);  // should have been checked already
     
-    free_item_t* current = free_list;
+    Free_Item* current = free_list;
     
     // first fit: find the first free spot that is big enough
-    while (current != NULL && current->size < managed_and_padded_size) {
+    while (current != NULL && current->get_size() < managed_and_padded_size) {
       current = current->next;
     }
     
@@ -115,11 +200,12 @@ private:
     if (current == NULL)
       return NULL;
     
-    assert(current->size >= managed_and_padded_size);
+    assert(current->get_size() >= managed_and_padded_size);
+    result = (Used_Item*)current;
     
     // now two possible cases, either the found free_item is a perfect fit, or we split it up
     
-    if (managed_and_padded_size + (2 * sizeof(free_item_t)) >= current->size) {
+    if (managed_and_padded_size + (2 * sizeof(Free_Item)) >= current->get_size()) {
       // the current chunk is perfect, almost perfect
       // now just use it
       if (free_list == current) {
@@ -141,14 +227,14 @@ private:
       
       // Save the current content, might be overriden when allocation
       // requests are very small
-      size_t chunk_size = current->size;
-      free_item_t* next = current->next;
-      free_item_t* prev = current->prev;
+      size_t chunk_size = current->get_size();
+      Free_Item* next = current->next;
+      Free_Item* prev = current->prev;
       
-      current->size = managed_and_padded_size;
+      result->set_size(managed_and_padded_size);
       
-      free_item_t* remaining_chunk = (free_item_t*)((intptr_t)current + managed_and_padded_size);
-      remaining_chunk->size = chunk_size - managed_and_padded_size;
+      Free_Item* remaining_chunk = (Free_Item*)((intptr_t)current + managed_and_padded_size);
+      remaining_chunk->set_size(chunk_size - managed_and_padded_size);
       remaining_chunk->prev = prev;
       remaining_chunk->next = next;
       
@@ -160,9 +246,11 @@ private:
       }
     }
     
-    assert_eq((current->size), ((used_item_t*)current)->size, "Unexpectedly the structs of used and free items do not match on the size attributed, needs to be fixed.");
+    assert_eq(current->get_size(), result->get_size(),
+              "Unexpectedly the structs of used and free items do not match on the size attributed, needs to be fixed.");
     
-    return &(((used_item_t*)current)->content);
+    result->become_used_item();
+    return result->get_content();
   }
 
 public:

@@ -21,6 +21,41 @@
 # include "headers.h"
 
 
+TEST(Interprocess_Allocator, FreeItemAndUsedItem) {
+  Interprocess_Allocator::Free_Item free_item;
+  memset(&free_item, 0, sizeof(free_item));
+  
+  ASSERT_FALSE(free_item.is_actually_free_item());
+  
+  free_item.set_size(4);
+  ASSERT_TRUE (free_item.is_actually_free_item());
+  ASSERT_EQ(4, free_item.get_size());
+  
+  Interprocess_Allocator::Used_Item* used_item = (Interprocess_Allocator::Used_Item*)&free_item;
+  
+  ASSERT_TRUE (used_item->is_actually_free_item());
+  ASSERT_EQ(4, used_item->get_size());
+  
+  used_item->set_size(8);
+  ASSERT_EQ(8, used_item->get_size());
+  ASSERT_FALSE(used_item->is_actually_free_item());
+  
+  ASSERT_FALSE(free_item.is_actually_free_item());
+  ASSERT_EQ(8, free_item.get_size());
+}
+
+TEST(Interprocess_Allocator, UsedItemContent) {
+  Interprocess_Allocator::Used_Item item;
+  
+  // The round-trip should work as expected
+  
+  void* content = item.get_content();
+  ASSERT_NE(&item, content);
+  
+  ASSERT_EQ(&item, Interprocess_Allocator::Used_Item::from_content(content));
+}
+
+
 TEST(Interprocess_Allocator, PadForWordAlignment) {
   ASSERT_EQ(0,  Interprocess_Allocator::pad_for_word_alignment(0));
   ASSERT_EQ(4,  Interprocess_Allocator::pad_for_word_alignment(1));
@@ -131,5 +166,4 @@ TEST(Interprocess_Allocator, NonOverlapping) {
   
   free(mem);
 }
-
 
