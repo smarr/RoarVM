@@ -148,7 +148,7 @@
 # endif
 
 # ifndef Enforce_Threads
-  # define Enforce_Threads 0
+  # define Enforce_Threads 1
 # endif
 
 # define Using_Threads    Enforce_Threads
