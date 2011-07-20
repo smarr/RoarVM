@@ -148,7 +148,7 @@
 # endif
 
 # ifndef Enforce_Threads
-  # define Enforce_Threads 1
+  # define Enforce_Threads !On_Tilera
 # endif
 
 # define Using_Threads    Enforce_Threads
