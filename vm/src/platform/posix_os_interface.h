@@ -70,7 +70,8 @@ public:
 # if Omit_PThread_Locks
   
   typedef int Mutex;
-  static inline void mutex_init(Mutex*, void*) {}
+  static inline void mutex_init(Mutex*) {}
+  static inline void mutex_init_for_cross_process_use(Mutex* mutex) {}
   static inline void mutex_destruct(Mutex*)    {}
   static inline int  mutex_lock(Mutex*)        { return 0; }
   static inline bool mutex_trylock(Mutex*)     { return false; }
@@ -104,8 +105,9 @@ public:
 
   typedef pthread_mutex_t Mutex;
   
-  static inline void mutex_init(Mutex* mutex, const pthread_mutexattr_t* attr = NULL) {
-    pthread_mutex_init(mutex, attr);
+  /** Initializes a normal/standard platform mutex. */
+  static inline void mutex_init(Mutex* mutex) {
+    pthread_mutex_init(mutex, NULL);
   }
   
   static inline void mutex_destruct(Mutex* mutex) {
@@ -125,6 +127,15 @@ public:
   }
   
 # endif // Omit_PThread_Locks elif Use_Spin_Locks
+  
+  /** Initializes a mutex which explicitly supports cross-process usage. */
+  static inline void mutex_init_for_cross_process_use(Mutex* mutex) {
+    pthread_mutexattr_t process_shared_attr;
+    pthread_mutexattr_init(&process_shared_attr);
+    pthread_mutexattr_setpshared(&process_shared_attr, PTHREAD_PROCESS_SHARED);
+    
+    pthread_mutex_init(mutex, &process_shared_attr);
+  }
 
   static inline int atomic_fetch_and_add(int* mem, int increment) {
     return __sync_fetch_and_add(mem, increment);

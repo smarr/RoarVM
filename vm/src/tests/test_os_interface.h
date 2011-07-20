@@ -31,8 +31,8 @@ public:
   
   typedef pthread_mutex_t Mutex;
   
-  static inline void mutex_init(Mutex* mutex, const pthread_mutexattr_t* attr = NULL) {
-    pthread_mutex_init(mutex, attr);
+  static inline void mutex_init(Mutex* mutex) {
+    pthread_mutex_init(mutex, NULL);
   }
   
   static inline void mutex_destruct(Mutex* mutex) {

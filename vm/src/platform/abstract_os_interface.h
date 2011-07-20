@@ -35,7 +35,8 @@ public:
   static inline u_int64 get_cycle_count() { fatal(); return 0; }
   
   typedef int Mutex;
-  static inline void mutex_init(Mutex*, void*) { fatal(); }
+  static inline void mutex_init(Mutex*)        { fatal(); }
+  static inline void mutex_init_for_cross_process_use(Mutex*) { fatal(); }
   static inline void mutex_destruct(Mutex*)    { fatal(); }
   static inline int  mutex_lock(Mutex*)        { fatal(); return 0; }
   static inline bool mutex_trylock(Mutex*)     { fatal(); return false; }

@@ -78,7 +78,7 @@ public:
 # if Use_Spin_Locks
   typedef OSSpinLock Mutex;
   
-  static inline void mutex_init(Mutex* mutex, const void* _ = NULL) {
+  static inline void mutex_init(Mutex* mutex) {
     *mutex = 0;
   }
   

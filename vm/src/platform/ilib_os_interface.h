@@ -54,8 +54,13 @@ public:
   
   typedef ilibMutex Mutex;
   
-  static inline void mutex_init(Mutex* mutex, const void* = NULL) {
+  static inline void mutex_init(Mutex* mutex) {
     ilib_mutex_init(mutex);
+  }
+  
+  static inline void mutex_init_for_cross_process_use(Mutex* mutex) {
+    // This one is already giving us the cross_process semantics
+    mutex_init(mutex);
   }
   
   static inline void mutex_destruct(Mutex* mutex) {
