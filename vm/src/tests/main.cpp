@@ -10,11 +10,15 @@
  ******************************************************************************/
 
 
-#include <gtest/gtest.h>
+# include <gtest/gtest.h>
+
+# include "headers.h"
 
 int main(int argc, char** argv) {
 
   ::testing::InitGoogleTest(&argc, argv);
+  
+  Printer::init_globals();
 
   return RUN_ALL_TESTS();
 }
