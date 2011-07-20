@@ -118,7 +118,7 @@ public:
   }
   
   void free(void* item) {
-    assert(item >= allocation_area && ((intptr_t)item < (intptr_t) allocation_area + size));
+    assert(item >= allocation_area && ((uintptr_t)item < (uintptr_t) allocation_area + size));
     
     OS_Interface::mutex_lock(&mtx);
     
@@ -131,7 +131,7 @@ public:
     
     Item* following_item = (Item*)((intptr_t)freed_item + freed_item->get_size());
     
-    if ((intptr_t)following_item < (intptr_t)allocation_area + size) {
+    if ((uintptr_t)following_item < (uintptr_t)allocation_area + size) {
       if (following_item->is_actually_free_item()) {
         freed_item->set_size(freed_item->get_size() + following_item->get_size());
         freed_item->next = following_item->next;
