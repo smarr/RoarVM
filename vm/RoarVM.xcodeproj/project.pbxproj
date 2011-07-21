@@ -205,8 +205,7 @@
 		34221DC413D4D9D00057DCBD /* sqUnixSocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7C9B135CC86800D13E53 /* sqUnixSocket.c */; };
 		34221DC513D4D9DC0057DCBD /* SocketPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27841B128DBF7300336BDE /* SocketPlugin.c */; };
 		34221DC613D4D9F10057DCBD /* sqUnixSoundNull.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278442128DBF7300336BDE /* sqUnixSoundNull.c */; };
-		345F815013D47EE000237EBA /* interprocess_allocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 345F814E13D47EE000237EBA /* interprocess_allocator.cpp */; };
-		345F815113D47EE000237EBA /* interprocess_allocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 345F814E13D47EE000237EBA /* interprocess_allocator.cpp */; };
+		3422BB3613D8312B0077EEC5 /* posix_processes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3422BB3413D8312B0077EEC5 /* posix_processes.cpp */; };
 		34CFFD1A13D474810053F752 /* process_memory_semantics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784CD128DBF7400336BDE /* process_memory_semantics.cpp */; };
 		34CFFD1C13D474820053F752 /* process_memory_semantics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784CD128DBF7400336BDE /* process_memory_semantics.cpp */; };
 /* End PBXBuildFile section */
@@ -485,7 +484,8 @@
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
 		34221D6A13D4CD5A0057DCBD /* interprocess_allocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = interprocess_allocator.cpp; sourceTree = "<group>"; };
 		34221DB213D4D4960057DCBD /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/RoarVM-eqprtgryahcdkoeakrnoddrvxrbf/Build/Products/Debug/gtest.framework"; sourceTree = "<group>"; };
-		345F814E13D47EE000237EBA /* interprocess_allocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = interprocess_allocator.cpp; sourceTree = "<group>"; };
+		3422BB3413D8312B0077EEC5 /* posix_processes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = posix_processes.cpp; sourceTree = "<group>"; };
+		3422BB3513D8312B0077EEC5 /* posix_processes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = posix_processes.h; sourceTree = "<group>"; };
 		345F814F13D47EE000237EBA /* interprocess_allocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interprocess_allocator.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1011,6 +1011,8 @@
 				0A2784C8128DBF7400336BDE /* os_interface.h */,
 				0A2784C9128DBF7400336BDE /* osx_os_interface.cpp */,
 				0A2784CA128DBF7400336BDE /* osx_os_interface.h */,
+				3422BB3413D8312B0077EEC5 /* posix_processes.cpp */,
+				3422BB3513D8312B0077EEC5 /* posix_processes.h */,
 				0A2784CB128DBF7400336BDE /* posix_os_interface.cpp */,
 				0A2784CC128DBF7400336BDE /* posix_os_interface.h */,
 				0A2784CD128DBF7400336BDE /* process_memory_semantics.cpp */,
@@ -1058,7 +1060,6 @@
 				0A2784E6128DBF7400336BDE /* execution_tracer.cpp */,
 				0A2784E7128DBF7400336BDE /* execution_tracer.h */,
 				0A2784E8128DBF7400336BDE /* headers.h */,
-				345F814E13D47EE000237EBA /* interprocess_allocator.cpp */,
 				345F814F13D47EE000237EBA /* interprocess_allocator.h */,
 				0A2784E9128DBF7400336BDE /* main.cpp */,
 				0A2784EA128DBF7400336BDE /* measurements.cpp */,
@@ -1383,7 +1384,7 @@
 				0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */,
 				0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */,
 				34CFFD1A13D474810053F752 /* process_memory_semantics.cpp in Sources */,
-				345F815013D47EE000237EBA /* interprocess_allocator.cpp in Sources */,
+				3422BB3613D8312B0077EEC5 /* posix_processes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1460,7 +1461,6 @@
 				0A4D8258135C523B00CD74D8 /* sqUnixMain.c in Sources */,
 				0A4D825B135C526100CD74D8 /* sqUnixX11.c in Sources */,
 				34CFFD1C13D474820053F752 /* process_memory_semantics.cpp in Sources */,
-				345F815113D47EE000237EBA /* interprocess_allocator.cpp in Sources */,
 				34221D6B13D4CD5B0057DCBD /* interprocess_allocator.cpp in Sources */,
 				34221D6D13D4D3C50057DCBD /* externals.cpp in Sources */,
 				34221D6F13D4D3F50057DCBD /* abstract_object_heap.cpp in Sources */,
