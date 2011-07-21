@@ -61,9 +61,13 @@ public:
      the free spots in the heap. */
     static inline size_t manage_and_pad(size_t sz) {
       const size_t with_overhead = offsetof(Item, next) + sz;
-      const size_t padded = with_overhead + ((sizeof(void*) - (with_overhead % sizeof(void*))) % sizeof(void*));
+      const size_t padded = pad(with_overhead);
       
       return max(padded, sizeof(Item));
+    }
+    
+    static inline size_t pad(size_t sz) {
+      return sz + ((sizeof(void*) - (sz % sizeof(void*))) % sizeof(void*));
     }
 
     Item* next;
@@ -115,6 +119,16 @@ public:
     }
     
     return result;
+  }
+  
+  void* allocate_zeroed(size_t sz) {
+    void* result = allocate(sz);
+    memset(result, 0, sz);
+    return result;
+  }
+  
+  void* allocate_elements(size_t num_elements, size_t element_size) {
+    return allocate_zeroed(num_elements * Item::pad(element_size));
   }
   
   void free(void* item) {
