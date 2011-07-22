@@ -123,10 +123,20 @@ public:
   static inline int get_group_rank() { return OS_Interface::get_thread_rank(); }
   
   static inline void* shared_malloc(u_int32 sz) {
-    return malloc(sz);
+    if (Use_Custom_Allocator_When_Using_Threads) {
+      OS_Interface::rvm_malloc_shared(sz);
+    }
+    else {
+      return malloc(sz);
+    }
   }
   static inline void* shared_calloc(u_int32 num_members, u_int32 mem_size)  {
-    return calloc(num_members, mem_size);
+    if (Use_Custom_Allocator_When_Using_Threads) {
+      OS_Interface::rvm_calloc_shared(sz);
+    }
+    else {
+      return calloc(num_members, mem_size);
+    }
   }
       
   static inline bool is_using_threads() { return true; }

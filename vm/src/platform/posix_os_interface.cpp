@@ -108,30 +108,43 @@ void POSIX_OS_Interface::start_threads(void (*helper_core_main)(), char** /* arg
 
 
 void POSIX_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]) {
-  processes[0] = getpid();
+  // go parallel; one core returns; others run helper_core_main fn
   
-  create_processes(Logical_Core::num_cores, helper_core_main);
-}
+# warning STEFAN: refactor, add a setter method for initializing those values.
+  Logical_Core::group_size = POSIX_Processes::group_size();
+  Logical_Core::remaining  = Logical_Core::group_size
+                              - POSIX_Processes::active_group_members();
 
-
-void POSIX_OS_Interface::create_processes(const size_t num_of_processes, void (*helper_core_main)()) {
-  for (size_t i = 1; i < num_of_processes; i++) {
-    pid_t result = fork();
-    if (EAGAIN == result || ENOMEM == result) {
-      // TODO: do it properly
-      perror("Failed to fork of a child process.");
-      fatal("Failed to fork of a child process.");
-    }
+  Memory_Semantics::_my_rank = POSIX_Processes::process_rank();
+  Memory_Semantics::_my_rank_mask = 1LL << u_int64(Memory_Semantics::_my_rank);
+  
+  if (Logical_Core::group_size == 1  &&  Logical_Core::group_size < Logical_Core::num_cores) {
+    lprintf("Will ask for num_proc: %d\n", Logical_Core::num_cores);
     
-    if (result == 0) {  // child process
-      printf("Child started successfully with PID: %d for Rank: %zu\n", getpid(), i);
-      // TODO: think i need to set the rank somewhere now
-      helper_core_main();
-    }
-    else {
-      processes[i] = result;
-    }
+    int err = POSIX_Processes::start_group(Logical_Core::num_cores, argv);
+    abort_if_error("exec", err);
+    die("impossible to reach this point. start_group does only return on failure.");
   }
+  
+  Logical_Core::initialize_all_cores();
+  Memory_Semantics::_my_core = &logical_cores[Memory_Semantics::_my_rank];
+  
+  Memory_Semantics::initialize_interpreter();
+  Memory_Semantics::initialize_local_interpreter();
+  
+# warning Do We need to setup channels here?
+  
+  if (Logical_Core::running_on_main()) {
+    fprintf(stdout, "spawned %d helpers\n", Logical_Core::group_size - 1);
+    return;
+  }
+  else {
+    (*helper_core_main)();
+    char buf[BUFSIZ];
+    Logical_Core::my_print_string(buf, sizeof(buf));
+    lprintf( "helper finsihed: %s\n", buf);
+    rvm_exit();
+  }  
 }
 
 
@@ -140,6 +153,15 @@ int POSIX_OS_Interface::abort_if_error(const char* msg, int err) {
   lprintf( "%s failed, error: %d\n", msg, err);
   abort();
   return 0;
+}
+
+Interprocess_Allocator* POSIX_OS_Interface::shared_memory_allocator() {
+  static Interprocess_Allocator* allocator = NULL;
+  if (!allocator) {
+    void* mem = malloc(5 * 1024 * 1024);
+    allocator = new Interprocess_Allocator(mem, 5 * 1024 * 1024);
+  }
+  return allocator;
 }
 
 

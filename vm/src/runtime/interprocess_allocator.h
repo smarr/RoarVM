@@ -132,7 +132,8 @@ public:
   }
   
   void free(void* item) {
-    assert(item >= allocation_area && ((uintptr_t)item < (uintptr_t) allocation_area + size));
+    assert(   item >= allocation_area
+           && ((uintptr_t)item < (uintptr_t)allocation_area + size));
     
     OS_Interface::mutex_lock(&mtx);
     
@@ -160,7 +161,8 @@ public:
         }
         else {
           assert_eq(following_item, free_list,
-                    "In case there is no previous item, we should be at the head of the free list.");
+                    "In case there is no previous item, "
+                    "we should be at the head of the free list.");
           free_list = freed_item->next;
         }
       }

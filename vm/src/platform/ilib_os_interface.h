@@ -136,9 +136,11 @@ public:
   static inline void* rvm_calloc_shared(size_t num_members, size_t mem_size)  {
     return calloc_shared(num_members, mem_size);
   }
+private:
   static inline void* rvm_malloc_shared_init() {}
 # endif
   
+public:
   typedef ilibHeap OS_Heap;
   
   static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }

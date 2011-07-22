@@ -106,6 +106,11 @@
 # include "posix_os_interface.h"
 # include "osx_os_interface.h"
 
+# include "interprocess_allocator.h"
+# include "posix_os_interface.inline.h"
+
+
+
 # include "performance_counters.h"
 
 # include "safepoint_ability.h"
@@ -129,8 +134,6 @@
 # include "abstract_oop.h"
 # include "oop.h"
 # include "oop_closure.h"
-
-# include "interprocess_allocator.h"
 
 # include "abstract_cpu_coordinate.h"
 # include "dummy_cpu_coordinate.h"

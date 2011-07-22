@@ -105,6 +105,7 @@
   template(Extra_OTE_Words_for_Debugging_Block_Context_Method_Change_Bug) \
   template(Check_Reliable_At_Most_Once_Message_Delivery) \
   template(Use_CMem) \
+  template(Use_Custom_Allocator_When_Using_Threads) \
   template(Track_Processes) \
   template(Multiple_Tileras) \
   \
@@ -287,6 +288,12 @@
 
 # ifndef Use_CMem
 #  define Use_CMem 1
+# endif
+
+// For consistency and debugging, this allows to use the custom allocator
+// which is used for the x86 version that uses processes.
+# ifndef Use_Custom_Allocator_When_Using_Threads
+  # define Use_Custom_Allocator_When_Using_Threads 0
 # endif
 
 // This flag is for debugging. -- dmu 6/10

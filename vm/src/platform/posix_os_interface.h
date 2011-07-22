@@ -26,6 +26,8 @@
 
 #include <err.h>
 
+class Interprocess_Allocator;
+
 class POSIX_OS_Interface : public Abstract_OS_Interface {
 public:
   
@@ -179,10 +181,17 @@ public:
   }
 # endif
   
+  
+  static inline void* rvm_malloc_shared(size_t sz);
+  static inline void* rvm_calloc_shared(size_t num_members, size_t mem_size);
+  
   static inline void  mem_fence() { __sync_synchronize(); /*This is a GCC build-in might need to be replaced */ }
   
 private:
   static inline void* memalign(int align, int sz) { return (void*) ( (int(malloc(sz + align)) + align - 1) & ~(align-1) ); }
+  
+  static Interprocess_Allocator* shared_memory_allocator();
+  
 public:
   static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }
   static inline void* rvm_memalign(OS_Heap, int al, int sz) { return rvm_memalign(al, sz); }
@@ -192,7 +201,8 @@ public:
   static void start_threads  (void (*helper_core_main)(), char* /* argv */[]);
   static void start_processes(void (*helper_core_main)(), char* argv[]);
   
-  static inline int get_thread_rank() { return (int)pthread_getspecific(rank_key); }
+  static inline int get_thread_rank()  { return (int)pthread_getspecific(rank_key); }
+  static inline int get_process_rank() { return POSIX_Processes::process_rank();    }
   
   static int abort_if_error(const char*, int); 
   
@@ -209,7 +219,6 @@ private:
   static pid_t         processes[Max_Number_Of_Cores];
   
   static void create_threads(const size_t num_of_threads, void (*helper_core_main)());
-  static void create_processes(const size_t num_of_processes, void (*helper_core_main)());
   
 };
 
