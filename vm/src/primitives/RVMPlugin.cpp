@@ -292,6 +292,14 @@ void* primitiveRunsHeadless() {
 }
 
 
+void* primitiveSuspendOtherInterpreters() {
+  The_Squeak_Interpreter()->suspendAllOthers();
+}
+
+void* primitiveAwakeOtherInterpreters() {
+  The_Squeak_Interpreter()->awakeAllOthers();
+}
+
 // args for the primitive are first core, last core, move_read_write_to_read_mostly, move_read_mostly_to_read_write
 void* shuffle_or_spread(bool spread)  {
   Oop first, last;
@@ -812,7 +820,11 @@ void* RVMPlugin_exports[][3] = {
   {(void*) "RVMPlugin", (void*)"setInterpreter", (void*)setInterpreter},
   
   {(void*) "RVMPlugin", (void*)"primitiveRunsHeadless", (void*)primitiveRunsHeadless},
-
+    
+  {(void*) "RVMPlugin", (void*) "primitiveSuspendOtherInterpreters",
+    (void*) primitiveSuspendOtherInterpreters },
+  {(void*) "RVMPlugin", (void*) "primitiveAwakeOtherInterpreters",
+    (void*) primitiveAwakeOtherInterpreters },
   {NULL, NULL, NULL}
 };
 
@@ -824,4 +836,5 @@ void ioProcessEvents_wrapper() {
   ioProcessEvents();
   recurse = false;
 }
+
 

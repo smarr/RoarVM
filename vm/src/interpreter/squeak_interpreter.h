@@ -64,6 +64,7 @@ public:
   static const int interruptCheckCounter_force_value = -0x8000000; // must be neg
   bool multicore_interrupt_check;
   bool doing_primitiveClosureValueNoContextSwitch;
+  bool suspended;
   static const u_int64 all_cores_mask = ~0LL;
   static u_int64 run_mask_value_for_core(int x) { return 1LL << x; }
   void set_run_mask_and_request_yield(u_int64);
@@ -1514,8 +1515,34 @@ public:
     return use_cpu_ms() ? ioCPUMSecs() : ioMSecs();
   }
   static int ioCPUMSecs();
-    
+  
   bool getNextEvent_any_platform(void*);
+  
+  bool isSuspended() {
+    return suspended;
+  }
+  
+  bool isAwake() {
+    return !isSuspended();
+  }
+  
+  void suspend() {
+    if(Print_Scheduler_Verbose){
+      debug_printer->printf("suspending: ", my_rank());
+    }
+    suspended = true;
+    set_yield_requested(true);
+  }
+  
+  void awake() {
+    if(Print_Scheduler_Verbose){
+      debug_printer->printf("awakening: ", my_rank());
+    }
+    suspended = false;
+  }
+  
+  void suspendAllOthers();
+  void awakeAllOthers();
 };
 
 

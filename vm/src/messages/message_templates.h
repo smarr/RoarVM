@@ -97,6 +97,10 @@ template(transferControlMessage,updateEnoughInterpreterToTransferControlMessage,
 template(runPrimitiveMessage,updateEnoughInterpreterToTransferControlMessage, (int c, fn_t f), (), { argCount = c; fn = f; }, int argCount; fn_t fn; , no_ack, delay_when_have_acquired_safepoint) \
 template(runPrimitiveResponse, updateEnoughInterpreterToTransferControlMessage, (), (), , , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
+template(suspendOtherInterpreters,abstractMessage, (), (), , , post_ack_for_correctness, dont_delay_when_have_acquired_safepoint) \
+\
+template(awakeOtherInterpreters,abstractMessage, (), (), , , no_ack, dont_delay_when_have_acquired_safepoint) \
+
 
 // TODO: the following macros do not belong here, move them to a better place
 

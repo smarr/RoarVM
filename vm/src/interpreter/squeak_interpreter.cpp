@@ -60,7 +60,8 @@ Squeak_Interpreter::Squeak_Interpreter()
 
   static Shared_memory_fields dummy_shared;
   shared_memory_fields = &dummy_shared;
-
+  suspended = false;
+  
   FOR_ALL_BROADCAST(INIT_BROADCAST)
   FOR_ALL_FORMERLY_BROADCAST(INIT_FORMERLY_BROADCAST)
   FOR_ALL_HELD_IN_SHARED_MEMORY(INIT_SHARED_MEMORY_VARS)
@@ -2500,8 +2501,9 @@ void Squeak_Interpreter::minimize_scheduler_mutex_load_by_spinning_till_there_mi
     // Recover from GC if needed
     
   } while (
-              added_process_count < 1 /* there are no new procs to run */
-              && nextPollTick() != 0     /* forceInterruptCheck was not called */
+           isSuspended() ||
+           (added_process_count < 1 /* there are no new procs to run */
+           && nextPollTick() != 0)     /* forceInterruptCheck was not called */
            ); 
   if (added_process_count) --added_process_count;
 }
@@ -3318,3 +3320,15 @@ bool Squeak_Interpreter::getNextEvent_any_platform(void* p) {
   successFlag = preserved_successFlag;
   return successFlag_value;
 }
+
+
+void Squeak_Interpreter::suspendAllOthers() {
+  //we send the message to all the cores, but the main core will continue
+  //running
+  suspendOtherInterpreters_class().send_to_all_cores();
+}
+
+void Squeak_Interpreter::awakeAllOthers() {
+  awakeOtherInterpreters_class().send_to_other_cores();
+}
+
