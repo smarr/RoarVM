@@ -217,7 +217,7 @@ public:
 
  public:
 
-  Oop as_oop() { return Oop::from_object(this); }
+  Oop as_oop() {  return Oop::from_object(this); }
 
   inline static int rightType(oop_int_t headerWord);
 

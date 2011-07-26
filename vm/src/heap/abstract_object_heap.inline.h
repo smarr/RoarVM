@@ -64,39 +64,6 @@ inline bool Abstract_Object_Heap::sufficientSpaceToAllocate(oop_int_t bytes) {
 }
 
 
-inline Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
-
-  bool enoughSpace = sufficientSpaceToAllocate(total_bytes);
-  if (!enoughSpace) {
-    The_Squeak_Interpreter()->set_signalLowSpace(true);
-
-    lowSpaceThreshold = 0;
-    saveProcessSignallingLowSpace();
-    The_Squeak_Interpreter()->forceInterruptCheck();
-  }
-  int n = convert_byte_count_to_oop_count(total_bytes);
-  if (_next + n  >=  _end) {
-    fatal("allocateChunk should never fail, but there is not enough space for the requested bytes");
-    return NULL;
-  }
-  Oop* r = _next;
-  _next += n;
-  if (check_assertions) {
-    // make sure the heaps are only modified by the associated cores
-    assert(rank()  ==  Logical_Core::my_rank()
-           || Safepoint_for_moving_objects::is_held());
-
-    assert(The_Memory_System()->contains(r));
-    assert(_next >= _start);
-    assert(_next <= _end); // I may need to remove this -- dmu 6/22/09
-    oopset_no_store_check(r, Oop::from_bits(Oop::Illegals::allocated), total_bytes/sizeof(Oop));
-  }
-
-  return (Chunk*)r;
-}
-
-
-
 inline Object* Abstract_Object_Heap::accessibleObjectAfter(Object* obj) {
   for (;;) {
     obj = next_object(obj);

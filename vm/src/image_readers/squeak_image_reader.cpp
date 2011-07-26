@@ -50,6 +50,8 @@ Squeak_Image_Reader::Squeak_Image_Reader(char* fn, Memory_System* ms, Squeak_Int
     perror(buf);
     abort();
   }
+  
+  object_table = new Multicore_Object_Table(); /* RMOT: Image Reader still employs the object table */
 }
 
 void Squeak_Image_Reader::read_image() {
@@ -227,6 +229,19 @@ public:
   virtual const char* class_name(char*) { return "Convert_Closure"; }
 };
 
+class UpdateOop_Closure: public Oop_Closure {
+  Multicore_Object_Table* object_table;
+public:
+  UpdateOop_Closure(Multicore_Object_Table* ot)  : Oop_Closure() { object_table = ot; }
+  void value(Oop* p, Object_p) {
+    if (p->is_mem()) {
+      Object* obj = object_table->object_for(*p);
+      *p = obj->as_oop();
+      assert_always(p->as_object() == obj);
+    }
+  }
+  virtual const char* class_name(char*) { return "UpdateOop_Closure"; }
+};
 
 
 void Squeak_Image_Reader::distribute_objects() {
@@ -244,17 +259,40 @@ void Squeak_Image_Reader::distribute_objects() {
   for (Chunk *c = (Chunk*)base, *nextChunk = NULL;
        (char*)c <  &base[total_bytes];
        c = nextChunk) {
-    Object* obj = c->object_from_chunk_without_preheader();
+    Object* obj = c->object_from_chunk_without_preheader(); // chunks in memory don't have a preheader
     if (check_many_assertions &&  (char*)obj - memory == (char*)specialObjectsOop.bits() - oldBaseAddr)
       lprintf("about to do specialObjectsOop");
     nextChunk = obj->nextChunk();
     if (!obj->isFreeObject()) {
       obj->do_all_oops_of_object_for_reading_snapshot(this);
-      memory_system->ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(oop_for_addr(obj), obj);
+      memory_system->ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(oop_for_addr(obj), obj, object_table);
     }
   }
+  
   cc.value(&specialObjectsOop, (Object_p)NULL);
 
+  
+  /* RMOT: Extra pass for updating the pointers && deallocate the object table */
+  UpdateOop_Closure uoc(object_table);
+  FOR_ALL_RANKS(r) {
+    for (int hi = 0; hi<Memory_System::max_num_mutabilities; hi++) {
+      Multicore_Object_Heap* heap = memory_system->heaps[r][hi];
+      FOR_EACH_OBJECT_IN_HEAP(heap, obj) {      
+        if (!obj->isFreeObject()) {
+          obj->set_backpointer(obj->as_oop());
+          obj->do_all_oops_of_object(&uoc,false);
+          if(((Oop*)obj->extra_preheader_word())->is_mem())
+            fatal("shouldnt occur");          
+        }
+      }
+    }   
+  }
+  specialObjectsOop = object_table->object_for(specialObjectsOop)->as_oop();
+  
+  object_table->cleanup();
+  delete object_table;
+  
+  
   memory_system->finished_adding_objects_from_snapshot();
   free(object_oops);
   fprintf(stdout, "done distributing objects, %lld cycles\n",
@@ -279,8 +317,7 @@ Oop Squeak_Image_Reader::oop_for_relative_addr(int relative_addr) {
   Oop* addr_in_table = &object_oops[relative_addr / sizeof(Oop)];
   Object* obj = (Object*) &memory[relative_addr];
   if (addr_in_table->bits() == 0) {
-    Multicore_Object_Table* ot = memory_system->object_table;
-    *addr_in_table = ot->allocate_OTE_for_object_in_snapshot(obj);
+    *addr_in_table = object_table->allocate_OTE_for_object_in_snapshot(obj);
   }
   return *addr_in_table;
 }

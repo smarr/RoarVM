@@ -63,6 +63,7 @@ public:
   struct OS_Heap {};
   
   static inline void* rvm_malloc_shared(uint32_t /* sz */)                                    { fatal(); return NULL; }
+  static inline void  rvm_free_shared(void *)                                                 { fatal(); }
   static inline void* rvm_calloc_shared(uint32_t /* num_members */, uint32_t /* mem_size */)  { fatal(); return NULL; }
   static inline void* rvm_memalign(OS_Heap, int /* al */, int /* sz */)                       { fatal(); return NULL; }
   static inline void* rvm_memalign(int /* al */, int /* sz */)                                { fatal(); return NULL; }

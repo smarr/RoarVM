@@ -52,22 +52,22 @@ inline Oop Oop::from_object(Object* p) {
   if (check_many_assertions)
     assert_message(p != NULL,
                    "used to count on being able to do this, fix these uses");
-  return p->backpointer();
+  return from_bits((oop_int_t)p | Mem_Tag);   /*return p->backpointer(); RMOT */
 }
 
 
 // TODO: perhaps it should be moved to the point right after getting it out
 //       of the object table...
 inline Object_p Oop::as_object_unchecked() {
-  return (Object_p)The_Memory_System()->object_for_unchecked(*this);
+  return as_object();
 }
 
 inline Object* Oop::as_untracked_object_ptr() {
-  return The_Memory_System()->object_for(*this);
+  return as_object();
 }
 
 inline Object_p Oop::as_object() {
-  return (Object_p)The_Memory_System()->object_for(*this);
+    return (Object_p)bits(); /* return (Object_p)The_Memory_System()->object_for(*this); RMOT */
 }
 
 inline Object_p Oop::as_object_if_mem() {

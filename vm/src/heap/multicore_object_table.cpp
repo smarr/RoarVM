@@ -39,6 +39,16 @@ Multicore_Object_Table::Multicore_Object_Table() : Abstract_Object_Table() {
   OS_Interface::abort_if_error("Segment heap creation", OS_Interface::mem_create_heap_if_on_Tilera(&heap, replicate));
 }
 
+void Multicore_Object_Table::cleanup() {
+  FOR_ALL_RANKS(r) {
+    Segment* next;
+    for (Segment* s = first_segment[r];  s != NULL;  s = next) {
+      next = s->next();
+      delete s;
+    }
+  }
+}
+
 void Multicore_Object_Table::update_bounds(Segment* s, int rank) {
   void* start = (void*)s;
   void* end = (void*)&s[1];
@@ -68,12 +78,16 @@ Multicore_Object_Table::Segment::Segment(Multicore_Object_Table* mot, int rank  
 }
 
 void* Multicore_Object_Table::Segment::operator new(size_t /* s */) {
-  void* p = OS_Interface::rvm_memalign(The_Memory_System()->object_table->heap, alignment_and_size, sizeof(Segment));
+  void* p = OS_Interface::rvm_memalign(/* The_Memory_System()->object_table->heap, RMOT */alignment_and_size, sizeof(Segment));
   assert(sizeof(Segment) <= alignment_and_size);
   if (p == NULL) fatal("OT Segment allocation");
   // xxxxxx Should home segments appropriately someday.
   if (!The_Squeak_Interpreter()->use_checkpoint()) bzero(p, sizeof(Segment));
   return p;
+}
+
+void Multicore_Object_Table::Segment::operator delete(void * mem) {
+  OS_Interface::rvm_free_shared(mem);
 }
 
 

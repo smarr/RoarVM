@@ -1,3 +1,4 @@
+
 /******************************************************************************
  *  Copyright (c) 2008 - 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
@@ -174,6 +175,7 @@ private:
   static inline void* memalign(int align, int sz) { return (void*) ( (int(malloc(sz + align)) + align - 1) & ~(align-1) ); }
 public:
   static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }
+  static inline void  rvm_free_shared(void * mem) { /* free(mem); TODO */ }
   static inline void* rvm_memalign(OS_Heap, int al, int sz) { return rvm_memalign(al, sz); }
   static inline void* malloc_in_mem(int /* alignment */, int size) { return malloc(size); }
   static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool /* replicate */) { heap = NULL; /* unused on POSIX */ return 0; }

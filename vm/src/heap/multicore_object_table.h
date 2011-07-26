@@ -75,6 +75,7 @@ class Multicore_Object_Table: public Abstract_Object_Table {
     union word_union words[n];
 
     void* operator new(size_t);
+    void operator delete(void *);
     Segment(Multicore_Object_Table*,int  COMMA_DCL_ESB);
     Entry* construct_free_list();
     Entry*   end_entry() { return Entry::from_word_addr(&words[n]); }
@@ -136,6 +137,8 @@ public:
     return Memory_Semantics::shared_malloc(size);
   }
   Multicore_Object_Table();
+
+  void cleanup();
 
 
   inline Oop allocate_OTE_for_object_in_snapshot(Object*);

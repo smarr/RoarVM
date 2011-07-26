@@ -14,7 +14,7 @@
 
 inline void Object::set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB) {
   Safepoint_for_moving_objects::assert_held();
-  The_Memory_System()->object_table->set_object_for(x, (Object_p)this  COMMA_USE_ESB);
+  /* The_Memory_System()->object_table->set_object_for(x, (Object_p)this  COMMA_USE_ESB); RMOT */
   set_backpointer(x);
 }
 
@@ -353,7 +353,7 @@ inline oop_int_t Object::literalCountOfHeader(oop_int_t header) { return (header
 inline Oop Object::literal(oop_int_t offset) {
   Oop r = fetchPointer(offset + Object_Indices::LiteralStart);
   if (check_many_assertions) {
-    assert_always(r.is_int() || The_Memory_System()->object_table->probably_contains((void*)r.bits()));
+    /*assert_always(r.is_int()  || The_Memory_System()->object_table->probably_contains((void*)r.bits()) ); RMOT */
   }
   return r;
 }
@@ -424,7 +424,9 @@ inline Object_p Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdr
   }
   assert_eq((void*)newObj, (void*)headerp, "");
 
-  The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, my_rank  COMMA_TRUE_OR_NOTHING);
+  newObj->init_extra_preheader_word(); 
+  newObj->set_backpointer(newObj->as_oop());
+  /* The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, my_rank  COMMA_TRUE_OR_NOTHING); RMOT: no need to allocate oop */
 
 
   //  "clear new object"

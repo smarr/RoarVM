@@ -52,7 +52,7 @@ Memory_System::Memory_System() {
 
 
 void Memory_System::finished_adding_objects_from_snapshot() {
-  object_table->post_store_whole_enchillada();
+  //object_table->post_store_whole_enchillada(); /* RMOT */
   The_Squeak_Interpreter()->set_am_receiving_objects_from_snapshot(false);
   enforce_coherence_after_each_core_has_stored_into_its_own_heap();
   
@@ -85,7 +85,7 @@ void Memory_System::enforce_coherence_before_this_core_stores_into_all_heaps() {
 
 
 
-bool Memory_System::verify_if(bool condition) {
+bool Memory_System::verify_if(bool condition) { 
   if (!condition)
     return true;
 
@@ -94,7 +94,8 @@ bool Memory_System::verify_if(bool condition) {
 
   verifyInterpreterAndHeapMessage_class().send_to_all_cores();
 
-  return object_table->verify();
+  //return object_table->verify(); /* RMOT */
+  return true; 
 }
 
 
@@ -118,6 +119,7 @@ Oop Memory_System::get_stats(int what_to_sample) {
 
 
 void Memory_System::fullGC(const char* why) {
+  return; /* RMOT: No GC support w/o object table (yet) */
   Squeak_Interpreter * const interp = The_Squeak_Interpreter();
   if (interp->am_receiving_objects_from_snapshot())
     fatal("cannot gc now");
@@ -638,7 +640,7 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
   
   log_memory_per_read_write_heap = log_of_power_of_two(memory_per_read_write_heap);
   log_memory_per_read_mostly_heap = log_of_power_of_two(memory_per_read_mostly_heap);
-  object_table = new Multicore_Object_Table();
+  //object_table = new Multicore_Object_Table(); /* RMOT */
 
   init_buf ib = {
     snapshot_bytes, sws, fsf, lastHash,
@@ -646,7 +648,7 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
     total_read_write_memory_size, memory_per_read_write_heap, log_memory_per_read_write_heap,
     total_read_mostly_memory_size, memory_per_read_mostly_heap, log_memory_per_read_mostly_heap,
     page_size_used_in_heap, getpid(),
-    object_table,
+    //object_table, /* RMOT */
     global_GC_values
   };
 
@@ -779,7 +781,7 @@ void Memory_System::initialize_main(init_buf* ib) {
   for (int i = 0;  i < max_num_mutabilities;  ++i)
     set_second_chance_cores_for_allocation(i);
 
-  object_table->pre_store_whole_enchillada();
+  //object_table->pre_store_whole_enchillada(); /* RMOT */
 }
 
 
@@ -827,7 +829,7 @@ void Memory_System::init_values_from_buffer(init_buf* ib) {
   
   read_write_memory_base = ib->read_write_memory_base;
   read_mostly_memory_base = ib->read_mostly_memory_base;
-  object_table = ib->object_table;
+  //object_table = ib->object_table; /* RMOT */
 
   snapshot_window_size.initialize(ib->sws, ib->fsf);
 
@@ -1060,7 +1062,7 @@ void Memory_System::save_to_checkpoint(FILE* f) {
   FOR_ALL_HEAPS(rank,mutability)
     heaps[rank][mutability]->save_to_checkpoint(f);
 
-  object_table->save_to_checkpoint(f);
+  //object_table->save_to_checkpoint(f); /* RMOT */
 }
 
 
@@ -1107,7 +1109,7 @@ void Memory_System::restore_from_checkpoint(FILE* /* f */, int /* dataSize */, i
   tl->gcMilliseconds = local_ms.gcMilliseconds;
   tl->gcCycles = local_ms.gcCycles;
 
-  object_table->restore_from_checkpoint(f);
+  //object_table->restore_from_checkpoint(f); /* RMOT */
 
   finished_adding_objects_from_snapshot();
 # endif
@@ -1135,10 +1137,10 @@ void Memory_System::pre_cohere(void* start, int nbytes) {
   if (The_Squeak_Interpreter()->am_receiving_objects_from_snapshot()) return; // will be done at higher level
   // lprintf("pre_cohere start 0x%x %d\n", start, nbytes);
 
-  if (!contains(start) && !object_table->probably_contains(start)) {
+  /* if (!contains(start) && !object_table->probably_contains(start)) {
     lprintf("pid %d, about_to_write_read_mostly_memory to bad address 0x%x 0x%x\n", getpid(), start, nbytes);
     fatal();
-  }
+  } RMOT */
   aboutToWriteReadMostlyMemoryMessage_class(start, nbytes).send_to_other_cores();
 
   // lprintf("pre_cohere end\n");
@@ -1182,8 +1184,8 @@ void Memory_System::print() {
                   read_write_memory_base, read_write_memory_past_end, read_mostly_memory_base, read_mostly_memory_past_end,
                   page_size_used_in_heap, round_robin_period, second_chance_cores_for_allocation[read_write], second_chance_cores_for_allocation[read_mostly],
                   global_GC_values->gcCount, global_GC_values->gcMilliseconds, global_GC_values->gcCycles);
-  if ( object_table != NULL)
-    object_table->print();
+  /*if ( object_table != NULL)
+    object_table->print(); RMOT */
 
   print_heaps();
 }

@@ -123,8 +123,8 @@ void Abstract_Object_Heap::do_all_oops(Oop_Closure* oc) {
 void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
   bool for_gc = gc_or_null != NULL;
   // enforce mutability at higher level
-  if (for_gc || compacting)
-    The_Memory_System()->object_table->pre_store_whole_enchillada();
+  /*if (for_gc || compacting)
+    The_Memory_System()->object_table->pre_store_whole_enchillada(); RMOT */
 
   if (compacting) ++compactionsSinceLastQuery;
 
@@ -147,7 +147,7 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
 
     if (for_gc) {
       if (!obj->is_marked()) {
-        The_Memory_System()->object_table->free_oop(oop  COMMA_FALSE_OR_NOTHING);
+        // The_Memory_System()->object_table->free_oop(oop  COMMA_FALSE_OR_NOTHING); /* RMOT: no longer req'd to remove the entry */
         if (!compacting)
           src_chunk->make_free_object((char*)next_src_chunk - (char*)src_chunk, 0);
         continue;
@@ -163,7 +163,8 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
       dst_chunk = next_src_chunk;
 
     else {
-      The_Memory_System()->object_table->set_object_for(oop, new_obj_addr  COMMA_FALSE_OR_NOTHING); // noop unless indirect oops
+      // The_Memory_System()->object_table->set_object_for(oop, new_obj_addr  COMMA_FALSE_OR_NOTHING); // noop unless indirect oops
+        /* RMOT - Warning: commenting the above breaks GC; pointers are not updated when moving data in memory */
       int n_oops = (Oop*)next_src_chunk - (Oop*)src_chunk;
       // no mutability barrier wanted here, may need generational store barrier in the future
       
@@ -177,8 +178,8 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
     set_end_objects((Oop*)dst_chunk);
 
 
-  if (for_gc || compacting)
-    The_Memory_System()->object_table->post_store_whole_enchillada();
+  /* if (for_gc || compacting)
+    The_Memory_System()->object_table->post_store_whole_enchillada(); RMOT */
 
   // enforce coherence at higher level
 }

@@ -42,7 +42,7 @@ bool Object::verify_preheader() {
 
 bool Object::verify_backpointer() {
   Oop x = backpointer();
-  assert_always_msg(   x.as_object_unchecked() == this, "bad backpointer");
+  assert_always_msg(x.bits() == 0 ||   x.as_object_unchecked() == this, "bad backpointer");
   return true;
 }
 
@@ -157,7 +157,7 @@ Oop Object::className() {
 
 Oop Object::name_of_class_or_metaclass(bool* is_meta) {
   Oop cn = className();
-  if (!cn.is_mem()  ||  !The_Memory_System()->object_table->probably_contains((void*)cn.bits())  ||  !The_Memory_System()->contains(cn.as_object()))
+  if (!cn.is_mem()  /* ||  !The_Memory_System()->object_table->probably_contains((void*)cn.bits()) RMOT */||  !The_Memory_System()->contains(cn.as_object()))
     return The_Squeak_Interpreter()->roots.nilObj;
   return (*is_meta = !(cn.bits() != 0  && cn.isBytes()))
     ? fetchPointer(Object_Indices::This_Class_Index).as_object()->className()
@@ -511,8 +511,9 @@ Oop Object::clone() {
                                               |   ((hash << HashShift) & HashMask),
                                               newObj);
 
-  The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, Logical_Core::my_rank()  COMMA_TRUE_OR_NOTHING);
+  /* The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, Logical_Core::my_rank()  COMMA_TRUE_OR_NOTHING); RMOT */
   
+    
 # if Extra_Preheader_Word_Experiment
   oop_int_t ew = remappedObject->get_extra_preheader_word();
   assert_always(ew && (!Oop::from_bits(ew).is_int()  ||  ew == Oop::from_int(0).bits())); // bug hunt
@@ -521,7 +522,7 @@ Oop Object::clone() {
   
   // newObj->beRootIfOld();
   
-  return newObj->as_oop();
+  return newObj->as_oop(); 
 }
 
 

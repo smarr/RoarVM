@@ -31,6 +31,8 @@ class Squeak_Image_Reader {
   int32 lastHash;
   int32 savedWindowSize;
   int32 fullScreenFlag;
+  
+  Multicore_Object_Table* object_table; /* RMOT: Image Reader still employs the object table */
 
 
   bool swap_bytes;

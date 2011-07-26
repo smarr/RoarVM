@@ -217,8 +217,8 @@ void Squeak_Interpreter::secondExtendedSendBytecode() {
   u_char descriptor = fetchByte();
   roots.messageSelector = literal(descriptor & 0x3f);
   set_argumentCount( descriptor >> 6 );
-  assert (!internalStackValue(get_argumentCount()).is_mem()
-          || The_Memory_System()->object_table->probably_contains((void*)internalStackValue(get_argumentCount()).bits()));
+  /*assert (!internalStackValue(get_argumentCount()).is_mem()
+           || The_Memory_System()->object_table->probably_contains((void*)internalStackValue(get_argumentCount()).bits())); RMOT */
   normalSend();
 }
 

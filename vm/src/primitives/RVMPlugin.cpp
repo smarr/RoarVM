@@ -158,10 +158,10 @@ Oop sample_one_core(int what_to_sample) {
     Oop interpreterStats = The_Squeak_Interpreter()->get_stats(what_to_sample);
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(interpreterStats);
   }
-  if (what_to_sample & (1 << SampleValues::objectTableStats)) {
+  /*if (what_to_sample & (1 << SampleValues::objectTableStats)) {
     Oop objectTableStats = The_Memory_System()->object_table->get_stats(Logical_Core::my_rank());
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(objectTableStats);
-  }
+  } RMOT */
   if (what_to_sample & (1 << SampleValues::interactionStats)) {
     Oop interactionsStats = The_Interactions.get_stats();
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(interactionsStats);
