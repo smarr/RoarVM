@@ -42,7 +42,7 @@ bool Object::verify_preheader() {
 
 bool Object::verify_backpointer() {
   Oop x = backpointer();
-  assert_always_msg(x.bits() == 0 ||   x.as_object_unchecked() == this, "bad backpointer");
+  assert_always_msg(x.as_object_unchecked() == this, "bad backpointer");
   return true;
 }
 

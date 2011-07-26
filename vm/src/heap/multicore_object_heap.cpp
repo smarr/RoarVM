@@ -116,8 +116,7 @@ Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
     assert(The_Memory_System()->contains(r));
     assert(_next >= _start);
     assert(_next <= _end); // I may need to remove this -- dmu 6/22/09
-    //oopset_no_store_check(r, Oop::from_bits(Oop::Illegals::allocated), total_bytes/sizeof(Oop));
-    oopset_no_store_check(r, Oop::from_int(0), total_bytes/sizeof(Oop));
+    oopset_no_store_check(r, Oop::from_bits(Oop::Illegals::allocated), total_bytes/sizeof(Oop));
   }
 
   return (Chunk*)r;
