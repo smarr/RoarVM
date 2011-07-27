@@ -17,3 +17,8 @@ void* POSIX_OS_Interface::rvm_malloc_shared(size_t sz) {
 void* POSIX_OS_Interface::rvm_calloc_shared(size_t num_members, size_t mem_size)  {
   return shared_memory_allocator()->allocate_elements(num_members, mem_size);
 }
+
+void POSIX_OS_Interface::rvm_free_shared(void* mem) {
+  shared_memory_allocator()->free(mem);
+}
+

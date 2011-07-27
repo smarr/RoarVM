@@ -16,6 +16,12 @@
 
 # if Use_PerSender_Message_Queue
 
+
+void* Shared_Memory_Message_Queue_Per_Sender::operator new(size_t sz) {
+  return Memory_Semantics::shared_malloc(sz);
+}
+
+
 void Shared_Memory_Message_Queue_Per_Sender::buffered_send_buffer(void* p, int size) {
   buffered_channels[Logical_Core::my_rank()].channel.send(p, size);
 }

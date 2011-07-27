@@ -231,8 +231,10 @@ RVM_HEADERS = \
   abstract_os_interface.h \
   ilib_os_interface.h \
   posix_os_interface.h \
+  posix_os_interface.inline.h \
   osx_os_interface.h \
   os_interface.h \
+  posix_processes.h \
   \
   safepoint_ability.h \
   my_rank.h \
@@ -267,6 +269,7 @@ ifeq "$(PLATFORM)" "Intel"
 RVM_HEADERS += \
   buffered_channel.h \
   buffered_channel_debug.h \
+  interprocess_allocator.h \
 
 endif
 
@@ -515,9 +518,11 @@ OBJS += \
   synced_queue.opt \
   buffered_channel.opt \
   posix_os_interface.opt \
+  posix_processes.opt \
   shared_memory_message_queue.opt \
   shared_memory_message_queue_per_sender.opt \
   thread_memory_semantics.opt \
+  process_memory_semantics.opt \
   dummy_cpu_coordinate.opt \
 
 else

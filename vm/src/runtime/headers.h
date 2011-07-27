@@ -27,6 +27,7 @@
 
 # include <stdio.h>
 # include <stdlib.h>
+# include <stdint.h>
 # include <string.h>
 # include <stdarg.h>
 # include <ctype.h>
@@ -51,9 +52,7 @@
 #   include <tmc/cmem.h>
 #  endif
 # else
-#  include "synced_queue.h"
-#  include "buffered_channel.h"
-#  include "buffered_channel_debug.h"
+#   include <queue>
 # endif
 
 # if On_iOS
@@ -109,7 +108,11 @@
 # include "interprocess_allocator.h"
 # include "posix_os_interface.inline.h"
 
-
+# if !On_Tilera
+  # include "synced_queue.h"
+  # include "buffered_channel.h"
+  # include "buffered_channel_debug.h"
+# endif
 
 # include "performance_counters.h"
 

@@ -16,6 +16,11 @@
 
 # if !Use_PerSender_Message_Queue
 
+
+void* Shared_Memory_Message_Queue::operator new(size_t sz) {
+  return Memory_Semantics::shared_malloc(sz);
+}
+
 void Shared_Memory_Message_Queue::buffered_send_buffer(void* p, int size) {
   buffered_channel.send(p, size);
 }

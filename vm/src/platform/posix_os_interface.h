@@ -44,6 +44,10 @@ public:
     }
   }
   
+  static inline void initialize() {
+    POSIX_Processes::initialize();
+  }
+  
   static void ensure_Time_Machine_backs_up_run_directory() {}
 
   static inline void profiler_enable()  {}
@@ -136,7 +140,10 @@ public:
     pthread_mutexattr_init(&process_shared_attr);
     pthread_mutexattr_setpshared(&process_shared_attr, PTHREAD_PROCESS_SHARED);
     
-    pthread_mutex_init(mutex, &process_shared_attr);
+    if (0 != pthread_mutex_init(mutex, &process_shared_attr)) {
+      // TODO: do it properly
+      perror("Creating a mutex for cross-process use failed.");
+    }
   }
 
   static inline int atomic_fetch_and_add(int* mem, int increment) {
@@ -184,6 +191,7 @@ public:
   
   static inline void* rvm_malloc_shared(size_t sz);
   static inline void* rvm_calloc_shared(size_t num_members, size_t mem_size);
+  static inline void  rvm_free_shared(void* mem);
   
   static inline void  mem_fence() { __sync_synchronize(); /*This is a GCC build-in might need to be replaced */ }
   

@@ -23,6 +23,8 @@ protected:
   #endif
 
 public:
+  void* operator new(size_t sz);  // Needs to be in shared space for process version
+  
   Shared_Memory_Message_Queue() :
     #if Use_BufferedChannelDebug
       buffered_channel(BufferedChannelDebug()) {}

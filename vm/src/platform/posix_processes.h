@@ -10,6 +10,8 @@
  ******************************************************************************/
 
 
+# include <pthread.h>
+
 /**
  * The class provides the functionality to start up a group of processes
  * to run the same exectuable together to form a single virtual machine
@@ -34,11 +36,11 @@ public:
   /**
    * A process group is statically defined with start_group(...) which
    * includes its size.
-   * This function returns the defined size or -1 when not yet initialized.
+   * This function returns the defined size or 1 when not yet initialized.
    */
   static int group_size() {
     if (globals == NULL)
-      return -1;
+      return 1;
     
     return globals->group_size;
   }
@@ -51,7 +53,7 @@ public:
   }
   
   /**
-   * Returns the number of active members in the group or -1 when not yet
+   * Returns the number of active members in the group or 1 when not yet
    * initialized.
    *
    * This number might not reflect the acurate number of running processes
@@ -59,7 +61,7 @@ public:
    */
   static int active_group_members() {
     if (globals == NULL)
-      return -1;
+      return 1;
     
     return globals->running_processes;
   }

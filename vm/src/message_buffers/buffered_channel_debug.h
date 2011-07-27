@@ -19,19 +19,20 @@
 
 
 #include <stdint.h>
-#include <queue>
-#include <pthread.h>
 
 using namespace std;
 
 class BufferedChannelDebug {
 private:
   queue<void*> channel;
-  pthread_mutex_t lock; 
+  OS_Interface::Mutex lock;
 
 public:
   BufferedChannelDebug() {
-    pthread_mutex_init(&lock, NULL);
+    if (Using_Processes)
+      OS_Interface::mutex_init_for_cross_process_use(&lock);
+    else
+      OS_Interface::mutex_init(&lock);
   }
 
   /**
@@ -40,38 +41,38 @@ public:
    * Especially since I cannot reliably destroy a locked mutex.
    */
   ~BufferedChannelDebug() {
-    pthread_mutex_lock(&lock);
+    OS_Interface::mutex_lock(&lock);
     
     while (!channel.empty()) {
       free(channel.front());
       channel.pop();
     }
     
-    pthread_mutex_unlock(&lock);
+    OS_Interface::mutex_unlock(&lock);
     
-    pthread_mutex_destroy(&lock);
+    OS_Interface::mutex_destruct(&lock);
   }
 
   void send(const void* data, size_t size) {
-    void* const buffer = malloc(size);
+    void* const buffer = OS_Interface::rvm_malloc_shared(size);
     memcpy(buffer, data, size);
   
-    pthread_mutex_lock(&lock);
+    OS_Interface::mutex_lock(&lock);
     channel.push(buffer);
-    pthread_mutex_unlock(&lock);
+    OS_Interface::mutex_unlock(&lock);
   }
   
   void* receive(size_t&) {
-    pthread_mutex_lock(&lock);
+    OS_Interface::mutex_lock(&lock);
     void* const result = channel.front();
     channel.pop();
-    pthread_mutex_unlock(&lock);
+    OS_Interface::mutex_unlock(&lock);
     
     return result;
   }
   
   void releaseOldest(void* const buffer) const {
-    free(buffer);
+    OS_Interface::rvm_free_shared(buffer);
   }
 
 // STEFAN: performance hack, not using the lock here is usually safe, depending on the queue implementation
@@ -87,13 +88,13 @@ public:
   __attribute__((noinline)) // seems to be necessary, otherwise the volatile hack does not work
 #endif
   bool hasData() {
-    if (not _SKIP_HAS_DATA_LOCKING) pthread_mutex_lock(&lock);
+    if (not _SKIP_HAS_DATA_LOCKING) OS_Interface::mutex_lock(&lock);
     
     // assign to volatile bool to avoid to optimize that out of any loop
     // does on the tested GCC 4.5 only work if the function is not inlined
     volatile bool result = !channel.empty();  
 
-    if (not _SKIP_HAS_DATA_LOCKING) pthread_mutex_unlock(&lock);
+    if (not _SKIP_HAS_DATA_LOCKING) OS_Interface::mutex_unlock(&lock);
 
     return result;
   }
