@@ -123,8 +123,8 @@ void Abstract_Object_Heap::do_all_oops(Oop_Closure* oc) {
 void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
   bool for_gc = gc_or_null != NULL;
   // enforce mutability at higher level
-  /*if (for_gc || compacting)
-    The_Memory_System()->object_table->pre_store_whole_enchillada(); RMOT */
+  if (for_gc || compacting)
+    The_Memory_System()->object_table->pre_store_whole_enchillada();
 
   if (compacting) ++compactionsSinceLastQuery;
 
@@ -147,7 +147,7 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
 
     if (for_gc) {
       if (!obj->is_marked()) {
-        // The_Memory_System()->object_table->free_oop(oop  COMMA_FALSE_OR_NOTHING); /* RMOT: no longer req'd to remove the entry */
+        The_Memory_System()->object_table->free_oop(oop  COMMA_FALSE_OR_NOTHING);
         if (!compacting)
           src_chunk->make_free_object((char*)next_src_chunk - (char*)src_chunk, 0);
         continue;

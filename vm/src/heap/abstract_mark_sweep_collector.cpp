@@ -71,9 +71,8 @@ void Abstract_Mark_Sweep_Collector::do_it() {
   if (print_gc)
     lprintf("finished preparing; about to mark\n");
   mark();
-  /*if (check_assertions)
-    The_Memory_System()->object_table->verify_after_mark(); RMOT */
-    
+  if (check_assertions)
+    The_Memory_System()->object_table->verify_after_mark();
   if (print_gc)
     lprintf("finished marking, starting sweeping\n");
   finalize_weak_arrays();
@@ -205,6 +204,6 @@ void Abstract_Mark_Sweep_Collector::finalizeReference(Object_p weak_obj) {
 bool Abstract_Mark_Sweep_Collector::has_been_or_will_be_freed_by_this_ongoing_gc(Oop x) {
   return x.is_mem()
      &&  x != The_Squeak_Interpreter()->roots.nilObj
-     &&  ( /* The_Memory_System()->object_table->is_OTE_free(x) || RMOT */ !x.as_object()->is_marked());
+     &&  ( The_Memory_System()->object_table->is_OTE_free(x) ||  !x.as_object()->is_marked());
 }
 

@@ -12,6 +12,8 @@
  ******************************************************************************/
 
 
+# if Use_Object_Table
+
 class Multicore_Object_Table: public Abstract_Object_Table {
  public:
    static bool replicate;
@@ -246,4 +248,6 @@ private:
   void print();
 
 };
+
+# endif // if Use_Object_Table
 

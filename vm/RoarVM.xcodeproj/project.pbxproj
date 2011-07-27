@@ -394,6 +394,8 @@
 		0ADA271212EF66EC009404B0 /* cacheline_aligned.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cacheline_aligned.h; sourceTree = "<group>"; };
 		0AEC1184128DF02F00EFF6D1 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
+		3406F42613E0C59D00CFD9FA /* dummy_object_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dummy_object_table.h; sourceTree = "<group>"; };
+		3406F42813E0C5F600CFD9FA /* object_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_table.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -722,6 +724,8 @@
 				0A278447128DBF7300336BDE /* abstract_object_heap.h */,
 				0A278448128DBF7300336BDE /* abstract_object_heap.inline.h */,
 				0A278449128DBF7300336BDE /* abstract_object_table.h */,
+				3406F42613E0C59D00CFD9FA /* dummy_object_table.h */,
+				3406F42813E0C5F600CFD9FA /* object_table.h */,
 				0A27844A128DBF7300336BDE /* gc_oop_stack.h */,
 				0A27844B128DBF7300336BDE /* indirect_oop_mark_sweep_collector.h */,
 				0A27844C128DBF7300336BDE /* mark_sweep_collector.h */,

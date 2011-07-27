@@ -86,6 +86,7 @@
   template(Include_Debugging_Code) \
   template(Debugging) \
   template(Track_OnStackPointer) \
+  template(Use_Mark_Sweep_GC_With_Object_Table) \
   template(Omit_Duplicated_OT_Overhead) \
   template(Omit_Spare_Bit) \
   template(Trace_Execution) \
@@ -250,6 +251,16 @@
 
 # ifndef PrintMethodDictionaryLookups
 #  define PrintMethodDictionaryLookups 0
+# endif
+
+# ifndef Use_Mark_Sweep_GC_With_Object_Table
+#  define Use_Mark_Sweep_GC_With_Object_Table 1
+# endif
+
+# if Use_Mark_Sweep_GC_With_Object_Table
+#  define Use_Object_Table 1
+# else
+#  define Use_Object_Table 0
 # endif
 
 # ifndef Omit_Duplicated_OT_Overhead

@@ -90,7 +90,7 @@ class Abstract_Object_Heap {
 
   Oop* startOfMemory() { return _start; }
 
-  bool contains(void* p) { Oop* pp = (Oop*)p; return _start <= pp  &&  pp < _next; }
+  bool contains(void* p) { Oop* pp = (Oop*)p;  return _start <= pp  &&  pp < _next; }
 
   u_int32    approx_object_count() {
     return bytesUsed() / sizeof(Oop) / 10;

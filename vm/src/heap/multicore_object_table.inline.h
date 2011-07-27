@@ -12,6 +12,8 @@
  ******************************************************************************/
 
 
+# if Use_Object_Table
+
 inline Oop Multicore_Object_Table::allocate_oop(int rank COMMA_DCL_ESB)  {
   if (check_many_assertions  &&  The_Squeak_Interpreter()->is_initialized()) verify_free_list(rank);
   Entry*& first_free = first_free_entry[rank];
@@ -53,4 +55,6 @@ inline Oop Multicore_Object_Table::allocate_oop_and_set_preheader(Object_p obj, 
   obj->init_extra_preheader_word();
   return allocate_oop_and_set_backpointer(obj, r  COMMA_USE_ESB); 
 }
+
+# endif // if Use_Object_Table
 

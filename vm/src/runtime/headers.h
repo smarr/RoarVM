@@ -187,8 +187,10 @@
 
 
 
+# include "object_table.h"
 # include "abstract_object_table.h"
 # include "multicore_object_table.h"
+# include "dummy_object_table.h"
 
 # include "memory_system.h"
 
