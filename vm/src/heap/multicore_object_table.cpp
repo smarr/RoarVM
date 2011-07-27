@@ -306,7 +306,7 @@ void Multicore_Object_Table::Segment::print() {
 
 
 void Multicore_Object_Table::check_for_debugging(Oop x) {
-  if (!probably_contains((void*)x.bits())) {
+  if (probably_contains_not((void*)x.bits())) {
     lprintf("object_for caught one\n");
     fatal("caught it");
   }

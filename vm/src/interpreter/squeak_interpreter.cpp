@@ -2731,7 +2731,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   Oop thisCntx = activeContext();
   while (thisCntx != localCntx) {
     Object_p thisCntx_obj = thisCntx.as_object();
-    /* assert(!The_Memory_System()->object_table->probably_contains(thisCntx_obj)); RMOT */
+    assert(The_Memory_System()->object_table->probably_contains_not(thisCntx_obj));
 
     Oop contextOfCaller = thisCntx_obj->fetchPointer(Object_Indices::SenderIndex);
     // zap
@@ -3076,8 +3076,8 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
     return;
   else if (!(0 <= litx  &&  litx < m->literalCount()))
     msg = "literal index out of bounds";
-/*  else if (!(lit = literal(litx)).is_int()  &&  !The_Memory_System()->object_table->probably_contains((void*)lit.bits()))
-    msg = "bad mem literal"; RMOT */
+  else if (!(lit = literal(litx)).is_int()  &&  The_Memory_System()->object_table->probably_contains_not((void*)lit.bits()))
+    msg = "bad mem literal";
   else
     return;
 

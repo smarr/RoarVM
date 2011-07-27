@@ -353,7 +353,7 @@ inline oop_int_t Object::literalCountOfHeader(oop_int_t header) { return (header
 inline Oop Object::literal(oop_int_t offset) {
   Oop r = fetchPointer(offset + Object_Indices::LiteralStart);
   if (check_many_assertions) {
-    /*assert_always(r.is_int()  || The_Memory_System()->object_table->probably_contains((void*)r.bits()) ); RMOT */
+    assert_always(r.is_int() || The_Memory_System()->object_table->probably_contains((void*)r.bits()));
   }
   return r;
 }

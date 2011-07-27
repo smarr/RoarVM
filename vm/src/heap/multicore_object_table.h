@@ -221,6 +221,9 @@ public:
   bool verify_after_mark();
 
   inline bool probably_contains(void*) const;
+  inline bool probably_contains_not(void* obj) const {
+    return not probably_contains(obj);
+  }
 
   Oop get_stats(int);
 
