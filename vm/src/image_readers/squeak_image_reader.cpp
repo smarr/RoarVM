@@ -50,8 +50,6 @@ Squeak_Image_Reader::Squeak_Image_Reader(char* fn, Memory_System* ms, Squeak_Int
     perror(buf);
     abort();
   }
-  
-  object_table = new Multicore_Object_Table(); /* RMOT: Image Reader still employs the object table */
 }
 
 void Squeak_Image_Reader::read_image() {
@@ -229,6 +227,7 @@ public:
   virtual const char* class_name(char*) { return "Convert_Closure"; }
 };
 
+# if !Use_Object_Table
 class UpdateOop_Closure: public Oop_Closure {
   Multicore_Object_Table* object_table;
 public:
@@ -242,6 +241,7 @@ public:
   }
   virtual const char* class_name(char*) { return "UpdateOop_Closure"; }
 };
+# endif
 
 
 void Squeak_Image_Reader::distribute_objects() {
@@ -317,7 +317,8 @@ Oop Squeak_Image_Reader::oop_for_relative_addr(int relative_addr) {
   Oop* addr_in_table = &object_oops[relative_addr / sizeof(Oop)];
   Object* obj = (Object*) &memory[relative_addr];
   if (addr_in_table->bits() == 0) {
-    *addr_in_table = object_table->allocate_OTE_for_object_in_snapshot(obj);
+    Object_Table* const ot = memory_system->object_table;
+    *addr_in_table = ot->allocate_OTE_for_object_in_snapshot(obj);
   }
   return *addr_in_table;
 }

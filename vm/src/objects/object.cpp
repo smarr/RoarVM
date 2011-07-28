@@ -419,6 +419,7 @@ Oop* Object::last_strong_pointer_addr_remembering_weak_roots(Abstract_Mark_Sweep
 void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
   if (isFreeObject())
     return;
+  
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
     if (do_checks)
       my_heap()->contains(oopp);
@@ -439,6 +440,7 @@ void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
 void Object::do_all_oops_of_object_for_reading_snapshot(Squeak_Image_Reader* r) {
   if (isFreeObject())
     return;
+  
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
     Oop x = *oopp;
     if (x.is_mem()) {
@@ -511,9 +513,8 @@ Oop Object::clone() {
                                               |   ((hash << HashShift) & HashMask),
                                               newObj);
 
-  /* The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, Logical_Core::my_rank()  COMMA_TRUE_OR_NOTHING); RMOT */
+  The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, Logical_Core::my_rank()  COMMA_TRUE_OR_NOTHING);
   
-    
 # if Extra_Preheader_Word_Experiment
   oop_int_t ew = remappedObject->get_extra_preheader_word();
   assert_always(ew && (!Oop::from_bits(ew).is_int()  ||  ew == Oop::from_int(0).bits())); // bug hunt
@@ -924,6 +925,7 @@ Object_p Object::makeString(const char* str, int n) {
 
 
 void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
+# if Use_Object_Table
   if (The_Memory_System()->rank_for_address(this) == r
   &&  The_Memory_System()->mutability_for_address(this) == rw_or_rm)
     return;
@@ -963,6 +965,9 @@ void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
   ((Chunk*)src_chunk)->make_free_object(ehb + bnc, 2); // without this GC screws up
 
   if (do_sync) The_Squeak_Interpreter()->postGCAction_everywhere(false);
+# else
+  fatal("Currently not supported without Object_Table.");
+# endif
 }
 
 

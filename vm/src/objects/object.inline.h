@@ -12,12 +12,14 @@
  ******************************************************************************/
 
 
+
+# if Use_Object_Table
 inline void Object::set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB) {
   Safepoint_for_moving_objects::assert_held();
-  /* The_Memory_System()->object_table->set_object_for(x, (Object_p)this  COMMA_USE_ESB); RMOT */
+  The_Memory_System()->object_table->set_object_for(x, (Object_p)this  COMMA_USE_ESB);
   set_backpointer(x);
 }
-
+# endif
 
 
 
@@ -424,9 +426,7 @@ inline Object_p Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdr
   }
   assert_eq((void*)newObj, (void*)headerp, "");
 
-  newObj->init_extra_preheader_word(); 
-  newObj->set_backpointer(newObj->as_oop());
-  /* The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, my_rank  COMMA_TRUE_OR_NOTHING); RMOT: no need to allocate oop */
+  The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, my_rank  COMMA_TRUE_OR_NOTHING);
 
 
   //  "clear new object"

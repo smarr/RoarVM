@@ -44,6 +44,10 @@ void Multicore_Object_Table::cleanup() {
     Segment* next;
     for (Segment* s = first_segment[r];  s != NULL;  s = next) {
       next = s->next();
+# warning this delete might fail because the point does not point to the head\
+          of the originally allocated memory, but to an aligned point in that\
+          memory page
+
       delete s;
     }
   }
@@ -78,7 +82,7 @@ Multicore_Object_Table::Segment::Segment(Multicore_Object_Table* mot, int rank  
 }
 
 void* Multicore_Object_Table::Segment::operator new(size_t /* s */) {
-  void* p = OS_Interface::rvm_memalign(/* The_Memory_System()->object_table->heap, RMOT */alignment_and_size, sizeof(Segment));
+  void* p = OS_Interface::rvm_memalign(The_Memory_System()->object_table->heap, alignment_and_size, sizeof(Segment));
   assert(sizeof(Segment) <= alignment_and_size);
   if (p == NULL) fatal("OT Segment allocation");
   // xxxxxx Should home segments appropriately someday.
@@ -87,7 +91,7 @@ void* Multicore_Object_Table::Segment::operator new(size_t /* s */) {
 }
 
 void Multicore_Object_Table::Segment::operator delete(void * mem) {
-  OS_Interface::rvm_free_shared(mem);
+  OS_Interface::rvm_free_aligned_shared(mem);
 }
 
 

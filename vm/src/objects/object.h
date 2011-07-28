@@ -105,42 +105,51 @@ public:
   }
   void set_class_oop(Oop x);
   void set_class_oop_no_barrier(Oop);
+
+  Preheader* preheader() { 
+    return  (Preheader*)&as_oop_int_p()[-extra_header_oops()];
+  }
+  
+  oop_int_t* extra_preheader_word() {
+    return preheader()->extra_preheader_word_address();
+  }
+  
+  oop_int_t get_extra_preheader_word() { return *extra_preheader_word(); }
+  inline void set_extra_preheader_word(oop_int_t w);
+  
+  void init_extra_preheader_word() { preheader()->init_extra_preheader_word(); }
+
+  void set_preheader(Oop x) { 
+    init_extra_preheader_word();
+    # if Use_Object_Table
+      set_backpointer(x);
+    # endif
+  }
+ 
+   
+# if Use_Object_Table   
   Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
 
   void set_backpointer(Oop x) {
       set_backpointer_word(backpointer_from_oop(x));
   }
-   void set_preheader(Oop x) { 
-     init_extra_preheader_word();
-     set_backpointer(x); 
-   }
 
   static Oop oop_from_backpointer(oop_int_t bp) {
     return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
   }
+
   oop_int_t backpointer_from_oop(Oop x) {
     return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
   }
    
-  Preheader* preheader() { return  (Preheader*)&as_oop_int_p()[-extra_header_oops()]; }
-
   oop_int_t get_backpointer_word() { return *backpointer_word(); }
-
+  
   inline void set_backpointer_word(oop_int_t w);
-
+  
   oop_int_t* backpointer_word() {
     return &preheader()->backpointer;
   }
-   
-  
-  oop_int_t* extra_preheader_word() {
-    return preheader()->extra_preheader_word_address();
-  }
-   
-   oop_int_t get_extra_preheader_word() { return *extra_preheader_word(); }
-   inline void set_extra_preheader_word(oop_int_t w);
-
-   void init_extra_preheader_word() { preheader()->init_extra_preheader_word(); }
+# endif
 
 
 public:
@@ -470,8 +479,9 @@ public:
   Object_p instantiateClass(oop_int_t sizeInBytes, Logical_Core* where = NULL);
   oop_int_t instanceSizeOfClass();
 
+# if Use_Object_Table
   inline void set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB);
-
+# endif
 
   inline bool isCompiledMethod();
 

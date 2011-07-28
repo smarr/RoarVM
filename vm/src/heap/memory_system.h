@@ -129,12 +129,12 @@ public:
     u_int32 log_memory_per_read_mostly_heap;
     int32 page_size;
     int32 main_pid;
-    //Multicore_Object_Table* object_table; /* RMOT */
+    Multicore_Object_Table* object_table;
     struct global_GC_values* global_GC_values;
   };
 
 
-  //Multicore_Object_Table* object_table;   // threadsafe readonly /* RMOT */
+  Multicore_Object_Table* object_table;   // threadsafe readonly
 
 
 
@@ -173,7 +173,7 @@ public:
   void init_values_from_buffer(init_buf*);
 
 
-  void ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(Oop dst_oop, Object* src_obj_wo_preheader, Multicore_Object_Table* object_table) { /* RMOT: Pass image_reader's object_table */
+  void ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(Oop dst_oop, Object* src_obj_wo_preheader) {
     int rank = object_table->rank_for_adding_object_from_snapshot(dst_oop);
     Object_p dst_obj = (Object_p)The_Interactions.add_object_from_snapshot_allocating_chunk(rank, dst_oop, src_obj_wo_preheader);
     object_table->set_object_for(dst_oop, dst_obj  COMMA_FALSE_OR_NOTHING);
@@ -221,7 +221,6 @@ public:
   }
 
   Multicore_Object_Heap* heap_containing(void* obj) {
-    //lprintf("rank %d, mutable %d\n", rank_for_address(obj), mutability_for_address(obj)); //debug
     return heaps[rank_for_address(obj)][mutability_for_address(obj)];
   }
 
@@ -230,14 +229,22 @@ public:
 
 
   Object*  object_for_unchecked(Oop x) {
-    return object_for(x); /* Object* r = object_table->object_for(x);
-    assert(!object_table->probably_contains(r));
-    return r; RMOT */
+    if (Use_Object_Table) {
+      Object* r = object_table->object_for(x);
+      assert(object_table->probably_contains_not(r));
+      return r;
+    }
+    else {
+      return object_for(x);
+    }
   }
 
 
   Object*  object_for(Oop x) {
-    return x.as_object(); /* return object_table->object_for(x); RMOT */
+    if (Use_Object_Table)
+      return object_table->object_for(x);
+    else
+      return object_for(x);
   }
 
 

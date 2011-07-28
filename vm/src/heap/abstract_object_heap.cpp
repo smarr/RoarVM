@@ -163,8 +163,11 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
       dst_chunk = next_src_chunk;
 
     else {
-      // The_Memory_System()->object_table->set_object_for(oop, new_obj_addr  COMMA_FALSE_OR_NOTHING); // noop unless indirect oops
-        /* RMOT - Warning: commenting the above breaks GC; pointers are not updated when moving data in memory */
+      if (Use_Object_Table)
+        The_Memory_System()->object_table->set_object_for(oop, new_obj_addr  COMMA_FALSE_OR_NOTHING); // noop unless indirect oops
+      else
+        fatal("GC is currently not supported, and this should never happen.");
+      
       int n_oops = (Oop*)next_src_chunk - (Oop*)src_chunk;
       // no mutability barrier wanted here, may need generational store barrier in the future
       
@@ -178,8 +181,8 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
     set_end_objects((Oop*)dst_chunk);
 
 
-  /* if (for_gc || compacting)
-    The_Memory_System()->object_table->post_store_whole_enchillada(); RMOT */
+  if (for_gc || compacting)
+    The_Memory_System()->object_table->post_store_whole_enchillada();
 
   // enforce coherence at higher level
 }
