@@ -572,7 +572,11 @@ public:
   bool verify_address();
   bool verify_preheader();
   bool verify_extra_preheader_word();
+  
+# if Use_Object_Table
   bool verify_backpointer();
+# endif
+  
   bool okayOop();
   bool hasOkayClass();
 

@@ -217,9 +217,9 @@ void Squeak_Image_Reader::byteSwapByteObjects() {
 
 # if !Use_Object_Table
 class UpdateOop_Closure: public Oop_Closure {
-  Multicore_Object_Table* object_table;
+  Object_Table* object_table;
 public:
-  UpdateOop_Closure(Multicore_Object_Table* ot)  : Oop_Closure() { object_table = ot; }
+  UpdateOop_Closure(Object_Table* ot)  : Oop_Closure() { object_table = ot; }
   void value(Oop* p, Object_p) {
     if (p->is_mem()) {
       Object* obj = object_table->object_for(*p);
@@ -252,7 +252,7 @@ void Squeak_Image_Reader::distribute_objects() {
     nextChunk = obj->nextChunk();
     if (!obj->isFreeObject()) {
       obj->do_all_oops_of_object_for_reading_snapshot(this);
-      memory_system->ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(oop_for_addr(obj), obj, object_table);
+      memory_system->ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(oop_for_addr(obj), obj);
     }
   }
   

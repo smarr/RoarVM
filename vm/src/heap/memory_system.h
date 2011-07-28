@@ -129,12 +129,12 @@ public:
     u_int32 log_memory_per_read_mostly_heap;
     int32 page_size;
     int32 main_pid;
-    Multicore_Object_Table* object_table;
+    Object_Table* object_table;
     struct global_GC_values* global_GC_values;
   };
 
 
-  Multicore_Object_Table* object_table;   // threadsafe readonly
+  Object_Table* object_table;   // threadsafe readonly
 
 
 

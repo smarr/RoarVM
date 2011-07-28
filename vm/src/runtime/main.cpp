@@ -123,7 +123,7 @@ template("-no_fence",           The_Squeak_Interpreter()->set_fence(false), "not
 template("-print_moves_to_read_write",  The_Squeak_Interpreter()->set_print_moves_to_read_write(true), "printing moves to read_write heaps") \
 template("-replicate_methods",  Memory_System::replicate_methods = true, "replicating methods") \
 template("-use_checkpoint",     The_Squeak_Interpreter()->set_use_checkpoint(true), "using checkpoint") \
-template("-replicate_OT",       Multicore_Object_Table::replicate = true, "let hardware replicate the object table") \
+template("-replicate_OT",       Segmented_Object_Table::replicate = true, "let hardware replicate the object table") \
 template("-print_gc",           Abstract_Mark_Sweep_Collector::print_gc = true, "Print GC") \
 template("-version",            print_version_info(), "Print full version information") \
 template("-use_cpu_ms",         The_Squeak_Interpreter()->set_use_cpu_ms(true), "use CPU time instead of elapsed time")

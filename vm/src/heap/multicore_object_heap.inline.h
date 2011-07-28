@@ -98,7 +98,7 @@ inline Object_p Multicore_Object_Heap::object_address_unchecked(Oop x) {
 }
 
 
-
+# if Use_Object_Table
 
 inline bool Multicore_Object_Table::Entry::is_used() {
   Object* ow = word()->obj();
@@ -112,4 +112,6 @@ inline bool Multicore_Object_Table::probably_contains(void* p) const {
       return true;
   return false;
 }
+
+# endif
 

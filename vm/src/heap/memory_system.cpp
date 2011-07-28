@@ -647,7 +647,7 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
   
   log_memory_per_read_write_heap = log_of_power_of_two(memory_per_read_write_heap);
   log_memory_per_read_mostly_heap = log_of_power_of_two(memory_per_read_mostly_heap);
-  object_table = new Multicore_Object_Table();
+  object_table = new Object_Table();
 
   init_buf ib = {
     snapshot_bytes, sws, fsf, lastHash,

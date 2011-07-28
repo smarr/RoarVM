@@ -118,6 +118,8 @@
 		0ACF551912E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */; };
 		0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
+		34B7135713E1E58B00FA911F /* dummy_object_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34B7135613E1E58B00FA911F /* dummy_object_table.cpp */; };
+		34B7135A13E1E7E500FA911F /* segmented_object_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34B7135813E1E7E400FA911F /* segmented_object_table.cpp */; };
 		4E9B341713DDB19700E0E991 /* osx_os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784C9128DBF7400336BDE /* osx_os_interface.cpp */; };
 /* End PBXBuildFile section */
 
@@ -396,6 +398,10 @@
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
 		3406F42613E0C59D00CFD9FA /* dummy_object_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dummy_object_table.h; sourceTree = "<group>"; };
 		3406F42813E0C5F600CFD9FA /* object_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_table.h; sourceTree = "<group>"; };
+		34B7135613E1E58B00FA911F /* dummy_object_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dummy_object_table.cpp; sourceTree = "<group>"; };
+		34B7135813E1E7E400FA911F /* segmented_object_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = segmented_object_table.cpp; sourceTree = "<group>"; };
+		34B7135913E1E7E400FA911F /* segmented_object_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segmented_object_table.h; sourceTree = "<group>"; };
+		34B7135B13E2035900FA911F /* segmented_object_table.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segmented_object_table.inline.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -725,6 +731,7 @@
 				0A278448128DBF7300336BDE /* abstract_object_heap.inline.h */,
 				0A278449128DBF7300336BDE /* abstract_object_table.h */,
 				3406F42613E0C59D00CFD9FA /* dummy_object_table.h */,
+				34B7135613E1E58B00FA911F /* dummy_object_table.cpp */,
 				3406F42813E0C5F600CFD9FA /* object_table.h */,
 				0A27844A128DBF7300336BDE /* gc_oop_stack.h */,
 				0A27844B128DBF7300336BDE /* indirect_oop_mark_sweep_collector.h */,
@@ -739,6 +746,9 @@
 				0A278454128DBF7300336BDE /* multicore_object_table.h */,
 				0A278455128DBF7300336BDE /* multicore_object_table.inline.h */,
 				0A278456128DBF7300336BDE /* oop_closure.h */,
+				34B7135813E1E7E400FA911F /* segmented_object_table.cpp */,
+				34B7135913E1E7E400FA911F /* segmented_object_table.h */,
+				34B7135B13E2035900FA911F /* segmented_object_table.inline.h */,
 			);
 			name = heap;
 			path = src/heap;
@@ -1287,6 +1297,8 @@
 				0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */,
 				0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */,
 				4E9B341713DDB19700E0E991 /* osx_os_interface.cpp in Sources */,
+				34B7135713E1E58B00FA911F /* dummy_object_table.cpp in Sources */,
+				34B7135A13E1E7E500FA911F /* segmented_object_table.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

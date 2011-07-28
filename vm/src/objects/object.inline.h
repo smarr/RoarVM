@@ -39,11 +39,12 @@ inline void Object::  mark_without_store_barrier() { baseHeader |=  MarkBit; }
 inline void Object::unmark_without_store_barrier() { baseHeader &= ~MarkBit; }
 
 
-
+# if Use_Object_Table
 inline void Object::set_backpointer_word(oop_int_t w) {
   oop_int_t* dst = backpointer_word();
   The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);
 }
+# endif
 
 inline void Object::set_extra_preheader_word(oop_int_t w) {
   assert_always(w); // bug hunt qqq
