@@ -49,6 +49,7 @@ public:
   Roots roots;
   Method_Cache methodCache;
   At_Cache atCache;
+  Scheduler scheduler;
  private:
   friend class Interpreter_Subset_For_Control_Transfer;
   // these get send for control transfer
@@ -309,12 +310,15 @@ public:
  public:
    int added_process_count;
 
-   OS_Mutex_Interface* get_scheduler_mutex() {  return &scheduler_mutex; }
+   OS_Mutex_Interface* get_scheduler_mutex() {  
+       return scheduler.get_scheduler_mutex(); 
+   }
    OS_Mutex_Interface* get_semaphore_mutex() {  return &semaphore_mutex; }
    OS_Mutex_Interface* get_safepoint_mutex() {  return &safepoint_mutex; }
+    
+    Scheduler get_scheduler(){return scheduler;}
 
   private:
-   OS_Mutex_Interface scheduler_mutex;
    OS_Mutex_Interface semaphore_mutex;
    OS_Mutex_Interface safepoint_mutex; // this is not a complete mutex, it does not use underlying systems mutex
 
@@ -354,6 +358,10 @@ public:
   }
   void set_activeContext(Oop x) { set_activeContext(x, x.as_object()); }
   void set_activeContext(Object_p x) { set_activeContext( x->as_oop(), x); }
+    
+  void set_scheduler(Scheduler sched){
+    scheduler = sched;
+  }
 
 
   Oop method() { return roots._method; }
@@ -1112,16 +1120,17 @@ public:
   }
 
   void signalSemaphoreWithIndex(int index);
-  Oop schedulerPointer() {
-    return splObj_obj(Special_Indices::SchedulerAssociation)
-            ->fetchPointer(Object_Indices::ValueIndex);
-  }
-  Object_p schedulerPointer_obj() { return schedulerPointer().as_object(); }
 
-  Object_p process_lists_of_scheduler() {
-    return schedulerPointer_obj()->fetchPointer(Object_Indices::ProcessListsIndex).as_object();
-  }
-
+    Oop schedulerPointer() {
+         return scheduler.schedulerPointer();
+    }
+    
+    Object_p schedulerPointer_obj() { return scheduler.schedulerPointer_obj(); }
+    
+    Object_p process_lists_of_scheduler() {
+        return scheduler.process_lists_of_scheduler();
+    }   
+    
   Oop  get_running_process();
   void set_running_process(Oop, const char*);
 
@@ -1384,7 +1393,10 @@ public:
   
   void unset_running_process();
   bool process_is_scheduled_and_executing();
-
+    bool is_ok_to_run_on_me() {
+        return (Logical_Core::my_rank_mask() & run_mask()) ? true : false;
+    }
+    
  private:
   void check_for_multicore_interrupt() {
     assert(multicore_interrupt_check  ||  process_is_scheduled_and_executing());
@@ -1407,9 +1419,6 @@ public:
 
   bool is_ok_to_run_on(int rank) {
     return ((1LL << u_int64(rank)) & run_mask()) ? true : false;
-  }
-  bool is_ok_to_run_on_me() {
-    return (Logical_Core::my_rank_mask() & run_mask()) ? true : false;
   }
 
 
@@ -1543,6 +1552,11 @@ public:
   
   void suspendAllOthers();
   void awakeAllOthers();
+  void transformAllToSchedulerPerInterpreter();
+  void transformAllToGlobalScheduler();
+  void transformToSchedulerPerInterpreter();  
+  void transformToGlobalScheduler();
+
 };
 
 

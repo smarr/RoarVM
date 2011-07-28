@@ -204,6 +204,9 @@
 # include "obsolete_named_primitive_table.h"
 # include "external_primitive_table.h"
 # include "debug_store_checks.h"
+
+# include "scheduler.h"
+
 # include "squeak_interpreter.h"
 
 # include "squeak_image_reader.h"

@@ -527,14 +527,14 @@ Oop Object::clone() {
 
 Object_p Object::process_list_for_priority_of_process() {
   int priority = priority_of_process();
-  Object_p processLists = The_Squeak_Interpreter()->process_lists_of_scheduler();
-  assert(priority - 1  <=  processLists->fetchWordLength());
-  return processLists->fetchPointer(priority - 1).as_object();
+    
+    return The_Squeak_Interpreter()->get_scheduler()->process_list_for_priority(priority);
 }
 
 // Save on given list for priority
 void Object::add_process_to_scheduler_list() {
-  process_list_for_priority_of_process()->addLastLinkToList(as_oop());
+    The_Squeak_Interpreter()->get_scheduler()
+        ->add_process_to_scheduler_list(this);
 }
 
 

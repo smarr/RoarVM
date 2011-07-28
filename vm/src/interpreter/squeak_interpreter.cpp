@@ -36,7 +36,7 @@ Squeak_Interpreter::Squeak_Interpreter()
   numberOfMovedMutatedRead_MostlyObjects = 0;
   cyclesMovingMutatedRead_MostlyObjects = 0;
   emergency_semaphore_signal_requested = false;
-
+    
   static int dummy = 17;
   global_sequence_number = print_sequence_number = &dummy;
   running_process_by_core = NULL;
@@ -81,21 +81,18 @@ bool Squeak_Interpreter::is_initialized() { return roots.is_initialized(); }
 
 void Squeak_Interpreter::initialize(Oop soo, bool from_checkpoint) {
   if (!from_checkpoint) roots.initialize(soo);
-
   if (Logical_Core::running_on_main()) {
-    
+  
     timeout_deferral_counters = (int32*)Memory_Semantics::shared_calloc(Max_Number_Of_Cores, sizeof(timeout_deferral_counters[0]));
-    
-    scheduler_mutex.initialize_globals();
+        
     semaphore_mutex.initialize_globals();
-
     safepoint_tracker = new Safepoint_Tracker();
     safepoint_master_control = new Safepoint_Master_Control();
-
-     global_sequence_number = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
+    
+    global_sequence_number = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
     *global_sequence_number = 0;
-
-     print_sequence_number = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
+    
+    print_sequence_number = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
     *print_sequence_number = 0;
 
     // STEFAN: looks like it is not used at all
@@ -2111,98 +2108,13 @@ void Squeak_Interpreter::fullDisplayUpdate() {
 // Was: wakeHighestPriority
 // xxxxxx factor with remove_process_from_scheduler_list or not -- dmu 4/09
 Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_process() {
-  if (!is_ok_to_run_on_me()) {
-    return roots.nilObj;
-  }
-  Scheduler_Mutex sm("find_and_move_to_end_highest_priority_non_running_process");
-  // return highest pri ready to run
-  // see find_a_process_to_run_and_start_running_it
-  bool verbose = false;
-  bool found_a_proc = false;
-  FOR_EACH_READY_PROCESS_LIST(slo, p, processList, this)  {
-
-    if (processList->isEmptyList())
-      continue;
-    found_a_proc = true;
-    if (verbose)
-      lprintf("find_and_move_to_end_highest_priority_non_running_process searching list %d\n", p + 1);
-    Oop  first_proc = processList->fetchPointer(Object_Indices::FirstLinkIndex);
-    Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
-
-    Oop        proc = first_proc;
-    Object_p proc_obj = proc.as_object();
-    Object_p prior_proc_obj = (Object_p)NULL;
-    for (;;)  {
-      if (verbose) {
-        debug_printer->printf("on %d: find_and_move_to_end_highest_priority_non_running_process proc: ",
-                              my_rank());
-        proc_obj->print_process_or_nil(debug_printer);
-        debug_printer->nl();
-      }
-      OS_Interface::mem_fence(); // xxxxxx Is this fence needed? -- dmu 4/09
-      assert(proc_obj->as_oop() == proc  &&  proc.as_object() == proc_obj);
-      if (proc_obj->is_process_running()  ||  !proc_obj->is_process_allowed_to_run_on_this_core())
-        ;
-      else if (last_proc == proc) {
-         return proc;
-      }
-      else if (first_proc == proc) {
-        processList->removeFirstLinkOfList();
-        processList->addLastLinkToList(proc);
-        return proc;
-      }
-      else {
-        processList->removeMiddleLinkOfList(prior_proc_obj, proc_obj);
-        processList->addLastLinkToList(proc);
-        return proc;
-      }
-      if  (last_proc == proc)
-        break;
-
-      prior_proc_obj = proc_obj;
-      proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
-      proc_obj = proc.as_object();
-    }
-  }
-
-  // In a 4.0 image running our prims, there is always at least the idle process in the list
-  if (primitiveThisProcess_was_called()  &&  Object::image_is_pre_4_1()) assert_always(found_a_proc);
-
-  OS_Interface::mem_fence(); // xxxxxx Is this fence needed? -- dmu 4/09
-  return roots.nilObj;
+    return scheduler.find_and_move_to_end_highest_priority_non_running_process();
 }
 
 
 int Squeak_Interpreter::count_processes_in_scheduler() {
-  Scheduler_Mutex sm("find_and_move_to_end_highest_priority_non_running_process");
-  // return highest pri ready to run
-  // see find_a_process_to_run_and_start_running_it
-  int count = 0;
-  
-  FOR_EACH_READY_PROCESS_LIST(slo, p, processList, this)  {
-    
-    if (processList->isEmptyList())
-      continue;
-    Oop  first_proc = processList->fetchPointer(Object_Indices::FirstLinkIndex);
-    Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
-    
-    Oop        proc = first_proc;
-    Object_p proc_obj = proc.as_object();
-    for (;;)  {
-      ++count;
-      if  (last_proc == proc)
-        break;
-      
-      proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
-      proc_obj = proc.as_object();
-    }
-  }
-  
-  return count;
+    return scheduler.count_processes_in_scheduler();
 }
-
-
-
 
 
 void Squeak_Interpreter::copyBits() {
@@ -2285,8 +2197,8 @@ Oop Squeak_Interpreter::get_stats(int what_to_sample) {
   if (what_to_sample & (1 << SampleValues::mutexStats)) {
     u_int32 semaphoreMutexAcqCycles = semaphore_mutex.get_and_reset_acq_cycles();
     u_int32 semaphoreMutexRelCycles = semaphore_mutex.get_and_reset_rel_cycles();
-    u_int32 schedulerMutexAcqCycles = scheduler_mutex.get_and_reset_acq_cycles();
-    u_int32 schedulerMutexRelCycles = scheduler_mutex.get_and_reset_rel_cycles();
+    u_int32 schedulerMutexAcqCycles = scheduler.get_scheduler_mutex()->get_and_reset_acq_cycles();
+    u_int32 schedulerMutexRelCycles = scheduler.get_scheduler_mutex()->get_and_reset_rel_cycles();
     u_int32 safepointAcqCycles = safepoint_mutex.get_and_reset_acq_cycles();
     u_int32 safepointRelCycles = safepoint_mutex.get_and_reset_rel_cycles();
 
@@ -2640,21 +2552,7 @@ void Squeak_Interpreter::booleanCheat(bool cond) {
 }
 
 void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
-
-  Scheduler_Mutex sm("transferTo"); // in case another cpu starts running this
-  if (Print_Scheduler_Verbose) {
-    debug_printer->printf("scheduler: on %d: ", my_rank());
-    get_running_process().print_process_or_nil(debug_printer);
-    debug_printer->printf( " transferTo ");
-    newProc.print_process_or_nil(debug_printer);
-    debug_printer->printf(", %s\n", why);
-  }
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
-  put_running_process_to_sleep(why);
-  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
-  OS_Interface::mem_fence();
-  start_running(newProc, why);
+    scheduler.transferTo(newProc, why);
 }
 
 
@@ -3139,11 +3037,12 @@ void Squeak_Interpreter::receive_initial_interpreter_from_main(Squeak_Interprete
   *((int*)rankAddr)           = my_rank;
   *((Logical_Core**)coreAddr) = my_core;
 #endif
-  
   safepoint_tracker = new Safepoint_Tracker();
   safepoint_master_control = NULL;
   safepoint_ability = sa;
-
+  //ensure that the local scheduler copy has the correct 'backpointer'
+  scheduler.set_interpreter(this);
+  
   if (check_assertions) {
     assert(roots.specialObjectsOop.is_mem());
     roots.specialObjectsOop.verify_object();
@@ -3330,5 +3229,26 @@ void Squeak_Interpreter::suspendAllOthers() {
 
 void Squeak_Interpreter::awakeAllOthers() {
   awakeOtherInterpreters_class().send_to_other_cores();
+}
+
+
+void Squeak_Interpreter::transformAllToSchedulerPerInterpreter() {
+  Safepoint_for_moving_objects sf("scheduler_per_interpreter");
+  scheduler.transform_to_scheduler_per_interpreter();
+  transformToSchedulerPerInterpreter_class().send_to_all_cores();
+}
+
+void Squeak_Interpreter::transformAllToGlobalScheduler() {
+  Safepoint_for_moving_objects sf("global_scheduler");
+  transformToGlobalScheduler_class().send_to_all_cores();
+  scheduler.transform_to_global_scheduler();
+}
+
+void Squeak_Interpreter::transformToSchedulerPerInterpreter() {
+  scheduler.switch_to_own_mutex();
+}
+
+void Squeak_Interpreter::transformToGlobalScheduler() {
+  scheduler.switch_to_shared_mutex();
 }
 

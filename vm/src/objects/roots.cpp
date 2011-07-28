@@ -9,6 +9,7 @@
  *    David Ungar, IBM Research - Initial Implementation
  *    Sam Adams, IBM Research - Initial Implementation
  *    Stefan Marr, Vrije Universiteit Brussel - Port to x86 Multi-Core Systems
+ *    Reinout Stevens, Vrije Universiteit Brussel - Added scheduler for each core
  ******************************************************************************/
 
 
@@ -20,10 +21,13 @@ Roots::Roots() {
 
 void Roots::initialize(Oop soo) {
   specialObjectsOop = soo;
-
     nilObj = The_Squeak_Interpreter()->splObj(Special_Indices::  NilObject);
   falseObj = The_Squeak_Interpreter()->splObj(Special_Indices::FalseObject);
    trueObj = The_Squeak_Interpreter()->splObj(Special_Indices:: TrueObject);
+    
+    Scheduler* scheduler = new Scheduler();
+    scheduler->initialize(The_Squeak_Interpreter());
+    The_Squeak_Interpreter()->set_scheduler(scheduler);
 
   running_process_or_nil = nilObj;
   
@@ -51,4 +55,6 @@ bool Roots::verify() {
   FOR_EACH_ROOT(this,oopp) oopp->verify_object();
   return true;
 }
+
+
 

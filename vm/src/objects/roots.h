@@ -46,6 +46,7 @@ class Roots {
 
 
   void flush_freeContexts();
+    void transform_process_list();
 
   bool verify();
 
