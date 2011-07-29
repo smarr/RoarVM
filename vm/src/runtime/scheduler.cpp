@@ -38,7 +38,6 @@
  * depending on the outcome of some of the benchmarks */
 
 
-bool Scheduler::scheduler_per_interpreter = false;
 
 
 void Scheduler::initialize(Squeak_Interpreter* interpreter) {
@@ -67,7 +66,7 @@ Object_p Scheduler::schedulerPointer_obj() {
 
 Oop Scheduler::process_lists_of_scheduler_pointer(int rank) {
   Oop schedlist = schedulerPointer_obj()
-    ->fetchPointer(Object_Indices::ProcessListsIndex);
+  ->fetchPointer(Object_Indices::ProcessListsIndex);
   Oop plist;
   if(scheduler_per_interpreter) {
     plist = schedlist.as_object()->fetchPointer(rank);
@@ -134,7 +133,8 @@ void Scheduler::transform_to_scheduler_per_interpreter(){
   Object_p linkedListClass = processList.as_object()->fetchClass().as_object();
   Object_p linkedList;
   for(int i = 0; i < Logical_Core::main_rank; ++i){
-    
+    linkedList = linkedListClass->instantiateClass(0);
+    PUSH_FOR_MAKE_ARRAY(linkedList->as_oop());
   }
   //add process list for main core
   PUSH_FOR_MAKE_ARRAY(processList);
@@ -150,10 +150,12 @@ void Scheduler::transform_to_scheduler_per_interpreter(){
   scheduler_per_interpreter = true;
 }
 
+
+
+
 void Scheduler::transform_to_global_scheduler() {
   if(!scheduler_per_interpreter)
     return;
-  
   //we reuse the currect process_list
   Object_p result = process_lists_of_scheduler();
   //the complete datastructure
@@ -220,10 +222,10 @@ Oop Scheduler::steal_process_from_me(Squeak_Interpreter* thief) {
   Oop process = find_highest_priority_non_running_process_for_core(thief);
   if(process != get_interpreter()->roots.nilObj){
     //set correct backpointer for process
-    Oop correctList = thief->process_lists_of_scheduler()
-      ->fetchPointer(process.as_object()->priority_of_process());
+    int priority = process.as_object()->priority_of_process();
+    Object_p correctList = thief->scheduler.process_list_for_priority(priority);
     process.as_object()->storePointer(Object_Indices::MyListIndex,
-                                      correctList);
+                                      correctList->as_oop());
   }
   return process;
 }
@@ -254,7 +256,8 @@ Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
 
 
 Oop Scheduler::find_highest_priority_non_running_process_for_core(Squeak_Interpreter* runner) {
-  Scheduler_Mutex sm("find_and_move_to_end_highest_priority_non_running_process");
+  Scheduler_Mutex sm("find_and_move_to_end_highest_priority_non_running_process",
+                     get_interpreter());
   // return highest pri ready to run
   // see find_a_process_to_run_and_start_running_it
   bool verbose = false;

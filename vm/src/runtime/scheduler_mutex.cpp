@@ -14,16 +14,17 @@
 
 # include "headers.h"
 
-OS_Mutex_Interface* Scheduler_Mutex_Actions::get_mutex() {
-  return The_Squeak_Interpreter()->get_scheduler_mutex();
+OS_Mutex_Interface* Scheduler_Mutex_Actions::get_mutex(Squeak_Interpreter* interp) {
+  return interp->get_scheduler_mutex();
 }
 
-bool Scheduler_Mutex_Actions::is_held() {
-  return get_mutex()->is_held();
+bool Scheduler_Mutex_Actions::is_held(Squeak_Interpreter* interp) {
+  return get_mutex(interp)->is_held();
 }
 
-void Scheduler_Mutex_Actions::acquire_action(const char* /* why */) {
-  OS_Mutex_Interface* mutex = get_mutex();
+void Scheduler_Mutex_Actions::acquire_action(Squeak_Interpreter* interp,
+                                             const char* /* why */) {
+  OS_Mutex_Interface* mutex = get_mutex(interp);
 
   // spin and receive to avoid deadlock; other core may be trying to send US something
   Timeout_Timer tt("scheduler mutex", 60, mutex->get_holder()); tt.start();
@@ -35,17 +36,18 @@ void Scheduler_Mutex_Actions::acquire_action(const char* /* why */) {
   }
   if (tracking) mutex->set_holder(Logical_Core::my_rank());
   
-  The_Squeak_Interpreter()->perf_counter.count_acquire_scheduler_mutex();
+  interp->perf_counter.count_acquire_scheduler_mutex();
 }
 
-void Scheduler_Mutex_Actions::release_action(const char*) {
-  OS_Mutex_Interface* mutex = get_mutex();
+void Scheduler_Mutex_Actions::release_action(Squeak_Interpreter* interp,
+                                             const char*) {
+  OS_Mutex_Interface* mutex = get_mutex(interp);
   if (tracking)  mutex->set_holder(-1);
   OS_Interface::abort_if_error("Scheduler_Mutex", mutex->unlock());
 }
 
 
-bool Scheduler_Mutex_Actions::is_initialized() {
-  return get_mutex()->is_initialized();
+bool Scheduler_Mutex_Actions::is_initialized(Squeak_Interpreter* interp) {
+  return get_mutex(interp)->is_initialized();
 }
 

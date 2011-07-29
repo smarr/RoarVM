@@ -26,7 +26,7 @@ class Scheduler {
   OS_Mutex_Interface scheduler_mutex;
   
 public:
-  static bool scheduler_per_interpreter;
+  //static bool scheduler_per_interpreter;
   Oop schedulerPointer();
   void set_scheduler_pointer(Oop);
   void initialize(Squeak_Interpreter*);
@@ -59,4 +59,6 @@ private:
 };
 
 static Squeak_Interpreter* interpreters[Max_Number_Of_Cores];
+static bool scheduler_per_interpreter = false;
+
 

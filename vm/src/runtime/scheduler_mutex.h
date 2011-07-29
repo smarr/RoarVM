@@ -15,15 +15,77 @@
 class Scheduler_Mutex_Actions {
   static const bool tracking = false;
 public:
-  static void acquire_action(const char*);
-  static void release_action(const char*);
-  static bool is_initialized();
+  static void acquire_action(Squeak_Interpreter*, const char*);
+  static void release_action(Squeak_Interpreter*, const char*);
+  static bool is_initialized(Squeak_Interpreter*);
 
-  static OS_Mutex_Interface* get_mutex();
-  static bool is_held();
+  static OS_Mutex_Interface* get_mutex(Squeak_Interpreter*);
+  static bool is_held(Squeak_Interpreter*);
 };
 
-// typedef Abstract_Mutex<Scheduler_Mutex_Actions> Scheduler_Mutex;
 
-Define_RVM_Mutex(Scheduler_Mutex, Scheduler_Mutex_Actions,13,14)
+//Define_RVM_Mutex(Scheduler_Mutex, Scheduler_Mutex_Actions,13,14)
+
+class Scheduler_Mutex {
+private:
+  Safepoint_Ability sa;
+  friend class Scheduler_Mutex_Actions;
+  const char* why;
+  int acquire_ID;
+  int release_ID;
+  Squeak_Interpreter* interpreter;
+  
+public:
+  static bool is_held()  { 
+    return Scheduler_Mutex_Actions::is_held(The_Squeak_Interpreter());
+  }
+  static void assert_held()  { 
+    assert(!Scheduler_Mutex_Actions::is_initialized(The_Squeak_Interpreter()) 
+           || is_held()); 
+  }
+  
+  
+  Scheduler_Mutex(const char* w = "", 
+                  Squeak_Interpreter* interp = The_Squeak_Interpreter()) 
+  /* must be true while waiting to acquire, otherwise could deadlock */
+  : sa(Safepoint_Ability::is_interpreter_able()) {
+    acquire_ID = 13;
+    release_ID = 14;
+    interpreter = interp;
+    why = w;
+    u_int64 start = OS_Interface::get_cycle_count();
+    if (acquire_ID) trace_mutex_evt(acquire_ID, why);
+    
+    OS_Mutex_Interface* mutex = Scheduler_Mutex_Actions::get_mutex(interpreter);
+    /* Tricky; some mutexes may recurse since they have a receive_and_handle_one_message.
+     If so, need to acquire mutex even though are recursing, so delay increment of recursion_count 
+     However, clients of this macro must also manipulate recursion_count: see them! */
+    if (mutex->check_and_inc_recursion_depth() == 0  &&  
+        Scheduler_Mutex_Actions::is_initialized(interpreter)) { 
+      Scheduler_Mutex_Actions::acquire_action(interpreter, why); 
+      sa.be_unable(); 
+      mutex->aquire(); 
+      if (acquire_ID) trace_mutex_evt(100+acquire_ID, why);
+    } 
+    mutex->add_acq_cycles(OS_Interface::get_cycle_count() - start); 
+  } 
+  
+  ~Scheduler_Mutex() { 
+    u_int64 start = OS_Interface::get_cycle_count(); 
+    if (release_ID) 
+      trace_mutex_evt(release_ID, why);
+    OS_Mutex_Interface* mutex = 
+      Scheduler_Mutex_Actions::get_mutex(interpreter);
+    if (mutex->dec_and_check_recursion_depth() <= 0  &&  
+        Scheduler_Mutex_Actions::is_initialized(interpreter)) { 
+      if (release_ID) trace_mutex_evt(100+release_ID, why);
+      /* assert_always(mutex->local.recursion_count == 0); */ 
+      Scheduler_Mutex_Actions::release_action(interpreter, why); 
+      mutex->release(); 
+    } 
+    mutex->add_rel_cycles(OS_Interface::get_cycle_count() - start); 
+  } 
+};
+
+
 
