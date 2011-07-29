@@ -244,7 +244,7 @@ public:
     if (Use_Object_Table)
       return object_table->object_for(x);
     else
-      return object_for(x);
+      return x.as_object();
   }
 
 
