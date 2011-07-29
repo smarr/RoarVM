@@ -261,6 +261,7 @@ RVM_HEADERS = \
   debug_helper.h \
   tracked_ptr.h \
   tracked_ptr_registry.h \
+  scheduler.h \
   
 
 ifeq "$(PLATFORM)" "Intel"
@@ -508,6 +509,7 @@ OBJS = \
   abstract_os_interface.opt \
   logical_core.opt \
   debug_helper.opt \
+  scheduler.opt \
 
 
 ifeq "$(PLATFORM)" "Intel"

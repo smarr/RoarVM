@@ -392,6 +392,13 @@ void awakeOtherInterpreters_class::handle_me() {
   The_Squeak_Interpreter()->awake();
 }
 
+void transformToSchedulerPerInterpreter_class::handle_me() {
+  The_Squeak_Interpreter()->transformToSchedulerPerInterpreter();
+}
+
+void transformToGlobalScheduler_class::handle_me() {
+  The_Squeak_Interpreter()->transformToGlobalScheduler();
+}
 
 void flushSelectiveMessage_class::do_all_roots(Oop_Closure* oc) {
   oc->value(&selector, (Object_p)NULL);

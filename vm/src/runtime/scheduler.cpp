@@ -6,65 +6,13 @@
  *  http://www.eclipse.org/legal/epl-v10.html
  * 
  *  Contributors:
- *    Reinout Stevens, Vrije Universiteit Brussel - Initial Implementation
- *    Stefan Marr, Vrije Universiteit Brussel - Initial Implementation
+ *    David Ungar, IBM Research - Initial Implementation
+ *    Sam Adams, IBM Research - Initial Implementation
+ *    Stefan Marr, Vrije Universiteit Brussel - Port to x86 Multi-Core Systems
+ *    Reinout Stevens, Vrije Universiteit Brussel - Scheduler per interpreter
  ******************************************************************************/
 
 #include "headers.h"
-
-bool Scheduler::scheduler_per_interpreter = false;
-
-void Scheduler::initialize(Squeak_Interpreter* interpreter) {
-    scheduler_mutex.initialize_globals();
-    _interpreter = interpreter;
-    _schedulerPointer = 
-        _interpreter->splObj(Special_Indices::SchedulerAssociation);
-}
-
-/* for reasons unknown the scheduler object is stored in the roots
- * as an association, meaning we get an association object and not a direct
- * access to the scheduler */
-
-Oop Scheduler::schedulerPointer() {
-    return _schedulerPointer.as_object()
-        ->fetchPointer(Object_Indices::ValueIndex);
-}
-
-
-Object_p Scheduler::schedulerPointer_obj() { 
-    return schedulerPointer().as_object(); 
-}
-
-
-Oop Scheduler::process_lists_of_scheduler_pointer(int rank) {
-    Oop schedlist = schedulerPointer_obj()
-        ->fetchPointer(Object_Indices::ProcessListsIndex);
-    Oop plist;
-    if(scheduler_per_interpreter) {
-        plist = schedlist.as_object()->fetchPointer(rank);
-        
-    } else {
-        plist = schedlist;
-    }
-    return plist;
-}
-
-
-Oop Scheduler::process_lists_of_scheduler_pointer() {
-    return process_lists_of_scheduler_pointer(_interpreter->my_rank());
-}
-
-
-Object_p Scheduler::process_lists_of_scheduler() {
-    Object_p plist = process_lists_of_scheduler_pointer().as_object();
-    assert(plist->isArray());
-    return plist;
-}
-
-OS_Mutex_Interface* Scheduler::get_scheduler_mutex() {
-    return &scheduler_mutex;
-}
-
 
 
 /* The older images have 1 global process list which is stored in the roots
@@ -78,206 +26,334 @@ OS_Mutex_Interface* Scheduler::get_scheduler_mutex() {
  * remains the same accross startups. 
  * A possible solution is to convert the list of lists to a single
  * list when saving an image (so to the old format), 
- * and rebuild this list here.
+ * 
+ * We convert the process list on startup/shutdown time of the image in
+ * SystemDictionary snapshot:andQuit:
+ * This operation is not safe for multiple interpreters, hence we use the
+ * functionality to suspend interpreters, ensuring we are running single
+ * threaded
  *
- * We hope that we can implement proper workstealing: 
- * this allows us to give the main interpreter all the tasks and redistribute 
- * them in a later stage.
- */
+ * We have very naive workstealing, in which a scheduler asks a random scheduler
+ * for work in case he himself has none. This strategy is subjected to change
+ * depending on the outcome of some of the benchmarks */
+
+
+bool Scheduler::scheduler_per_interpreter = false;
+
+
+void Scheduler::initialize(Squeak_Interpreter* interpreter) {
+  scheduler_mutex.initialize_globals();
+  shared_mutex = scheduler_mutex.get_inner_mutex();
+  
+  set_interpreter(interpreter);
+  _schedulerPointer =  
+    get_interpreter()->splObj(Special_Indices::SchedulerAssociation);
+}
+
+/* for reasons unknown the scheduler object is stored in the roots
+ * as an association, meaning we get an association object and not a direct
+ * access to the scheduler */
+
+Oop Scheduler::schedulerPointer() {
+  return _schedulerPointer.as_object()
+  ->fetchPointer(Object_Indices::ValueIndex);
+}
+
+
+Object_p Scheduler::schedulerPointer_obj() { 
+  return schedulerPointer().as_object(); 
+}
+
+
+Oop Scheduler::process_lists_of_scheduler_pointer(int rank) {
+  Oop schedlist = schedulerPointer_obj()
+    ->fetchPointer(Object_Indices::ProcessListsIndex);
+  Oop plist;
+  if(scheduler_per_interpreter) {
+    plist = schedlist.as_object()->fetchPointer(rank);
+    
+  } else {
+    plist = schedlist;
+  }
+  return plist;
+}
+
+
+Oop Scheduler::process_lists_of_scheduler_pointer() {
+  return process_lists_of_scheduler_pointer(get_interpreter()->my_rank());
+}
+
+
+Object_p Scheduler::process_lists_of_scheduler() {
+  Object_p plist = process_lists_of_scheduler_pointer().as_object();
+  assert(plist->isArray());
+  return plist;
+}
+
+OS_Mutex_Interface* Scheduler::get_scheduler_mutex() {
+  return &scheduler_mutex;
+}
+
+void Scheduler::set_interpreter(Squeak_Interpreter* interpreter) {
+  assert(interpreter->my_rank() < Max_Number_Of_Cores);
+  assert(interpreter->my_rank() >= 0);
+  interpreters[interpreter->my_rank()] = interpreter;
+  _interpreter = interpreter;
+}
+
+
+void Scheduler::switch_to_own_mutex(){
+  //we always create a new mutex
+  OS_Interface::Mutex* mtx = scheduler_mutex.get_inner_mutex();
+  if(shared_mutex == mtx){
+    //ensuring we are not running on our own mutex
+    OS_Interface::Mutex* newMutex = (OS_Interface::Mutex*)Memory_Semantics::shared_malloc(                                                                  sizeof(OS_Interface::Mutex));
+    OS_Interface::mutex_init(newMutex);
+    scheduler_mutex.set_inner_mutex(newMutex);
+  }
+}
+
+void Scheduler::switch_to_shared_mutex(){
+  OS_Interface::Mutex* mtx = scheduler_mutex.get_inner_mutex();
+  if(shared_mutex != mtx){
+    //ensuring we are not running on the shared mutex
+    //freeing own mutex
+    free(scheduler_mutex.get_inner_mutex());
+    scheduler_mutex.set_inner_mutex(shared_mutex);
+  }
+}
+
+
 
 void Scheduler::transform_to_scheduler_per_interpreter(){
-    if(scheduler_per_interpreter)
-        return;
-    int s = _interpreter->makeArrayStart();
-    //add process list for main core
-    Oop processList = process_lists_of_scheduler_pointer();
-    PUSH_FOR_MAKE_ARRAY(processList);
-    for(int i = 1; i < Logical_Core::num_cores; ++i){
-        //we already created the main one, so we start from 1
-        
-    }
-    Oop array = The_Squeak_Interpreter()->makeArray(s);
-    schedulerPointer_obj()
-        ->storePointer(Object_Indices::ProcessListsIndex, array);
-    scheduler_per_interpreter = true;
+  if(scheduler_per_interpreter)
+    return;
+  
+  int s = get_interpreter()->makeArrayStart();
+  Oop processList = process_lists_of_scheduler_pointer();
+  Object_p linkedListClass = processList.as_object()->fetchClass().as_object();
+  Object_p linkedList;
+  for(int i = 0; i < Logical_Core::main_rank; ++i){
+    
+  }
+  //add process list for main core
+  PUSH_FOR_MAKE_ARRAY(processList);
+  for(int i = Logical_Core::main_rank + 1; i < Logical_Core::num_cores; ++i){
+    //we already created the main one, so we start from main_rank + 1
+    linkedList = linkedListClass->instantiateClass(0);
+    PUSH_FOR_MAKE_ARRAY(linkedList->as_oop());
+    
+  }
+  Oop array = The_Squeak_Interpreter()->makeArray(s);
+  schedulerPointer_obj()->storePointer(Object_Indices::ProcessListsIndex,
+                                       array);
+  scheduler_per_interpreter = true;
 }
 
 void Scheduler::transform_to_global_scheduler() {
-    if(!scheduler_per_interpreter)
-        return;
-    /*
-    Object_p result = process_lists_of_scheduler();
-    Object_p processorArray = schedulerPointer_obj();
-    int rank = _interpreter->my_rank();
-    Object_p priority_list;
-    Object_p processList;
-    Object_p addToThisList;
-    //for each scheduler
-    for(int i = 0; i < processorArray->fetchWordLength(); ++i) {
-        if(i == rank)
-            continue;
-        priority_list = process_lists_of_scheduler_pointer(i).as_object();
-        //for each prioritylist on that scheduler
-        for(int j = 0; j < priority_list->fetchWordLength(); ++j){
-            processList = priority_list->fetchPointer(j).as_object();
-            if(processList->isEmptyList())
-                continue;
-            addToThisList = priority_list->fetchPointer(j).as_object();
-            //for each process
-            Oop last_proc = 
-                processList->fetchPointer(Object_Indices:: LastLinkIndex);
-            Oop proc = 
-                processList->fetchPointer(Object_Indices::FirstLinkIndex);
-            Object_p proc_obj = proc.as_object();
-            for(;;) {
-                addToThisList->addLastLinkToList(proc);
-                if(proc == last_proc)
-                    break;
-                proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
-                proc_obj = proc.as_object();
-            }
-        }
+  if(!scheduler_per_interpreter)
+    return;
+  
+  //we reuse the currect process_list
+  Object_p result = process_lists_of_scheduler();
+  //the complete datastructure
+  Object_p processorArray = schedulerPointer_obj()
+    ->fetchPointer(Object_Indices::ProcessListsIndex).as_object();
+  int rank = get_interpreter()->my_rank();
+  Object_p schedArray;
+  Object_p processList;
+  Object_p addToThisList;
+  //for each scheduler
+  for(int schedNr = 0; schedNr < processorArray->fetchWordLength(); ++schedNr) {
+    if(schedNr == rank) //no need to add our own processes
+      continue;
+    schedArray = process_lists_of_scheduler_pointer(schedNr).as_object();
+    assert(schedArray->isArray());
+    //for each prioritylist on that scheduler
+    for(int priority = 0; priority < schedArray->fetchWordLength(); ++priority){
+      processList = schedArray->fetchPointer(priority).as_object();
+      if(processList->isEmptyList())
+        continue;
+      addToThisList = result->fetchPointer(priority).as_object();
+      //for each process
+      Oop last_proc = 
+        processList->fetchPointer(Object_Indices:: LastLinkIndex);
+      Oop proc = 
+        processList->fetchPointer(Object_Indices::FirstLinkIndex);
+      Object_p proc_obj = proc.as_object();
+      for(;;) {
+        addToThisList->addLastLinkToList(proc);
+        if(proc == last_proc)
+          break;
+        proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
+        proc_obj = proc.as_object();
+      }
     }
-    processorArray->storePointer(Object_Indices::ProcessListsIndex,
-                                 schedulerPointer());
-     */
-    /* we assume that the conversion is already done at the Smalltalk side */
-    if(!scheduler_per_interpreter)
-        return;
-    Oop result = process_lists_of_scheduler_pointer();
-    schedulerPointer_obj()->storePointer(Object_Indices::ProcessListsIndex,
-                                         result);
-    scheduler_per_interpreter = false;
-
+  }
+  schedulerPointer_obj()->storePointer(Object_Indices::ProcessListsIndex,
+                                       result->as_oop());
+  scheduler_per_interpreter = false;
 }
 
 Object_p Scheduler::process_list_for_priority(int priority) {
-    Object_p processLists = process_lists_of_scheduler();
-    assert(priority - 1 <= processLists->fetchWordLength());
-    return processLists->fetchPointer(priority - 1).as_object();
+  Object_p processLists = process_lists_of_scheduler();
+  assert(priority - 1 <= processLists->fetchWordLength());
+  return processLists->fetchPointer(priority - 1).as_object();
 }
 
 void Scheduler::add_process_to_scheduler_list(Object* process){
-    process_list_for_priority(process->priority_of_process())
-        ->addLastLinkToList(process->as_oop());
+  process_list_for_priority(process->priority_of_process())
+  ->addLastLinkToList(process->as_oop());
 }
 
 Oop Scheduler::get_running_process(){
-    return get_interpreter()->get_running_process();
+  return get_interpreter()->get_running_process();
 }
 
 void Scheduler::set_running_process(Oop proc, const char* why){
-    get_interpreter()->set_running_process(proc, why);
+  get_interpreter()->set_running_process(proc, why);
 }
+
+
+
+Oop Scheduler::steal_process_from_me(Squeak_Interpreter* thief) {
+  Oop process = find_highest_priority_non_running_process_for_core(thief);
+  if(process != get_interpreter()->roots.nilObj){
+    //set correct backpointer for process
+    Oop correctList = thief->process_lists_of_scheduler()
+      ->fetchPointer(process.as_object()->priority_of_process());
+    process.as_object()->storePointer(Object_Indices::MyListIndex,
+                                      correctList);
+  }
+  return process;
+}
+
 
 
 // Was: wakeHighestPriority
 // xxxxxx factor with remove_process_from_scheduler_list or not -- dmu 4/09
 Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
-    if (!get_interpreter()->is_ok_to_run_on_me()) {
-        return get_interpreter()->roots.nilObj;
-    }
-    Scheduler_Mutex sm("find_and_move_to_end_highest_priority_non_running_process");
-    // return highest pri ready to run
-    // see find_a_process_to_run_and_start_running_it
-    bool verbose = false;
-    bool found_a_proc = false;
-    FOR_EACH_READY_PROCESS_LIST(slo, p, processList, _interpreter)  {
-        
-        if (processList->isEmptyList())
-            continue;
-        found_a_proc = true;
-        if (verbose)
-            lprintf("find_and_move_to_end_highest_priority_non_running_process searching list %d\n", p + 1);
-        Oop  first_proc = processList->fetchPointer(Object_Indices::FirstLinkIndex);
-        Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
-        
-        Oop        proc = first_proc;
-        Object_p proc_obj = proc.as_object();
-        Object_p prior_proc_obj = (Object_p)NULL;
-        for (;;)  {
-            if (verbose) {
-                debug_printer->printf("on %d: find_and_move_to_end_highest_priority_non_running_process proc: ",
-                                      get_interpreter()->my_rank());
-                proc_obj->print_process_or_nil(debug_printer);
-                debug_printer->nl();
-            }
-            OS_Interface::mem_fence(); // xxxxxx Is this fence needed? -- dmu 4/09
-            assert(proc_obj->as_oop() == proc  &&  proc.as_object() == proc_obj);
-            if (proc_obj->is_process_running()  ||  !proc_obj->is_process_allowed_to_run_on_this_core())
-                ;
-            else if (last_proc == proc) {
-                return proc;
-            }
-            else if (first_proc == proc) {
-                processList->removeFirstLinkOfList();
-                processList->addLastLinkToList(proc);
-                return proc;
-            }
-            else {
-                processList->removeMiddleLinkOfList(prior_proc_obj, proc_obj);
-                processList->addLastLinkToList(proc);
-                return proc;
-            }
-            if  (last_proc == proc)
-                break;
-            
-            prior_proc_obj = proc_obj;
-            proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
-            proc_obj = proc.as_object();
-        }
-    }
-    
-    // In a 4.0 image running our prims, there is always at least the idle process in the list
-    if (get_interpreter()->primitiveThisProcess_was_called()  &&  Object::image_is_pre_4_1()) assert_always(found_a_proc);
-    
-    OS_Interface::mem_fence(); // xxxxxx Is this fence needed? -- dmu 4/09
+  if (!get_interpreter()->is_ok_to_run_on_me()) {
     return get_interpreter()->roots.nilObj;
+  }
+  Oop result = find_highest_priority_non_running_process_for_core(_interpreter);
+  
+  if(result != get_interpreter()->roots.nilObj)
+    return result;
+  //now we try to steal a process, we are such a scallywags
+  assert(Logical_Core::num_cores > 1); //not possible to only have 1 cpu and no process
+  int cpuIndex = get_interpreter()->my_rank();
+  while(cpuIndex != get_interpreter()->my_rank()){
+    cpuIndex = rand() % Logical_Core::num_cores;
+  }
+  Squeak_Interpreter* owner = interpreters[cpuIndex];
+  
+  Oop stolen = owner->scheduler.steal_process_from_me(get_interpreter());
+  return stolen;
 }
 
-int Scheduler::count_processes_in_scheduler(){
-    Scheduler_Mutex sm("count_processes_in_scheduler");
-    // return highest pri ready to run
-    // see find_a_process_to_run_and_start_running_it
-    int count = 0;
+
+Oop Scheduler::find_highest_priority_non_running_process_for_core(Squeak_Interpreter* runner) {
+  Scheduler_Mutex sm("find_and_move_to_end_highest_priority_non_running_process");
+  // return highest pri ready to run
+  // see find_a_process_to_run_and_start_running_it
+  bool verbose = false;
+  bool found_a_proc = false;
+  FOR_EACH_READY_PROCESS_LIST(slo, p, processList, get_interpreter())  {
     
-    FOR_EACH_READY_PROCESS_LIST(slo, p, processList, _interpreter)  {
-        
-        if (processList->isEmptyList())
-            continue;
-        Oop  first_proc = processList->fetchPointer(Object_Indices::FirstLinkIndex);
-        Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
-        
-        Oop        proc = first_proc;
-        Object_p proc_obj = proc.as_object();
-        for (;;)  {
-            ++count;
-            if  (last_proc == proc)
-                break;
-            
-            proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
-            proc_obj = proc.as_object();
-        }
+    if (processList->isEmptyList())
+      continue;
+    found_a_proc = true;
+    if (verbose)
+      lprintf("find_and_move_to_end_highest_priority_non_running_process searching list %d\n", p + 1);
+    Oop  first_proc = processList->fetchPointer(Object_Indices::FirstLinkIndex);
+    Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
+    
+    Oop      proc_oop = first_proc;
+    Object_p proc_obj = proc_oop.as_object();
+    Object_p prior_proc_obj = (Object_p)NULL;
+    for (;;)  {
+      assert(proc_obj->fetchClass().as_object()->className().as_object()
+             ->equals_string("Process"));
+      if (verbose) {
+        debug_printer->printf("on %d: find_and_move_to_end_highest_priority_non_running_process proc: ",
+                              get_interpreter()->my_rank());
+        proc_obj->print_process_or_nil(debug_printer);
+        debug_printer->nl();
+      }
+      OS_Interface::mem_fence(); // xxxxxx Is this fence needed? -- dmu 4/09
+      assert(proc_obj->as_oop() == proc_oop  &&  proc_oop.as_object() == proc_obj);
+      if (proc_obj->is_process_running()  ||  !proc_obj->is_process_allowed_to_run_on_given_core(runner))
+        ;
+      else if (last_proc == proc_oop) {
+        return proc_oop;
+      }
+      else if (first_proc == proc_oop) {
+        processList->removeFirstLinkOfList();
+        processList->addLastLinkToList(proc_oop);
+        return proc_oop;
+      }
+      else {
+        processList->removeMiddleLinkOfList(prior_proc_obj, proc_obj);
+        processList->addLastLinkToList(proc_oop);
+        return proc_oop;
+      }
+      if  (last_proc == proc_oop)
+        break;
+      
+      prior_proc_obj = proc_obj;
+      proc_oop = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
+      proc_obj = proc_oop.as_object();
     }
+  }
+  return get_interpreter()->roots.nilObj;
+}
+
+
+
+int Scheduler::count_processes_in_scheduler(){
+  Scheduler_Mutex sm("count_processes_in_scheduler");
+  // return highest pri ready to run
+  // see find_a_process_to_run_and_start_running_it
+  int count = 0;
+  
+  FOR_EACH_READY_PROCESS_LIST(slo, p, processList, _interpreter)  {
     
-    return count;
+    if (processList->isEmptyList())
+      continue;
+    Oop  first_proc = processList->fetchPointer(Object_Indices::FirstLinkIndex);
+    Oop   last_proc = processList->fetchPointer(Object_Indices:: LastLinkIndex);
+    
+    Oop        proc = first_proc;
+    Object_p proc_obj = proc.as_object();
+    for (;;)  {
+      ++count;
+      if  (last_proc == proc)
+        break;
+      
+      proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
+      proc_obj = proc.as_object();
+    }
+  }
+  
+  return count;
 }
 
 
 void Scheduler::transferTo(Oop newProc, const char* why){
-    if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
-    
-    Scheduler_Mutex sm("transferTo"); // in case another cpu starts running this
-    if (Print_Scheduler_Verbose) {
-        debug_printer->printf("scheduler: on %d: ", get_interpreter()->my_rank());
-        get_running_process().print_process_or_nil(debug_printer);
-        debug_printer->printf( " transferTo ");
-        newProc.print_process_or_nil(debug_printer);
-        debug_printer->printf(", %s\n", why);
-    }
-    if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
-    get_interpreter()->put_running_process_to_sleep(why);
-    if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
-    OS_Interface::mem_fence();
-    get_interpreter()->start_running(newProc, why);
+  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
+  
+  Scheduler_Mutex sm("transferTo"); // in case another cpu starts running this
+  if (Print_Scheduler_Verbose) {
+    debug_printer->printf("scheduler: on %d: ", get_interpreter()->my_rank());
+    get_running_process().print_process_or_nil(debug_printer);
+    debug_printer->printf( " transferTo ");
+    newProc.print_process_or_nil(debug_printer);
+    debug_printer->printf(", %s\n", why);
+  }
+  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
+  get_interpreter()->put_running_process_to_sleep(why);
+  if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
+  OS_Interface::mem_fence();
+  get_interpreter()->start_running(newProc, why);
 }

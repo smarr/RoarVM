@@ -528,13 +528,13 @@ Oop Object::clone() {
 Object_p Object::process_list_for_priority_of_process() {
   int priority = priority_of_process();
     
-    return The_Squeak_Interpreter()->get_scheduler()->process_list_for_priority(priority);
+    return The_Squeak_Interpreter()->get_scheduler().process_list_for_priority(priority);
 }
 
 // Save on given list for priority
 void Object::add_process_to_scheduler_list() {
     The_Squeak_Interpreter()->get_scheduler()
-        ->add_process_to_scheduler_list(this);
+        .add_process_to_scheduler_list(this);
 }
 
 
@@ -582,19 +582,24 @@ bool Object::is_process_running() {
 
 
 
-bool Object::is_process_allowed_to_run_on_this_core() {
+bool Object::is_process_allowed_to_run_on_given_core(Squeak_Interpreter* interpreter) {
   int acm = The_Process_Field_Locator.index_of_process_inst_var(Process_Field_Locator::coreMask);
   if (acm < 0) return true;
-
-  The_Squeak_Interpreter()->successFlag = true;
-  u_int64 mask = The_Squeak_Interpreter()->positive64BitValueOf(fetchPointer(acm));
-  if (!The_Squeak_Interpreter()->successFlag) {
-    The_Squeak_Interpreter()->successFlag = true;
+  
+  interpreter->successFlag = true;
+  u_int64 mask = interpreter->positive64BitValueOf(fetchPointer(acm));
+  if (!interpreter->successFlag) {
+    interpreter->successFlag = true;
     return true;
   }
   
   bool r =  ((1LL << Logical_Core::my_rank()) & mask) ? true : false;
   return r;
+}
+
+
+bool Object::is_process_allowed_to_run_on_this_core() {
+  return is_process_allowed_to_run_on_given_core(The_Squeak_Interpreter());
 }
 
 void Object::store_host_core_of_process(int r) {

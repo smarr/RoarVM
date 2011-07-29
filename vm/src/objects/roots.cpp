@@ -21,13 +21,11 @@ Roots::Roots() {
 
 void Roots::initialize(Oop soo) {
   specialObjectsOop = soo;
-    nilObj = The_Squeak_Interpreter()->splObj(Special_Indices::  NilObject);
+  nilObj = The_Squeak_Interpreter()->splObj(Special_Indices::  NilObject);
   falseObj = The_Squeak_Interpreter()->splObj(Special_Indices::FalseObject);
-   trueObj = The_Squeak_Interpreter()->splObj(Special_Indices:: TrueObject);
-    
-    Scheduler* scheduler = new Scheduler();
-    scheduler->initialize(The_Squeak_Interpreter());
-    The_Squeak_Interpreter()->set_scheduler(scheduler);
+  trueObj = The_Squeak_Interpreter()->splObj(Special_Indices:: TrueObject);
+  
+  The_Squeak_Interpreter()->scheduler.initialize(The_Squeak_Interpreter());
 
   running_process_or_nil = nilObj;
   

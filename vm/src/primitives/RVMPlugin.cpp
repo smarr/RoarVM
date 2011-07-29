@@ -292,23 +292,19 @@ void* primitiveRunsHeadless() {
 }
 
 void* primitiveSchedulerPerInterpreter() {
-    Safepoint_for_moving_objects sf("scheduler_per_interpreter");
-    The_Squeak_Interpreter()->scheduler
-        ->transform_to_scheduler_per_interpreter();
+  The_Squeak_Interpreter()->transformAllToSchedulerPerInterpreter();
 }
 
 void* primitiveGlobalScheduler() {
-    Safepoint_for_moving_objects sf("global_scheduler");
-    The_Squeak_Interpreter()->scheduler
-        ->transform_to_global_scheduler();
+  The_Squeak_Interpreter()->transformAllToGlobalScheduler();
 }
 
 void* primitiveSuspendOtherInterpreters() {
-    The_Squeak_Interpreter()->suspendAllOthers();
+  The_Squeak_Interpreter()->suspendAllOthers();
 }
 
 void* primitiveAwakeOtherInterpreters() {
-    The_Squeak_Interpreter()->awakeAllOthers();
+  The_Squeak_Interpreter()->awakeAllOthers();
 }
 
 // args for the primitive are first core, last core, move_read_write_to_read_mostly, move_read_mostly_to_read_write
@@ -832,14 +828,14 @@ void* RVMPlugin_exports[][3] = {
   
   {(void*) "RVMPlugin", (void*)"primitiveRunsHeadless", (void*)primitiveRunsHeadless},
     
-    {(void*) "RVMPlugin", (void*) "primitiveSchedulerPerInterpreter",
-        (void*) primitiveSchedulerPerInterpreter},
-    {(void*) "RVMPlugin", (void*) "primitiveGlobalScheduler",
-        (void*) primitiveGlobalScheduler},
-    {(void*) "RVMPlugin", (void*) "primitiveSuspendOtherInterpreters",
-        (void*) primitiveSuspendOtherInterpreters },
-    {(void*) "RVMPlugin", (void*) "primitiveAwakeOtherInterpreters",
-        (void*) primitiveAwakeOtherInterpreters },
+  {(void*) "RVMPlugin", (void*) "primitiveSchedulerPerInterpreter",
+    (void*) primitiveSchedulerPerInterpreter},
+  {(void*) "RVMPlugin", (void*) "primitiveGlobalScheduler",
+    (void*) primitiveGlobalScheduler},
+  {(void*) "RVMPlugin", (void*) "primitiveSuspendOtherInterpreters",
+    (void*) primitiveSuspendOtherInterpreters },
+  {(void*) "RVMPlugin", (void*) "primitiveAwakeOtherInterpreters",
+    (void*) primitiveAwakeOtherInterpreters },
   {NULL, NULL, NULL}
 };
 
