@@ -3076,7 +3076,9 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
     return;
   else if (!(0 <= litx  &&  litx < m->literalCount()))
     msg = "literal index out of bounds";
-  else if (!(lit = literal(litx)).is_int()  &&  The_Memory_System()->object_table->probably_contains_not((void*)lit.bits()))
+  else if (    !(lit = literal(litx)).is_int()
+           &&  (Use_Object_Table
+                && The_Memory_System()->object_table->probably_contains_not((void*)lit.bits())))
     msg = "bad mem literal";
   else
     return;

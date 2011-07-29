@@ -235,7 +235,7 @@ void Segmented_Object_Table::Segment::restore_from_checkpoint(FILE* f, Segment* 
 
 
 void Segmented_Object_Table::check_for_debugging(Oop x) {
-  if (probably_contains_not((void*)x.bits())) {
+  if (Use_Object_Table && ((Object_Table*)this)->probably_contains_not((void*)x.bits())) {
     lprintf("object_for caught one\n");
     fatal("caught it");
   }

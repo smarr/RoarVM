@@ -232,6 +232,32 @@ public:
 # endif
 
 
+void Squeak_Image_Reader::complete_remapping_of_pointers() {
+# if !Use_Object_Table
+  /* Extra pass for updating the pointers && deallocate the object table */
+  UpdateOop_Closure uoc(memory_system->object_table);
+  FOR_ALL_RANKS(r) {
+    for (int hi = 0; hi<Memory_System::max_num_mutabilities; hi++) {
+      Multicore_Object_Heap* heap = memory_system->heaps[r][hi];
+      FOR_EACH_OBJECT_IN_HEAP(heap, obj) {      
+        if (!obj->isFreeObject()) {
+          obj->set_backpointer(obj->as_oop());
+          obj->do_all_oops_of_object(&uoc,false);
+          if(((Oop*)obj->extra_preheader_word())->is_mem())
+            fatal("shouldnt occur");          
+        }
+      }
+    }   
+  }
+  specialObjectsOop = memory_system->object_table->object_for(specialObjectsOop)->as_oop();
+  
+  memory_system->object_table->cleanup();
+  delete memory_system->object_table;
+  memory_system->object_table = NULL;
+# endif
+}
+
+
 void Squeak_Image_Reader::distribute_objects() {
   fprintf(stdout, "distributing objects\n");
   u_int64 start = OS_Interface::get_cycle_count();
@@ -259,27 +285,7 @@ void Squeak_Image_Reader::distribute_objects() {
   // Remap specialObjectsOop
   specialObjectsOop = oop_for_oop(specialObjectsOop);
 
-  
-  /* RMOT: Extra pass for updating the pointers && deallocate the object table */
-  UpdateOop_Closure uoc(object_table);
-  FOR_ALL_RANKS(r) {
-    for (int hi = 0; hi<Memory_System::max_num_mutabilities; hi++) {
-      Multicore_Object_Heap* heap = memory_system->heaps[r][hi];
-      FOR_EACH_OBJECT_IN_HEAP(heap, obj) {      
-        if (!obj->isFreeObject()) {
-          obj->set_backpointer(obj->as_oop());
-          obj->do_all_oops_of_object(&uoc,false);
-          if(((Oop*)obj->extra_preheader_word())->is_mem())
-            fatal("shouldnt occur");          
-        }
-      }
-    }   
-  }
-  specialObjectsOop = object_table->object_for(specialObjectsOop)->as_oop();
-  
-  object_table->cleanup();
-  delete object_table;
-  
+  complete_remapping_of_pointers();
   
   memory_system->finished_adding_objects_from_snapshot();
   free(object_oops);

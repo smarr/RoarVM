@@ -125,14 +125,13 @@ protected:
   };
 
 
-private:
+protected:
   // need to be able to save and return a word  
   word_union* word_for(Oop x) {
     return entry_from_oop(x)->word();
   }
-
   
-protected:
+
   OS_Interface::OS_Heap heap;
   
   Segment* first_segment[Max_Number_Of_Cores];
@@ -187,6 +186,8 @@ protected:
   
   bool verify_all_free_lists();
 
+  Oop allocate_oop(int rank COMMA_DCL_ESB);
+  
 private:
   
   bool verify_entry_address(Entry*);
@@ -197,5 +198,4 @@ private:
   
   bool is_on_free_list(Entry*, int);
 
-  Oop allocate_oop(int rank COMMA_DCL_ESB);
 };

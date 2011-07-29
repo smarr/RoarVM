@@ -45,7 +45,7 @@ class Squeak_Image_Reader {
   void normalize_float_ordering_in_image();
   void distribute_objects();
   
-
+  void complete_remapping_of_pointers();
 
 public:
   static void imageNamePut_on_all_cores(char*  b, unsigned int n);
