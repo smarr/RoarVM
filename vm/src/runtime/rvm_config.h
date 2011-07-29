@@ -84,6 +84,7 @@
   template(Print_Barriers) \
   template(Include_Debugging_Code) \
   template(Debugging) \
+  template(Verbose_Debug_Prints) \
   template(Track_OnStackPointer) \
   template(Omit_Duplicated_OT_Overhead) \
   template(Omit_Spare_Bit) \
@@ -188,6 +189,10 @@
 // Flag to include general debugging code
 # ifndef Include_Debugging_Code
 # define Include_Debugging_Code Debugging
+# endif
+
+# ifndef Verbose_Debug_Prints
+# define Verbose_Debug_Prints Include_Debugging_Code
 # endif
 
 # ifndef check_assertions

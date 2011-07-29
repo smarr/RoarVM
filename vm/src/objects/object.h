@@ -94,7 +94,7 @@ class Object
 # endif
 
  {
-  # if Work_Around_Extra_Words_In_Classes
+   # if Work_Around_Extra_Words_In_Classes
     # include "word_containing_object_type.h"
   # endif
 
@@ -144,11 +144,11 @@ public:
   void set_backpointer(Oop x) {
       set_backpointer_word(backpointer_from_oop(x));
   }
-   void set_preheader(Oop x) { 
-     init_extra_preheader_word();
-     set_backpointer(x); 
-   }
-
+  void set_preheader(Oop x) { 
+    init_extra_preheader_word();
+      set_backpointer(x);
+  }
+ 
   static Oop oop_from_backpointer(oop_int_t bp) {
     return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
   }
@@ -159,14 +159,14 @@ public:
   Preheader* preheader() { return  (Preheader*)&as_oop_int_p()[-extra_header_oops()]; }
 
   oop_int_t get_backpointer_word() { return *backpointer_word(); }
-
+  
   inline void set_backpointer_word(oop_int_t w);
-
+  
   oop_int_t* backpointer_word() {
     return &preheader()->backpointer;
   }
-   
-  
+
+
   oop_int_t* extra_preheader_word() {
     return preheader()->extra_preheader_word_address();
   }
@@ -189,7 +189,7 @@ public:
   inline oop_int_t sizeBits();
   inline oop_int_t sizeBitsSafe();
   oop_int_t shortSizeBits() { return baseHeader & SizeMask; }
-  oop_int_t longSizeBits() { return sizeHeader() & LongSizeMask; }
+  oop_int_t longSizeBits()  { return sizeHeader() & LongSizeMask; }
   oop_int_t total_byte_size();
   oop_int_t total_byte_size_without_preheader();
 
