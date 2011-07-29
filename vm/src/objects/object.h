@@ -90,12 +90,16 @@ public:
   int32*     as_int32_p()    { return (int32*)this; }
   Oop*       as_oop_p()      { return (Oop*)this; }
 
-  bool contains_sizeHeader() { return Header_Type::contains_sizeHeader(baseHeader); }
+  bool contains_sizeHeader() {
+    return Header_Type::contains_sizeHeader(baseHeader);
+  }
   oop_int_t& sizeHeader() {
     assert(contains_sizeHeader());
     return as_oop_int_p()[-2];
   }
-  bool contains_class_and_type_word() { return Header_Type::contains_class_and_type_word(baseHeader); }
+  bool contains_class_and_type_word() {
+    return Header_Type::contains_class_and_type_word(baseHeader);
+  }
   oop_int_t& class_and_type_word() { return as_oop_int_p()[-1]; }
   Oop  get_class_oop() {
     Oop r = Oop::from_bits(Header_Type::without_type(class_and_type_word()));
@@ -164,7 +168,7 @@ public:
   inline oop_int_t sizeBits();
   inline oop_int_t sizeBitsSafe();
   oop_int_t shortSizeBits() { return baseHeader & SizeMask; }
-  oop_int_t longSizeBits() { return sizeHeader() & LongSizeMask; }
+  oop_int_t longSizeBits()  { return sizeHeader() & LongSizeMask; }
   oop_int_t total_byte_size();
   oop_int_t total_byte_size_without_preheader();
 

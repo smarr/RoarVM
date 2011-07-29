@@ -77,7 +77,7 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
 
   read_header();
 
-  fprintf(stdout, "allocating memory for snapshot\n");
+  if (Verbose_Debug_Prints) fprintf(stdout, "allocating memory for snapshot\n");
 
   // "allocate a contiguous block of memory for the Squeak heap"
   memory = (char*)Memory_Semantics::shared_malloc(dataSize);
@@ -90,8 +90,8 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
   */
 
   // "position file after the header"
-  fprintf(stdout, "reading objects in snapshot\n");
-  if ( fseek(image_file, headerStart + headerSize, SEEK_SET))
+  if (Verbose_Debug_Prints) fprintf(stdout, "reading objects in snapshot\n");
+  if (fseek(image_file, headerStart + headerSize, SEEK_SET))
     perror("seek"), fatal();
 
   // "read in the image in bulk, then swap the bytes if necessary"
@@ -148,7 +148,8 @@ void Squeak_Image_Reader::imageNamePut_on_all_cores(char* bytes, unsigned int le
 
 
 void Squeak_Image_Reader::read_header() {
-  fprintf(stdout, "reading snapshot header\n");
+  if (Verbose_Debug_Prints) fprintf(stdout, "reading snapshot header\n");
+  
   check_image_version();
   // headerStart := (self sqImageFilePosition: f) - bytesPerWord.  "record header start position"
   headerStart = ftell(image_file) - bytesPerWord;
@@ -168,18 +169,22 @@ void Squeak_Image_Reader::read_header() {
 }
 
 void Squeak_Image_Reader::check_image_version() {
-    int32 first_version = get_long();
-    interpreter->image_version = first_version;
-    if ( readable_format(interpreter->image_version) ) return;
-    swap_bytes = true;
-    if (fseek(image_file, -sizeof(int32), SEEK_CUR) != 0) {
-      perror("seek failed"); fatal();
-    }
-    interpreter->image_version = get_long();
-    if ( readable_format(interpreter->image_version) ) return;
-
-    fatal("cannot read file");
-
+  int32 first_version = get_long();
+  interpreter->image_version = first_version;
+    
+  if (readable_format(interpreter->image_version))
+    return;
+  
+  swap_bytes = true;
+  if (fseek(image_file, -sizeof(int32), SEEK_CUR) != 0) {
+    perror("seek in image file failed"); fatal();
+  }
+  
+  interpreter->image_version = get_long();
+  if (readable_format(interpreter->image_version))
+    return;
+ 
+  fatal("Given image file seems to be incompatible.");
 }
 
 int32 Squeak_Image_Reader::get_long() {
@@ -261,7 +266,8 @@ void Squeak_Image_Reader::complete_remapping_of_pointers() {
 
 
 void Squeak_Image_Reader::distribute_objects() {
-  fprintf(stdout, "distributing objects\n");
+  if (Verbose_Debug_Prints) fprintf(stdout, "distributing objects\n");
+  
   u_int64 start = OS_Interface::get_cycle_count();
   char* base = memory;
   u_int32 total_bytes = dataSize;
