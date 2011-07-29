@@ -20,14 +20,21 @@
 // -- dmu 3/2010
 
 struct Preheader {
-  public:
+public:
+  
+# if Enforce_Backpointer || Use_Object_Table
   oop_int_t backpointer; // must be first, for instance for free chuck this is set to give the length
+  
+  static oop_int_t* backpointer_address_from_header_address(void* p) { 
+    return &((Preheader*)p)[-1].backpointer;
+  }
+
+# endif
+  
 # if Extra_Preheader_Word_Experiment
   oop_int_t extra_preheader_word;
 # endif
-  
-  static oop_int_t* backpointer_address_from_header_address(void* p) { return &((Preheader*)p)[-1].backpointer; }
-  
+    
   oop_int_t* extra_preheader_word_address() {
 # if Extra_Preheader_Word_Experiment
       return &extra_preheader_word;
@@ -43,8 +50,10 @@ struct Preheader {
   }
 };
 
+# if Enforce_Backpointer || Use_Object_Table
 static const int backpointer_oop_size = 1;
 static const int backpointer_byte_size = sizeof(oop_int_t);
+# endif
 
 static const int preheader_byte_size = sizeof(Preheader);
 static const int preheader_oop_size = sizeof(Preheader) / sizeof(oop_int_t);

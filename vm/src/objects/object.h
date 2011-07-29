@@ -121,13 +121,13 @@ public:
 
   void set_preheader(Oop x) { 
     init_extra_preheader_word();
-    # if Use_Object_Table
+    # if Enforce_Backpointer || Use_Object_Table
       set_backpointer(x);
     # endif
   }
  
    
-# if Use_Object_Table   
+# if Enforce_Backpointer || Use_Object_Table   
   Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
 
   void set_backpointer(Oop x) {
@@ -479,7 +479,7 @@ public:
   Object_p instantiateClass(oop_int_t sizeInBytes, Logical_Core* where = NULL);
   oop_int_t instanceSizeOfClass();
 
-# if Use_Object_Table
+# if Enforce_Backpointer || Use_Object_Table
   inline void set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB);
 # endif
 
@@ -573,7 +573,7 @@ public:
   bool verify_preheader();
   bool verify_extra_preheader_word();
   
-# if Use_Object_Table
+# if Enforce_Backpointer || Use_Object_Table
   bool verify_backpointer();
 # endif
   

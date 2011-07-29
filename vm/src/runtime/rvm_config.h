@@ -261,6 +261,7 @@
 #  define Use_Object_Table 1
 # else
 #  define Use_Object_Table 0
+#  define Enforce_Backpointer 1 /* STEFAN: does currently not work without */
 # endif
 
 # ifndef Omit_Duplicated_OT_Overhead
