@@ -146,6 +146,7 @@ SQ_HEADERS = \
 
 RVM_HEADERS = \
   multicore_object_table.inline.h \
+  segmented_object_table.inline.h \
   memory_system.inline.h \
   abstract_object_heap.inline.h \
   multicore_object_heap.inline.h \
@@ -198,6 +199,8 @@ RVM_HEADERS = \
   RVMPlugin.h \
   multicore_object_heap.h \
   multicore_object_table.h \
+  segmented_object_table.h \
+  dummy_object_table.h \
   memory_system.h \
   core_tracer.h \
   abstract_tracer.h \
@@ -448,6 +451,8 @@ OBJS = \
   MiscPrimitivePlugin.opt \
   multicore_object_heap.opt \
   multicore_object_table.opt \
+  dummy_object_table.opt \
+  segmented_object_table.opt \
   object.opt \
   header_type.opt \
   obsolete_indexed_primitive_table.opt \
