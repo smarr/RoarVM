@@ -145,10 +145,12 @@ class Memory_System;
 # else
   # if On_Intel_Linux
     inline FORCE_INLINE Memory_System* The_Memory_System() {
+      assert(Memory_Semantics::memory_system != NULL /* ensure it is initialized */);
       return Memory_Semantics::memory_system;
     };
   # else
     inline FORCE_INLINE Memory_System* The_Memory_System() {
+      assert(Memory_Semantics::memory_system_key != 0 /* ensure it is initialized */);
       return (Memory_System*)pthread_getspecific(Memory_Semantics::memory_system_key);
     };
   # endif // !On_Intel_Linux
