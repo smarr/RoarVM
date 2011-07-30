@@ -13,7 +13,14 @@
 
 
 /*
+ Pointer and Object Representation
+ =================================
+
  This class describes a 32-bit direct-pointer object memory for Smalltalk.
+
+ Pointer
+ -------
+ 
  The model is very simple in principle:  
      a pointer is either a SmallInteger 
      or a 32-bit direct object pointer.
@@ -21,10 +28,28 @@
  SmallIntegers are tagged with a low-order bit equal to 1,
   and an immediate 31-bit 2s-complement signed value in the rest of the word.
 
- All object pointers point to a header, which may be followed by a number of data fields.
+ All object pointers point to a header, which may be followed by a number of 
+ data fields.
+ 
+ Thus, the pointer to an object always points at the begin of the _base header_,
+ which is after additional variable-sized _extra headers_, and the RoarVM
+ specific _preheaders_.
+
+ 
+ Object Representation
+ ---------------------
+ 
+        === Object Representation in Memory, Including all Headers ===
+ +-------------+-----------------+--------------------+---------------------+
+ |Pre (k words)|Extra (0-2 words)|Base Header (1 word)|Data/Fields (n words)|
+ +-------------+-----------------+--------------------+---------------------+
+                                 ↑
+                                 Target of Object*|Object_p|Oop
+ 
  This object memory achieves considerable compactness by using
  a variable header size (the one complexity of the design).
 
+ 
  The format of the 0th header word is as follows:
 
 	3 bits	reserved for gc (mark, root, unused)
@@ -47,6 +72,10 @@
  formatOf: method (including isPointers, isVariable, isBytes,
  and the low 2 size bits of byte-sized objects).
 
+ 
+ Note on the original Squeak VM Garbage Collector
+ ------------------------------------------------
+ 
  Note: the following two lines were true of the original Squeak VM, 
  but are not true in this this VM as of 11/15/10. -- dmu & sm
  
