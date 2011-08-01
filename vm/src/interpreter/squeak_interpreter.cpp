@@ -1326,9 +1326,27 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
     debug_printer->printf(" because %s\n", why);
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
-
+  Squeak_Interpreter* interpreter;
+  int acm = The_Process_Field_Locator.index_of_process_inst_var(Process_Field_Locator::coreMask);
+  uint64_t mask;
+  int core;
+  if (acm < 0) {
+    core = Logical_Core::my_rank();
+    interpreter = The_Squeak_Interpreter();
+  } else {
+    mask = The_Squeak_Interpreter()->
+    positive64BitValueOf(aProcess.as_object()->fetchPointer(acm));
+    core = OS_Interface::least_significant_one(mask) - 1;
+    if(core < 0){
+      interpreter = The_Squeak_Interpreter();
+    } else { 
+      interpreter = Scheduler::get_interpreter_at_rank(core);
+    }
+    assert(interpreter != NULL);
+  }
+  assert(aProcess.as_object()->is_process_allowed_to_run_on_given_core(interpreter));
   {
-    Scheduler_Mutex sm("resume");
+    Scheduler_Mutex sm("resume", interpreter);
     Object_p aProcess_obj = aProcess.as_object();
     assert(aProcess_obj->my_list_of_process() == roots.nilObj);
     aProcess_obj->add_process_to_scheduler_list();

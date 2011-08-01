@@ -587,6 +587,7 @@ bool Object::is_process_allowed_to_run_on_given_core(Squeak_Interpreter* interpr
   if (acm < 0) return true;
   
   interpreter->successFlag = true;
+  //TODO: this is not extendible for >64 cores, REINOUT and STEFAN
   u_int64 mask = interpreter->positive64BitValueOf(fetchPointer(acm));
   if (!interpreter->successFlag) {
     interpreter->successFlag = true;

@@ -27,6 +27,7 @@ class Scheduler {
   
 public:
   //static bool scheduler_per_interpreter;
+  static Squeak_Interpreter* get_interpreter_at_rank(int rank);
   Oop schedulerPointer();
   void set_scheduler_pointer(Oop);
   void initialize(Squeak_Interpreter*);

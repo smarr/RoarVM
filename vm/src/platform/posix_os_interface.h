@@ -152,6 +152,9 @@ public:
 # ifdef __GNUC__
   static inline uint32_t leading_zeros(uint32_t x)    { return __builtin_clz(x);      }
   static inline uint32_t population_count(uint32_t x) { return __builtin_popcount(x); }
+  static inline uint64_t least_significant_one(uint64_t x) { 
+    return __builtin_ffsll(x);
+  }
 # else
   # warning check whether your compiler provides the following functions as intrinsics 
   uint32_t leading_zeros(uint32_t x) {
@@ -165,6 +168,17 @@ public:
     for (int i = 0;  i < 32;  ++i)
       if (x  &  (1 << i))  ++sum;
     return sum;
+  }
+  
+  uint64_t least_significant_one(uint64_t x) {
+    if(x == 0LL)
+      return 0;
+    uint64_t pos = 0;
+    while (!(x & 1)) { //while the last bit is zero
+      x >>= 1; //shift it to the right
+      ++pos;
+    }
+    return pos + 1;
   }
 # endif
   

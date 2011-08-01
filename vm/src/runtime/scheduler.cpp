@@ -371,3 +371,10 @@ void Scheduler::transferTo(Oop newProc, const char* why){
   OS_Interface::mem_fence();
   get_interpreter()->start_running(newProc, why);
 }
+
+
+Squeak_Interpreter* Scheduler::get_interpreter_at_rank(int rank) {
+  assert(rank >= 0);
+  assert(rank < Max_Number_Of_Cores);
+  return interpreters[rank];
+}
