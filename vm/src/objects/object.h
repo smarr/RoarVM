@@ -124,12 +124,13 @@ public:
   }
   oop_int_t& sizeHeader() {
     assert(contains_sizeHeader());
-    return as_oop_int_p()[-2];
+    return as_oop_int_p()[-2];  // -2: See comment at the top, it is the extra header for which we need to adjust
   }
   bool contains_class_and_type_word() {
     return Header_Type::contains_class_and_type_word(baseHeader);
   }
-  oop_int_t& class_and_type_word() { return as_oop_int_p()[-1]; }
+  oop_int_t& class_and_type_word() { return as_oop_int_p()[-1]; } // -1: See comment at the top, it is the extra header for which we need to adjust
+   
   Oop  get_class_oop() {
     Oop r = Oop::from_bits(Header_Type::without_type(class_and_type_word()));
     if (check_many_assertions)
