@@ -1326,23 +1326,27 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
     debug_printer->printf(" because %s\n", why);
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
-  Squeak_Interpreter* interpreter;
+  Squeak_Interpreter* interpreter = The_Squeak_Interpreter();
   int acm = The_Process_Field_Locator.index_of_process_inst_var(Process_Field_Locator::coreMask);
-  uint64_t mask;
-  int core;
-  if (acm < 0) {
-    core = Logical_Core::my_rank();
-    interpreter = The_Squeak_Interpreter();
-  } else {
-    mask = The_Squeak_Interpreter()->
-    positive64BitValueOf(aProcess.as_object()->fetchPointer(acm));
-    core = OS_Interface::least_significant_one(mask) - 1;
-    if(core < 0){
-      interpreter = The_Squeak_Interpreter();
-    } else { 
-      interpreter = Scheduler::get_interpreter_at_rank(core);
+  int64_t mask;
+  int core = 0;
+  if (acm >= 0) {
+    interpreter->successFlag = true;
+    Oop coreMask = aProcess.as_object()->fetchPointer(acm); 
+    //coreMask may be nil, for which we just run it on the current interpreter
+    mask = interpreter->
+              positive64BitValueOf(coreMask);
+    if(!interpreter->successFlag == true) {
+      dp(coreMask);
+      interpreter->successFlag = true;
+    } else {
+
+      core = OS_Interface::least_significant_one(mask) - 1;
+      if(core > 0){
+        interpreter = Scheduler::get_interpreter_at_rank(core);
+      }
+      assert(interpreter != NULL);
     }
-    assert(interpreter != NULL);
   }
   assert(aProcess.as_object()->is_process_allowed_to_run_on_given_core(interpreter));
   {
@@ -1352,7 +1356,6 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
     aProcess_obj->add_process_to_scheduler_list();
   }
   assert(!Scheduler_Mutex::is_held());
-
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("on %d: mid-resume:\n", my_rank());
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);

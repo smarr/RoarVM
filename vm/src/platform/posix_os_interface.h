@@ -150,9 +150,10 @@ public:
   
   
 # ifdef __GNUC__
+  
   static inline uint32_t leading_zeros(uint32_t x)    { return __builtin_clz(x);      }
   static inline uint32_t population_count(uint32_t x) { return __builtin_popcount(x); }
-  static inline uint64_t least_significant_one(uint64_t x) { 
+  static inline uint32_t least_significant_one(uint64_t x) { 
     return __builtin_ffsll(x);
   }
 # else
@@ -170,10 +171,10 @@ public:
     return sum;
   }
   
-  uint64_t least_significant_one(uint64_t x) {
+  uint32_t least_significant_one(uint64_t x) {
     if(x == 0LL)
       return 0;
-    uint64_t pos = 0;
+    uint32_t pos = 0;
     while (!(x & 1)) { //while the last bit is zero
       x >>= 1; //shift it to the right
       ++pos;

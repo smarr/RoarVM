@@ -60,7 +60,7 @@ private:
   OS_Interface::Mutex* shared_mutex;
 };
 
-static Squeak_Interpreter* interpreters[Max_Number_Of_Cores];
+static Squeak_Interpreter* interpreters[Max_Number_Of_Cores] = { NULL };
 static bool scheduler_per_interpreter = false;
 
 
