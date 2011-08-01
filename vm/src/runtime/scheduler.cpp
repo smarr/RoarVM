@@ -123,6 +123,16 @@ void Scheduler::switch_to_shared_mutex(){
 }
 
 
+Oop Scheduler::transform_one_interpreter(Object_p linkedListClass) {
+  int s = get_interpreter()->makeArrayStart();
+  Object_p linkedList;
+  FOR_EACH_READY_PROCESS_LIST(slo, p, obj, get_interpreter()) {
+    linkedList = linkedListClass->instantiateClass(0);
+    PUSH_FOR_MAKE_ARRAY(linkedList->as_oop());
+  }
+  return get_interpreter()->makeArray(s);
+}
+
 
 void Scheduler::transform_to_scheduler_per_interpreter(){
   if(scheduler_per_interpreter)
@@ -130,18 +140,19 @@ void Scheduler::transform_to_scheduler_per_interpreter(){
   
   int s = get_interpreter()->makeArrayStart();
   Oop processList = process_lists_of_scheduler_pointer();
-  Object_p linkedListClass = processList.as_object()->fetchClass().as_object();
+  
+  Object_p linkedListClass = 
+    processList.as_object()->fetchPointer(0).as_object()
+    ->fetchClass().as_object();
   Object_p linkedList;
   for(int i = 0; i < Logical_Core::main_rank; ++i){
-    linkedList = linkedListClass->instantiateClass(0);
-    PUSH_FOR_MAKE_ARRAY(linkedList->as_oop());
+    PUSH_FOR_MAKE_ARRAY(transform_one_interpreter(linkedListClass));
   }
   //add process list for main core
   PUSH_FOR_MAKE_ARRAY(processList);
   for(int i = Logical_Core::main_rank + 1; i < Logical_Core::num_cores; ++i){
     //we already created the main one, so we start from main_rank + 1
-    linkedList = linkedListClass->instantiateClass(0);
-    PUSH_FOR_MAKE_ARRAY(linkedList->as_oop());
+    PUSH_FOR_MAKE_ARRAY(transform_one_interpreter(linkedListClass));
     
   }
   Oop array = The_Squeak_Interpreter()->makeArray(s);
@@ -320,7 +331,7 @@ int Scheduler::count_processes_in_scheduler(){
   // see find_a_process_to_run_and_start_running_it
   int count = 0;
   
-  FOR_EACH_READY_PROCESS_LIST(slo, p, processList, _interpreter)  {
+  FOR_EACH_READY_PROCESS_LIST(slo, p, processList, get_interpreter())  {
     
     if (processList->isEmptyList())
       continue;

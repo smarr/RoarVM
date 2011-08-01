@@ -55,6 +55,7 @@ private:
   
   Oop process_lists_of_scheduler_pointer(int);
   Oop process_lists_of_scheduler_pointer();
+  Oop transform_one_interpreter(Object_p linkedListClass);
   OS_Interface::Mutex* shared_mutex;
 };
 
