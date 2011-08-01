@@ -948,20 +948,43 @@ void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
   Chunk* dst_chunk = h->allocateChunk(ehb + bnc);
   oop = The_Squeak_Interpreter()->popRemappableOop();
   char* src_chunk = as_char_p() - ehb;
+  
+  // STEFAN: some assumptions hardcoded for debugging.
+  assert(Object::oop_from_backpointer(((Preheader*)src_chunk)->backpointer).verify_oop());
+  # if Extra_Preheader_Word_Experiment
+    assert(((Preheader*)src_chunk)->extra_preheader_word == 1);
+  # endif
+  
+  
   Object_p new_obj = (Object_p)(Object*) (((char*)dst_chunk) + ehb);
 
   h->enforce_coherence_before_store(dst_chunk, ehb + bnc);
   DEBUG_MULTIMOVE_CHECK(dst_chunk, src_chunk, (ehb + bnc) / bytes_per_oop );
   bcopy(src_chunk, dst_chunk, ehb + bnc);
-  // set backpointer is redundant but this routine does the safepoint
+  
+  // update the oop entry in the OT and set backpointer
+  // setting the backpointer is redundant but this routine does the safepoint
   new_obj->set_object_address_and_backpointer(oop  COMMA_TRUE_OR_NOTHING);
+  // this is also redundant, depending on the logic behind set_extra_preheader_word
   if (Extra_Preheader_Word_Experiment)
     new_obj->set_extra_preheader_word(get_extra_preheader_word());
+  
   h->enforce_coherence_after_store(dst_chunk, ehb + bnc);
 
   ((Chunk*)src_chunk)->make_free_object(ehb + bnc, 2); // without this GC screws up
 
   if (do_sync) The_Squeak_Interpreter()->postGCAction_everywhere(false);
+  
+  // STEFAN: check that we are still having properly encoded preheaders
+  assert(Object::oop_from_backpointer(((Preheader*)src_chunk)->backpointer).verify_oop());
+  # if Extra_Preheader_Word_Experiment
+    assert(((Preheader*)src_chunk)->extra_preheader_word == 1);
+  # endif
+
+  assert(Object::oop_from_backpointer(((Preheader*)dst_chunk)->backpointer).verify_oop());
+  # if Extra_Preheader_Word_Experiment
+    assert(((Preheader*)dst_chunk)->extra_preheader_word == 1);
+  # endif
 }
 
 
