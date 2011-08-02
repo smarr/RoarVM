@@ -48,9 +48,9 @@ public:
   Object_p process_list_for_priority(int priority);
   void     add_process_to_scheduler_list(Object* process);
   
-  Oop steal_process_from_me(Squeak_Interpreter*);
+  Oop steal_process_from_me_in_range(int hi, int lo, Squeak_Interpreter*);
   Oop find_and_move_to_end_highest_priority_non_running_process();
-  Oop find_highest_priority_non_running_process_for_core(Squeak_Interpreter*);
+  Oop find_non_running_process_for_core_between(int hi, int lo,Squeak_Interpreter*);
   
   int count_processes_in_scheduler();
   

@@ -249,7 +249,7 @@ void Scheduler::set_running_process(Oop proc, const char* why){
 
 
 
-Oop Scheduler::steal_process_from_me(int hi, int lo, Squeak_Interpreter* thief) {
+Oop Scheduler::steal_process_from_me_in_range(int hi, int lo, Squeak_Interpreter* thief) {
   Oop process = find_non_running_process_for_core_between(hi, lo, thief);
   if (process != get_interpreter()->roots.nilObj){
     // set correct backpointer for process
@@ -293,7 +293,7 @@ Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
 
     Squeak_Interpreter* owner = interpreters[my_rank];
 
-    Oop stolen = owner->scheduler.steal_process_from_me(hi, lo, get_interpreter());
+    Oop stolen = owner->get_scheduler()->steal_process_from_me_in_range(hi, lo, get_interpreter());
     if (stolen != get_interpreter()->roots.nilObj) {
       printf("STOLEN\n");
       return stolen;
