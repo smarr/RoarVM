@@ -119,6 +119,7 @@
 		0ACF551912E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */; };
 		0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
+		34D2A77913E831D700BDF171 /* scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34D2A77713E831D700BDF171 /* scheduler.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -394,6 +395,8 @@
 		0ADA271212EF66EC009404B0 /* cacheline_aligned.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cacheline_aligned.h; sourceTree = "<group>"; };
 		0AEC1184128DF02F00EFF6D1 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
+		34D2A77713E831D700BDF171 /* scheduler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scheduler.cpp; sourceTree = "<group>"; };
+		34D2A77813E831D700BDF171 /* scheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scheduler.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -989,6 +992,8 @@
 				0A278500128DBF7400336BDE /* safepoint_request_queue.h */,
 				0A278501128DBF7400336BDE /* scheduler_mutex.cpp */,
 				0A278502128DBF7400336BDE /* scheduler_mutex.h */,
+				34D2A77713E831D700BDF171 /* scheduler.cpp */,
+				34D2A77813E831D700BDF171 /* scheduler.h */,
 				0A278503128DBF7400336BDE /* semaphore_mutex.cpp */,
 				0A278504128DBF7400336BDE /* semaphore_mutex.h */,
 				0A278505128DBF7400336BDE /* squeak_adapters.cpp */,
@@ -1283,6 +1288,7 @@
 				0A5D7C99135CC84700D13E53 /* sqUnixSound.c in Sources */,
 				0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */,
 				0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */,
+				34D2A77913E831D700BDF171 /* scheduler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
