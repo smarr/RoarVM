@@ -21,47 +21,61 @@
  * as it modified internal variables of the interpreter */
 
 class Scheduler {
-  Oop _schedulerPointer; //a Smalltalk ProcessScheduler object
+  Oop _processSchedulerPointer; //a Smalltalk ProcessScheduler object
   Squeak_Interpreter* _interpreter;
   OS_Mutex_Interface scheduler_mutex;
   
 public:
-  //static bool scheduler_per_interpreter;
-  static Squeak_Interpreter* get_interpreter_at_rank(int rank);
-  static Squeak_Interpreter* get_random_interpreter();
-  Oop schedulerPointer();
-  void set_scheduler_pointer(Oop);
-  void initialize(Squeak_Interpreter*);
-  Object_p schedulerPointer_obj();     
-  Object_p process_lists_of_scheduler();
-  OS_Mutex_Interface* get_scheduler_mutex();
-  void transform_to_scheduler_per_interpreter();
-  void transform_to_global_scheduler();
   void* operator new(size_t s) { return Memory_Semantics::shared_malloc(s); }
-  Squeak_Interpreter* get_interpreter(){ return _interpreter; };
+  
+  static Squeak_Interpreter* interpreters[Max_Number_Of_Cores];
+  static bool scheduler_per_interpreter;
+  static Squeak_Interpreter* get_interpreter_at_rank(int rank);
+  inline Squeak_Interpreter* get_interpreter() { return _interpreter; }
+  void   set_interpreter(Squeak_Interpreter*);
+
+  static Squeak_Interpreter* get_random_interpreter();
+
+  
+  void     initialize(Squeak_Interpreter*);
+  
+  
+  Oop      processorSchedulerPointer();
+  void     set_scheduler_pointer(Oop);
+  
+  Object_p processorSchedulerPointer_obj();     
+  Object_p process_lists_of_scheduler();
   Object_p process_list_for_priority(int priority);
-  void add_process_to_scheduler_list(Object* process);
-  void set_interpreter(Squeak_Interpreter*);
-  Oop get_running_process();
-  void set_running_process(Oop, const char* why);
-  Oop steal_process_from_me(int, int, Squeak_Interpreter*);
+  void     add_process_to_scheduler_list(Object* process);
+  
+  Oop steal_process_from_me(Squeak_Interpreter*);
   Oop find_and_move_to_end_highest_priority_non_running_process();
-  Oop find_non_running_process_for_core_between(int, int, Squeak_Interpreter*);
+  Oop find_highest_priority_non_running_process_for_core(Squeak_Interpreter*);
+  
   int count_processes_in_scheduler();
+  
+  void transferTo(Oop newProc, const char* why);
+  
+  Oop  get_running_process();
+  void set_running_process(Oop, const char* why);
+  
+  
+  
+  OS_Mutex_Interface* get_scheduler_mutex();
   void create_new_mutex();
   void set_mutex(OS_Mutex_Interface);
-  void transferTo(Oop newProc, const char* why);
+
+  void transform_to_scheduler_per_interpreter();
+  void transform_to_global_scheduler();
   void switch_to_own_mutex();
   void switch_to_shared_mutex();
+  
 private:
   
   Oop process_lists_of_scheduler_pointer(int);
   Oop process_lists_of_scheduler_pointer();
   Oop transform_one_interpreter(Object_p linkedListClass);
   OS_Interface::Mutex* shared_mutex;
+  
 };
-
-static Squeak_Interpreter* interpreters[Max_Number_Of_Cores] = { NULL };
-static bool scheduler_per_interpreter = false;
-
 

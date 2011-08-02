@@ -49,7 +49,7 @@ public:
     *logical_core_global.holder = -1;
   }
 
-  //needed in the scheduler to switch between scheduling strategies
+  // needed in the scheduler to switch between scheduling strategies
   inline void set_inner_mutex(OS_Interface::Mutex* mtx) {
     logical_core_global.os_mutex = mtx;
   }

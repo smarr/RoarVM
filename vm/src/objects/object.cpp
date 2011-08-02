@@ -528,21 +528,22 @@ Oop Object::clone() {
 Object_p Object::process_list_for_priority_of_process() {
   int priority = priority_of_process();
     
-    return The_Squeak_Interpreter()->get_scheduler().process_list_for_priority(priority);
+  return The_Squeak_Interpreter()->get_scheduler()->process_list_for_priority(priority);
 }
 
 // Save on given list for priority
 void Object::add_process_to_scheduler_list() {
-    The_Squeak_Interpreter()->get_scheduler()
-        .add_process_to_scheduler_list(this);
+  The_Squeak_Interpreter()->get_scheduler()->add_process_to_scheduler_list(this);
 }
 
 
 Oop Object::get_suspended_context_of_process_and_mark_running() {
-  assert(Scheduler_Mutex::is_held());
-  The_Squeak_Interpreter()->assert_registers_stored();
+  Squeak_Interpreter* const interp = The_Squeak_Interpreter();
+  assert(Scheduler_Mutex::is_held_for_interpreter(interp));
+  interp->assert_registers_stored();
   Oop ctx = fetchPointer(Object_Indices::SuspendedContextIndex);
-  assert(ctx != The_Squeak_Interpreter()->roots.nilObj);
+  assert(ctx != interp->roots.nilObj);
+  
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d get_suspended_context_of_process_and_mark_running ", Logical_Core::my_rank());
     this->print_process_or_nil(debug_printer);
@@ -550,16 +551,19 @@ Oop Object::get_suspended_context_of_process_and_mark_running() {
     debug_printer->nl();
   }
 
-  storePointer(Object_Indices::SuspendedContextIndex, The_Squeak_Interpreter()->roots.nilObj);
+  storePointer(Object_Indices::SuspendedContextIndex, interp->roots.nilObj);
   store_host_core_of_process(Logical_Core::my_rank());
   return ctx;
 }
 
 void Object::set_suspended_context_of_process(Oop ctx) {
-  assert(Scheduler_Mutex::is_held());
+  Squeak_Interpreter* const interp = The_Squeak_Interpreter();
+  
+  assert(Scheduler_Mutex::is_held_for_interpreter(interp));
   assert(ctx != fetchPointer(Object_Indices::SuspendedContextIndex));
   assert(is_process_running());
-  The_Squeak_Interpreter()->assert_registers_stored();
+  interp->assert_registers_stored();
+  
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d set_suspended_context_of_process ", Logical_Core::my_rank());
     this->print_process_or_nil(debug_printer);
@@ -582,13 +586,13 @@ bool Object::is_process_running() {
 
 
 
-bool Object::is_process_allowed_to_run_on_given_core(Squeak_Interpreter* interpreter) {
-  int acm = The_Process_Field_Locator.index_of_process_inst_var(Process_Field_Locator::coreMask);
-  if (acm < 0) return true;
+bool Object::is_process_allowed_to_run_on_given_interpreter_instance(Squeak_Interpreter* const interpreter) {
+  int coreMaskFieldIdx = The_Process_Field_Locator.index_of_process_inst_var(Process_Field_Locator::coreMask);
+  if (coreMaskFieldIdx < 0) return true;
   
   interpreter->successFlag = true;
   //TODO: this is not extendible for >64 cores, REINOUT and STEFAN
-  u_int64 mask = interpreter->positive64BitValueOf(fetchPointer(acm));
+  u_int64 mask = interpreter->positive64BitValueOf(fetchPointer(coreMaskFieldIdx));
   if (!interpreter->successFlag) {
     interpreter->successFlag = true;
     return true;
@@ -600,7 +604,7 @@ bool Object::is_process_allowed_to_run_on_given_core(Squeak_Interpreter* interpr
 
 
 bool Object::is_process_allowed_to_run_on_this_core() {
-  return is_process_allowed_to_run_on_given_core(The_Squeak_Interpreter());
+  return is_process_allowed_to_run_on_given_interpreter_instance(The_Squeak_Interpreter());
 }
 
 void Object::store_host_core_of_process(int r) {

@@ -508,7 +508,7 @@ public:
   Object_p process_list_for_priority_of_process();
   Oop get_suspended_context_of_process_and_mark_running();
   bool is_process_running();
-  bool is_process_allowed_to_run_on_given_core(Squeak_Interpreter*);
+  bool is_process_allowed_to_run_on_given_interpreter_instance(Squeak_Interpreter* const);
   bool is_process_allowed_to_run_on_this_core();
   void store_host_core_of_process(int);
   void store_allowable_cores_of_process(u_int64 bitMask);

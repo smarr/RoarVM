@@ -45,27 +45,34 @@ public:
 	// "Note: The external primitive table should actually be dynamically sized but for the sake of inferior platforms (e.g., Mac :-) who cannot allocate memory in any reasonable way, we keep it static (and cross our fingers...)"
 	static const int MaxExternalPrimitiveTableSize = 4096; // "entries"
 
-  public:
+public:
   Roots roots;
   Method_Cache methodCache;
   At_Cache atCache;
-  Scheduler scheduler;
- private:
+private:
   friend class Interpreter_Subset_For_Control_Transfer;
   // these get send for control transfer
   Object_p _activeContext_obj;  //STEFAN TODO come back here and think about the exact meaning and whether we want Object* here
   Object_p _method_obj;
   Object_p _theHomeContext_obj;
- public:
+
+  Scheduler scheduler;
+
+public:
+  Scheduler* get_scheduler() { return &scheduler; }
+
+  
   u_char* _instructionPointer; u_char* instructionPointer() { assert_external(); return _instructionPointer; }  void set_instructionPointer(u_char* x) { registers_unstored(); uninternalized(); _instructionPointer = x; }
   Oop*    _stackPointer;  Oop* stackPointer() { assert_external(); return _stackPointer; } void set_stackPointer(Oop* x) { registers_unstored(); uninternalized(); _stackPointer = x; }
   u_char currentBytecode; // interp version is out of order
   bool   have_executed_currentBytecode;
   oop_int_t interruptCheckCounter;
   static const int interruptCheckCounter_force_value = -0x8000000; // must be neg
+
   bool multicore_interrupt_check;
   bool doing_primitiveClosureValueNoContextSwitch;
   bool suspended;
+
   static const u_int64 all_cores_mask = ~0LL;
   static u_int64 run_mask_value_for_core(int x) { return 1LL << x; }
   void set_run_mask_and_request_yield(u_int64);
@@ -311,13 +318,11 @@ public:
    int added_process_count;
 
    OS_Mutex_Interface* get_scheduler_mutex() {  
-       return scheduler.get_scheduler_mutex(); 
+     return scheduler.get_scheduler_mutex(); 
    }
    OS_Mutex_Interface* get_semaphore_mutex() {  return &semaphore_mutex; }
    OS_Mutex_Interface* get_safepoint_mutex() {  return &safepoint_mutex; }
     
-    Scheduler get_scheduler(){return scheduler;}
-
   private:
    OS_Mutex_Interface semaphore_mutex;
    OS_Mutex_Interface safepoint_mutex; // this is not a complete mutex, it does not use underlying systems mutex
@@ -359,7 +364,7 @@ public:
   void set_activeContext(Oop x) { set_activeContext(x, x.as_object()); }
   void set_activeContext(Object_p x) { set_activeContext( x->as_oop(), x); }
     
-  void set_scheduler(Scheduler sched){
+  void set_scheduler(Scheduler sched) {
     scheduler = sched;
   }
 
@@ -1121,15 +1126,17 @@ public:
 
   void signalSemaphoreWithIndex(int index);
 
-    Oop schedulerPointer() {
-         return scheduler.schedulerPointer();
-    }
+  Oop schedulerPointer() {
+    return scheduler.processorSchedulerPointer();
+  }
     
-    Object_p schedulerPointer_obj() { return scheduler.schedulerPointer_obj(); }
-    
-    Object_p process_lists_of_scheduler() {
-        return scheduler.process_lists_of_scheduler();
-    }   
+  Object_p schedulerPointer_obj() {
+    return scheduler.processorSchedulerPointer_obj();
+  }
+  
+  Object_p process_lists_of_scheduler() {
+      return scheduler.process_lists_of_scheduler();
+  }   
     
   Oop  get_running_process();
   void set_running_process(Oop, const char*);
@@ -1393,9 +1400,9 @@ public:
   
   void unset_running_process();
   bool process_is_scheduled_and_executing();
-    bool is_ok_to_run_on_me() {
-        return (Logical_Core::my_rank_mask() & run_mask()) ? true : false;
-    }
+  bool is_ok_to_run_on_me() {
+    return (Logical_Core::my_rank_mask() & run_mask()) ? true : false;
+  }
     
  private:
   void check_for_multicore_interrupt() {
@@ -1441,7 +1448,7 @@ public:
   }
   
   void assert_method_is_correct_internalizing(bool will_be_fetched, const char* where) {
-    if ((Always_Check_Method_Is_Correct  || check_assertions) && process_is_scheduled_and_executing())
+    if ((Always_Check_Method_Is_Correct || check_assertions) && process_is_scheduled_and_executing())
       assert_always_method_is_correct_internalizing(will_be_fetched, where);
   }
   
@@ -1550,8 +1557,9 @@ public:
     suspended = false;
   }
   
-  void suspendAllOthers();
-  void awakeAllOthers();
+  void suspendAllButMainInterpreter();
+  void awakeAll();
+
   void transformAllToSchedulerPerInterpreter();
   void transformAllToGlobalScheduler();
   void transformToSchedulerPerInterpreter();  
@@ -1568,19 +1576,19 @@ private:
 
 
 # define FOR_EACH_READY_PROCESS_LIST(slo, pri, list_obj, interp) /* highest to lowest priority */ \
-/* pri must be an int or oop_int_t, list_obj must be an object* */ \
-Object_p slo = interp->process_lists_of_scheduler(); \
-Object_p list_obj; \
-oop_int_t pri; \
-for ( pri = slo->fetchWordLength() - 1;  \
-     pri >= 0  &&  (list_obj = slo->fetchPointer(pri).as_object());  \
---pri)
+  /* pri must be an int or oop_int_t, list_obj must be an object* */ \
+  Object_p slo = interp->process_lists_of_scheduler(); \
+  Object_p list_obj; \
+  oop_int_t pri; \
+  for ( pri = slo->fetchWordLength() - 1;  \
+        pri >= 0  &&  (list_obj = slo->fetchPointer(pri).as_object());  \
+        --pri)
 
-
+/** For stealing work in a specific priority slice */
 # define FOR_READY_PROCESS_LIST_BETWEEN(hi,lo,slo,pri,list_obj,interp) \
-Object_p slo = interp->process_lists_of_scheduler(); \
-Object_p list_obj; \
-oop_int_t pri; \
-for ( pri = hi - 1;  \
-pri >= lo  &&  (list_obj = slo->fetchPointer(pri).as_object());  \
---pri)
+  Object_p slo = interp->process_lists_of_scheduler(); \
+  Object_p list_obj; \
+  oop_int_t pri; \
+  for ( pri = hi - 1;  \
+        pri >= lo  &&  (list_obj = slo->fetchPointer(pri).as_object());  \
+        --pri)

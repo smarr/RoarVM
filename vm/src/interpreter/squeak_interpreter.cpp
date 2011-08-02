@@ -81,6 +81,8 @@ bool Squeak_Interpreter::is_initialized() { return roots.is_initialized(); }
 
 void Squeak_Interpreter::initialize(Oop soo, bool from_checkpoint) {
   if (!from_checkpoint) roots.initialize(soo);
+
+
   if (Logical_Core::running_on_main()) {
   
     timeout_deferral_counters = (int32*)Memory_Semantics::shared_calloc(Max_Number_Of_Cores, sizeof(timeout_deferral_counters[0]));
@@ -340,7 +342,7 @@ void Squeak_Interpreter::interpret() {
     PERF_CNT(this, add_interpret_cycles(OS_Interface::get_cycle_count() - start));
     
     // for debugging check that the stack is not growing to big
-    if (false && Include_Debugging_Code && (count_stack_depth() > 1000)) {
+    if (Include_Debugging_Code && (count_stack_depth() > 1000)) {
       OS_Interface::breakpoint();
     }
     
@@ -1314,30 +1316,32 @@ void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
 
 Squeak_Interpreter* Squeak_Interpreter::compute_interpreter_to_resume_process(Oop aProcess) {
   Squeak_Interpreter* interpreter = The_Squeak_Interpreter();
-  int acm = The_Process_Field_Locator.
+  int coreMaskIdx = The_Process_Field_Locator.
               index_of_process_inst_var(Process_Field_Locator::coreMask);
   int64_t mask;
-  if (acm >= 0) {
-    int core = 0;
-    Oop coreMask = aProcess.as_object()->fetchPointer(acm); 
-    if(coreMask.bits() == interpreter->roots.nilObj.bits()) {
-      return Scheduler::get_random_interpreter();
-    }
+  if (coreMaskIdx >= 0) {
+  int core = 0;
     
-    interpreter->successFlag = true;
-    mask = interpreter->
-      positive64BitValueOf(coreMask);
-    assert(interpreter->successFlag);
+  Oop coreMask = aProcess.as_object()->fetchPointer(coreMaskIdx);
+  if (coreMask.bits() == interpreter->roots.nilObj.bits()) {
+    return Scheduler::get_random_interpreter();
+  }
+  
+  interpreter->successFlag = true;
+  mask = interpreter->
+            positive64BitValueOf(coreMask);
+  assert(interpreter->successFlag);
     core = OS_Interface::least_significant_one(mask) - 1;
     if(core > 0){
       interpreter = Scheduler::get_interpreter_at_rank(core);
     } else {
       //can run everywhere
-      interpreter = Scheduler::get_random_interpreter();
+    interpreter = Scheduler::get_random_interpreter();
     }
     assert(interpreter != NULL);
   }
-  assert(aProcess.as_object()->is_process_allowed_to_run_on_given_core(interpreter));
+  
+  assert(aProcess.as_object()->is_process_allowed_to_run_on_given_interpreter_instance(interpreter));  
   return interpreter;
 }
 
@@ -1357,15 +1361,18 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
     debug_printer->printf(" because %s\n", why);
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
+  
   Squeak_Interpreter* interpreter;
   interpreter = compute_interpreter_to_resume_process(aProcess);
+
   {
     Scheduler_Mutex sm("resume", interpreter);
     Object_p aProcess_obj = aProcess.as_object();
     assert(aProcess_obj->my_list_of_process() == roots.nilObj);
     aProcess_obj->add_process_to_scheduler_list();
   }
-  assert(!Scheduler_Mutex::is_held());
+  assert(!Scheduler_Mutex::is_held_for_interpreter(interpreter));
+
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("on %d: mid-resume:\n", my_rank());
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
@@ -2589,7 +2596,7 @@ void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
 
 void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
   assert_registers_stored();
-  assert(Scheduler_Mutex::is_held());
+  assert(Scheduler_Mutex::is_held_for_interpreter(this));
   
   if (newProc == roots.nilObj) {
     // print_process_lists(debug_printer);
@@ -3068,6 +3075,7 @@ void Squeak_Interpreter::receive_initial_interpreter_from_main(Squeak_Interprete
   *((int*)rankAddr)           = my_rank;
   *((Logical_Core**)coreAddr) = my_core;
 #endif
+  
   safepoint_tracker = new Safepoint_Tracker();
   safepoint_master_control = NULL;
   safepoint_ability = sa;
@@ -3252,25 +3260,27 @@ bool Squeak_Interpreter::getNextEvent_any_platform(void* p) {
 }
 
 
-void Squeak_Interpreter::suspendAllOthers() {
-  //we send the message to all the cores, but the main core will continue
-  //running
-  suspendOtherInterpreters_class().send_to_all_cores();
+void Squeak_Interpreter::suspendAllButMainInterpreter() {
+  // we send the message to all the cores, but the main core will continue
+  // running
+  suspendAllButMainInterpreter_class().send_to_all_cores();
 }
 
-void Squeak_Interpreter::awakeAllOthers() {
-  awakeOtherInterpreters_class().send_to_other_cores();
+void Squeak_Interpreter::awakeAll() {
+  awakeAllInterpreters_class().send_to_other_cores();
 }
 
 
 void Squeak_Interpreter::transformAllToSchedulerPerInterpreter() {
   Safepoint_for_moving_objects sf("scheduler_per_interpreter");
+
   scheduler.transform_to_scheduler_per_interpreter();
   transformToSchedulerPerInterpreter_class().send_to_all_cores();
 }
 
 void Squeak_Interpreter::transformAllToGlobalScheduler() {
   Safepoint_for_moving_objects sf("global_scheduler");
+
   transformToGlobalScheduler_class().send_to_all_cores();
   scheduler.transform_to_global_scheduler();
 }

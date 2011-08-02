@@ -24,34 +24,38 @@ public:
 };
 
 
+/** Macro is not used, as it would be the convention, since we need to extend
+    the behavior of the Scheduler_Mutex_Actions */
 //Define_RVM_Mutex(Scheduler_Mutex, Scheduler_Mutex_Actions,13,14)
+
+
 
 class Scheduler_Mutex {
 private:
+  /* globally unique ids, like in Define_RVM_Mutex */
+  static const int acquire_ID = 13;
+  static const int release_ID = 14;
+  
   Safepoint_Ability sa;
   friend class Scheduler_Mutex_Actions;
+  
   const char* why;
-  int acquire_ID;
-  int release_ID;
-  Squeak_Interpreter* interpreter;
+  Squeak_Interpreter* const interpreter;
   
 public:
-  static bool is_held()  { 
-    return Scheduler_Mutex_Actions::is_held(The_Squeak_Interpreter());
+  static bool is_held_for_interpreter(Squeak_Interpreter* const interp)  { 
+    return Scheduler_Mutex_Actions::is_held(interp);
   }
-  static void assert_held()  { 
-    assert(!Scheduler_Mutex_Actions::is_initialized(The_Squeak_Interpreter()) 
-           || is_held()); 
+  static void assert_held_for_interpreter(Squeak_Interpreter* const interp)  { 
+    assert(!Scheduler_Mutex_Actions::is_initialized(interp) 
+           || is_held_for_interpreter(interp)); 
   }
   
   
   Scheduler_Mutex(const char* w = "", 
                   Squeak_Interpreter* interp = The_Squeak_Interpreter()) 
   /* must be true while waiting to acquire, otherwise could deadlock */
-  : sa(Safepoint_Ability::is_interpreter_able()) {
-    acquire_ID = 13;
-    release_ID = 14;
-    interpreter = interp;
+  : sa(Safepoint_Ability::is_interpreter_able()), interpreter(interp) {
     why = w;
     u_int64 start = OS_Interface::get_cycle_count();
     if (acquire_ID) trace_mutex_evt(acquire_ID, why);

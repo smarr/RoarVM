@@ -299,12 +299,12 @@ void* primitiveGlobalScheduler() {
   The_Squeak_Interpreter()->transformAllToGlobalScheduler();
 }
 
-void* primitiveSuspendOtherInterpreters() {
-  The_Squeak_Interpreter()->suspendAllOthers();
+void* primitiveSuspendAllButMainInterpreter() {
+  The_Squeak_Interpreter()->suspendAllButMainInterpreter();
 }
 
-void* primitiveAwakeOtherInterpreters() {
-  The_Squeak_Interpreter()->awakeAllOthers();
+void* primitiveAwakeAllInterpreters() {
+  The_Squeak_Interpreter()->awakeAll();
 }
 
 // args for the primitive are first core, last core, move_read_write_to_read_mostly, move_read_mostly_to_read_write
@@ -832,10 +832,10 @@ void* RVMPlugin_exports[][3] = {
     (void*) primitiveSchedulerPerInterpreter},
   {(void*) "RVMPlugin", (void*) "primitiveGlobalScheduler",
     (void*) primitiveGlobalScheduler},
-  {(void*) "RVMPlugin", (void*) "primitiveSuspendOtherInterpreters",
-    (void*) primitiveSuspendOtherInterpreters },
-  {(void*) "RVMPlugin", (void*) "primitiveAwakeOtherInterpreters",
-    (void*) primitiveAwakeOtherInterpreters },
+  {(void*) "RVMPlugin", (void*) "primitiveSuspendAllButMainInterpreter",
+    (void*) primitiveSuspendAllButMainInterpreter },
+  {(void*) "RVMPlugin", (void*) "primitiveAwakeAllInterpreters",
+    (void*) primitiveAwakeAllInterpreters },
   {NULL, NULL, NULL}
 };
 

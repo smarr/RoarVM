@@ -383,12 +383,12 @@ void selfDestructMessage_class::handle_me() {
 void ackMessage_class::handle_me() {}
 
 
-void suspendOtherInterpreters_class::handle_me() {
+void suspendAllButMainInterpreter_class::handle_me() {
   if(The_Squeak_Interpreter()->my_rank() != Logical_Core::main_rank)
     The_Squeak_Interpreter()->suspend();
 }
 
-void awakeOtherInterpreters_class::handle_me() {
+void awakeAllInterpreters_class::handle_me() {
   The_Squeak_Interpreter()->awake();
 }
 

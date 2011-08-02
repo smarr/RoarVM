@@ -25,7 +25,7 @@ void Roots::initialize(Oop soo) {
   falseObj = The_Squeak_Interpreter()->splObj(Special_Indices::FalseObject);
   trueObj = The_Squeak_Interpreter()->splObj(Special_Indices:: TrueObject);
   
-  The_Squeak_Interpreter()->scheduler.initialize(The_Squeak_Interpreter());
+  The_Squeak_Interpreter()->get_scheduler()->initialize(The_Squeak_Interpreter());
 
   running_process_or_nil = nilObj;
   
@@ -53,6 +53,4 @@ bool Roots::verify() {
   FOR_EACH_ROOT(this,oopp) oopp->verify_object();
   return true;
 }
-
-
 
