@@ -1337,12 +1337,14 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
     mask = interpreter->
               positive64BitValueOf(coreMask);
     if(!interpreter->successFlag == true) {
-      dp(coreMask);
       interpreter->successFlag = true;
     } else {
-
       core = OS_Interface::least_significant_one(mask) - 1;
       if(core > 0){
+        interpreter = Scheduler::get_interpreter_at_rank(core);
+      } else {
+        //can run everywhere
+        core = rand() % Logical_Core::num_cores;
         interpreter = Scheduler::get_interpreter_at_rank(core);
       }
       assert(interpreter != NULL);

@@ -594,7 +594,7 @@ bool Object::is_process_allowed_to_run_on_given_core(Squeak_Interpreter* interpr
     return true;
   }
   
-  bool r =  ((1LL << Logical_Core::my_rank()) & mask) ? true : false;
+  bool r =  ((1LL << interpreter->my_rank()) & mask) ? true : false;
   return r;
 }
 

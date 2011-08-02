@@ -1573,3 +1573,11 @@ for ( pri = slo->fetchWordLength() - 1;  \
      pri >= 0  &&  (list_obj = slo->fetchPointer(pri).as_object());  \
 --pri)
 
+
+# define FOR_READY_PROCESS_LIST_BETWEEN(hi,lo,slo,pri,list_obj,interp) \
+Object_p slo = interp->process_lists_of_scheduler(); \
+Object_p list_obj; \
+oop_int_t pri; \
+for ( pri = hi - 1;  \
+pri >= lo  &&  (list_obj = slo->fetchPointer(pri).as_object());  \
+--pri)
