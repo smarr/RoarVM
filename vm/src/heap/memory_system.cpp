@@ -170,10 +170,12 @@ void Memory_System::level_out_heaps_if_needed() {
       Safepoint_Ability sa(false);
 
       Object* first = biggest->firstAccessibleObject();
-      Object* first_object_to_spread = first;
-      for ( ; 
-           first_object_to_spread  &&  (char*)first_object_to_spread - (char*)first  <  smallest->bytesUsed();  
+      Object* first_object_to_spread;
+      
+      for (first_object_to_spread = first; 
+           first_object_to_spread  &&  ((char*)first_object_to_spread - (char*)first)  <  smallest->bytesUsed();  
            first_object_to_spread = biggest->accessibleObjectAfter(first_object_to_spread)) {}
+      
       if (first_object_to_spread) {
         lprintf("Spreading objects around to prevent GC storms\n"); // by spreading only excess if needed
         The_Squeak_Interpreter()->preGCAction_everywhere(false); // false because caches are oop-based, and we just move objs

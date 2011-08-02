@@ -13,15 +13,26 @@
 
 
 inline void Chunk::make_free_object(oop_int_t bytes_including_header, int id) {
+  oop_int_t bytes_excluding_preheader = bytes_including_header - preheader_byte_size;
+  assert(bytes_excluding_preheader > 0);
+  
   static const int hs = Object::BaseHeaderSize/sizeof(Oop);
-  oop_int_t contents = Object::make_free_object_header(bytes_including_header - hs);  
-  DEBUG_STORE_CHECK((oop_int_t*)this, contents);  
-  *(oop_int_t*)this = contents;
+  
+  // skip over the preheader and initialize it later properly
+  Object* const first_object_header_word = (Object*)((char*)this + preheader_byte_size);
+  
+  oop_int_t contents = Object::make_free_object_header(bytes_excluding_preheader);
+  
+  DEBUG_STORE_CHECK((oop_int_t*)first_object_header_word, contents);  
+  *(oop_int_t*)first_object_header_word = contents;
+  
   // only used by GC and IT worries about coherence
   if (check_assertions) {
     oop_int_t filler = Oop::Illegals::made_free |  ((id & 15) << 24);
-    assert(The_Memory_System()->contains(this));
-    oopset_no_store_check(((Oop*)this) + hs, Oop::from_bits(filler), bytes_including_header/sizeof(Oop) - hs);
+    assert(The_Memory_System()->contains(first_object_header_word));
+    oopset_no_store_check(((Oop*)first_object_header_word) + hs, Oop::from_bits(filler), bytes_excluding_preheader/sizeof(Oop) - hs);
+    
+    ((Preheader*)this)->mark_all_preheader_words_free_for_debugging();
   }
 }
 

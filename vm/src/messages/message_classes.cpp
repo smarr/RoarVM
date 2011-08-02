@@ -344,7 +344,7 @@ void distributeInitialInterpreterMessage_class::handle_me() {
 void verifyInterpreterAndHeapMessage_class::handle_me() {
   The_Squeak_Interpreter()->verify();
   The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_mostly]->verify();
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::  read_write]->verify();
+  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System:: read_write]->verify();
 }
 
 
