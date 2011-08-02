@@ -28,6 +28,7 @@ class Scheduler {
 public:
   //static bool scheduler_per_interpreter;
   static Squeak_Interpreter* get_interpreter_at_rank(int rank);
+  static Squeak_Interpreter* get_random_interpreter();
   Oop schedulerPointer();
   void set_scheduler_pointer(Oop);
   void initialize(Squeak_Interpreter*);
@@ -43,9 +44,9 @@ public:
   void set_interpreter(Squeak_Interpreter*);
   Oop get_running_process();
   void set_running_process(Oop, const char* why);
-  Oop steal_process_from_me(Squeak_Interpreter*);
+  Oop steal_process_from_me(int, int, Squeak_Interpreter*);
   Oop find_and_move_to_end_highest_priority_non_running_process();
-  Oop find_highest_priority_non_running_process_for_core(Squeak_Interpreter*);
+  Oop find_non_running_process_for_core_between(int, int, Squeak_Interpreter*);
   int count_processes_in_scheduler();
   void create_new_mutex();
   void set_mutex(OS_Mutex_Interface);

@@ -1312,6 +1312,37 @@ void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
 }
 
 
+Squeak_Interpreter* Squeak_Interpreter::compute_interpreter_to_resume_process(Oop aProcess) {
+  Squeak_Interpreter* interpreter = The_Squeak_Interpreter();
+  int acm = The_Process_Field_Locator.
+              index_of_process_inst_var(Process_Field_Locator::coreMask);
+  int64_t mask;
+  if (acm >= 0) {
+    int core = 0;
+    Oop coreMask = aProcess.as_object()->fetchPointer(acm); 
+    if(coreMask.bits() == interpreter->roots.nilObj.bits()) {
+      return Scheduler::get_random_interpreter();
+    }
+    
+    interpreter->successFlag = true;
+    mask = interpreter->
+      positive64BitValueOf(coreMask);
+    assert(interpreter->successFlag);
+    core = OS_Interface::least_significant_one(mask) - 1;
+    if(core > 0){
+      interpreter = Scheduler::get_interpreter_at_rank(core);
+    } else {
+      //can run everywhere
+      interpreter = Scheduler::get_random_interpreter();
+    }
+    assert(interpreter != NULL);
+  }
+  assert(aProcess.as_object()->is_process_allowed_to_run_on_given_core(interpreter));
+  return interpreter;
+}
+
+
+
 void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
   /* I just found a tough bug:
      Resume is called, and it asked all the other cores to do a yield.
@@ -1326,31 +1357,8 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
     debug_printer->printf(" because %s\n", why);
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
-  Squeak_Interpreter* interpreter = The_Squeak_Interpreter();
-  int acm = The_Process_Field_Locator.index_of_process_inst_var(Process_Field_Locator::coreMask);
-  int64_t mask;
-  int core = 0;
-  if (acm >= 0) {
-    interpreter->successFlag = true;
-    Oop coreMask = aProcess.as_object()->fetchPointer(acm); 
-    //coreMask may be nil, for which we just run it on the current interpreter
-    mask = interpreter->
-              positive64BitValueOf(coreMask);
-    if(!interpreter->successFlag == true) {
-      interpreter->successFlag = true;
-    } else {
-      core = OS_Interface::least_significant_one(mask) - 1;
-      if(core > 0){
-        interpreter = Scheduler::get_interpreter_at_rank(core);
-      } else {
-        //can run everywhere
-        core = rand() % Logical_Core::num_cores;
-        interpreter = Scheduler::get_interpreter_at_rank(core);
-      }
-      assert(interpreter != NULL);
-    }
-  }
-  assert(aProcess.as_object()->is_process_allowed_to_run_on_given_core(interpreter));
+  Squeak_Interpreter* interpreter;
+  interpreter = compute_interpreter_to_resume_process(aProcess);
   {
     Scheduler_Mutex sm("resume", interpreter);
     Object_p aProcess_obj = aProcess.as_object();

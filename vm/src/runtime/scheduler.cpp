@@ -229,8 +229,8 @@ void Scheduler::set_running_process(Oop proc, const char* why){
 
 
 
-Oop Scheduler::steal_process_from_me(Squeak_Interpreter* thief) {
-  Oop process = find_highest_priority_non_running_process_for_core(thief);
+Oop Scheduler::steal_process_from_me(int hi, int lo, Squeak_Interpreter* thief) {
+  Oop process = find_non_running_process_for_core_between(hi, lo, thief);
   if(process != get_interpreter()->roots.nilObj){
     //set correct backpointer for process
     int priority = process.as_object()->priority_of_process();
@@ -249,31 +249,44 @@ Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
   if (!get_interpreter()->is_ok_to_run_on_me()) {
     return get_interpreter()->roots.nilObj;
   }
-  Oop result = find_highest_priority_non_running_process_for_core(_interpreter);
-  
-  if(result != get_interpreter()->roots.nilObj)
-    return result;
-  //now we try to steal a process, we are such a scallywags
-  assert(Logical_Core::num_cores > 1); //not possible to only have 1 cpu and no process
-  int cpuIndex = get_interpreter()->my_rank();
-  while(cpuIndex != get_interpreter()->my_rank()){
-    cpuIndex = rand() % Logical_Core::num_cores;
+  int nrSlices = 4;
+  int length = process_lists_of_scheduler()->fetchWordLength();
+  if(Logical_Core::num_cores == 1 && !scheduler_per_interpreter) {
+    return find_non_running_process_for_core_between(length, 0, get_interpreter());
   }
-  Squeak_Interpreter* owner = interpreters[cpuIndex];
-  
-  Oop stolen = owner->scheduler.steal_process_from_me(get_interpreter());
-  return stolen;
+  int sliceSize = length / nrSlices;
+  assert(sliceSize * nrSlices == length);
+  for(int i = nrSlices; i > 0; --i) {
+    int hi = i * sliceSize;
+    int lo = hi - sliceSize;
+    Oop result = 
+      find_non_running_process_for_core_between(hi, lo, get_interpreter());
+    if(result != get_interpreter()->roots.nilObj)
+      return result;
+    //now we try to steal a process, we are such scallywags
+    int cpuIndex = get_interpreter()->my_rank();
+    while(cpuIndex != get_interpreter()->my_rank()){
+      cpuIndex = rand() % Logical_Core::num_cores;
+    }
+    Squeak_Interpreter* owner = interpreters[cpuIndex];
+    Oop stolen = owner->scheduler.steal_process_from_me(hi, lo, get_interpreter());
+    if(stolen != get_interpreter()->roots.nilObj) {
+      printf("STOLEN\n");
+      return stolen;
+    }
+  }
+  return get_interpreter()->roots.nilObj;
 }
 
 
-Oop Scheduler::find_highest_priority_non_running_process_for_core(Squeak_Interpreter* runner) {
+Oop Scheduler::find_non_running_process_for_core_between(int hi, int lo, Squeak_Interpreter* runner) {
   Scheduler_Mutex sm("find_and_move_to_end_highest_priority_non_running_process",
                      get_interpreter());
   // return highest pri ready to run
   // see find_a_process_to_run_and_start_running_it
   bool verbose = false;
   bool found_a_proc = false;
-  FOR_EACH_READY_PROCESS_LIST(slo, p, processList, get_interpreter())  {
+  FOR_READY_PROCESS_LIST_BETWEEN(hi,lo, slo, p, processList, get_interpreter())  {
     
     if (processList->isEmptyList())
       continue;
@@ -377,4 +390,10 @@ Squeak_Interpreter* Scheduler::get_interpreter_at_rank(int rank) {
   assert(rank >= 0);
   assert(rank < Max_Number_Of_Cores);
   return interpreters[rank];
+}
+
+
+Squeak_Interpreter* Scheduler::get_random_interpreter() {
+  int r = random() % Logical_Core::num_cores;
+  return get_interpreter_at_rank(r);
 }

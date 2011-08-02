@@ -1557,6 +1557,9 @@ public:
   void transformToSchedulerPerInterpreter();  
   void transformToGlobalScheduler();
 
+private:
+  Squeak_Interpreter* compute_interpreter_to_resume_process(Oop);
+  
 };
 
 
