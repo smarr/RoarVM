@@ -76,7 +76,7 @@ bool Abstract_Object_Heap::verify() {
     if (!obj->isFreeObject() &&  obj->is_current_copy())
       ok = obj->verify() && ok;
     
-    if (not ok) dittoing_stdout_printer->printf("Failed to verify obj at %p\n", obj);
+    if (!ok) dittoing_stdout_printer->printf("Failed to verify obj at %p\n", obj);
     
     prev_prev_obj = prev_obj;
     prev_obj = obj;
