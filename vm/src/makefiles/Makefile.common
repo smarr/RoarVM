@@ -24,6 +24,11 @@ ifndef PLATFORM
   PLATFORM = Tilera
 endif
 
+ifndef PREHEADER
+  # fall back in case it has not been defined previously
+  PREHEADER=1
+endif
+
 ifeq "$(SUPPRESS_CMD_OUTPUT)" "1"
   AT = @
 else
@@ -85,7 +90,7 @@ INCLUDES += \
 endif
 
 
-CONFIG_FLAGS += -DExtra_Preheader_Word_Experiment=1 -DLSB_FIRST=1 -DROAR_VM
+CONFIG_FLAGS += -DExtra_Preheader_Word_Experiment=$(PREHEADER) -DLSB_FIRST=1 -DROAR_VM
 
 # removed -Winline warning for now, was not useful so far
 # CONFIG_FLAGS += -Winline 

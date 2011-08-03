@@ -246,12 +246,13 @@ void Squeak_Image_Reader::complete_remapping_of_pointers() {
       Multicore_Object_Heap* heap = memory_system->heaps[r][hi];
       FOR_EACH_OBJECT_IN_HEAP(heap, obj) {      
         if (!obj->isFreeObject()) {
-          # if Enforce_Backpointer
-            obj->set_backpointer(obj->as_oop());
-          # endif
+          obj->set_backpointer(obj->as_oop());
+          
           obj->do_all_oops_of_object(&uoc,false);
-          if(((Oop*)obj->extra_preheader_word())->is_mem())
-            fatal("shouldnt occur");          
+          
+          if(   Extra_Preheader_Word_Experiment
+             && ((Oop*)obj->extra_preheader_word())->is_mem())
+              fatal("shouldnt occur");
         }
       }
     }   

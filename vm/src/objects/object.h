@@ -140,6 +140,7 @@ public:
   void set_class_oop(Oop x);
   void set_class_oop_no_barrier(Oop);
 
+# if Has_Preheader
   Preheader* preheader() { 
     return  (Preheader*)&as_oop_int_p()[-extra_header_oops()];
   }
@@ -149,7 +150,6 @@ public:
   }
   
   oop_int_t get_extra_preheader_word() { return *extra_preheader_word(); }
-  inline void set_extra_preheader_word(oop_int_t w);
   
   void init_extra_preheader_word() { preheader()->init_extra_preheader_word(); }
 
@@ -159,32 +159,43 @@ public:
       set_backpointer(x);
     # endif
   }
- 
+
+# else // !Has_Preheader
+  inline void set_preheader(Oop) const {}
+  inline void init_extra_preheader_word() const {}
+  oop_int_t* extra_preheader_word() const { return NULL; }
+
+# endif // Has_Preheader
+   
+  inline void set_extra_preheader_word(oop_int_t w);
+   
    
 # if Enforce_Backpointer || Use_Object_Table   
-  Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
-
-  void set_backpointer(Oop x) {
-      set_backpointer_word(backpointer_from_oop(x));
-  }
-
-  static Oop oop_from_backpointer(oop_int_t bp) {
-    return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
-  }
-
-  oop_int_t backpointer_from_oop(Oop x) {
-    return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
-  }
+   Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
    
-  oop_int_t get_backpointer_word() { return *backpointer_word(); }
-  
-  inline void set_backpointer_word(oop_int_t w);
-  
-  oop_int_t* backpointer_word() {
-    return &preheader()->backpointer;
-  }
+   void set_backpointer(Oop x) {
+     set_backpointer_word(backpointer_from_oop(x));
+   }
+   
+   static Oop oop_from_backpointer(oop_int_t bp) {
+     return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
+   }
+   
+   oop_int_t backpointer_from_oop(Oop x) {
+     return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
+   }
+   
+   oop_int_t get_backpointer_word() { return *backpointer_word(); }
+   
+   inline void set_backpointer_word(oop_int_t w);
+   
+   oop_int_t* backpointer_word() {
+     return &preheader()->backpointer;
+   }
+# else
+  inline void set_backpointer(Oop) const {}
+   
 # endif
-
 
 public:
 

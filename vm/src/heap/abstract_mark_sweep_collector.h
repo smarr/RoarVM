@@ -40,7 +40,9 @@ protected:
  public:
 
   void mark(Oop* p) {
+    if (!p) return;
     if (!p->is_mem()) return;
+    
     Object* o = p->as_untracked_object_ptr();
     if (o->isFreeObject())
       fatal();

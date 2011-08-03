@@ -44,9 +44,12 @@ inline void Object::set_backpointer_word(oop_int_t w) {
   oop_int_t* dst = backpointer_word();
   The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);
 }
-# endif
+# endif // if Enforce_Backpointer || Use_Object_Table
 
 inline void Object::set_extra_preheader_word(oop_int_t w) {
+  if (!Extra_Preheader_Word_Experiment)
+    return;
+  
   assert_always(w); // bug hunt qqq
   oop_int_t* dst = extra_preheader_word();
   The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);

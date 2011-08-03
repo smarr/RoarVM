@@ -32,7 +32,9 @@ inline void Chunk::make_free_object(oop_int_t bytes_including_header, int id) {
     assert(The_Memory_System()->contains(first_object_header_word));
     oopset_no_store_check(((Oop*)first_object_header_word) + hs, Oop::from_bits(filler), bytes_excluding_preheader/sizeof(Oop) - hs);
     
+    # if Has_Preheader
     ((Preheader*)this)->mark_all_preheader_words_free_for_debugging();
+    # endif
   }
 }
 
