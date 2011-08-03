@@ -71,7 +71,7 @@ protected:
       Segment* _next;
       int _rank;
     } h;
-    static const int alignment_and_size = PAGE_SIZE; // needed to find rank and later, for homing
+    static const uint32_t alignment_and_size = PAGE_SIZE; // needed to find rank and later, for homing
   public:
     Segment* next() { return h._next; }
     int rank() { return h._rank; }
