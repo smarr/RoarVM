@@ -41,7 +41,7 @@ class Chunk
    */
   Object* object_from_chunk() {
     Word_Containing_Object_Type* const after_preheader =
-          (Word_Containing_Object_Type*)((char*) this + preheader_byte_size);
+          (Word_Containing_Object_Type*)first_byte_after_preheader_from_chunk();
     
     
     return (Object*) & ((char*)after_preheader)[after_preheader->extra_header_bytes_without_preheader()];
@@ -59,7 +59,20 @@ class Chunk
     // "Compute the oop of this chunk by adding its extra header bytes."
     return (Object*) & ((char*)this)[extra_header_bytes_without_preheader()];
   }
+  
+  inline void* first_byte_after_preheader_from_chunk() {
+    return (char*)this + preheader_byte_size;
+  }
+  
 
+  // ObjectMemory allocation
+  Object_p fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
+                                  oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize,
+                                  bool doFill = false,
+                                  bool fillWithNil = false);
+  
   void make_free_object(oop_int_t bytes_including_header, int id);
+  
+  inline Multicore_Object_Heap* my_heap();
 };
 

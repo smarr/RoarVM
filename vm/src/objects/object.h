@@ -397,11 +397,6 @@ public:
   void do_all_oops_of_object_for_reading_snapshot(Squeak_Image_Reader* r);
   void do_all_oops_of_object_for_marking(Abstract_Mark_Sweep_Collector*, bool do_checks = check_assertions);
 
-  // ObjectMemory allocation
-  Object_p fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
-                                  oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize,
-                                  bool doFill = false,
-                                  bool fillWithNil = false);
   Oop clone();
 
   // ObjectMemory interpreter access

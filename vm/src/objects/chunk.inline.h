@@ -36,3 +36,86 @@ inline void Chunk::make_free_object(oop_int_t bytes_including_header, int id) {
   }
 }
 
+inline Object_p Chunk::fill_in_after_allocate(oop_int_t byteSize,
+                                              oop_int_t hdrSize,
+                                              oop_int_t baseHeader,
+                                              Oop classOop,
+                                              oop_int_t extendedSize,
+                                              bool doFill,
+                                              bool fillWithNil) {
+  const int my_rank = Logical_Core::my_rank();
+  if (check_many_assertions  &&  hdrSize > 1)
+    classOop.verify_oop();
+  // since new allocs are in read_write heap, no need to mark this for moving to read_write
+  assert(The_Memory_System()->contains(this));
+  
+  oop_int_t* headerp = (oop_int_t*)first_byte_after_preheader_from_chunk();
+  Object_p    newObj = (Object_p)(Object*)&headerp[hdrSize - 1];
+  assert(The_Memory_System()->is_address_read_write(this)); // not going to bother with coherence
+  
+  Multicore_Object_Heap* h = The_Memory_System()->heaps[my_rank][Memory_System::read_write];
+  assert(h == my_heap()  ||  Safepoint_for_moving_objects::is_held());
+  
+  if (hdrSize == 3) {
+    oop_int_t contents = extendedSize     |  Header_Type::SizeAndClass;
+    DEBUG_STORE_CHECK(headerp, contents);
+    *headerp++ = contents;
+    
+    contents = classOop.bits()  |  Header_Type::SizeAndClass;
+    DEBUG_STORE_CHECK(headerp, contents);
+    *headerp++ = contents;
+    
+    h->record_class_header((Object*)headerp, classOop);
+    
+    contents   = baseHeader       |  Header_Type::SizeAndClass;
+    DEBUG_STORE_CHECK(headerp, contents);
+    *headerp   = contents;
+  }
+  else if (hdrSize == 2) {
+    oop_int_t contents = classOop.bits()  |  Header_Type::Class;
+    DEBUG_STORE_CHECK(headerp, contents);
+    *headerp++ = contents;
+    
+    h->record_class_header((Object*)headerp, classOop);
+    
+    contents   = baseHeader       |  Header_Type::Class;
+    DEBUG_STORE_CHECK(headerp, contents);
+    *headerp   = contents;
+  }
+  else {
+    assert_eq(hdrSize, 1, "");
+    
+    oop_int_t contents   = baseHeader       |  Header_Type::Short;
+    DEBUG_STORE_CHECK(headerp, contents);
+    *headerp   = contents;
+  }
+  assert_eq((void*)newObj, (void*)headerp, "");
+  
+  The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, my_rank  COMMA_TRUE_OR_NOTHING);
+  
+  
+  //  "clear new object"
+  if (!doFill)
+    ;
+  else if (fillWithNil) // assume it's an oop if not null
+    h->multistore((Oop*)&headerp[1],
+                  (Oop*)&headerp[byteSize >> ShiftForWord],
+                  The_Squeak_Interpreter()->roots.nilObj);
+  else {
+    DEBUG_MULTISTORE_CHECK( &headerp[1], 0, (byteSize - sizeof(*headerp)) / bytes_per_oop);
+    bzero(&headerp[1], byteSize - sizeof(*headerp));
+  }
+  
+  The_Memory_System()->enforce_coherence_after_store_into_object_by_interpreter(this, byteSize);
+  
+  if (check_assertions) {
+    newObj->okayOop();
+    newObj->hasOkayClass();
+  }
+  return newObj;
+}
+
+Multicore_Object_Heap* Chunk::my_heap() {
+  return The_Memory_System()->heap_containing(this);
+}
+
