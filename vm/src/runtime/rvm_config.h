@@ -81,7 +81,6 @@
   template(StopOnSend) \
   template(NthSendForStopping) \
   template(PrintMethodDictionaryLookups) \
-  template(Multicore) \
   template(Print_Barriers) \
   template(Include_Debugging_Code) \
   template(Debugging) \
@@ -179,11 +178,6 @@
 # elif Measure_Communication
   # undef Measure
   # define Measure 1
-# endif
-
-
-# ifndef Multicore
-  # define Multicore 1
 # endif
 
 
