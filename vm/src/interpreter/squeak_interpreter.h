@@ -595,7 +595,6 @@ public:
       Oop* p = (Oop*)activeContext_obj()->nextChunk();
       assert(p == NULL  ||  localSP() + 1  <  p);
       x.verify_oop();
-      assert(!The_Memory_System()->heap_containing(localSP())->is_read_mostly());
     }
     set_localSP(localSP() + 1);
     DEBUG_STORE_CHECK(localSP(), x);
@@ -687,7 +686,6 @@ public:
 
     assert(  roots.lkupClass.verify_oop()
            &&     roots.lkupClass.is_mem()
-           &&     roots.lkupClass.as_object()->my_heap_contains_me()
            &&     roots.lkupClass != roots.nilObj);
 
     commonSend();
@@ -883,7 +881,7 @@ public:
   void addNewMethodToCache() {
     primitiveFunctionPointer = primitiveTable.contents[primitiveIndex];
     do_primitive_on_main = primitiveTable.execute_on_main[primitiveIndex];
-
+    //assert_always(primitiveFunctionPointer != NULL); //debugging -wouter
     methodCache.addNewMethod(roots.messageSelector, roots.lkupClass, roots.newMethod,
                              primitiveIndex, roots.newNativeMethod, primitiveFunctionPointer, do_primitive_on_main);
   }
@@ -1022,6 +1020,7 @@ public:
     }
     else {
       primitiveIndex = nmo->primitiveIndex();
+      //assert_always(primitiveIndex != 131); //debugging -wouter
       if (primitiveIndex > Object::MaxPrimitiveIndex()) {
         /* "If primitiveIndex is out of range, set to zero before putting in
          cache. This is equiv to primFail, and avoids the need to check on
@@ -1402,7 +1401,6 @@ public:
   void give_up_CPU_instead_of_spinning(uint32_t&);
   void fixup_localIP_after_being_transferred_to();
  private:
-  void move_mutated_read_mostly_objects();
 
   bool is_ok_to_run_on(int rank) {
     return ((1LL << u_int64(rank)) & run_mask()) ? true : false;

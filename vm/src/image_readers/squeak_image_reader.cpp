@@ -274,7 +274,7 @@ void Squeak_Image_Reader::distribute_objects() {
   for (Chunk *c = (Chunk*)base, *nextChunk = NULL;
        (char*)c <  &base[total_bytes];
        c = nextChunk) {
-    Object* obj = c->object_from_chunk_without_preheader(); // chunks in memory don't have a preheader
+    Object* obj = c->object_from_chunk_without_preheader(); // chunks in 'memory' don't have a preheader
     if (check_many_assertions &&  (char*)obj - memory == (char*)specialObjectsOop.bits() - oldBaseAddr)
       lprintf("about to do specialObjectsOop");
     nextChunk = obj->nextChunk();

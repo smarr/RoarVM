@@ -37,5 +37,7 @@ class Chunk
   }
 
   void make_free_object(oop_int_t bytes_including_header, int id);
+  
+  void make_free_object_header(oop_int_t bytes_including_header, int id);
 };
 

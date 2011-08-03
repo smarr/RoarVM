@@ -69,8 +69,8 @@ bool Abstract_Object_Heap::verify() {
   __attribute__((unused)) Object *prev_prev_obj = NULL; // debugging
   FOR_EACH_OBJECT_IN_HEAP(this, obj) {
     if (obj->is_marked()) {
-      lprintf("object 0x%x should not be marked but is; header is 0x%x, in heaps[%d][%d]\n",
-      obj, obj->baseHeader, obj->rank(), obj->mutability());
+      lprintf("object 0x%x should not be marked but is; header is 0x%x\n",
+      obj, obj->baseHeader);
       fatal("");
     }
     if (!obj->isFreeObject() &&  obj->is_current_copy())
@@ -116,11 +116,13 @@ void Abstract_Object_Heap::ensure_all_unmarked() {
 
 
 void Abstract_Object_Heap::do_all_oops(Oop_Closure* oc) {
+  fatal("*TODO*: probably requires new implementation.");
   FOR_EACH_OBJECT_IN_HEAP(this, obj)
     obj->do_all_oops_of_object(oc);
 }
 
 void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
+  fatal("*TODO*: probably requires changes."); 
   bool for_gc = gc_or_null != NULL;
   // enforce mutability at higher level
   if (for_gc || compacting)

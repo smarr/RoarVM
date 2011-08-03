@@ -245,6 +245,22 @@ public:
     return (Chunk*)&as_char_p()[bytes_to_next_chunk()];
   }
 
+  
+  Object* nextObject();
+  Oop nextInstance();  
+  
+  Object* nextAccessibleObject() {
+    for(Object* curr = nextObject();curr != NULL;curr = curr->nextObject()) {
+      if (!curr->isFreeObject()) {
+        return curr;
+      }
+    }
+    return NULL;
+  }
+  
+
+  
+
   Chunk* my_chunk_without_preheader()  { return (Chunk*)&as_char_p()[-extra_header_bytes_without_preheader()]; }
 
   oop_int_t bytes_to_next_chunk() { return isFreeObject() ? sizeOfFree() : sizeBits(); }
@@ -594,20 +610,7 @@ public:
 # endif
   static oop_int_t sizeOfSTArrayFromCPrimitive(void* p);
 
-  inline Multicore_Object_Heap* my_heap();
-  bool my_heap_contains_me() {
-    Multicore_Object_Heap* h = my_heap();
-    return h->contains(this);
-  }
-
   bool is_current_copy() { return as_oop().as_object() == this; }
-
-  inline int rank();
-  inline int mutability();
-  inline bool is_read_write();
-  inline bool is_read_mostly();
-
-  void move_to_heap(int, int, bool do_sync);
 
   inline bool is_suitable_for_replication();
   inline int  mutability_for_snapshot_object();

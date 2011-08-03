@@ -76,6 +76,7 @@
 # include "types.h"
 # include "utils.h"
 
+
 # include "os_interface.h"
 
 
@@ -195,6 +196,8 @@
 
 # include "memory_system.h"
 
+# include "page.h"
+
 # include "runtime_tester.h"
 
 # include "method_cache.h"
@@ -229,4 +232,5 @@
 # include "memory_system.inline.h"
 
 # include "debug_helper.h"
+
 

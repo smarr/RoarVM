@@ -62,14 +62,12 @@ extern "C" {
   void*  firstIndexableField(sqInt);
   double floatValueOf(sqInt oop);
   void   fullDisplayUpdate();
-  void  tenuringIncrementalGC();
   sqInt fullGC(void);
   sqInt getInterruptKeycode();
   sqInt getNextWakeupTick();
   sqInt ioWhicheverMSecs();
   sqInt getSavedWindowSize();
   sqInt getThisSessionID();
-  sqInt incrementalGC(void);
   sqInt instanceSizeOf(sqInt);
   sqInt instantiateClassindexableSize(sqInt, sqInt);
   sqInt  integerObjectOf(sqInt value);
@@ -280,10 +278,6 @@ sqInt getSavedWindowSize() { return The_Memory_System()->snapshot_window_size.sa
 
 sqInt getThisSessionID() { return The_Squeak_Interpreter()->globalSessionID; }
 
-sqInt incrementalGC(void) { The_Memory_System()->incrementalGC(); return 0; }
-void  tenuringIncrementalGC(void) { The_Memory_System()->incrementalGC(); }
-
-
 sqInt instantiateClassindexableSize(sqInt k, sqInt s) { return Oop::from_bits(k).as_object()->instantiateClass(s)->as_oop().bits(); }
 
 sqInt instanceSizeOf(sqInt classObj) { return Oop::from_bits(classObj).as_object()->instanceSizeOfClass(); }
@@ -455,7 +449,7 @@ sqInt oopForPointer(char *ptr)			  { return (sqInt) ((Object*)ptr)->as_oop().bit
 // squeak code used to use pointerForOop for these
 char* pointerForIndex_xxx_dmu(sqInt index)  {
   if (check_assertions && index)
-    assert( ((Object*)index)->my_heap_contains_me());
+    assert( The_Memory_System()->contains((Object*)index));
   return (char*)index;
 }
 

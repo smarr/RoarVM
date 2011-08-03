@@ -79,7 +79,6 @@ sqInt primitiveErrorTable(void);
 
 #if VM_PROXY_MINOR > 10 || defined(ROAR_VM)
   sqInt primitiveFailureCode(void);
-  sqInt tenuringIncrementalGC(void);
   sqInt isKindOfClass(sqInt oop, sqInt aClass);
   sqInt instanceSizeOf(sqInt aClass);
 #endif
@@ -150,7 +149,6 @@ sqInt byteSwapped(sqInt w);
 sqInt failed(void);
 sqInt fullDisplayUpdate(void);
 sqInt fullGC(void);
-sqInt incrementalGC(void);
 sqInt primitiveFail(void);
 sqInt primitiveFailFor(sqInt reasonCode);
 sqInt showDisplayBitsLeftTopRightBottom(sqInt aForm, sqInt l, sqInt t, sqInt r, sqInt b);
@@ -367,7 +365,6 @@ struct VirtualMachine* sqGetInterpreterProxy(void)
 	VM->failed = failed;
 	VM->fullDisplayUpdate = fullDisplayUpdate;
 	VM->fullGC = fullGC;
-	VM->incrementalGC = incrementalGC;
 	VM->primitiveFail = primitiveFail;
 	VM->showDisplayBitsLeftTopRightBottom = showDisplayBitsLeftTopRightBottom;
 	VM->signalSemaphoreWithIndex = signalSemaphoreWithIndex;
@@ -488,7 +485,6 @@ struct VirtualMachine* sqGetInterpreterProxy(void)
 #endif
 
 #if VM_PROXY_MINOR > 10 || defined(ROAR_VM)
-	VM->tenuringIncrementalGC = tenuringIncrementalGC;
   VM->primitiveFailureCode = primitiveFailureCode;
 	VM->isKindOfClass = isKindOfClass;
  	VM->instanceSizeOf = instanceSizeOf;

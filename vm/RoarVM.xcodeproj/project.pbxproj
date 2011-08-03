@@ -402,6 +402,7 @@
 		34B7135813E1E7E400FA911F /* segmented_object_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = segmented_object_table.cpp; sourceTree = "<group>"; };
 		34B7135913E1E7E400FA911F /* segmented_object_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segmented_object_table.h; sourceTree = "<group>"; };
 		34B7135B13E2035900FA911F /* segmented_object_table.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segmented_object_table.inline.h; sourceTree = "<group>"; };
+		4EB3312F13E7EB7400D395C9 /* page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = page.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -749,6 +750,7 @@
 				34B7135813E1E7E400FA911F /* segmented_object_table.cpp */,
 				34B7135913E1E7E400FA911F /* segmented_object_table.h */,
 				34B7135B13E2035900FA911F /* segmented_object_table.inline.h */,
+				4EB3312F13E7EB7400D395C9 /* page.h */,
 			);
 			name = heap;
 			path = src/heap;

@@ -12,17 +12,13 @@
  ******************************************************************************/
 
 
-inline bool Abstract_Object_Heap::is_read_mostly() { return The_Memory_System()->is_address_read_mostly(startOfMemory()); }
-
-inline bool Abstract_Object_Heap::is_read_write() { return !is_read_mostly(); }
-
 inline void Abstract_Object_Heap:: enforce_coherence_before_store(void* p, int nbytes) {
   assert(The_Memory_System()->contains(p));
-  if (is_read_mostly()) The_Memory_System()->pre_cohere(p, nbytes);
+  The_Memory_System()->pre_cohere(p, nbytes);
 }
 
 inline void Abstract_Object_Heap::enforce_coherence_after_store(void* p, int nbytes) {
-  if (is_read_mostly()) The_Memory_System()->post_cohere(p, nbytes);
+  The_Memory_System()->post_cohere(p, nbytes);
 }
 
 
@@ -32,7 +28,7 @@ inline void Abstract_Object_Heap::enforce_coherence_before_store_into_object_by_
 }
 
 inline void Abstract_Object_Heap::enforce_coherence_after_store_into_object_by_interpreter(void* p, int nbytes) {
-  if (is_read_mostly()) The_Memory_System()->post_cohere(p, nbytes);
+  /*if (is_read_mostly()) The_Memory_System()->post_cohere(p, nbytes); */
 }
 
 
@@ -40,6 +36,20 @@ inline void Abstract_Object_Heap::enforce_coherence_after_store_into_object_by_i
 inline bool Abstract_Object_Heap::sufficientSpaceToAllocate(oop_int_t bytes) {
   u_oop_int_t minFree = lowSpaceThreshold + bytes + Object::BaseHeaderSize;
 
+  if (bytesLeft(false) >= minFree)
+    return true;
+  else {
+    Page* p = The_Memory_System()->allocate(minFree);
+    if (p == NULL) {
+      return false;
+    } else {
+      assert_always((int)(p->size()) == (((int)(p->size())/page_size) * page_size)); // should be a multiple of page_size
+      initialize(p, p->size());
+      return true;
+    }
+  }
+
+  /*
   if (Trace_GC_For_Debugging && The_Squeak_Interpreter()->debugging_tracer() != NULL  &&  The_Squeak_Interpreter()->debugging_tracer()->force_gc())
     ;
   else if (bytesLeft(false) >= minFree)
@@ -51,7 +61,7 @@ inline bool Abstract_Object_Heap::sufficientSpaceToAllocate(oop_int_t bytes) {
   if (bytesLeft(false) >= minFree)
     return true;
 
-  /*  implement this
+    implement this
    The_Memory_System()->balanceHeaps();
 
 
@@ -81,9 +91,11 @@ inline Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
   }
   Oop* r = _next;
   _next += n;
+  ((Chunk*)_next)->make_free_object_header(bytesLeft(),0); 
+  
   if (check_assertions) {
     // make sure the heaps are only modified by the associated cores
-    assert(rank()  ==  Logical_Core::my_rank()
+    assert(rank  ==  Logical_Core::my_rank()
            || Safepoint_for_moving_objects::is_held());
 
     assert(The_Memory_System()->contains(r));
@@ -95,18 +107,18 @@ inline Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
   return (Chunk*)r;
 }
 
-
-
-inline Object* Abstract_Object_Heap::accessibleObjectAfter(Object* obj) {
-  for (;;) {
-    obj = next_object(obj);
-    if (obj == NULL  ||  !obj->isFreeObject())
-      return obj;
-  }
+inline void Abstract_Object_Heap::deallocateChunk(oop_int_t total_bytes) {
+  int n = convert_byte_count_to_oop_count(total_bytes);
+  
+  _next -= n;
+  
+  ((Chunk*)_next)->make_free_object_header(bytesLeft(),0);
 }
 
 
-inline int Abstract_Object_Heap::rank() { return The_Memory_System()->rank_for_address(_start); }
+
+
+
 
 
 
@@ -119,16 +131,6 @@ inline Object* Abstract_Object_Heap::object_from_chunk(Chunk* c) {
 inline Object* Abstract_Object_Heap::object_from_chunk_without_preheader(Chunk* c) {
   // word after last object might cause object_from_chunk to wrap to low addresses
   return c < (Chunk*)end_objects() ? c->object_from_chunk_without_preheader() : NULL;
-}
-
-
-inline Object* Abstract_Object_Heap::next_object(Object* obj) {
-  return object_from_chunk(obj->nextChunk());
-}
-
-
-inline Object* Abstract_Object_Heap::next_object_without_preheader(Object* obj) {
-  return object_from_chunk_without_preheader(obj->nextChunk());
 }
 
 

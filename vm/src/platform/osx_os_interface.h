@@ -56,7 +56,7 @@ public:
   }
   
   static inline void breakpoint() { 
-    if (AmIBeingDebugged())
+    if (false && AmIBeingDebugged())
       raise(SIGTRAP);
   }
   

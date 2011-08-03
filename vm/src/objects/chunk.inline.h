@@ -14,9 +14,7 @@
 
 inline void Chunk::make_free_object(oop_int_t bytes_including_header, int id) {
   static const int hs = Object::BaseHeaderSize/sizeof(Oop);
-  oop_int_t contents = Object::make_free_object_header(bytes_including_header - hs);  
-  DEBUG_STORE_CHECK((oop_int_t*)this, contents);  
-  *(oop_int_t*)this = contents;
+  make_free_object_header(bytes_including_header,id);
   // only used by GC and IT worries about coherence
   if (check_assertions) {
     oop_int_t filler = Oop::Illegals::made_free |  ((id & 15) << 24);
@@ -25,3 +23,8 @@ inline void Chunk::make_free_object(oop_int_t bytes_including_header, int id) {
   }
 }
 
+inline void Chunk::make_free_object_header(oop_int_t bytes_including_header, int id) {
+  oop_int_t contents = Object::make_free_object_header(bytes_including_header);  
+  DEBUG_STORE_CHECK((oop_int_t*)this, contents);  
+  *(oop_int_t*)this = contents;
+}

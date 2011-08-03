@@ -204,65 +204,19 @@ void* primitiveRunMask() {
   return 0;
 }
 
-
 void* primitiveSetCoordinatesFor() {
-  const bool print = false;
-  if (print)  lprintf("starting\n");
-  // Args are: object, rank (int), [mutability (int)]
-  Oop oop;
-  int rank;
-  int mutability;
-  const int c = Memory_System::read_write;  const int i = Memory_System::read_mostly; // compiler bug
-
-  switch (The_Squeak_Interpreter()->get_argumentCount()) {
-    case 2:
-      oop = The_Squeak_Interpreter()->stackObjectValue(1);
-      if (!The_Squeak_Interpreter()->successFlag) { return 0; }
-      rank = The_Squeak_Interpreter()->stackIntegerValue(0);
-      mutability = oop.mutability();
-      break;
-
-    case 3:
-      oop = The_Squeak_Interpreter()->stackObjectValue(2);
-      rank = The_Squeak_Interpreter()->stackIntegerValue(1);
-      mutability = The_Squeak_Interpreter()->booleanValueOf(The_Squeak_Interpreter()->stackValue(0)) ? c : i;
-      if (!The_Squeak_Interpreter()->successFlag) { return 0; }
-      break;
-
-    default: The_Squeak_Interpreter()->primitiveFail();  return 0;
-  }
-  if (print)  lprintf("params %d %d\n", rank, mutability);
-  Object_p obj = oop.as_object();
-  int32 total_bytes = obj->extra_header_bytes() + obj->sizeBits();
-
-  if ( rank < 0
-  ||  rank >= Logical_Core::group_size
-  ||  (mutability == Memory_System::read_mostly  &&  !obj->is_suitable_for_replication())
-  ||  !The_Memory_System()->heaps[rank][mutability]->sufficientSpaceToAllocate(2500 + total_bytes)) {
-    The_Squeak_Interpreter()->primitiveFail();
-  }
-  else {
-    The_Squeak_Interpreter()->popThenPush(The_Squeak_Interpreter()->get_argumentCount() + 1, oop);
-    obj->move_to_heap(rank, mutability, true);
-    if (print)  lprintf("success %d %d\n", rank, mutability);
-  }
-  return 0;
+  /* obsolete: only a single heap left */
+  The_Squeak_Interpreter()->primitiveFail(); return 0;
 }
 
 
 void* primitiveGetCore() {
   // Return rank of receiver's core.
   // Fail if receiver is smallInt.
-
-  if (The_Squeak_Interpreter()->get_argumentCount() != 1) { The_Squeak_Interpreter()->primitiveFail(); return 0; }
-  Oop rcvr = The_Squeak_Interpreter()->stackTop();
-  if (!rcvr.is_mem()) { The_Squeak_Interpreter()->primitiveFail(); return 0; }
-
-  Object_p ro = rcvr.as_object();
-  The_Squeak_Interpreter()->popThenPushInteger(2, The_Memory_System()->rank_for_address(ro));
-  return 0;
+  
+  /* obsolete: objects no longer have a 'rank' */
+  The_Squeak_Interpreter()->primitiveFail(); return 0;
 }
-
 
 void* primitiveGetCoreIAmRunningOn() {
   if (The_Squeak_Interpreter()->get_argumentCount() != 0) { The_Squeak_Interpreter()->primitiveFail(); return 0; }
@@ -270,16 +224,9 @@ void* primitiveGetCoreIAmRunningOn() {
   return 0;
 }
 
-
 void* primitiveGetMutability() {
-  if (The_Squeak_Interpreter()->get_argumentCount() != 1) { The_Squeak_Interpreter()->primitiveFail(); return 0; }
-  Oop rcvr = The_Squeak_Interpreter()->stackTop();
-  if (!rcvr.is_mem()) { The_Squeak_Interpreter()->primitiveFail(); return 0; }
-
-  Object_p ro = rcvr.as_object();
-  The_Squeak_Interpreter()->pop(2);
-  The_Squeak_Interpreter()->pushBool(ro->is_read_write());
-  return 0;
+  /* obsolete: no more read/write heaps */
+  The_Squeak_Interpreter()->primitiveFail(); return 0;  
 }
 
 extern int headless;
@@ -291,55 +238,20 @@ void* primitiveRunsHeadless() {
   return 0;
 }
 
-
-// args for the primitive are first core, last core, move_read_write_to_read_mostly, move_read_mostly_to_read_write
-void* shuffle_or_spread(bool spread)  {
-  Oop first, last;
-  int f = 0, L = Logical_Core::group_size - 1;
-  bool move_read_write_to_read_mostly = false,  move_read_mostly_to_read_write = false;
-  switch (The_Squeak_Interpreter()->get_argumentCount()) {
-    default: break;
-    case 4:
-      move_read_write_to_read_mostly = The_Squeak_Interpreter()->booleanValueOf(The_Squeak_Interpreter()->stackValue(1));
-      move_read_mostly_to_read_write = The_Squeak_Interpreter()->booleanValueOf(The_Squeak_Interpreter()->stackValue(0));
-      if (!The_Squeak_Interpreter()->successFlag) return 0;
-      // FALL THROUGH
-    case 2:
-      first = The_Squeak_Interpreter()->stackValue(The_Squeak_Interpreter()->get_argumentCount() - 1);
-      last  = The_Squeak_Interpreter()->stackValue(The_Squeak_Interpreter()->get_argumentCount() - 2);
-      if (!first.is_int() ||  !last.is_int())  break;
-      f = first.integerValue();
-      L = last.integerValue();
-      if (!(0 <= f  &&  f <= L  &&  L < Logical_Core::group_size))
-        break;
-      // FALL THROUGH
-    case 0:
-      if (!The_Memory_System()->shuffle_or_spread(f, L, move_read_write_to_read_mostly, move_read_mostly_to_read_write, spread))
-        break;
-      The_Squeak_Interpreter()->pop(The_Squeak_Interpreter()->get_argumentCount());
-      return 0;
-  }
-  The_Squeak_Interpreter()->primitiveFail();
-  return 0;
+void* primitiveShuffle() { 
+  /* obsolete: only a single heap left */
+  The_Squeak_Interpreter()->primitiveFail(); return 0;
 }
-
-
-void* primitiveShuffle() { return shuffle_or_spread(false); }
-void* primitiveSpread()  { return shuffle_or_spread(true); }
-
+void* primitiveSpread()  { 
+  /* obsolete */
+  The_Squeak_Interpreter()->primitiveFail(); return 0;
+}
 
 void* primitiveMoveAllToReadMostlyHeaps() {
-  switch (The_Squeak_Interpreter()->get_argumentCount()) {
-    default: break;
-    case 0:
-      if (!The_Memory_System()->moveAllToRead_MostlyHeaps())
-        break;
-      return 0;
-  }
+  /* obsolete */
   The_Squeak_Interpreter()->primitiveFail();
   return 0;
 }
-
 
 void* primitiveTraceCores() {
   switch (The_Squeak_Interpreter()->get_argumentCount()) {
@@ -370,12 +282,11 @@ void* primitiveTraceCores() {
   return 0;
 }
 
-void* primitivePrintReadWriteReadMostlyBytesUsed() {
+void* primitivePrintReadWriteReadMostlyBytesUsed() { // only the current "local" heap stats
   FOR_ALL_RANKS(r)
-    lprintf("%d: %d @ %d\n",
+    lprintf("%d: %d\n",
             r,
-            The_Memory_System()->heaps[r][Memory_System::read_write ]->bytesUsed(),
-            The_Memory_System()->heaps[r][Memory_System::read_mostly]->bytesUsed());
+            The_Memory_System()->heaps[r]->bytesUsed());
   return 0;
 }
 
@@ -383,6 +294,8 @@ void* primitivePrintReadWriteReadMostlyBytesUsed() {
 // given rcvr, rank, isRead_Write, return array of all objs in that heap
 
 void* primitiveAllObjectsInHeap() {
+  fatal("*TODO*: implement decently.");
+  /*
   switch (The_Squeak_Interpreter()->get_argumentCount()) {
     default: break;
     case 2: {
@@ -415,7 +328,7 @@ void* primitiveAllObjectsInHeap() {
       The_Squeak_Interpreter()->popThenPush(3, r->as_oop());
       return 0;
     }
-  }
+  }*/
   The_Squeak_Interpreter()->primitiveFail();
   return 0;
 }

@@ -20,8 +20,8 @@ void* Multicore_Object_Heap::operator new(size_t size) {
 }
 
 
-void Multicore_Object_Heap::initialize_multicore(int hash, char* mem, int size, int page_size, bool do_homing) {
-  Abstract_Object_Heap::initialize(mem,size);
+void Multicore_Object_Heap::initialize_multicore(int hash, int page_size, bool do_homing) {
+  rank = Logical_Core::my_rank();
   lastHash = hash;
   if (do_homing  &&  Logical_Core::group_size > 1)
     home_to_this_tile(page_size);
@@ -106,18 +106,6 @@ void Multicore_Object_Heap::handle_low_space_signal() {
   if (The_Squeak_Interpreter()->signalLowSpace())  {
     The_Squeak_Interpreter()->set_signalLowSpace(false);
     The_Squeak_Interpreter()->signalSema(Special_Indices::TheLowSpaceSemaphore, "handle_low_space_signal");
-  }
-}
-
-
-
-Oop Multicore_Object_Heap::next_instance_of_after(Oop klass, Oop x) {
-  for (Object* r = x.as_untracked_object_ptr();  ;  ) {
-    r = accessibleObjectAfter(r);
-    if (r == NULL)
-      return The_Squeak_Interpreter()->roots.nilObj;
-    if (r->fetchClass() == klass)
-      return r->as_oop();
   }
 }
 
