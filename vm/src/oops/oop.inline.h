@@ -84,7 +84,7 @@ inline Object_p Oop::as_object() {
 # if Use_Object_Table
   return (Object_p)The_Memory_System()->object_for(*this);
 # else
-  return (Object_p)bits();
+  return (Object_p)(Object*)bits();
 # endif
 }
 
