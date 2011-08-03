@@ -577,8 +577,17 @@ static int primitiveGetExtraPreheaderWord() {
     The_Squeak_Interpreter()->primitiveFail();
     return 0;
   }
-  Oop x = The_Squeak_Interpreter()->stackObjectValue(0);  if (The_Squeak_Interpreter()->failed()) return 0;
-  oop_int_t* p = x.as_object()->extra_preheader_word();  if (p == NULL) {The_Squeak_Interpreter()->primitiveFail(); return 0; }
+  Oop x = The_Squeak_Interpreter()->stackObjectValue(0);
+
+  if (The_Squeak_Interpreter()->failed())
+    return 0;
+  
+  oop_int_t* p = x.as_object()->extra_preheader_word();
+
+  if (p == NULL) {
+    The_Squeak_Interpreter()->primitiveFail();
+    return 0;
+  }
   The_Squeak_Interpreter()->popThenPush(2, Oop::from_bits(*p));
   return 0;
 }
