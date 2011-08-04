@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-inline void oopcpy_no_store_check(Oop* dst, const Oop* src, int n, Object_p dst_obj_to_be_evacuated) {
+inline void oopcpy_no_store_check(Oop* const dst, const Oop* src, int n, Object_p dst_obj_to_be_evacuated) {
   assert(The_Memory_System()->contains(dst));
 
   The_Memory_System()->enforce_coherence_before_store_into_object_by_interpreter(dst, n << ShiftForWord, dst_obj_to_be_evacuated);
@@ -21,12 +21,14 @@ inline void oopcpy_no_store_check(Oop* dst, const Oop* src, int n, Object_p dst_
   The_Memory_System()->enforce_coherence_after_store_into_object_by_interpreter(dst, n << ShiftForWord);
 }
 
-inline void oopset_no_store_check(Oop* dst, Oop src, int n) {
+inline void oopset_no_store_check(Oop* const dst, Oop src, int n) {
   assert(The_Memory_System()->contains(dst));
   The_Memory_System()->enforce_coherence_before_store(dst, n << ShiftForWord); // not into an object we need
   DEBUG_MULTISTORE_CHECK(dst, src, n);
+  
+  Oop* destination = dst;
   for (int i = 0;  i < n;  ++i)  {
-    *dst++ = src;
+    *destination++ = src;
   }
   The_Memory_System()->enforce_coherence_after_store(dst, n << ShiftForWord);
 }
@@ -52,23 +54,41 @@ inline Oop Oop::from_object(Object* p) {
   if (check_many_assertions)
     assert_message(p != NULL,
                    "used to count on being able to do this, fix these uses");
-  return from_bits((oop_int_t)p | Mem_Tag);   /*return p->backpointer(); RMOT */
+# if Use_Object_Table
+  return p->backpointer();
+# else
+  assert_eq((oop_int_t)p, (oop_int_t)p | Mem_Tag, "They should already be tagged.");
+  # warning STEFAN: check whether we actually need the OR here
+  return from_bits((oop_int_t)p | Mem_Tag);
+# endif
 }
 
 
 // TODO: perhaps it should be moved to the point right after getting it out
 //       of the object table...
 inline Object_p Oop::as_object_unchecked() {
+# if Use_Object_Table
+  return (Object_p)The_Memory_System()->object_for_unchecked(*this);
+# else
   return as_object();
+# endif
 }
 
 inline Object* Oop::as_untracked_object_ptr() {
+# if Use_Object_Table
+  return The_Memory_System()->object_for(*this);
+# else
   return as_object();
+# endif
 }
 
 inline Object_p Oop::as_object() {
-    //The_Squeak_Interpreter()->doLVB(this);
-    return (Object_p)bits(); /* return (Object_p)The_Memory_System()->object_for(*this); RMOT */
+//The_Squeak_Interpreter()->doLVB(this);
+# if Use_Object_Table
+  return (Object_p)The_Memory_System()->object_for(*this);
+# else
+  return (Object_p)(Object*)bits();
+# endif
 }
 
 inline Object_p Oop::as_object_if_mem() {
@@ -104,8 +124,5 @@ inline oop_int_t Oop::slotSize() { return is_int() ? 0 : as_object()->lengthOf()
 inline void* Oop::arrayValue() {
   return is_mem() ? as_object()->arrayValue() : (void*)(The_Squeak_Interpreter()->primitiveFail(), 0);
 }
-
-inline int  Oop::rank_of_object()       {  return is_int()  ?  Logical_Core::my_rank()          :  The_Memory_System()->     rank_for_address(as_object()); }
-inline int  Oop::mutability()           {  return is_int()  ?  Memory_System::read_mostly  :  The_Memory_System()->mutability_for_address(as_object()); }
 
 

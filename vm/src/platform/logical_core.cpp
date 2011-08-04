@@ -17,11 +17,11 @@
 Logical_Core* logical_cores;
 Logical_Core gc_core;
 
-int Logical_Core::num_cores  =  1;
-int Logical_Core::main_rank  =  0;
+int Logical_Core::num_cores     =  1;
+int Logical_Core::main_rank     =  0;
 
-int Logical_Core::group_size = -1;
-int Logical_Core::remaining  = -1;
+int Logical_Core::group_size    = -1;
+int Logical_Core::remaining     = -1;
 
 
 void Logical_Core::initialize_all_cores() {

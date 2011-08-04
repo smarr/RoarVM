@@ -24,7 +24,7 @@ protected:
   Oop array_class();
   void copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object_p dst_obj) {
     bcopy((Oop*)buffer + src_offset, (Oop*)dst + dst_offset, num_elems * sizeof(Oop));
-    dst_obj->my_heap()->check_multiple_stores_for_generations_only((Oop*)dst, num_elems);
+    //dst_obj->my_heap()->check_multiple_stores_for_generations_only((Oop*)dst, num_elems); //unused
   }
 
 };

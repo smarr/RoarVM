@@ -7,6 +7,11 @@ SRC_DIR ?= $(shell pwd)/../src
 OS      ?= $(shell uname)
 GTEST   ?= $(SRC_DIR)/../googletest
 
+ifeq "$(OS)" "MACOS"
+  # OS is set by Xcode to MACOS, but we rely on it being Darwin
+  OS = Darwin
+endif
+
 LOW_OPTIMIZE_LEVEL  ?= -O3
 HIGH_OPTIMIZE_LEVEL ?= -O3
 
@@ -17,6 +22,11 @@ CONFIG_FLAGS += -DCOMPILATION_HOSTNAME=$(shell hostname)
 ifndef PLATFORM
   # fall back to Tilera as standard platform
   PLATFORM = Tilera
+endif
+
+ifndef PREHEADER
+  # fall back in case it has not been defined previously
+  PREHEADER=1
 endif
 
 ifeq "$(SUPPRESS_CMD_OUTPUT)" "1"
@@ -80,7 +90,7 @@ INCLUDES += \
 endif
 
 
-CONFIG_FLAGS += -DExtra_Preheader_Word_Experiment=1 -DLSB_FIRST=1 -DROAR_VM
+CONFIG_FLAGS += -DExtra_Preheader_Word_Experiment=$(PREHEADER) -DLSB_FIRST=1 -DROAR_VM
 
 # removed -Winline warning for now, was not useful so far
 # CONFIG_FLAGS += -Winline 
@@ -146,6 +156,7 @@ SQ_HEADERS = \
 
 RVM_HEADERS = \
   multicore_object_table.inline.h \
+  segmented_object_table.inline.h \
   memory_system.inline.h \
   abstract_object_heap.inline.h \
   multicore_object_heap.inline.h \
@@ -198,6 +209,8 @@ RVM_HEADERS = \
   RVMPlugin.h \
   multicore_object_heap.h \
   multicore_object_table.h \
+  segmented_object_table.h \
+  dummy_object_table.h \
   memory_system.h \
   core_tracer.h \
   abstract_tracer.h \
@@ -448,6 +461,8 @@ OBJS = \
   MiscPrimitivePlugin.opt \
   multicore_object_heap.opt \
   multicore_object_table.opt \
+  dummy_object_table.opt \
+  segmented_object_table.opt \
   object.opt \
   header_type.opt \
   obsolete_indexed_primitive_table.opt \

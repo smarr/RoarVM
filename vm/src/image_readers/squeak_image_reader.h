@@ -31,8 +31,6 @@ class Squeak_Image_Reader {
   int32 lastHash;
   int32 savedWindowSize;
   int32 fullScreenFlag;
-  
-  Multicore_Object_Table* object_table; /* RMOT: Image Reader still employs the object table */
 
 
   bool swap_bytes;
@@ -47,7 +45,7 @@ class Squeak_Image_Reader {
   void normalize_float_ordering_in_image();
   void distribute_objects();
   
-
+  void complete_remapping_of_pointers();
 
 public:
   static void imageNamePut_on_all_cores(char*  b, unsigned int n);

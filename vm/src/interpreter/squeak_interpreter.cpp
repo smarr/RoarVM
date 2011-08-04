@@ -262,8 +262,6 @@ void Squeak_Interpreter::interpret() {
     if (Collect_Performance_Counters)
       u_int64 start = OS_Interface::get_cycle_count();
 
-    assert(activeContext_obj()->is_read_write());
-
     if (check_many_assertions) {
       verify_active_context_through_internal_stack_top();
       internalStackTop().verify_oop();
@@ -272,7 +270,7 @@ void Squeak_Interpreter::interpret() {
       Oop s = activeContext_obj()->fetchPointer(Object_Indices::SenderIndex);
       assert(s.is_mem());
       Object_p s_obj = s.as_object();
-      assert(s_obj->my_heap_contains_me());
+      assert(The_Memory_System()->contains(s_obj));
 
       assert (!roots.freeContexts.is_mem() ||
                roots.freeContexts.as_object()->hasContextHeader());
@@ -930,7 +928,7 @@ void Squeak_Interpreter::internalActivateNewMethod() {
   if (!needsLarge &&  roots.freeContexts != Object::NilContext()) {
     newContext = roots.freeContexts;
     nco = newContext.as_object();
-    assert(nco->my_heap_contains_me());
+    assert(The_Memory_System()->contains(nco));
     Oop nfc = nco->fetchPointer(Object_Indices::Free_Chain_Index);
     assert(nfc == Object::NilContext()  ||  (nfc.is_mem() && nfc.as_object()->headerType() == Header_Type::Short));
     roots.freeContexts = nfc;
@@ -943,7 +941,7 @@ void Squeak_Interpreter::internalActivateNewMethod() {
     }
     newContext = nco->as_oop();
     internalizeIPandSP();
-    assert(nco->my_heap_contains_me());
+    assert(The_Memory_System()->contains(nco));
   }
 
   if ( check_many_assertions
@@ -957,7 +955,7 @@ void Squeak_Interpreter::internalActivateNewMethod() {
   }
 
   int tempCount = Object::temporaryCountOfHeader(methodHeader);
-  assert(nco->my_heap_contains_me());
+  assert(The_Memory_System()->contains(nco));
 
   // assume newContext will be recorded as a root if need be by
   // the call to newActiveContext so use unchecked stores
@@ -1005,7 +1003,7 @@ void Squeak_Interpreter::internalActivateNewMethod() {
 
   internalPop(argCount2 + 1);
   reclaimableContextCount += 1;
-  assert(nco->my_heap_contains_me());
+  assert(The_Memory_System()->contains(nco));
   internalNewActiveContext(newContext, nco);
 }
 
@@ -1851,7 +1849,7 @@ void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool /* defer */) {
     // exchange class pointer
 
     The_Memory_System()->store_enforcing_coherence(&ro->class_and_type_word(),  argClass.bits() | ro->headerType(), ro);
-    ro->my_heap()->possibleRootStore(rcvr, argClass);
+    //ro->my_heap()->possibleRootStore(rcvr, argClass); //unimplemented
   }
 }
 
@@ -2433,9 +2431,6 @@ void Squeak_Interpreter::multicore_interrupt() {
   {
     Safepoint_Ability sa(true);
     
-    move_mutated_read_mostly_objects();
-    PERF_CNT(this, add_mi_cyc_1a(OS_Interface::get_cycle_count() - start));
-
     Message_Statics::process_any_incoming_messages(false);
     PERF_CNT(this, add_mi_cyc_1a1(OS_Interface::get_cycle_count() - start));
 
@@ -2539,36 +2534,6 @@ void Squeak_Interpreter::fixup_localIP_after_being_transferred_to() {
     fetchNextBytecode(); // because normally transferTo is called as primitive, and caller does this
     externalizeIPandSP();
   }
-}
-
-
-void Squeak_Interpreter::move_mutated_read_mostly_objects() {
-  if (mutated_read_mostly_objects_count == 0)
-    return;
-
-  Safepoint_for_moving_objects sf("move_mutated_read_mostly_objects");
-  Safepoint_Ability sa(false);
-
-  if ( print_moves_to_read_write() ) {
-    debug_printer->printf("moving %d objects from read-mostly to read-write heap: ",  mutated_read_mostly_objects_count);
-  }
-
-  cyclesMovingMutatedRead_MostlyObjects -= OS_Interface::get_cycle_count();
-  numberOfMovedMutatedRead_MostlyObjects += mutated_read_mostly_objects_count;
-
-  for (int i = 0;  i < mutated_read_mostly_objects_count;  ++i) {
-    if (print_moves_to_read_write() ) {
-      mutated_read_mostly_objects[i].as_object()->print(debug_printer);  debug_printer->printf(", ");
-    }
-    // xxxxxx my_rank() below may not be best--what if heap fills up? -- dmu 4/09
-    mutated_read_mostly_objects[i].as_object()->move_to_heap(my_rank(), Memory_System::read_write, true);
-    if (mutated_read_mostly_object_tracer() != NULL)
-      mutated_read_mostly_object_tracer()->add(mutated_read_mostly_objects[i]);
-  }
-  if (print_moves_to_read_write() ) debug_printer->nl();
-  sync_with_roots(); // don't need full pre/postGCAction_everywhere because we don't move contexts, and caches are oop-based
-  mutated_read_mostly_objects_count = 0;
-  cyclesMovingMutatedRead_MostlyObjects += OS_Interface::get_cycle_count();
 }
 
 
@@ -2731,7 +2696,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   Oop thisCntx = activeContext();
   while (thisCntx != localCntx) {
     Object_p thisCntx_obj = thisCntx.as_object();
-    /* assert(!The_Memory_System()->object_table->probably_contains(thisCntx_obj)); RMOT */
+    assert(The_Memory_System()->object_table->probably_contains_not(thisCntx_obj));
 
     Oop contextOfCaller = thisCntx_obj->fetchPointer(Object_Indices::SenderIndex);
     // zap
@@ -2780,13 +2745,9 @@ void Squeak_Interpreter::internalAboutToReturn(Oop resultObj, Oop aContext) {
 
 void Squeak_Interpreter::recycleContextIfPossible_on_its_core(Oop ctx) {
   Object_p ctx_obj = ctx.as_object();
-  int rank = ctx_obj->rank();
-  if (rank == Logical_Core::my_rank()) 
-    recycleContextIfPossible_here(ctx); // optimize critical case
-  else {
-    // Don't need to preserve oop because it has to be garbage and also because receiver will just recycle it right away.
-    recycleContextIfPossibleMessage_class(ctx).handle_here_or_send_to(rank);
-  }
+  
+  #warning Assertion: a context recycle is core-local.
+  recycleContextIfPossible_here(ctx); // optimize critical case
 }
 
 
@@ -2801,7 +2762,7 @@ void Squeak_Interpreter::recycleContextIfPossible_here(Oop ctx) {
   Object_p ctx_obj = ctx.as_object();
   // unimplemented if (ctx.is_old())  return;
 
-  assert(ctx_obj->rank() == my_rank());
+  //assert(ctx_obj->rank() == my_rank());
 
   if (!ctx_obj->isMethodContext())
     return;
@@ -2850,7 +2811,7 @@ Object_p Squeak_Interpreter::allocateOrRecycleContext(bool needsLarge) {
   // "Required init -- above does not fill w/nil.  All others get written."
   r->storePointerIntoContext(Object_Indices::InitialIPIndex, roots.nilObj);
   assert(The_Memory_System()->contains(r));
-  assert_eq(r->rank(), my_rank(), "");
+  //assert_eq(r->rank(), my_rank(), "");
 
   if (check_many_assertions  &&  r->get_count_of_blocks_homed_to_this_method_ctx() > 0)
     lprintf("RECYCLING new live one 0x%x, method 0x%x\n", r->as_oop().bits(), r->fetchPointer(Object_Indices::MethodIndex).bits());
@@ -2924,9 +2885,9 @@ Logical_Core* Squeak_Interpreter::coreWithSufficientSpaceToInstantiate(Oop klass
   if (indexableSize != 0  &&  Object::Format::has_only_fixed_fields(fmt)) // non-indexable
     return NULL;
   int atomSize = !Object::Format::has_bytes(fmt)  ?  sizeof(oop_int_t)  :  1;
-  return The_Memory_System()->coreWithSufficientSpaceToAllocate(2500 +  indexableSize * atomSize,
-                                                                Memory_System::read_write);
+  return The_Memory_System()->coreWithSufficientSpaceToAllocate(2500 +  indexableSize * atomSize);
 }
+
 
 
 
@@ -3076,8 +3037,10 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
     return;
   else if (!(0 <= litx  &&  litx < m->literalCount()))
     msg = "literal index out of bounds";
-/*  else if (!(lit = literal(litx)).is_int()  &&  !The_Memory_System()->object_table->probably_contains((void*)lit.bits()))
-    msg = "bad mem literal"; RMOT */
+  else if (    !(lit = literal(litx)).is_int()
+           &&  (Use_Object_Table
+                && The_Memory_System()->object_table->probably_contains_not((void*)lit.bits())))
+    msg = "bad mem literal";
   else
     return;
 

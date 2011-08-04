@@ -87,13 +87,13 @@ public:
   __attribute__((noinline)) // seems to be necessary, otherwise the volatile hack does not work
 #endif
   bool hasData() {
-    if (not _SKIP_HAS_DATA_LOCKING) pthread_mutex_lock(&lock);
+    if (!_SKIP_HAS_DATA_LOCKING) pthread_mutex_lock(&lock);
     
     // assign to volatile bool to avoid to optimize that out of any loop
     // does on the tested GCC 4.5 only work if the function is not inlined
     volatile bool result = !channel.empty();  
 
-    if (not _SKIP_HAS_DATA_LOCKING) pthread_mutex_unlock(&lock);
+    if (!_SKIP_HAS_DATA_LOCKING) pthread_mutex_unlock(&lock);
 
     return result;
   }

@@ -50,8 +50,6 @@ Squeak_Image_Reader::Squeak_Image_Reader(char* fn, Memory_System* ms, Squeak_Int
     perror(buf);
     abort();
   }
-  
-  object_table = new Multicore_Object_Table(); /* RMOT: Image Reader still employs the object table */
 }
 
 void Squeak_Image_Reader::read_image() {
@@ -79,7 +77,7 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
 
   read_header();
 
-  fprintf(stdout, "allocating memory for snapshot\n");
+  if (Verbose_Debug_Prints) fprintf(stdout, "allocating memory for snapshot\n");
 
   // "allocate a contiguous block of memory for the Squeak heap"
   memory = (char*)Memory_Semantics::shared_malloc(dataSize);
@@ -92,8 +90,8 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
   */
 
   // "position file after the header"
-  fprintf(stdout, "reading objects in snapshot\n");
-  if ( fseek(image_file, headerStart + headerSize, SEEK_SET))
+  if (Verbose_Debug_Prints) fprintf(stdout, "reading objects in snapshot\n");
+  if (fseek(image_file, headerStart + headerSize, SEEK_SET))
     perror("seek"), fatal();
 
   // "read in the image in bulk, then swap the bytes if necessary"
@@ -150,7 +148,8 @@ void Squeak_Image_Reader::imageNamePut_on_all_cores(char* bytes, unsigned int le
 
 
 void Squeak_Image_Reader::read_header() {
-  fprintf(stdout, "reading snapshot header\n");
+  if (Verbose_Debug_Prints) fprintf(stdout, "reading snapshot header\n");
+  
   check_image_version();
   // headerStart := (self sqImageFilePosition: f) - bytesPerWord.  "record header start position"
   headerStart = ftell(image_file) - bytesPerWord;
@@ -170,18 +169,22 @@ void Squeak_Image_Reader::read_header() {
 }
 
 void Squeak_Image_Reader::check_image_version() {
-    int32 first_version = get_long();
-    interpreter->image_version = first_version;
-    if ( readable_format(interpreter->image_version) ) return;
-    swap_bytes = true;
-    if (fseek(image_file, -sizeof(int32), SEEK_CUR) != 0) {
-      perror("seek failed"); fatal();
-    }
-    interpreter->image_version = get_long();
-    if ( readable_format(interpreter->image_version) ) return;
-
-    fatal("cannot read file");
-
+  int32 first_version = get_long();
+  interpreter->image_version = first_version;
+    
+  if (readable_format(interpreter->image_version))
+    return;
+  
+  swap_bytes = true;
+  if (fseek(image_file, -sizeof(int32), SEEK_CUR) != 0) {
+    perror("seek in image file failed"); fatal();
+  }
+  
+  interpreter->image_version = get_long();
+  if (readable_format(interpreter->image_version))
+    return;
+ 
+  fatal("Given image file seems to be incompatible.");
 }
 
 int32 Squeak_Image_Reader::get_long() {
@@ -217,22 +220,11 @@ void Squeak_Image_Reader::byteSwapByteObjects() {
 }
 
 
-class Convert_Closure: public Oop_Closure {
-  Squeak_Image_Reader* reader;
-public:
-  Convert_Closure(Squeak_Image_Reader* r)  : Oop_Closure() { reader = r; }
-  void value(Oop* p, Object_p) {
-    if (p->is_mem()) {
-      *p = reader->oop_for_oop(*p);
-    }
-  }
-  virtual const char* class_name(char*) { return "Convert_Closure"; }
-};
-
+# if !Use_Object_Table
 class UpdateOop_Closure: public Oop_Closure {
-  Multicore_Object_Table* object_table;
+  Object_Table* object_table;
 public:
-  UpdateOop_Closure(Multicore_Object_Table* ot)  : Oop_Closure() { object_table = ot; }
+  UpdateOop_Closure(Object_Table* ot)  : Oop_Closure() { object_table = ot; }
   void value(Oop* p, Object_p) {
     if (p->is_mem()) {
       Object* obj = object_table->object_for(*p);
@@ -242,56 +234,70 @@ public:
   }
   virtual const char* class_name(char*) { return "UpdateOop_Closure"; }
 };
+# endif
 
 
-void Squeak_Image_Reader::distribute_objects() {
-  fprintf(stdout, "distributing objects\n");
-  u_int64 start = OS_Interface::get_cycle_count();
-  char* base = memory;
-  u_int32 total_bytes = dataSize;
-
-  object_oops = (Oop*)malloc(total_bytes);
-  bzero(object_oops, total_bytes);
-  Convert_Closure cc(this);
-
-  memory_system->initialize_from_snapshot(dataSize, savedWindowSize, fullScreenFlag, lastHash);
-  
-  for (Chunk *c = (Chunk*)base, *nextChunk = NULL;
-       (char*)c <  &base[total_bytes];
-       c = nextChunk) {
-    Object* obj = c->object_from_chunk_without_preheader(); // chunks in memory don't have a preheader
-    if (check_many_assertions &&  (char*)obj - memory == (char*)specialObjectsOop.bits() - oldBaseAddr)
-      lprintf("about to do specialObjectsOop");
-    nextChunk = obj->nextChunk();
-    if (!obj->isFreeObject()) {
-      obj->do_all_oops_of_object_for_reading_snapshot(this);
-      memory_system->ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(oop_for_addr(obj), obj, object_table);
-    }
-  }
-  
-  cc.value(&specialObjectsOop, (Object_p)NULL);
-
-  
-  /* RMOT: Extra pass for updating the pointers && deallocate the object table */
-  UpdateOop_Closure uoc(object_table);
+void Squeak_Image_Reader::complete_remapping_of_pointers() {
+# if !Use_Object_Table
+  /* Extra pass for updating the pointers && deallocate the object table */
+  UpdateOop_Closure uoc(memory_system->object_table);
   FOR_ALL_RANKS(r) {
     for (int hi = 0; hi<Memory_System::max_num_mutabilities; hi++) {
       Multicore_Object_Heap* heap = memory_system->heaps[r][hi];
       FOR_EACH_OBJECT_IN_HEAP(heap, obj) {      
         if (!obj->isFreeObject()) {
           obj->set_backpointer(obj->as_oop());
+          
           obj->do_all_oops_of_object(&uoc,false);
-          if(((Oop*)obj->extra_preheader_word())->is_mem())
-            fatal("shouldnt occur");          
+          
+          if(   Extra_Preheader_Word_Experiment
+             && ((Oop*)obj->extra_preheader_word())->is_mem())
+              fatal("shouldnt occur");
         }
       }
     }   
   }
-  specialObjectsOop = object_table->object_for(specialObjectsOop)->as_oop();
+  specialObjectsOop = memory_system->object_table->object_for(specialObjectsOop)->as_oop();
   
-  object_table->cleanup();
-  delete object_table;
+  memory_system->object_table->cleanup();
+  delete memory_system->object_table;
+  memory_system->object_table = NULL;
+# endif
+}
+
+
+void Squeak_Image_Reader::distribute_objects() {
+  if (Verbose_Debug_Prints) fprintf(stdout, "distributing objects\n");
   
+  u_int64 start = OS_Interface::get_cycle_count();
+  char* base = memory;
+  u_int32 total_bytes = dataSize;
+
+  object_oops = (Oop*)malloc(total_bytes);
+  bzero(object_oops, total_bytes);
+
+  memory_system->initialize_from_snapshot(dataSize, savedWindowSize, fullScreenFlag, lastHash);
+  
+  for (Chunk *c = (Chunk*)base, *nextChunk = NULL;
+       (char*)c <  &base[total_bytes];
+       c = nextChunk) {
+    Object* obj = c->object_from_chunk_without_preheader(); // chunks in 'memory' don't have a preheader
+
+    if (check_many_assertions && 
+        (char*)obj - memory == (char*)specialObjectsOop.bits() - oldBaseAddr)
+      lprintf("about to do specialObjectsOop");
+    
+    nextChunk = obj->nextChunk();
+    if (!obj->isFreeObject()) {
+      obj->do_all_oops_of_object_for_reading_snapshot(this);
+      memory_system->ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(oop_for_addr(obj), obj);
+    }
+  }
+  
+  // Remap specialObjectsOop
+  specialObjectsOop = oop_for_oop(specialObjectsOop);
+
+  complete_remapping_of_pointers();
   
   memory_system->finished_adding_objects_from_snapshot();
   free(object_oops);
@@ -317,7 +323,8 @@ Oop Squeak_Image_Reader::oop_for_relative_addr(int relative_addr) {
   Oop* addr_in_table = &object_oops[relative_addr / sizeof(Oop)];
   Object* obj = (Object*) &memory[relative_addr];
   if (addr_in_table->bits() == 0) {
-    *addr_in_table = object_table->allocate_OTE_for_object_in_snapshot(obj);
+    Object_Table* const ot = memory_system->object_table;
+    *addr_in_table = ot->allocate_OTE_for_object_in_snapshot(obj);
   }
   return *addr_in_table;
 }

@@ -69,12 +69,15 @@ bool Abstract_Object_Heap::verify() {
   __attribute__((unused)) Object *prev_prev_obj = NULL; // debugging
   FOR_EACH_OBJECT_IN_HEAP(this, obj) {
     if (obj->is_marked()) {
-      lprintf("object 0x%x should not be marked but is; header is 0x%x, in heaps[%d][%d]\n",
-      obj, obj->baseHeader, obj->rank(), obj->mutability());
+      lprintf("object 0x%x should not be marked but is; header is 0x%x\n",
+      obj, obj->baseHeader);
       fatal("");
     }
     if (!obj->isFreeObject() &&  obj->is_current_copy())
       ok = obj->verify() && ok;
+    
+    if (!ok) dittoing_stdout_printer->printf("Failed to verify obj at %p\n", obj);
+    
     prev_prev_obj = prev_obj;
     prev_obj = obj;
   }
@@ -121,10 +124,11 @@ void Abstract_Object_Heap::do_all_oops(Oop_Closure* oc) {
 }
 
 void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
+  fatal("*TODO*: probably requires changes."); 
   bool for_gc = gc_or_null != NULL;
   // enforce mutability at higher level
-  /*if (for_gc || compacting)
-    The_Memory_System()->object_table->pre_store_whole_enchillada(); RMOT */
+  if (for_gc || compacting)
+    The_Memory_System()->object_table->pre_store_whole_enchillada();
 
   if (compacting) ++compactionsSinceLastQuery;
 
@@ -147,7 +151,7 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
 
     if (for_gc) {
       if (!obj->is_marked()) {
-        // The_Memory_System()->object_table->free_oop(oop  COMMA_FALSE_OR_NOTHING); /* RMOT: no longer req'd to remove the entry */
+        The_Memory_System()->object_table->free_oop(oop  COMMA_FALSE_OR_NOTHING);
         if (!compacting)
           src_chunk->make_free_object((char*)next_src_chunk - (char*)src_chunk, 0);
         continue;
@@ -163,8 +167,11 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
       dst_chunk = next_src_chunk;
 
     else {
-      // The_Memory_System()->object_table->set_object_for(oop, new_obj_addr  COMMA_FALSE_OR_NOTHING); // noop unless indirect oops
-        /* RMOT - Warning: commenting the above breaks GC; pointers are not updated when moving data in memory */
+      if (Use_Object_Table)
+        The_Memory_System()->object_table->set_object_for(oop, new_obj_addr  COMMA_FALSE_OR_NOTHING); // noop unless indirect oops
+      else
+        fatal("GC is currently not supported, and this should never happen.");
+      
       int n_oops = (Oop*)next_src_chunk - (Oop*)src_chunk;
       // no mutability barrier wanted here, may need generational store barrier in the future
       
@@ -178,8 +185,8 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
     set_end_objects((Oop*)dst_chunk);
 
 
-  /* if (for_gc || compacting)
-    The_Memory_System()->object_table->post_store_whole_enchillada(); RMOT */
+  if (for_gc || compacting)
+    The_Memory_System()->object_table->post_store_whole_enchillada();
 
   // enforce coherence at higher level
 }

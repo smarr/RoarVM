@@ -14,6 +14,7 @@
 
 class Abstract_Object_Heap {
  protected:
+  int rank; // Owning Core's rank
 
   Oop* _start;
   Oop* _next;
@@ -28,6 +29,7 @@ class Abstract_Object_Heap {
   Abstract_Object_Heap() {
     _start = _next = _end = NULL; lowSpaceThreshold = 0;
     allocationsSinceLastQuery = compactionsSinceLastQuery = 0;
+    rank = Logical_Core::my_rank();
   }
   bool is_initialized() { return _start != NULL; }
 
@@ -60,6 +62,7 @@ class Abstract_Object_Heap {
   bool sufficientSpaceToAllocate(oop_int_t bytes);
   void deallocateChunk(oop_int_t total_bytes);
   Chunk* allocateChunk(oop_int_t total_bytes);
+  void deallocateChunk(oop_int_t total_bytes);
   virtual Object_p object_address_unchecked(Oop) = 0;
 
   Object* accessibleObjectAfter(Object*);
@@ -67,12 +70,10 @@ class Abstract_Object_Heap {
   Oop     initialInstanceOf(Oop);
 
   Object* first_object_or_null();
-  inline Object*  next_object(Object*);
-  Object*   end_objects() { return (Object*)_next; } // addr past objects
+  Object*   end_objects() const { return (Object*)_next; } // addr past objects
   Oop*     end_of_space() { return (Oop*)_end; }
 
   Object* first_object_without_preheader();
-  Object* next_object_without_preheader(Object*);
   Object*  end_objects_without_preheader() { return (Object*)_next; } // addr past objects
 
   u_int32 bytesLeft(bool includeSwapSpace = false) { return (char*)_end - (char*)_next; }
@@ -89,15 +90,13 @@ class Abstract_Object_Heap {
 
 
 
-  Oop* startOfMemory() { return _start; }
+  Oop* startOfMemory() const { return _start; }
 
-  bool contains(void* p) { Oop* pp = (Oop*)p; return _start <= pp  &&  pp < _next; }
+  bool contains(void* p) { Oop* pp = (Oop*)p;  return _start <= pp  &&  pp < _next; }
 
   u_int32    approx_object_count() {
     return bytesUsed() / sizeof(Oop) / 10;
   }
-  
-  inline int rank();
 
 
   bool verify();
@@ -109,9 +108,6 @@ class Abstract_Object_Heap {
 
 
   virtual Oop get_stats() = 0;
-
-  inline bool is_read_mostly();
-  inline bool is_read_write();
 
   inline void enforce_coherence_before_store(void*, int nbytes);
   inline void enforce_coherence_after_store(void*, int nbytes);
@@ -135,6 +131,6 @@ class Abstract_Object_Heap {
 
 # define FOR_EACH_OBJECT_IN_HEAP(a_heap, object_ptr) \
 for ( Object* object_ptr  =  (a_heap)->first_object_or_null(); \
-              object_ptr !=  NULL; \
-              object_ptr  =  (a_heap)->next_object(object_ptr) )
+              object_ptr  <  (Object*)end_of_space(); \
+              object_ptr  =  object_ptr->nextObject() )
 

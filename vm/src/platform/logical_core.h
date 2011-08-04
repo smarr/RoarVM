@@ -58,10 +58,12 @@ public:
   static int main_rank;     // threadsafe, read only after init, Stefan: 2009-09-06
   static int group_size;    // group_size is different from num_cores, since it indicates the actually
                             // used number of logical cores, instead of the desired num_cores
-                            // Should be only used to guide initialization
-
+                            // Should be only used to guide initialization  
   static int remaining;     // Indicates the remaining number of physical cores, those not executing a logical_core/interpreter
 
+  static int group_size_GC() { return group_size + 1; }  // The actually used number of logical cores, including the GC core.
+
+  
   static inline bool is_initialized()   { return Memory_Semantics::cores_are_initialized(); }
   
   static inline Logical_Core* my_core() { return Memory_Semantics::my_core();      }

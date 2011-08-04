@@ -329,7 +329,7 @@ void Squeak_Interpreter::primitiveClipboardText() {
   }
   else {
     oop_int_t sz = clipboardSize();
-    if (The_Memory_System()->coreWithSufficientSpaceToAllocate(sz, Memory_System::read_write) == NULL) {
+    if (!The_Memory_System()->sufficientSpaceToAllocate(sz)) {
       primitiveFail();  return;
     }
     Oop s = classString()->instantiateClass(sz)->as_oop();
@@ -1077,7 +1077,6 @@ void Squeak_Interpreter::primitiveImageName() {
     push(so->as_oop());
   }
 }
-
 void Squeak_Interpreter::primitiveIncrementalGC() {
   pop(1);
   The_Memory_System()->finalize_weak_arrays_since_we_dont_do_incrementalGC();
@@ -1437,6 +1436,7 @@ void Squeak_Interpreter::primitiveNewWithArg() {
   Logical_Core* c = NULL;
   if (successFlag) {
     c = coreWithSufficientSpaceToInstantiate(klass, size);
+    
     success(c != NULL);
     klass = stackValue(1); // GC
   }

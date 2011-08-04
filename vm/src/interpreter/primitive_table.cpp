@@ -139,7 +139,7 @@ Primitive_Table::Primitive_Table() : Abstract_Primitive_Table(576, false) {
   init_here(128, primitiveArrayBecome);
   init_here(129, primitiveSpecialObjectsOop);
   init_here(130, primitiveFullGC);
-  init_here(131, primitiveIncrementalGC);
+  init_here(131, primitiveIncrementalGC);  
   init_here(132, primitiveObjectPointsTo);
   init_here(133, primitiveSetInterruptKey);
   init_here(134, primitiveInterruptSemaphore);

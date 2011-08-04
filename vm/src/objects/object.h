@@ -13,7 +13,14 @@
 
 
 /*
+ Pointer and Object Representation
+ =================================
+
  This class describes a 32-bit direct-pointer object memory for Smalltalk.
+
+ Pointer
+ -------
+ 
  The model is very simple in principle:  
      a pointer is either a SmallInteger 
      or a 32-bit direct object pointer.
@@ -21,10 +28,28 @@
  SmallIntegers are tagged with a low-order bit equal to 1,
   and an immediate 31-bit 2s-complement signed value in the rest of the word.
 
- All object pointers point to a header, which may be followed by a number of data fields.
+ All object pointers point to a header, which may be followed by a number of 
+ data fields.
+ 
+ Thus, the pointer to an object always points at the begin of the _base header_,
+ which is after additional variable-sized _extra headers_, and the RoarVM
+ specific _preheaders_.
+
+ 
+ Object Representation
+ ---------------------
+ 
+        === Object Representation in Memory, Including all Headers ===
+ +-------------+-----------------+--------------------+---------------------+
+ |Pre (k words)|Extra (0-2 words)|Base Header (1 word)|Data/Fields (n words)|
+ +-------------+-----------------+--------------------+---------------------+
+                                 ↑
+                                 Target of Object*|Object_p|Oop
+ 
  This object memory achieves considerable compactness by using
  a variable header size (the one complexity of the design).
 
+ 
  The format of the 0th header word is as follows:
 
 	3 bits	reserved for gc (mark, root, is forwarding pointer)
@@ -58,6 +83,10 @@
  formatOf: method (including isPointers, isVariable, isBytes,
  and the low 2 size bits of byte-sized objects).
 
+ 
+ Note on the original Squeak VM Garbage Collector
+ ------------------------------------------------
+ 
  Note: the following two lines were true of the original Squeak VM, 
  but are not true in this this VM as of 11/15/10. -- dmu & sm
  
@@ -101,13 +130,18 @@ public:
   int32*     as_int32_p()    { return (int32*)this; }
   Oop*       as_oop_p()      { return (Oop*)this; }
 
-  bool contains_sizeHeader() { return Header_Type::contains_sizeHeader(baseHeader); }
+  bool contains_sizeHeader() {
+    return Header_Type::contains_sizeHeader(baseHeader);
+  }
   oop_int_t& sizeHeader() {
     assert(contains_sizeHeader());
-    return as_oop_int_p()[-2];
+    return as_oop_int_p()[-2];  // -2: See comment at the top, it is the extra header for which we need to adjust
   }
-  bool contains_class_and_type_word() { return Header_Type::contains_class_and_type_word(baseHeader); }
-  oop_int_t& class_and_type_word() { return as_oop_int_p()[-1]; }
+  bool contains_class_and_type_word() {
+    return Header_Type::contains_class_and_type_word(baseHeader);
+  }
+  oop_int_t& class_and_type_word() { return as_oop_int_p()[-1]; } // -1: See comment at the top, it is the extra header for which we need to adjust
+   
   Oop  get_class_oop() {
     Oop r = Oop::from_bits(Header_Type::without_type(class_and_type_word()));
     if (check_many_assertions)
@@ -116,17 +150,65 @@ public:
   }
   void set_class_oop(Oop x);
   void set_class_oop_no_barrier(Oop);
-  Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
 
-  void set_backpointer(Oop x) {
-      set_backpointer_word(backpointer_from_oop(x));
+# if Has_Preheader
+  Preheader* preheader() { 
+    return  (Preheader*)&as_oop_int_p()[-extra_header_oops()];
   }
-   void set_preheader(Oop x) { 
-     init_extra_preheader_word();
-     set_backpointer(x); 
+  
+  oop_int_t* extra_preheader_word() {
+    return preheader()->extra_preheader_word_address();
+  }
+  
+  oop_int_t get_extra_preheader_word() { return *extra_preheader_word(); }
+  
+  void init_extra_preheader_word() { preheader()->init_extra_preheader_word(); }
+
+  void set_preheader(Oop x) { 
+    init_extra_preheader_word();
+    # if Enforce_Backpointer || Use_Object_Table
+      set_backpointer(x);
+    # endif
+  }
+
+# else // !Has_Preheader
+  inline void set_preheader(Oop) const {}
+  inline void init_extra_preheader_word() const {}
+  oop_int_t* extra_preheader_word() const { return NULL; }
+
+# endif // Has_Preheader
+   
+  inline void set_extra_preheader_word(oop_int_t w);
+   
+   
+# if Enforce_Backpointer || Use_Object_Table   
+   Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
+   
+   void set_backpointer(Oop x) {
+     set_backpointer_word(backpointer_from_oop(x));
    }
    
-   /*
+   static Oop oop_from_backpointer(oop_int_t bp) {
+     return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
+   }
+   
+   oop_int_t backpointer_from_oop(Oop x) {
+     return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
+   }
+   
+   oop_int_t get_backpointer_word() { return *backpointer_word(); }
+   
+   inline void set_backpointer_word(oop_int_t w);
+   
+   oop_int_t* backpointer_word() {
+     return &preheader()->backpointer;
+   }
+# else
+  inline void set_backpointer(Oop) const {}
+   
+# endif
+
+/*
     * Store the NMT-bit of the class-oop in the baseheader due to lack of space
     * in the class-oop. [MDW]
     */
@@ -224,35 +306,6 @@ public:
        
        return POSIX_OS_Interface::atomic_compare_and_swap((int64*)&baseHeader,oldBaseheaderAndFirstOop,newBaseheaderAndForwardingPointer);
    }
-     
-     
-  static Oop oop_from_backpointer(oop_int_t bp) {
-    return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
-  }
-  oop_int_t backpointer_from_oop(Oop x) {
-    return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
-  }
-   
-  Preheader* preheader() { return  (Preheader*)&as_oop_int_p()[-extra_header_oops()]; }
-
-  oop_int_t get_backpointer_word() { return *backpointer_word(); }
-
-  inline void set_backpointer_word(oop_int_t w);
-
-  oop_int_t* backpointer_word() {
-    return &preheader()->backpointer;
-  }
-   
-  
-  oop_int_t* extra_preheader_word() {
-    return preheader()->extra_preheader_word_address();
-  }
-   
-   oop_int_t get_extra_preheader_word() { return *extra_preheader_word(); }
-   inline void set_extra_preheader_word(oop_int_t w);
-
-   void init_extra_preheader_word() { preheader()->init_extra_preheader_word(); }
-
 
 public:
 
@@ -266,7 +319,7 @@ public:
   inline oop_int_t sizeBits();
   inline oop_int_t sizeBitsSafe();
   oop_int_t shortSizeBits() { return baseHeader & SizeMask; }
-  oop_int_t longSizeBits() { return sizeHeader() & LongSizeMask; }
+  oop_int_t longSizeBits()  { return sizeHeader() & LongSizeMask; }
   oop_int_t total_byte_size();
   oop_int_t total_byte_size_without_preheader();
 
@@ -334,7 +387,7 @@ public:
 
  public:
 
-  Oop as_oop() {  return Oop::from_object(this); }
+  Oop as_oop() { return Oop::from_object(this); }
 
   inline static int rightType(oop_int_t headerWord);
 
@@ -352,6 +405,22 @@ public:
   Chunk* nextChunk() {
     return (Chunk*)&as_char_p()[bytes_to_next_chunk()];
   }
+
+  
+  Object* nextObject();
+  Oop nextInstance();  
+  
+  Object* nextAccessibleObject() {
+    for(Object* curr = nextObject();curr != NULL;curr = curr->nextObject()) {
+      if (!curr->isFreeObject()) {
+        return curr;
+      }
+    }
+    return NULL;
+  }
+  
+
+  
 
   Chunk* my_chunk_without_preheader()  { return (Chunk*)&as_char_p()[-extra_header_bytes_without_preheader()]; }
 
@@ -471,11 +540,6 @@ public:
   void do_all_oops_of_object_for_reading_snapshot(Squeak_Image_Reader* r);
   void do_all_oops_of_object_for_marking(Abstract_Mark_Sweep_Collector*, bool do_checks = check_assertions);
 
-  // ObjectMemory allocation
-  Object_p fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
-                                  oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize,
-                                  bool doFill = false,
-                                  bool fillWithNil = false);
   Oop clone();
 
   // ObjectMemory interpreter access
@@ -587,8 +651,9 @@ public:
   Object_p instantiateClass(oop_int_t sizeInBytes, Logical_Core* where = NULL);
   oop_int_t instanceSizeOfClass();
 
+# if Enforce_Backpointer || Use_Object_Table
   inline void set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB);
-
+# endif
 
   inline bool isCompiledMethod();
 
@@ -679,7 +744,11 @@ public:
   bool verify_address();
   bool verify_preheader();
   bool verify_extra_preheader_word();
+  
+# if Enforce_Backpointer || Use_Object_Table
   bool verify_backpointer();
+# endif
+  
   bool okayOop();
   bool hasOkayClass();
 
@@ -697,20 +766,7 @@ public:
 # endif
   static oop_int_t sizeOfSTArrayFromCPrimitive(void* p);
 
-  inline Multicore_Object_Heap* my_heap();
-  bool my_heap_contains_me() {
-    Multicore_Object_Heap* h = my_heap();
-    return h->contains(this);
-  }
-
   bool is_current_copy() { return as_oop().as_object() == this; }
-
-  inline int rank();
-  inline int mutability();
-  inline bool is_read_write();
-  inline bool is_read_mostly();
-
-  void move_to_heap(int, int, bool do_sync);
 
   inline bool is_suitable_for_replication();
   inline int  mutability_for_snapshot_object();

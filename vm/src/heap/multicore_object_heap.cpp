@@ -20,8 +20,7 @@ void* Multicore_Object_Heap::operator new(size_t size) {
 }
 
 
-void Multicore_Object_Heap::initialize_multicore(int hash, char* mem, int size, int page_size, bool do_homing) {
-  Abstract_Object_Heap::initialize(mem,size);
+void Multicore_Object_Heap::initialize_multicore(int hash, int page_size, bool do_homing) {
   lastHash = hash;
   if (do_homing  &&  Logical_Core::group_size > 1)
     home_to_this_tile(page_size);
@@ -93,37 +92,6 @@ void Abstract_Object_Heap::deallocateChunk(oop_int_t total_bytes) {
     fatal("NYI");
 }
 
-Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
-
-  bool enoughSpace = sufficientSpaceToAllocate(total_bytes);
-  if (!enoughSpace) {
-    The_Squeak_Interpreter()->set_signalLowSpace(true);
-
-    lowSpaceThreshold = 0;
-    saveProcessSignallingLowSpace();
-    The_Squeak_Interpreter()->forceInterruptCheck();
-  }
-  int n = convert_byte_count_to_oop_count(total_bytes);
-  if (_next + n  >=  _end) {
-    fatal("allocateChunk should never fail, but there is not enough space for the requested bytes");
-    return NULL;
-  }
-  Oop* r = _next;
-  _next += n;
-
-  if (check_assertions) {
-    // make sure the heaps are only modified by the associated cores
-    assert(rank()  ==  Logical_Core::my_rank()
-           || Safepoint_for_moving_objects::is_held());
-
-    assert(The_Memory_System()->contains(r));
-    assert(_next >= _start);
-    assert(_next <= _end); // I may need to remove this -- dmu 6/22/09
-    oopset_no_store_check(r, Oop::from_bits(Oop::Illegals::allocated), total_bytes/sizeof(Oop));
-  }
-
-  return (Chunk*)r;
-}
 
 
 void Multicore_Object_Heap::flushExternalPrimitives() {
@@ -140,18 +108,6 @@ void Multicore_Object_Heap::handle_low_space_signal() {
   if (The_Squeak_Interpreter()->signalLowSpace())  {
     The_Squeak_Interpreter()->set_signalLowSpace(false);
     The_Squeak_Interpreter()->signalSema(Special_Indices::TheLowSpaceSemaphore, "handle_low_space_signal");
-  }
-}
-
-
-
-Oop Multicore_Object_Heap::next_instance_of_after(Oop klass, Oop x) {
-  for (Object* r = x.as_untracked_object_ptr();  ;  ) {
-    r = accessibleObjectAfter(r);
-    if (r == NULL)
-      return The_Squeak_Interpreter()->roots.nilObj;
-    if (r->fetchClass() == klass)
-      return r->as_oop();
   }
 }
 

@@ -29,7 +29,7 @@ void updateEnoughInterpreterToTransferControlMessage_class::send_to(int r) {
 
 
 void  aboutToWriteReadMostlyMemoryMessage_class::handle_me() {
-  if (!The_Memory_System()->contains(addr) /*&& !The_Memory_System()->object_table->probably_contains(addr) RMOT */) {
+  if (!The_Memory_System()->contains(addr) && The_Memory_System()->object_table->probably_contains_not(addr)) {
     lprintf("%d about to do bad remote invalidate %d (%s) 0x%x (%s) 0x%x\n",
             getpid(), sender, Message_Statics::message_names[sender], addr, Message_Statics::message_names[(int)addr], nbytes);
     OS_Interface::die("bad remote invalidate");
@@ -115,7 +115,7 @@ void newValueForOopMessage_class::handle_me() {
 
 
 void enforceCoherenceAfterEachCoreHasStoredIntoItsOwnHeapMessage_class::handle_me() {
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_mostly]->enforce_coherence_in_whole_heap_after_store();
+  The_Memory_System()->heaps[Logical_Core::my_rank()]->enforce_coherence_in_whole_heap_after_store();
 }
 
 void enforceCoherenceBeforeEachCoreStoresIntoItsOwnHeapMessage_class::handle_me() {
@@ -343,16 +343,14 @@ void distributeInitialInterpreterMessage_class::handle_me() {
 
 void verifyInterpreterAndHeapMessage_class::handle_me() {
   The_Squeak_Interpreter()->verify();
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_mostly]->verify();
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::  read_write]->verify();
+  The_Memory_System()->heaps[Logical_Core::my_rank()]->verify();
 }
 
 
 
 
 void zapUnusedPortionOfHeapMessage_class::handle_me() {
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System:: read_write]->zap_unused_portion();
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_mostly]->zap_unused_portion();
+  The_Memory_System()->heaps[Logical_Core::my_rank()]->zap_unused_portion();
 }
 
 

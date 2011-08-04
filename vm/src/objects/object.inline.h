@@ -12,12 +12,14 @@
  ******************************************************************************/
 
 
+
+# if Enforce_Backpointer || Use_Object_Table
 inline void Object::set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB) {
   Safepoint_for_moving_objects::assert_held();
-  /* The_Memory_System()->object_table->set_object_for(x, (Object_p)this  COMMA_USE_ESB); RMOT */
+  The_Memory_System()->object_table->set_object_for(x, (Object_p)this  COMMA_USE_ESB);
   set_backpointer(x);
 }
-
+# endif
 
 
 
@@ -41,13 +43,17 @@ inline void Object::  mark_without_store_barrier() { baseHeader |=  MarkBit; }
 inline void Object::unmark_without_store_barrier() { baseHeader &= ~MarkBit; }
 
 
-
+# if Enforce_Backpointer || Use_Object_Table
 inline void Object::set_backpointer_word(oop_int_t w) {
   oop_int_t* dst = backpointer_word();
   The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);
 }
+# endif // if Enforce_Backpointer || Use_Object_Table
 
 inline void Object::set_extra_preheader_word(oop_int_t w) {
+  if (!Extra_Preheader_Word_Experiment)
+    return;
+  
   assert_always(w); // bug hunt qqq
   oop_int_t* dst = extra_preheader_word();
   The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);
@@ -304,7 +310,7 @@ inline Object_p Object::instantiateSmallClass(oop_int_t sizeInBytes) {
    */
 
   if (sizeInBytes & (bytesPerWord - 1))  { fatal("size must be integral number of words"); }
-  Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write];
+  Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()];
   oop_int_t hash = h->newObjectHash();
 	oop_int_t header1 = ((hash << HashBitsOffset) & HashBits)  |  formatOfClass();
 	Oop header2 = as_oop();
@@ -357,7 +363,7 @@ inline oop_int_t Object::literalCountOfHeader(oop_int_t header) { return (header
 inline Oop Object::literal(oop_int_t offset) {
   Oop r = fetchPointer(offset + Object_Indices::LiteralStart);
   if (check_many_assertions) {
-    /*assert_always(r.is_int()  || The_Memory_System()->object_table->probably_contains((void*)r.bits()) ); RMOT */
+    assert_always(r.is_int() || The_Memory_System()->object_table->probably_contains((void*)r.bits()));
   }
   return r;
 }
@@ -375,86 +381,6 @@ inline void Object::flushExternalPrimitive() {
 }
 
 
-inline Object_p Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdrSize,
-                                       oop_int_t baseHeader, Oop classOop, oop_int_t extendedSize,
-                                       bool doFill,
-                                       bool fillWithNil) {
-  const int my_rank = Logical_Core::my_rank();
-  if (check_many_assertions  &&  hdrSize > 1)
-    classOop.verify_oop();
-  // since new allocs are in read_write heap, no need to mark this for moving to read_write
-  assert(The_Memory_System()->contains(this));
-
-  Preheader* preheader_p = (Preheader*)this;
-  oop_int_t* headerp = (oop_int_t*)&preheader_p[1];
-  Object_p    newObj = (Object_p)(Object*)&headerp[hdrSize - 1];
-  assert(The_Memory_System()->is_address_read_write(this)); // not going to bother with coherence
-
-  Multicore_Object_Heap* h = The_Memory_System()->heaps[my_rank][Memory_System::read_write];
-  assert(h == my_heap()  ||  Safepoint_for_moving_objects::is_held());
-
-  if (hdrSize == 3) {
-    oop_int_t contents = extendedSize     |  Header_Type::SizeAndClass;
-    DEBUG_STORE_CHECK(headerp, contents);
-    *headerp++ = contents;
-    
-    contents = classOop.bits()  |  Header_Type::SizeAndClass;
-    DEBUG_STORE_CHECK(headerp, contents);
-    *headerp++ = contents;
-    
-    h->record_class_header((Object*)headerp, classOop);
-    
-    contents   = baseHeader       |  Header_Type::SizeAndClass;
-    DEBUG_STORE_CHECK(headerp, contents);
-    *headerp   = contents;
-  }
-  else if (hdrSize == 2) {
-    oop_int_t contents = classOop.bits()  |  Header_Type::Class;
-    DEBUG_STORE_CHECK(headerp, contents);
-    *headerp++ = contents;
-    
-    h->record_class_header((Object*)headerp, classOop);
-
-    contents   = baseHeader       |  Header_Type::Class;
-    DEBUG_STORE_CHECK(headerp, contents);
-    *headerp   = contents;
-  }
-  else {
-    assert_eq(hdrSize, 1, "");
-    
-    oop_int_t contents   = baseHeader       |  Header_Type::Short;
-    DEBUG_STORE_CHECK(headerp, contents);
-    *headerp   = contents;
-  }
-  assert_eq((void*)newObj, (void*)headerp, "");
-
-  newObj->init_extra_preheader_word(); 
-  newObj->set_backpointer(newObj->as_oop());
-  /* The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, my_rank  COMMA_TRUE_OR_NOTHING); RMOT: no need to allocate oop */
-
-
-  //  "clear new object"
-  if (!doFill)
-    ;
-  else if (fillWithNil) // assume it's an oop if not null
-    h->multistore((Oop*)&headerp[1],
-                  (Oop*)&headerp[byteSize >> ShiftForWord],
-                  The_Squeak_Interpreter()->roots.nilObj);
-  else {
-    DEBUG_MULTISTORE_CHECK( &headerp[1], 0, (byteSize - sizeof(*headerp)) / bytes_per_oop);
-    bzero(&headerp[1], byteSize - sizeof(*headerp));
-  }
-
-  The_Memory_System()->enforce_coherence_after_store_into_object_by_interpreter(this, byteSize);
-
-  if (check_assertions) {
-    newObj->okayOop();
-    newObj->hasOkayClass();
-  }
-  return newObj;
-}
-
-
 inline Object_p Object::instantiateContext(oop_int_t  sizeInBytes ) {
   /*
    "This version of instantiateClass assumes that the total object
@@ -462,7 +388,7 @@ inline Object_p Object::instantiateContext(oop_int_t  sizeInBytes ) {
    two header words. Note that the size is specified in bytes
    and should include four bytes for the base header word."
    */
-  Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write];
+  Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()];
 	int hash = h->newObjectHash();
   oop_int_t	header1 = ((hash << HashShift) & HashMask) | formatOfClass();
 	Oop header2 = as_oop();
@@ -592,9 +518,9 @@ inline oop_int_t Object::argumentCountOfClosure() {
 
 inline void* Object::firstIndexableField_for_primitives() {
   // problematic for store barrier; lots of C code uses this
-  if (is_read_mostly()) {
-    The_Squeak_Interpreter()->remember_to_move_mutated_read_mostly_object(as_oop());
-  }
+  /*if (is_read_mostly()) {
+    The_Squeak_Interpreter()->remember_to_move_mutated_read_mostly_object(as_oop()); 
+  }*/
   oop_int_t fmt = format();
   int sz = Format::has_bytes(fmt)
   ? 1
@@ -607,9 +533,9 @@ inline void* Object::firstIndexableField_for_primitives() {
 
 inline char* Object::pointerForOop_for_primitives() {
   // problematic for store barrier; lots of C code uses this
-  if (is_read_mostly()) {
+  /*if (is_read_mostly()) { 
     The_Squeak_Interpreter()->remember_to_move_mutated_read_mostly_object(as_oop());
-  }
+  }*/
   return as_char_p();
 }
 
@@ -617,16 +543,6 @@ inline char* Object::pointerForOop_for_primitives() {
 inline oop_int_t Object::sizeOfSTArrayFromCPrimitive(void* p) {
   Object* x = (Object*)((char*)p - BaseHeaderSize);
   return x->isWordsOrBytes() ? x->lengthOf() : 0;
-}
-
-inline int Object::rank() { return The_Memory_System()->rank_for_address(this); }
-inline int Object::mutability() { return The_Memory_System()->mutability_for_address(this); }
-
-inline bool Object::is_read_write() { return The_Memory_System()->is_address_read_write(this); }
-inline bool Object::is_read_mostly() { return The_Memory_System()->is_address_read_mostly(this); }
-
-inline Multicore_Object_Heap* Object::my_heap() {
-  return The_Memory_System()->heap_containing(this);
 }
 
 
@@ -657,22 +573,6 @@ inline bool Object::is_suitable_for_replication() {
 
   return (The_Memory_System()->replicate_methods &&  isCompiledMethod())
     ||   (The_Memory_System()->replicate_all     && !hasContextHeader());
-}
-
-
-inline int Object::mutability_for_snapshot_object() {
-
-  // compiler bug:
-  static const int c = Memory_System::read_write;
-  static const int i = Memory_System::read_mostly;
-
-  // Used to be is_suitable_for_replication() before multithreading, but now
-  // need to exclude certainly classes that we don't know till AFTER reading the snapshot -- dmu 3/30/09
-  // So, put everything in read_write, and let image move objects to read_mostly later. -- dmu 5/25/10
-  // bool repl =  is_suitable_for_replication();
-  const bool repl = false;
-
-  return repl ? i :  c;
 }
 
 

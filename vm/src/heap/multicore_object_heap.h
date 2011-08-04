@@ -18,7 +18,7 @@ class Multicore_Object_Heap: public Abstract_Object_Heap {
   public:
   void* operator new(size_t size);
 
-  void initialize_multicore(int hash, char* mem, int size, int page_size, bool do_homing);
+  void initialize_multicore(int hash, int page_size, bool do_homing);
   private:
   void home_to_this_tile(int);
   bool verify_homing(int);
@@ -41,8 +41,6 @@ class Multicore_Object_Heap: public Abstract_Object_Heap {
   void handle_low_space_signal();
 
 
-
-  Oop next_instance_of_after(Oop, Oop);
 
   void snapshotCleanUp();
   void write_image_file(FILE*, u_int32*, bool&);

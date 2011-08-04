@@ -123,7 +123,7 @@ void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, 
         break;
     }
   }
-  dst_obj->my_heap()->check_multiple_stores_for_generations_only(dst_oop, num_elems * e_N);
+  //dst_obj->my_heap()->check_multiple_stores_for_generations_only(dst_oop, num_elems * e_N); //unused
 }
 
 

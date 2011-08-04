@@ -30,21 +30,26 @@ bool Object::verify() {
 }
 
 bool Object::verify_address() {
-  assert_always(my_heap_contains_me() );
+  assert_always(The_Memory_System()->contains(this));
   return true;
 }
 
 
 bool Object::verify_preheader() {
-  return verify_extra_preheader_word() && verify_backpointer();
+  return verify_extra_preheader_word()
+# if Enforce_Backpointer || Use_Object_Table
+          && verify_backpointer()
+# endif
+  ;
 }
 
-
+# if Enforce_Backpointer || Use_Object_Table
 bool Object::verify_backpointer() {
   Oop x = backpointer();
   assert_always_msg(x.as_object_unchecked() == this, "bad backpointer");
   return true;
 }
+# endif
 
 bool Object::verify_extra_preheader_word() {
   return  !Extra_Preheader_Word_Experiment || Oop::from_bits(get_extra_preheader_word()).verify_oop();
@@ -54,7 +59,7 @@ bool Object::verify_extra_preheader_word() {
 void Object::dp() { print(stderr_printer); stderr_printer->nl(); }
 
 void Object::print(Printer* p) {
-  if (!my_heap_contains_me()) {
+  if (!The_Memory_System()->contains(this)) {
     p->printf("Wild pointer; object not in any heap");
     return;
   }
@@ -157,7 +162,7 @@ Oop Object::className() {
 
 Oop Object::name_of_class_or_metaclass(bool* is_meta) {
   Oop cn = className();
-  if (!cn.is_mem()  /* ||  !The_Memory_System()->object_table->probably_contains((void*)cn.bits()) RMOT */||  !The_Memory_System()->contains(cn.as_object()))
+  if (!cn.is_mem()  ||  The_Memory_System()->object_table->probably_contains_not((void*)cn.bits())  ||  !The_Memory_System()->contains(cn.as_object()))
     return The_Squeak_Interpreter()->roots.nilObj;
   return (*is_meta = !(cn.bits() != 0  && cn.isBytes()))
     ? fetchPointer(Object_Indices::This_Class_Index).as_object()->className()
@@ -280,7 +285,7 @@ Object_p Object::instantiateClass(oop_int_t size, Logical_Core* where) {
   // It might be faster to ask the core that owns the heap to do the allocation, rather than may the
   // memory penalty. -- dmu 4/09
 
-  Multicore_Object_Heap* h =  The_Memory_System()->heaps[where == NULL  ?  Logical_Core::my_rank()  :  where->rank()][Memory_System::read_write];
+  Multicore_Object_Heap* h =  The_Memory_System()->heaps[where == NULL  ?  Logical_Core::my_rank()  :  where->rank()];
 
   int hash = h->newObjectHash();
   oop_int_t classFormat = formatOfClass();
@@ -326,8 +331,7 @@ bool Object::okayOop() {
   // "Verify that the given oop is legitimate. Check address, header, and size but not class."
 
   // address and size checks
-  Abstract_Object_Heap* h = my_heap();
-  bool ok = h->contains(this)  &&  h->contains(&as_char_p()[sizeBits()-1]);
+  bool ok = The_Memory_System()->contains(this)  &&  The_Memory_System()->contains(&as_char_p()[sizeBits()-1]);
 
   assert_always_msg( ok, "oop not in heap or size would extend beyond end of memory");
 
@@ -345,13 +349,13 @@ bool Object::okayOop() {
         break;
 
     case Header_Type::SizeAndClass:
-        assert_always_msg( h->contains(&sizeHeader()),
+        assert_always_msg( The_Memory_System()->contains(&sizeHeader()),
                           "size header is before start");
         assert_always_msg( Header_Type::extract_from(sizeHeader()) == headerType(), "size header has wrong type");
 
       // fall through
       case Header_Type::Class:
-        assert_always_msg(  h->contains(&class_and_type_word()), "class header word is before start");
+        assert_always_msg(  The_Memory_System()->contains(&class_and_type_word()), "class header word is before start");
         assert_always_msg( Header_Type::extract_from(class_and_type_word()) == headerType(), "class header word has wrong type" );
         break;
   }
@@ -419,9 +423,10 @@ Oop* Object::last_strong_pointer_addr_remembering_weak_roots(Abstract_Mark_Sweep
 void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
   if (isFreeObject())
     return;
+  
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
     if (do_checks)
-      my_heap()->contains(oopp);
+      The_Memory_System()->contains(oopp);
     oc->value(oopp, (Object_p)this);
   }
   if (contains_class_and_type_word()) {
@@ -439,6 +444,7 @@ void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
 void Object::do_all_oops_of_object_for_reading_snapshot(Squeak_Image_Reader* r) {
   if (isFreeObject())
     return;
+  
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
     Oop x = *oopp;
     if (x.is_mem()) {
@@ -457,7 +463,7 @@ void Object::do_all_oops_of_object_for_reading_snapshot(Squeak_Image_Reader* r) 
 void Object::do_all_oops_of_object_for_marking(Abstract_Mark_Sweep_Collector* gc, bool do_checks) {
   FOR_EACH_STRONG_OOP_IN_OBJECT_EXCEPT_CLASS_RECORDING_WEAK_ROOTS(this, oopp, gc) {
     if (do_checks)
-      my_heap()->contains(oopp);
+      The_Memory_System()->contains(oopp);
     gc->mark(oopp);
   }
   if (contains_class_and_type_word()) {
@@ -480,12 +486,11 @@ Oop Object::clone() {
   // alloc space, remap in case of GC
   The_Squeak_Interpreter()->pushRemappableOop(as_oop());
   // is it safe?
-  Logical_Core* c = The_Memory_System()->coreWithSufficientSpaceToAllocate( 2500 + bytes, Memory_System::read_write);
-  if ( c == NULL) {
+  Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()];
+  if ( !h->sufficientSpaceToAllocate(2500+bytes) && !The_Memory_System()->sufficientSpaceToAllocate(2500+bytes) ) {
     The_Squeak_Interpreter()->popRemappableOop();
     return Oop::from_int(0);
-  }
-  Multicore_Object_Heap* h = The_Memory_System()->heaps[c->rank()][Memory_System::read_write];
+  }  
   
   // Follow the pattern in Multicore_Object_Heap::allocate -- dmu & sm:
   
@@ -511,9 +516,8 @@ Oop Object::clone() {
                                               |   ((hash << HashShift) & HashMask),
                                               newObj);
 
-  /* The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, Logical_Core::my_rank()  COMMA_TRUE_OR_NOTHING); RMOT */
+  The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, Logical_Core::my_rank()  COMMA_TRUE_OR_NOTHING);
   
-    
 # if Extra_Preheader_Word_Experiment
   oop_int_t ew = remappedObject->get_extra_preheader_word();
   assert_always(ew && (!Oop::from_bits(ew).is_int()  ||  ew == Oop::from_int(0).bits())); // bug hunt
@@ -923,49 +927,6 @@ Object_p Object::makeString(const char* str, int n) {
 }
 
 
-void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
-  if (The_Memory_System()->rank_for_address(this) == r
-  &&  The_Memory_System()->mutability_for_address(this) == rw_or_rm)
-    return;
-
-  int ehb = extra_header_bytes();
-  int bnc = bytes_to_next_chunk();
-  Multicore_Object_Heap* h = The_Memory_System()->heaps[r][rw_or_rm];
-
-  assert_always(rw_or_rm == Memory_System::read_write  ||  is_suitable_for_replication());
-
-  Safepoint_for_moving_objects sf("move_to_heap");
-  Safepoint_Ability sa(false);
-
-  Oop oop = as_oop();
-  if (do_sync) {
-    The_Squeak_Interpreter()->preGCAction_everywhere(false);  // false because caches are oop-based, and we just move objs
-    flushFreeContextsMessage_class().send_to_all_cores(); // might move a free context, then it would not be in right place
-  }
-
-
-  The_Squeak_Interpreter()->pushRemappableOop(oop);
-
-  Chunk* dst_chunk = h->allocateChunk(ehb + bnc);
-  oop = The_Squeak_Interpreter()->popRemappableOop();
-  char* src_chunk = as_char_p() - ehb;
-  Object_p new_obj = (Object_p)(Object*) (((char*)dst_chunk) + ehb);
-
-  h->enforce_coherence_before_store(dst_chunk, ehb + bnc);
-  DEBUG_MULTIMOVE_CHECK(dst_chunk, src_chunk, (ehb + bnc) / bytes_per_oop );
-  bcopy(src_chunk, dst_chunk, ehb + bnc);
-  // set backpointer is redundant but this routine does the safepoint
-  new_obj->set_object_address_and_backpointer(oop  COMMA_TRUE_OR_NOTHING);
-  if (Extra_Preheader_Word_Experiment)
-    new_obj->set_extra_preheader_word(get_extra_preheader_word());
-  h->enforce_coherence_after_store(dst_chunk, ehb + bnc);
-
-  ((Chunk*)src_chunk)->make_free_object(ehb + bnc, 2); // without this GC screws up
-
-  if (do_sync) The_Squeak_Interpreter()->postGCAction_everywhere(false);
-}
-
-
 void Object::test() { assert_always(sizeof(Object) == 4); }
 
 int Object::core_where_process_is_running() {
@@ -1149,3 +1110,22 @@ int Object::index_of_string_in_array(const char* aString) {
   return -1;
 }
 
+
+
+  Object* Object::nextObject() {
+    Chunk* c = nextChunk();
+    if ((char*)c < The_Memory_System()->heap_past_end) 
+      return c->object_from_chunk();
+    else
+      return NULL;
+  }
+  
+  Oop Object::nextInstance() {
+    Oop klass = fetchClass();
+    for (Object* r = nextAccessibleObject();  ; r = r->nextAccessibleObject()) {
+      if (r == NULL)
+        return The_Squeak_Interpreter()->roots.nilObj;
+      if (r->fetchClass() == klass)
+        return r->as_oop();
+    }    
+  }
