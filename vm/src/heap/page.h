@@ -15,10 +15,13 @@
 static const int page_size = 1 * Mega; // bytes
 
 typedef struct Page {
-  oop_int_t header;           // Free object header (4 bytes)
-  Page*     next_free_page;   // (4 bytes)
-  char      rest[page_size-8];
+  char      preheader[preheader_byte_size]; // Preheader (preheader_byte_size bytes)
+
+  oop_int_t header;                         // Free object header (4 bytes)
+  Page*     next_free_page;                 // (4 bytes)
   
+  char      rest[page_size - 8 - preheader_byte_size];
+
   void init() {
     initialize(page_size);  
   
@@ -34,22 +37,8 @@ typedef struct Page {
   }
   
   size_t size() {
-    return ((Object*)this)->sizeOfFree();
+    return 
+    preheader_byte_size 
+           + ((Object*)((char*)this + preheader_byte_size))->sizeOfFree();
   }
-} Page;
-
-# define FOR_EACH_PAGE(page) \
-for ( Page * page = (Page*)heap_base; \
-      (char*)page < heap_past_end; \
-             page++ )
-
-# define FOR_EACH_FREE_PAGE(page) \
-for ( Page * page  = (Page*)global_GC_values->free_page; \
-             page != NULL; \
-             page  = page->next_free_page )
-
-# define FOR_EACH_FREE_PAGEPTR(page_ptr) \
-for ( Page ** page_ptr  = (Page**)&(global_GC_values->free_page); \
-             *page_ptr != NULL; \
-              page_ptr  = &((*page_ptr)->next_free_page) )
-              
+} Page;              

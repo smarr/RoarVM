@@ -77,7 +77,7 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
 
   read_header();
 
-  fprintf(stdout, "allocating memory for snapshot\n");
+  if (Verbose_Debug_Prints) fprintf(stdout, "allocating memory for snapshot\n");
 
   // "allocate a contiguous block of memory for the Squeak heap"
   memory = (char*)Memory_Semantics::shared_malloc(dataSize);
@@ -90,8 +90,8 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
   */
 
   // "position file after the header"
-  fprintf(stdout, "reading objects in snapshot\n");
-  if ( fseek(image_file, headerStart + headerSize, SEEK_SET))
+  if (Verbose_Debug_Prints) fprintf(stdout, "reading objects in snapshot\n");
+  if (fseek(image_file, headerStart + headerSize, SEEK_SET))
     perror("seek"), fatal();
 
   // "read in the image in bulk, then swap the bytes if necessary"
@@ -148,7 +148,8 @@ void Squeak_Image_Reader::imageNamePut_on_all_cores(char* bytes, unsigned int le
 
 
 void Squeak_Image_Reader::read_header() {
-  fprintf(stdout, "reading snapshot header\n");
+  if (Verbose_Debug_Prints) fprintf(stdout, "reading snapshot header\n");
+  
   check_image_version();
   // headerStart := (self sqImageFilePosition: f) - bytesPerWord.  "record header start position"
   headerStart = ftell(image_file) - bytesPerWord;
@@ -168,18 +169,22 @@ void Squeak_Image_Reader::read_header() {
 }
 
 void Squeak_Image_Reader::check_image_version() {
-    int32 first_version = get_long();
-    interpreter->image_version = first_version;
-    if ( readable_format(interpreter->image_version) ) return;
-    swap_bytes = true;
-    if (fseek(image_file, -sizeof(int32), SEEK_CUR) != 0) {
-      perror("seek failed"); fatal();
-    }
-    interpreter->image_version = get_long();
-    if ( readable_format(interpreter->image_version) ) return;
-
-    fatal("cannot read file");
-
+  int32 first_version = get_long();
+  interpreter->image_version = first_version;
+    
+  if (readable_format(interpreter->image_version))
+    return;
+  
+  swap_bytes = true;
+  if (fseek(image_file, -sizeof(int32), SEEK_CUR) != 0) {
+    perror("seek in image file failed"); fatal();
+  }
+  
+  interpreter->image_version = get_long();
+  if (readable_format(interpreter->image_version))
+    return;
+ 
+  fatal("Given image file seems to be incompatible.");
 }
 
 int32 Squeak_Image_Reader::get_long() {
@@ -241,12 +246,13 @@ void Squeak_Image_Reader::complete_remapping_of_pointers() {
       Multicore_Object_Heap* heap = memory_system->heaps[r][hi];
       FOR_EACH_OBJECT_IN_HEAP(heap, obj) {      
         if (!obj->isFreeObject()) {
-          # if Enforce_Backpointer
-            obj->set_backpointer(obj->as_oop());
-          # endif
+          obj->set_backpointer(obj->as_oop());
+          
           obj->do_all_oops_of_object(&uoc,false);
-          if(((Oop*)obj->extra_preheader_word())->is_mem())
-            fatal("shouldnt occur");          
+          
+          if(   Extra_Preheader_Word_Experiment
+             && ((Oop*)obj->extra_preheader_word())->is_mem())
+              fatal("shouldnt occur");
         }
       }
     }   
@@ -261,7 +267,8 @@ void Squeak_Image_Reader::complete_remapping_of_pointers() {
 
 
 void Squeak_Image_Reader::distribute_objects() {
-  fprintf(stdout, "distributing objects\n");
+  if (Verbose_Debug_Prints) fprintf(stdout, "distributing objects\n");
+  
   u_int64 start = OS_Interface::get_cycle_count();
   char* base = memory;
   u_int32 total_bytes = dataSize;
@@ -275,8 +282,11 @@ void Squeak_Image_Reader::distribute_objects() {
        (char*)c <  &base[total_bytes];
        c = nextChunk) {
     Object* obj = c->object_from_chunk_without_preheader(); // chunks in 'memory' don't have a preheader
-    if (check_many_assertions &&  (char*)obj - memory == (char*)specialObjectsOop.bits() - oldBaseAddr)
+
+    if (check_many_assertions && 
+        (char*)obj - memory == (char*)specialObjectsOop.bits() - oldBaseAddr)
       lprintf("about to do specialObjectsOop");
+    
     nextChunk = obj->nextChunk();
     if (!obj->isFreeObject()) {
       obj->do_all_oops_of_object_for_reading_snapshot(this);

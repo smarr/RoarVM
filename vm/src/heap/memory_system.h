@@ -66,6 +66,7 @@ public:
   /* Page Management */
   Page * allocate(size_t);
   void   free(Page *);
+  int    freePages();
   
 
 private:
@@ -217,7 +218,9 @@ public:
 
   void scan_compact_or_make_free_objects_everywhere(bool compacting, Abstract_Mark_Sweep_Collector*);
   void scan_compact_or_make_free_objects_here(bool compacting, Abstract_Mark_Sweep_Collector*);
+  u_int32 bytesTotal();
   u_int32 bytesLeft(bool);
+  u_int32 bytesLeftIncludingPages();
   u_int32 maxContiguousBytesLeft();
 
   void set_lowSpaceThreshold(int32);
@@ -354,4 +357,9 @@ private:
                                void* where, off_t offset,
                                int main_pid, int flags);  
 };
+
+# define FOR_EACH_OBJECT(object_ptr) \
+for ( Object* object_ptr  =  ((Chunk*)(The_Memory_System()->heap_base))->object_from_chunk(); \
+              object_ptr !=  NULL; \
+              object_ptr  =  object_ptr->nextObject() )
 

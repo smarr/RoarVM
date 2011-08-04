@@ -12,8 +12,13 @@ echo_usage () {
     echo "    --debug"
     echo "    --enforce-opt       Should be used together with --debug to enforce full optimization"
     echo "    --enable-native-opt Enable optimization for current native architecture"
+    echo
+    echo "Advanced configuration values:"
     echo "    --show-cmds         Show the command invocations"
     echo "    --enable-perfcnt    Enable internal performance counters"
+    echo "    --without-obj-table Disables the object-table"
+    echo "    --enforce-backptr   Keep backpointer field in preheader (for testing purpose)"
+    echo "    --without-preheader Disables the preheader word per object (required for Sly)"
     echo
     echo "Libraries:"
     echo "    --x11-lib <path>    Path to the X11 lib folder"
@@ -37,6 +42,13 @@ DEBUG=0
 ENFORCE_OPT=0
 SUPPRESS_CMD_OUTPUT=1
 PERF_COUNTERS=0
+
+
+PREHEADER=1
+OBJECT_TABLE=1
+ENFORCE_BACKPTR=0
+
+
 #CC=
 #CXX=
 CONFIGURE_ARGS="$@"
@@ -78,6 +90,18 @@ do
       SUPPRESS_CMD_OUTPUT=0
       shift 1
     ;;
+    --without-obj-table)
+      OBJECT_TABLE=0
+      shift 1
+    ;;
+    --enforce-backptr)
+      ENFORCE_BACKPTR=1
+      shift 1
+    ;;
+    --without-preheader)
+      PREHEADER=0
+      shift 1
+    ;;
     --x11-lib)
       X11_PATH=$2
       shift 2
@@ -110,6 +134,20 @@ else
 	HIGH_OPTIMIZE_LEVEL=-O3
 	CONFIG_FLAGS="$CONFIG_FLAGS \\
 	    -DCHECK_FOR_PROBLEMATIC_COMPILER=0"
+fi
+
+if [ $OBJECT_TABLE -eq 1 ]
+then
+  CONFIG_FLAGS="$CONFIG_FLAGS -DUse_Mark_Sweep_GC_With_Object_Table=1"
+else
+  CONFIG_FLAGS="$CONFIG_FLAGS -DUse_Mark_Sweep_GC_With_Object_Table=0"
+fi
+
+if [ $ENFORCE_BACKPTR -eq 1 ]
+then
+  CONFIG_FLAGS="$CONFIG_FLAGS -DEnforce_Backpointer=1"
+else
+  CONFIG_FLAGS="$CONFIG_FLAGS -DEnforce_Backpointer=0"
 fi
 
 if [ $DEBUG -eq 0 ]
@@ -248,6 +286,7 @@ echo "SRC_DIR=$SRC_DIR"        >> Makefile
 echo "LOW_OPTIMIZE_LEVEL = $LOW_OPTIMIZE_LEVEL"  >> Makefile
 echo "HIGH_OPTIMIZE_LEVEL= $HIGH_OPTIMIZE_LEVEL" >> Makefile
 echo "SUPPRESS_CMD_OUTPUT= $SUPPRESS_CMD_OUTPUT" >> Makefile
+echo "PREHEADER= $PREHEADER"   >> Makefile
 
 echo "include $SRC_DIR/makefiles/Makefile.common" >> Makefile
 

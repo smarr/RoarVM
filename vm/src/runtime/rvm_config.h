@@ -81,12 +81,13 @@
   template(StopOnSend) \
   template(NthSendForStopping) \
   template(PrintMethodDictionaryLookups) \
-  template(Multicore) \
   template(Print_Barriers) \
   template(Include_Debugging_Code) \
   template(Debugging) \
+  template(Verbose_Debug_Prints) \
   template(Track_OnStackPointer) \
   template(Use_Mark_Sweep_GC_With_Object_Table) \
+  template(Enforce_Backpointer) \
   template(Omit_Duplicated_OT_Overhead) \
   template(Omit_Spare_Bit) \
   template(Trace_Execution) \
@@ -181,11 +182,6 @@
 # endif
 
 
-# ifndef Multicore
-  # define Multicore 1
-# endif
-
-
 # ifndef Print_Barriers
 # define Print_Barriers 0
 # endif
@@ -193,6 +189,10 @@
 // Flag to include general debugging code
 # ifndef Include_Debugging_Code
 # define Include_Debugging_Code Debugging
+# endif
+
+# ifndef Verbose_Debug_Prints
+# define Verbose_Debug_Prints Include_Debugging_Code
 # endif
 
 # ifndef check_assertions
@@ -259,9 +259,12 @@
 
 # if Use_Mark_Sweep_GC_With_Object_Table
 #  define Use_Object_Table 1
+#  define Enforce_Backpointer 1
 # else
 #  define Use_Object_Table 0
-#  define Enforce_Backpointer 1 /* STEFAN: does currently not work without */
+#  ifndef Enforce_Backpointer
+#    define Enforce_Backpointer 0
+#  endif
 # endif
 
 # ifndef Omit_Duplicated_OT_Overhead
@@ -378,6 +381,10 @@
 # ifndef Extra_Preheader_Word_Experiment
 # define Extra_Preheader_Word_Experiment 0
 # endif
+
+// Here we define whether we need to add a static preheader to ever object
+# define Has_Preheader (   Enforce_Backpointer || Use_Object_Table  \
+                        || Extra_Preheader_Word_Experiment)
 
 # ifndef Use_BufferedChannelDebug
 // If you turn this off, run on Mac, and run with Hammer_Safepoints with >2 cores, you can see the system break -- dmu 5/21/10

@@ -116,12 +116,6 @@ inline void Abstract_Object_Heap::deallocateChunk(oop_int_t total_bytes) {
 }
 
 
-
-
-
-
-
-
 inline Object* Abstract_Object_Heap::object_from_chunk(Chunk* c) {
   // word after last object might cause object_from_chunk to wrap to low addresses
   return c < (Chunk*)end_objects() ? c->object_from_chunk() : NULL;

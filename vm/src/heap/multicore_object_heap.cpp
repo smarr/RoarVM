@@ -21,7 +21,6 @@ void* Multicore_Object_Heap::operator new(size_t size) {
 
 
 void Multicore_Object_Heap::initialize_multicore(int hash, int page_size, bool do_homing) {
-  rank = Logical_Core::my_rank();
   lastHash = hash;
   if (do_homing  &&  Logical_Core::group_size > 1)
     home_to_this_tile(page_size);

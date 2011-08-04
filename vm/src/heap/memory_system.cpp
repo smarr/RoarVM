@@ -117,8 +117,8 @@ Oop Memory_System::get_stats(int what_to_sample) {
 
 
 void Memory_System::fullGC(const char* why) {
+  lprintf("fullGC: *TODO*: probably requires changes.\n");
   return;
-  fatal("*TODO*: probably requires changes."); 
   
 # if Use_Object_Table
   Squeak_Interpreter * const interp = The_Squeak_Interpreter();
@@ -296,8 +296,7 @@ Logical_Core* Memory_System::coreWithSufficientSpaceToAllocate(oop_int_t bytes) 
 }
 
 bool Memory_System::sufficientSpaceToAllocate(oop_int_t minFree) {
-  fatal("*TODO*: implement"); 
-  return FALSE;
+  return freePages() * page_size >= minFree;
 }
 
 bool Memory_System::sufficientSpaceAfterGC(oop_int_t minFree) {
@@ -306,21 +305,7 @@ bool Memory_System::sufficientSpaceAfterGC(oop_int_t minFree) {
   if (The_Squeak_Interpreter()->signalLowSpace())
     return false;  
   
-  fatal("*TODO* implement: iterate through freelist to sum free space");
-
-  fatal("growObjectMemory");
-}
-
-
-
-u_int32 Memory_System::maxContiguousBytesLeft() {
-  u_int32 r = 0;
-  FOR_ALL_RANKS(i)
-    if (heaps[i]->bytesLeft() > r)  r = heaps[i]->bytesLeft();
-    
-  fatal("*TODO* implement this for the global heap rather than for the individual \"heaps\"");
-  
-  return r;
+  return freePages() * page_size >= minFree;
 }
 
 
@@ -379,11 +364,26 @@ void Memory_System::snapshotCleanUp() {
 }
 
 
+u_int32 Memory_System::bytesTotal() {
+  return heap_past_end - heap_base;
+}
+
 u_int32 Memory_System::bytesLeft(bool includeSwap) {
   u_int32 sum = 0;
   FOR_ALL_RANKS(i)
     sum += heaps[i]->bytesLeft(includeSwap);
   return sum;
+}
+
+u_int32 Memory_System::bytesLeftIncludingPages() {
+  u_int32 freePagesBytes = freePages() * page_size;
+  
+  return freePagesBytes + bytesLeft(false);
+}
+
+
+u_int32 Memory_System::bytesUsed() {
+  return bytesTotal() - bytesLeftIncludingPages(); 
 }
 
 
@@ -418,6 +418,8 @@ void Memory_System::writeImageFileIO(char* image_name) {
     The_Squeak_Interpreter()->success(false);
     return;
   }
+  
+  /* TODO: fix for single heap */
   u_int32 heap_offsets[sizeof(heaps)/sizeof(heaps[0][0])];
   compute_snapshot_offsets(heap_offsets);
 
@@ -477,37 +479,18 @@ void Memory_System::compute_snapshot_offsets(u_int32* offsets) {
 }
 
 
+
 Oop Memory_System::firstAccessibleObject() {
-  /*FOR_ALL_HEAPS(rank, mutability)  {
-    Object* obj = heaps[rank][mutability]->firstAccessibleObject();
-    if (obj != NULL)
+  FOR_EACH_OBJECT(obj) {
+    if(!obj->isFreeObject())
       return obj->as_oop();
-  }*/
-  fatal("*TODO*: implement for a single heap");
+  }
   return The_Squeak_Interpreter()->roots.nilObj;
 }
 
 
 Oop Memory_System::nextObject(Oop x) {
-  /*Object_p obj = x.as_object();
-  int start_rank = obj->rank();
-  int start_mutability = obj->mutability();
-  Object* inst = heaps[start_rank][start_mutability]->accessibleObjectAfter(obj);
-  if (inst != NULL)  return inst->as_oop();
-  bool past_start = false;
-  FOR_ALL_HEAPS(rank, mutability) {
-    if (!past_start) {
-      if (&heaps[rank][mutability] > &heaps[start_rank][start_mutability])
-        past_start = true;
-    }
-    else {
-      Object* inst = heaps[rank][mutability]->firstAccessibleObject();
-      if (inst != NULL)
-        return inst->as_oop();
-    }
-  } */
-  fatal("*TODO*: implement for a single heap");
-  return  Oop::from_int(0);
+  return x.as_object()->nextAccessibleObject()->as_oop();
 }
 
 
@@ -736,17 +719,6 @@ void Memory_System::scan_compact_or_make_free_objects_everywhere(bool compacting
 
 void Memory_System::scan_compact_or_make_free_objects_here(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
   heaps[Logical_Core::my_rank()]->scan_compact_or_make_free_objects(compacting, gc_or_null);
-}
-
-
-
-
-u_int32 Memory_System::bytesUsed() {
-  u_int32 sum = 0;
-  fatal("*TODO*: probably requires a new implementation."); 
-  FOR_ALL_RANKS(rank)
-    sum += heaps[rank]->bytesUsed();
-  return sum;
 }
 
 
@@ -1025,6 +997,22 @@ char* Memory_System::map_heap_memory(size_t total_size,
 
 /******************************** Page Support ********************************/
 
+# define FOR_EACH_PAGE(page) \
+for ( Page * page = (Page*)heap_base; \
+      (char*)page < heap_past_end; \
+             page++ )
+
+# define FOR_EACH_FREE_PAGE(page) \
+for ( Page * page  = (Page*)global_GC_values->free_page; \
+             page != NULL; \
+             page  = page->next_free_page )
+
+# define FOR_EACH_FREE_PAGEPTR(page_ptr) \
+for ( Page ** page_ptr  = (Page**)&(global_GC_values->free_page); \
+             *page_ptr != NULL; \
+              page_ptr  = &((*page_ptr)->next_free_page) )
+
+
 void Memory_System::initialize_memory() {
   int                  pages = calculate_total_pages(page_size);
   u_int32    total_heap_size = pages *  page_size;  
@@ -1070,6 +1058,8 @@ void Memory_System::verify_memory_initialization() {
   
   lprintf("=> Stats: Expected %d pages; got %d objects & %d pages.\n", 
           desired_pages, nobjects, npages);
+          
+  lprintf("=> Contiguous bytes available: %d.\n", maxContiguousBytesLeft());
           
   /* Page Freelist Tests; *TODO* move */
   Page* p1 = allocate(heap_past_end - heap_base);
@@ -1158,6 +1148,33 @@ Page* Memory_System::allocate(size_t minSize_bytes) {
   OS_Interface::mutex_unlock(global_GC_values->mutex);
   
   return p;
+}
+
+int Memory_System::freePages() {
+  // optimizable w/ counter variable
+  int c = 0;
+  FOR_EACH_FREE_PAGE(p)
+    c++;
+  return c;
+}
+
+u_int32 Memory_System::maxContiguousBytesLeft() {
+  Page* startPage = (Page*)global_GC_values->free_page;
+  int   contiguousPages = 0;
+  int   maxContiguousPages = 0;
+  
+  FOR_EACH_FREE_PAGE(p) {
+    if (startPage + contiguousPages == p) {
+      contiguousPages++;
+    } else {
+      maxContiguousPages = max(contiguousPages,maxContiguousPages);
+      startPage = p;
+      contiguousPages = 1;
+    }
+  }
+  maxContiguousPages = max(contiguousPages,maxContiguousPages);
+  
+  return maxContiguousPages * page_size;
 }
 
 /******************************************************************************/

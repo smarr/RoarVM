@@ -75,6 +75,9 @@ bool Abstract_Object_Heap::verify() {
     }
     if (!obj->isFreeObject() &&  obj->is_current_copy())
       ok = obj->verify() && ok;
+    
+    if (!ok) dittoing_stdout_printer->printf("Failed to verify obj at %p\n", obj);
+    
     prev_prev_obj = prev_obj;
     prev_obj = obj;
   }
@@ -116,7 +119,6 @@ void Abstract_Object_Heap::ensure_all_unmarked() {
 
 
 void Abstract_Object_Heap::do_all_oops(Oop_Closure* oc) {
-  fatal("*TODO*: probably requires new implementation.");
   FOR_EACH_OBJECT_IN_HEAP(this, obj)
     obj->do_all_oops_of_object(oc);
 }

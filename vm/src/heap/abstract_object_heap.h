@@ -14,7 +14,7 @@
 
 class Abstract_Object_Heap {
  protected:
-  int rank; // Owning Core's rank [*TODO*: initialize in constructor]
+  int rank; // Owning Core's rank
 
   Oop* _start;
   Oop* _next;
@@ -29,6 +29,7 @@ class Abstract_Object_Heap {
   Abstract_Object_Heap() {
     _start = _next = _end = NULL; lowSpaceThreshold = 0;
     allocationsSinceLastQuery = compactionsSinceLastQuery = 0;
+    rank = Logical_Core::my_rank();
   }
   bool is_initialized() { return _start != NULL; }
 
@@ -68,7 +69,7 @@ class Abstract_Object_Heap {
   Oop     initialInstanceOf(Oop);
 
   Object* first_object_or_null();
-  Object*   end_objects() { return (Object*)_next; } // addr past objects
+  Object*   end_objects() const { return (Object*)_next; } // addr past objects
   Oop*     end_of_space() { return (Oop*)_end; }
 
   Object* first_object_without_preheader();
@@ -88,7 +89,7 @@ class Abstract_Object_Heap {
 
 
 
-  Oop* startOfMemory() { return _start; }
+  Oop* startOfMemory() const { return _start; }
 
   bool contains(void* p) { Oop* pp = (Oop*)p;  return _start <= pp  &&  pp < _next; }
 

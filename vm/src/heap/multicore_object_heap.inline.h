@@ -51,7 +51,7 @@ inline Object_p Multicore_Object_Heap::allocate(oop_int_t byteSize, oop_int_t hd
   oop_int_t hdrSize_with_preheader = hdrSize + preheader_oop_size ;
   int total_bytes = byteSize  +  (hdrSize_with_preheader - 1) * bytesPerWord;
   
-  Object* chunk = (Object*)allocateChunk_for_a_new_object_and_safepoint_if_needed(total_bytes);
+  Chunk* chunk = allocateChunk_for_a_new_object_and_safepoint_if_needed(total_bytes);
   
   Safepoint_Ability sa(false); // from here on, no GCs!
   
