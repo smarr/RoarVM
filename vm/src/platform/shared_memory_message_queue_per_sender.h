@@ -23,7 +23,7 @@ protected:
     # define INTEL_CACHELINE_SIZE 64
     # define SIZE_TO_FIT_IN_CHANNEL (INTEL_CACHELINE_SIZE * 2)
     char cacheline_alignment[SIZE_TO_FIT_IN_CHANNEL - sizeof(BufferedChannelDebug)];
-  } buffered_channels[Max_Number_Of_Cores];
+  } buffered_channels[Max_Number_Of_Cores+1];// +1 for GC-thread [MDW]
   #else
     BufferedChannel      buffered_channel;
   #endif

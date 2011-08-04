@@ -3318,3 +3318,99 @@ bool Squeak_Interpreter::getNextEvent_any_platform(void* p) {
   successFlag = preserved_successFlag;
   return successFlag_value;
 }
+
+/*************************************************
+ * GC aiding code
+ *************************************************/
+void  Squeak_Interpreter::sendNMTTrappedRefsToGC(){
+    pushLocalOopStackToGCOopStack();
+}
+
+/*
+ * Add the locally collected refs (Object*) to the mark-stack of the GC
+ * thread.
+ */
+void Squeak_Interpreter::pushLocalOopStackToGCOopStack(){
+    if( !tempStack->is_empty()){
+        Contents* tempContents = tempStack->popCurrentContents();
+        
+        assert(tempContents->next_contents == NULL); // We allow only a single Contents-block in our local Oop-stack (up to 10.000 refs).
+        
+        GC_Thread_Class::addFilledContentsToMarkStack(tempContents);
+        
+    }/* else {
+      if no elements are on the local stack, we do not have to send anything.
+      }*/
+    
+    
+}
+
+void Squeak_Interpreter::on_NMT_trap(Oop* p, Oop value){
+  Oop nmtCorrectOop = Oop::from_bits(value.bits());
+  nmtCorrectOop.setNMT( NMT );
+  
+  // If CAS fails the pointer was already changed: ignore.
+  if (Oop::atomic_compare_and_swap(p,value,nmtCorrectOop) ) {
+    tempStack->push(p->as_object());
+    if(tempStack->isAboutToCreateNewContents()){
+      pushLocalOopStackToGCOopStack();
+    }
+  }
+}
+
+void Squeak_Interpreter::on_Protected_trap(Oop* p, Oop oldValue){
+  printf("entered on on_Protected_trap(Oop* p, Oop oldValue)...\n"); return;
+  Oop* newAddress = GC_Thread_Class::getInstance()->lookUpNewLocation(oldValue);
+  if( newAddress == NULL){ // Not yet moved.
+    Object* theObject = oldValue.as_object();
+    newAddress = theObject->relocateIfNoForwardingPointer( The_Memory_System()->heaps[ Logical_Core::my_rank() ][0] );
+    assert(newAddress != NULL);
+  }
+  Oop::atomic_compare_and_swap(p, oldValue, *newAddress);
+}
+
+inline void Squeak_Interpreter::on_checkpoint_finishMark(){
+    pushLocalOopStackToGCOopStack();
+}
+
+
+bool Squeak_Interpreter::is_pointing_to_protected_page(Oop oop){
+  //printf("Entered is_pointing_to_protected_page(Oop oop)\n");
+  int r_eax = -1;
+  int32 x = (int32)oop.as_object();
+  
+  /*
+   * Block of asembly:
+   * - Move zero to eax-register.
+   * - Dead-load the object pointed to by 'oop'.
+   *  -> this will store TRAPPED in eax if the load was on protected page.
+   * -Move the content of eax-register to the r_eax varible.
+   * 
+   * Verification of the value of r_eax now allows us to determine 
+   * if we have been 'trapped' or not.
+   */
+  asm volatile ("movl $0 , %%eax\n" :"=r"(r_eax));
+  asm volatile ("movl (%0), %%ebx\n" :"=r"(x)); // deref!
+  asm volatile ("movl %%eax, %0\n" :"=r"(r_eax));
+  
+  bool res = (r_eax == TRAPPED);
+  //printf("Returning from is_pointing_to_protected_page (%s,%d)\n",res?"true":"false",r_eax);
+  return res;
+}
+
+
+void Squeak_Interpreter::doLVB(Oop* p){
+  //printf("Entering Squeak_Interpreter::doLVB(Oop* p)\n");
+  Oop oldValue = Oop::from_bits(p->bits());
+  
+  /*
+  if( oldValue.getNMT() != NMT ){
+        on_NMT_trap(p,oldValue);
+    }
+    */
+  
+    if ( is_pointing_to_protected_page( oldValue ) ) {
+        on_Protected_trap(p,oldValue);
+    }
+   
+}

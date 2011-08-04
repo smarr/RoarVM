@@ -130,6 +130,94 @@ void Message_Statics::print_size() {
 // Return true if we got a message.
 Message_Statics::messages last_msg_type = Message_Statics::noMessage; // for debugging
 
+/*
+ * receive_and_handle_all_checkpoint_responses_GC starts a loop that processes all messages,
+ * until for each of the running interpreters (group_size), a msg of the expected type has arrived.
+ */
+bool Message_Statics::receive_and_handle_all_checkpoint_responses_GC(Message_Statics::messages expectedType){
+    int msgsYetToarrive = Logical_Core::group_size;
+    while(msgsYetToarrive > 0 ){
+        messages msgtype = receive_and_handle_one_message_as_GC(true);
+        if(msgtype == expectedType){
+            msgsYetToarrive--;
+        }
+    }
+    
+}
+
+Message_Statics::messages Message_Statics::receive_and_handle_one_message_as_GC(bool wait){
+        assert(Logical_Core::running_on_GC());
+    const int rank_on_threads_or_zero_on_processes = Logical_Core::get_GC_core()->rank();
+        
+        
+        abstractMessage_class* buffered_msg;
+        Logical_Core* buffer_owner;
+        messages msg_type_or_encoded_acking_type;
+        
+        messages msg_type;
+        for (;;) {
+            // added this loop and pass in false to receiver prims below in order to do timeout checks
+            const bool do_timeout_checks = true; //  tried false but no speedup loading image -- dmu 6/10
+            
+            u_int64 start = OS_Interface::get_cycle_count();
+            buffered_msg = (abstractMessage_class*)Message_Queue::buffered_receive_from_anywhere(wait && !do_timeout_checks, &buffer_owner, Logical_Core::my_core());
+            u_int64 end = OS_Interface::get_cycle_count();
+            
+            Message_Stats::record_buffered_recieve(rank_on_threads_or_zero_on_processes, end - start);
+            
+            msg_type_or_encoded_acking_type = buffered_msg == NULL  ?  noMessage  :  buffered_msg->header;
+            
+            msg_type = is_encoded_for_ack(msg_type_or_encoded_acking_type) ? ackMessage : msg_type_or_encoded_acking_type;
+            
+# if  Check_Reliable_At_Most_Once_Message_Delivery
+            if (buffered_msg)
+                Message_Stats::check_received_transmission_sequence_number(msg_type, buffered_msg->transmission_serial_number, buffered_msg->sender);
+# endif
+            
+            if (msg_type_or_encoded_acking_type != noMessage) {
+                PERF_CNT(interp, count_received_intercore_messages());
+                
+                if (Collect_Receive_Message_Statistics)
+                    Message_Stats::collect_receive_msg_stats(msg_type_or_encoded_acking_type);
+                break;
+            }
+            
+            if (!wait)
+                return Message_Statics::noMessage;
+        } 
+        
+        
+        Message_Or_Ack_Request* matching_msg_or_ack_request = Message_Or_Ack_Request::find(msg_type_or_encoded_acking_type);
+        Message_Or_Ack_Request* matching_msg_request = msg_type == ackMessage ? NULL : matching_msg_or_ack_request;
+        
+        
+# define MAKE_CASE(name, superclass, constructor_formals, superconstructor_actuals, constructor_body, class_body, ack_setting, safepoint_delay_setting) \
+case name: { \
+name##_class local_buf(&The_Receive_Marker); \
+name##_class* final_dest = matching_msg_request != NULL  ?  (name##_class*)matching_msg_request->buf_or_nil_for_ack  :  &local_buf; \
+/* Used to try to not copy the buffer, but if handle_me ends up receiving another msg from sender, such as doAllRootsHere, causes problems. Be simple, even if slower -- Ungar 1/10 */ \
+*final_dest = *(name##_class*)buffered_msg; \
+buffer_owner->message_queue.release_oldest_buffer(buffered_msg); \
+final_dest->handle_me_and_ack(); \
+\
+break; \
+}
+        
+        switch (msg_type) {
+            default: fatal("bad message"); return Message_Statics::noMessage;
+                FOR_ALL_MESSAGES_DO(MAKE_CASE)
+        }
+# undef MAKE_CASE
+        
+        if (matching_msg_or_ack_request != NULL)
+            matching_msg_or_ack_request->is_fulfilled = true;
+        
+        last_msg_type = msg_type; // for debugging
+        
+        return msg_type;
+    } /***/
+
+
 bool Message_Statics::receive_and_handle_one_message(bool wait) {
   Squeak_Interpreter* const interp = The_Squeak_Interpreter();
   const int rank_on_threads_or_zero_on_processes = interp->rank_on_threads_or_zero_on_processes();
@@ -206,7 +294,7 @@ bool Message_Statics::receive_and_handle_one_message(bool wait) {
   last_msg_type = msg_type; // for debugging
   
   return true;
-}
+} /***/
 
 
 void Message_Statics::wait_for_ack(Message_Statics::messages t, int sender) {

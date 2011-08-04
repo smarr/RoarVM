@@ -382,9 +382,119 @@ void selfDestructMessage_class::handle_me() {
 
 void ackMessage_class::handle_me() {}
 
+/***************************************************************
+ *                             GC Messages
+ ***************************************************************/
+
+/* Simple Checkpoint Messages */
+void checkpointMessage_class::handle_me(){
+    printf("Handeling checkpointMessage_class(%d)...\n",Logical_Core::my_rank());
+    checkpointResponse_class m;
+    m.send_to_GC();
+
+}
+
+void checkpointResponse_class::handle_me(){
+    printf("Handeling checkpointResponse_class(%d)...\n",Logical_Core::my_rank());
+}
+
+/***************
+ * MARK
+ ***************/
+
+/* Checkpoint messages before actual marking */
+
+void checkpoint_startMark_Message_class::handle_me(){
+    /* ON INTERPRETER THREAD */
+    
+    // Set new expected NMT value for this core (new_NMT).
+    // Might change to flipNMT(), but that is less general.
+    The_Squeak_Interpreter()->setNMT( new_NMT );
+    
+    // Set all root-refs' NMT value to the new value,
+    // And collect them.
+    SetNMTbitAndCollectRoots_Oop_Closure oc( new_NMT );
+    The_Squeak_Interpreter()->do_all_roots(&oc);
+
+    // Ask memory-system for new allocation page.
+    fatal("NYI - ask for new page");
+    
+    checkpoint_startMark_Response_class m;
+    m.roots = oc.roots; // Send the collected roots to the GC_thread.
+
+    m.send_to_GC();
+}
+
+void checkpoint_startMark_Response_class::handle_me(){
+    /* ON GC THREAD */
+    
+    // Add all root refs to markstack.
+    fatal("Is this thread-safe? Mutator threads can already be adding NTM-trapped-refs");
+    GC_Oop_Stack* stack = GC_Thread_Class::getInstance()->getMarkStack();
+    assert(roots->contents->next_contents == NULL); //Expect rootset of Interpreters not to be larger than N(=10.000)
+    if(! stack->is_empty())roots->contents->next_contents = stack->contents;
+    stack->contents = roots->contents;
+}
+
+/* Checkpoint messages to verify if we can stop the marking phase */
+
+void checkpoint_finishMark_Message_class::handle_me(){
+    /* ON INTERPRETER THREAD */
+    
+    The_Squeak_Interpreter()->sendNMTTrappedRefsToGC();
+    checkpoint_finishMark_Response_class m;
+    m.send_to_GC();
+}
 
 
+void checkpoint_finishMark_Response_class::handle_me(){
+    /* ON GC THREAD */
+    /* DO NOTHING */
+    // NMT-trapped-refs are added to stack, no continue mark-loop is stack is not empty.
+}
 
+/***************
+ * RELOCATE
+ ***************/
+
+/* Checkpoint message to let all interpreters scrub their root set */
+
+void checkpoint_startRelocate_Message_class::handle_me(){
+    /* ON INTERPRETER THREAD */
+    
+    ScrubExistingStaleRefs_Oop_Closure oc;
+    The_Squeak_Interpreter()->do_all_roots(&oc);
+    
+    checkpoint_startRelocate_Response_class m;
+    m.send_to_GC();
+}
+
+void checkpoint_startRelocate_Response_class::handle_me(){
+    /* ON GC THREAD */
+    /*  DO NOTHING */
+}
+
+/***************
+ * REMAP
+ ***************/
+
+void checkpoint_startRemap_Message_class::handle_me(){
+    /* ON INTERPRETER THREAD */
+}
+
+void checkpoint_startRemap_Response_class::handle_me(){
+    /* ON GC THREAD */
+}
+
+/***************
+ * OTHER
+ ***************/
+
+void awaiting_finished_GC_cycle_Message_class::handle_me(){
+    GC_Thread_Class::setAsAwaitingFinishedGCCycle(sender);
+}
+
+/**/
 
 void flushSelectiveMessage_class::do_all_roots(Oop_Closure* oc) {
   oc->value(&selector, (Object_p)NULL);

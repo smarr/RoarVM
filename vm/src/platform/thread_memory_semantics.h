@@ -114,6 +114,7 @@ public:
   static void initialize_logical_cores();
   static void initialize_local_logical_core();
   static void initialize_local_logical_core(int rank);
+  static  void initialize_corekey_for_GC();
 
   
   static void go_parallel(void (*helper_core_main)(), char* argv[]) { 

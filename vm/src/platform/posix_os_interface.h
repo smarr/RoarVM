@@ -138,7 +138,14 @@ public:
   static inline bool atomic_compare_and_swap(int* ptr, int old_value, int new_value) {
     return __sync_bool_compare_and_swap(ptr, old_value, new_value);
   }
-
+    
+    static inline bool atomic_compare_and_swap(int32* ptr, int32 old_value, int32 new_value) {
+        return __sync_bool_compare_and_swap(ptr, old_value, new_value);
+    }
+    
+    static inline bool atomic_compare_and_swap(int64* ptr, int64 old_value, int64 new_value) {
+        return __sync_bool_compare_and_swap(ptr, old_value, new_value);
+    }
   /**
    * Atomically compare the memory location with the old value, and 
    * if they are equal set the new value, otherwise don't set anything.

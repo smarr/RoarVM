@@ -36,6 +36,8 @@
 # include <signal.h>
 # include <errno.h>
 
+#include "OS_signal_handling.h" // MDW
+
 # if On_Tilera
 #  include <tmc/mem.h>
 #  include <asm/page.h>
@@ -149,6 +151,10 @@
 
 # include "logical_core.h"
 
+
+# include "checkpoint_closure.h" //MDW
+# include "gc_oop_stack.h" // MDW moved before squeak_interpreter.h and messages
+
 # include "interpreter_subset_for_control_transfer.h"
 # include "message_stats.h"
 # include "message_classes.h"
@@ -197,6 +203,8 @@
 # include "method_cache.h"
 # include "at_cache.h"
 
+# include "parallel_gc_thread.h" // MDW
+
 # include "externals.h"
 # include "abstract_primitive_table.h"
 # include "primitive_table.h"
@@ -209,7 +217,6 @@
 # include "squeak_image_reader.h"
 
 
-# include "gc_oop_stack.h"
 # include "abstract_mark_sweep_collector.h"
 # include "indirect_oop_mark_sweep_collector.h"
 # include "mark_sweep_collector.h"

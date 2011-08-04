@@ -26,6 +26,10 @@ inline void Object::set_class_oop(Oop x) {
                                               Header_Type::extract_from(class_and_type_word())
                                               |  Header_Type::without_type(x.bits()),
                                               (Object_p)this);
+    // NMT bit of class-oop is stored in the baseHeader, due to 
+    // header-data in the lower two bits of the class-oop.
+    //setNMTbitOfClassOopIfDifferent(x.getNMT());
+    
 }
 
 inline void Object::set_class_oop_no_barrier(Oop x) {

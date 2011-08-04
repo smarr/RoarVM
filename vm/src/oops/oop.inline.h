@@ -67,6 +67,7 @@ inline Object* Oop::as_untracked_object_ptr() {
 }
 
 inline Object_p Oop::as_object() {
+    //The_Squeak_Interpreter()->doLVB(this);
     return (Object_p)bits(); /* return (Object_p)The_Memory_System()->object_for(*this); RMOT */
 }
 

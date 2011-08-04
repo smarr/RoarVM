@@ -27,21 +27,32 @@
 
  The format of the 0th header word is as follows:
 
-	3 bits	reserved for gc (mark, root, unused)
+	3 bits	reserved for gc (mark, root, is forwarding pointer)
 	12 bits	object hash (for HashSets)
 	5 bits	compact class index
 	4 bits	object format
 	6 bits	object size in 32-bit words
-	2 bits	header type (0: 3-word, 1: 2-word, 2: forbidden, 3: 1-word)
+	2 bits	header type (0: 3-word, 1: 2-word, 2: forbidden (object is free)  3: 1-word)
 
  If a class is in the compact class table, then this is the only header
  information needed.  If it is not, then it will have another header word at
  offset -4 bytes with its class in the high 30 bits, and the header type
  repeated in its low 2 bits.
  
+ If a class is not in the compact class table then the 5 'compact class index' bits
+ after the 'object hash'-bits are not used. We then store the NMT bit of the 
+ class-Oop (at -4bytes) at bit number 8, instead of in the class-oop itself, since
+ the last two bits of the class-oop are used to repeat the header-type, ergo leaves
+ no space for the NMT-bit. [MDW]
+ 
  If the objects size is greater than 255 bytes, then it will have yet another
  header word at offset -8 bytes with its full word size in the high 30 bits and
  its header type repeated in the low two bits.
+ 
+ If the object is relocated, then the object behaves as a forwarding pointer
+ (contains an Oop to a copy of this object, that is located in a part of the heap
+ that is not under the protection of the GC). An object that is a forwarding pointer,
+ has the third bit of the baseheader set to 1. [MDW]
 
  The object format field provides the remaining information as given in the
  formatOf: method (including isPointers, isVariable, isBytes,
@@ -114,7 +125,107 @@ public:
      init_extra_preheader_word();
      set_backpointer(x); 
    }
-
+   
+   /*
+    * Store the NMT-bit of the class-oop in the baseheader due to lack of space
+    * in the class-oop. [MDW]
+    */
+   static const int NMT_BIT_IN_BASE_HEADER_SHIFT = 8;
+   static const int32 NMT_BIT_IN_BASE_HEADER_MASK = 1 << NMT_BIT_IN_BASE_HEADER_SHIFT;
+   
+   void setNMTbitOfClassOopIfDifferent( int correctNMT ){
+     int32 baseHeaderCopy = baseHeader;
+     int32 newBaseHeader = baseHeaderCopy;
+     
+     if( getNMTbitOfClassOopFromHeader( baseHeaderCopy ) != correctNMT){
+       if(correctNMT == 0){
+         newBaseHeader = (baseHeaderCopy & ~NMT_BIT_IN_BASE_HEADER_MASK);
+       } else if( correctNMT == 1){
+         newBaseHeader = (baseHeaderCopy | NMT_BIT_IN_BASE_HEADER_MASK);
+       } else {
+         fatal("Expected NMT value should always be 1 or 0");
+       }
+       POSIX_OS_Interface::atomic_compare_and_swap(&baseHeader,baseHeaderCopy,newBaseHeader);
+     }
+   }
+   
+   int getNMTbitOfClassOopFromHeader( int32 baseHeaderCopy){
+     return ((baseHeaderCopy & NMT_BIT_IN_BASE_HEADER_MASK)>>NMT_BIT_IN_BASE_HEADER_SHIFT);
+   }
+   
+   
+   /*
+    * This function tries to copy this object to the current new-alloc-page in the
+    * supplied-by-argument Abstract_Object_Heap.
+    * If this object is already a forwarding-pointer (contains pointer to a copy of this object,
+    * in a part of the heap that is not under the protection of the GC) then we do nothing but returning false (#f).
+    * In the case where the object is still a simple object we copy the object to a new location. If after copying
+    * the object is still no forwarding pointer, we convert it to a forwarding pointer.
+    * If during copying the object changed to an forwarding pointer, we return the memory used for the copy back to the
+    * supplied-by-argument Abstract_Object_Heap.
+    * The function relocateIfNoForwardingPointer( Abstract_Object_Heap* ) returns the forward pointing Oop (fresh copy or
+    * already present forwarding pointer).[MDW]
+    */
+   Oop* relocateIfNoForwardingPointer( Abstract_Object_Heap* m_objectHeap ){
+     bool succeeded = false;
+     int totalSizeInBytes = total_byte_size();
+     
+     // Keep a copy of the first 64 bits of this object (baseheader + first oop), to compare agains in the CAS operation. [MDW]
+     int64 oldBaseHeaderAndFirstOopAsInt64 = getBaseheaderAndFirstOopAsInt64();
+     Oop* newOop = NULL;
+     if( Object::is_forwardingPointer( oldBaseHeaderAndFirstOopAsInt64 ) ){
+       fatal("Should do stuff...\n");
+     } else{
+       Chunk* dst_chunk =  m_objectHeap->allocateChunk( totalSizeInBytes );
+       Chunk* src_chunk = my_chunk();
+       memcpy(dst_chunk, src_chunk, totalSizeInBytes);
+       newOop = (dst_chunk->object_from_chunk()->as_oop_p());
+       succeeded = makeForwardingPointer( oldBaseHeaderAndFirstOopAsInt64, *newOop  );
+       if( !succeeded ) { // If transformation to forwarding pointer failed, it must already be a forwarding pointer ...
+         m_objectHeap->deallocateChunk( totalSizeInBytes );
+         return getForwardingPointer();
+       }
+     }
+     return newOop;
+   }
+   
+   /*
+    * An object is a forwarding pointer if the headerType-bits are set to 2.
+    * To verify this from a int64 we have to check bits numbers 31-32 (offset 0)
+    */
+   static const int int32_to_high_bits_int64_shift = 32;
+   static bool header_is_forwardingPointer(int32 hdr) { return hdr & ForwardPointerBit; }
+   
+   static bool  is_forwardingPointer( int64 baseHeaderAndFirstOopAsInt64 ){
+       int32 temp = (baseHeaderAndFirstOopAsInt64 >> int32_to_high_bits_int64_shift);
+       return header_is_forwardingPointer(temp);
+   }
+   
+   bool  is_forwardingPointer(  ){
+     return header_is_forwardingPointer( baseHeader );
+   }
+   
+   Oop* getForwardingPointer(){
+     return (Oop*)firstFixedField();
+   }
+   
+private:
+   int64 getBaseheaderAndFirstOopAsInt64(){
+     Oop* oldFirstOop = (Oop*)firstFixedField();
+     int64 oldBaseheaderAndFirstOop =  baseHeader;
+     oldBaseheaderAndFirstOop = (oldBaseheaderAndFirstOop<< int32_to_high_bits_int64_shift) & oldFirstOop->bits() ;
+     return oldBaseheaderAndFirstOop;
+   }
+   
+public:
+   bool makeForwardingPointer(int64 oldBaseheaderAndFirstOop, Oop oop){
+       int64 newBaseheaderAndForwardingPointer =  baseHeader;
+       newBaseheaderAndForwardingPointer = (newBaseheaderAndForwardingPointer << int32_to_high_bits_int64_shift) & oop.bits();
+       
+       return POSIX_OS_Interface::atomic_compare_and_swap((int64*)&baseHeader,oldBaseheaderAndFirstOop,newBaseheaderAndForwardingPointer);
+   }
+     
+     
   static Oop oop_from_backpointer(oop_int_t bp) {
     return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
   }
@@ -180,12 +291,17 @@ public:
   static const int HashBits = HashMask; // squeak name, should be 0x1ffe0000;
 
 
-  // "masks for root and mark bits"
-  static const int UnusedWidth = 1;
-	static const int RootShift = HashShift + HashWidth + UnusedWidth; // "Next-to-Top bit"
-	static const int MarkShift = RootShift + 1;  // "Top bit"
-	static const int32 RootBit = 1 << RootShift;
-	static const int32 MarkBit = 1 << MarkShift;
+  // "masks for forward pointer, root and mark bits" (the three high bits)
+  static const int ForwardPointerShift = HashShift + HashWidth;
+  static const int ForwardPointerWidth = 1;
+   
+  static const int RootShift = ForwardPointerShift + ForwardPointerWidth;
+  static const int RootWidth = 1;
+  static const int MarkShift = RootShift + RootWidth;
+   
+  static const int32 ForwardPointerBit = 1 << ForwardPointerShift;
+	static const int32 RootBit           = 1 << RootShift;
+	static const int32 MarkBit           = 1 << MarkShift;
 
   static bool verify_constants() {
     assert_eq(SizeMask,                0xfc, "");
@@ -193,6 +309,7 @@ public:
     assert_eq(FormatMask,             0xf00, "");
     assert_eq(CompactClassMask,     0x1f000, "");
     assert_eq(HashBits,          0x1ffe0000, "");
+    assert_eq(ForwardPointerShift, 29, ""); // [MDW]
     assert_eq(RootShift, 30, "");
     assert_eq(MarkShift, 31, "");
     return true;

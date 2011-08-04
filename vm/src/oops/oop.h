@@ -76,6 +76,22 @@ private:
   bool is_mem() { return (bits() & Tag_Mask) == Mem_Tag; }
   bool is_int() { return (bits() & Tag_Mask) == Int_Tag; }
 
+    void setNMT(int newNMT){
+        if( getNMT() != newNMT){ 
+            if(newNMT == 0){
+                _bits = (_bits & ~NMT_Mask);
+            } else if(newNMT == 1){
+                _bits = (_bits | NMT_Mask);
+            }else {
+                fatal("ERROR: illegal NMT value.");
+            }
+        }
+    }
+    
+    int getNMT(){
+        return ((bits() & NMT_Mask) >> NMT_position);
+    }
+
   inline Object_p as_object();
   inline Object_p as_object_unchecked();
   inline Object_p as_object_if_mem();
@@ -122,6 +138,10 @@ private:
   inline int  mutability();
 
   static void test();
+    
+    static inline bool atomic_compare_and_swap(Oop* ptr, Oop old_value, Oop new_value) {
+        return __sync_bool_compare_and_swap((oop_int_t*)ptr, old_value.bits(), new_value.bits());
+    }
 };
 
 static const int bytes_per_oop = sizeof(Oop);
@@ -130,7 +150,6 @@ static const int bytes_per_oop = sizeof(Oop);
 inline int convert_byte_count_to_oop_count(int x) {
   return divide_by_power_of_two_and_round_up(x, bytes_per_oop);
 }
-
 
 
 inline void oopcpy_no_store_check(Oop* dst, const Oop* src, int n, Object_p dstObj);

@@ -37,6 +37,9 @@ public:
   static void process_any_incoming_messages(bool);
   static void receive_and_handle_messages_returning_a_match(messages msg, const abstractMessage_class*, int);
   static bool receive_and_handle_one_message(bool wait_for_msg);
+    
+  static bool receive_and_handle_all_checkpoint_responses_GC(messages msg);
+  static messages receive_and_handle_one_message_as_GC(bool wait_for_msg);
   static void wait_for_ack(messages, int);
   static void process_delayed_requests();
   

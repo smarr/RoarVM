@@ -51,6 +51,10 @@ void abstractMessage_class::receive_and_handle_messages_returning_a_match(int fr
   Message_Statics::receive_and_handle_messages_returning_a_match(get_message_type(), this, from_rank);
 }
 
+/* Send a message specificallay to the GC-thread. MDW */
+void abstractMessage_class::send_to_GC() {
+    send_to(Logical_Core::get_GC_core()->rank());
+}
 
 void abstractMessage_class::send_to(int r) {
   assert_always(r != Logical_Core::my_rank()); // should not get here
@@ -66,7 +70,17 @@ void abstractMessage_class::send_to(int r) {
 # endif
   
   assert(r < Max_Number_Of_Cores);
-  logical_cores[r].message_queue.send_message(this);
+    /* 
+     * When sending, first check it receiver is GC-thread or
+     * interpreter thread.
+     * MDW
+     */
+    if(Logical_Core::is_rank_of_GC(r)){
+        gc_core.message_queue.send_message(this);
+    } else {
+        logical_cores[r].message_queue.send_message(this);
+    }
+    
   if (should_ack( false, r)
       ||  should_ack(  true, r))
     Message_Statics::wait_for_ack(header, r);

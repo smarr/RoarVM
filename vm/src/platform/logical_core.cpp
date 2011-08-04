@@ -15,6 +15,7 @@
 # include "headers.h"
 
 Logical_Core* logical_cores;
+Logical_Core gc_core;
 
 int Logical_Core::num_cores  =  1;
 int Logical_Core::main_rank  =  0;
@@ -28,4 +29,17 @@ void Logical_Core::initialize_all_cores() {
 
   for (size_t i = 0;  i < size_t(num_cores);  ++i)
     logical_cores[i].initialize(i);
+}
+
+void Logical_Core::initialize_GC_core(){
+    // Cores are nubered from 0-groupsize -> group_size is a free rank.
+    // But not yet set at this point so use num_cores
+    gc_core.initialize(num_cores);
+}
+
+void Logical_Core::start_GC_thread(){
+    // Create an instance of GC_thread_Class and start (spawn+run)
+    // The instance is also stored statically in GC_Thread_Class. 
+    GC_Thread_Class gc_thread(gc_core);
+    gc_thread.start();
 }

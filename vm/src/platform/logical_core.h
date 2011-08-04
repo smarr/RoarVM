@@ -13,6 +13,7 @@
 
 
 extern Logical_Core* logical_cores;
+extern Logical_Core gc_core;
 
 class Logical_Core {
 private:
@@ -73,11 +74,23 @@ public:
   
   
   static void initialize_all_cores();
+    
+  static void initialize_GC_core();
+  static void start_GC_thread();
+  static Logical_Core* get_GC_core(){ return &gc_core; }
   
   static inline Logical_Core* main_core() { return &logical_cores[main_rank]; }
   static inline bool running_on_main() {
     return main_rank == my_rank();
   }
+
+    static inline bool running_on_GC() {
+        return group_size == my_rank();
+    }
+    
+    static inline bool is_rank_of_GC(int rank){
+        return group_size == rank;
+    }
 };
 
 # define FOR_ALL_RANKS(r) \
@@ -85,6 +98,12 @@ public:
 
 # define FOR_ALL_OTHER_RANKS(r) \
   FOR_ALL_RANKS(r) if (r != Logical_Core::my_rank())
+
+# define FOR_ALL_RANKS_AND_GC(r) \
+  for (int r = Logical_Core::group_size;  r >= 0;  --r)
+
+# define FOR_ALL_OTHER_RANKS_AND_GC(r) \
+  FOR_ALL_RANKS_AND_GC(r) if (r != Logical_Core::my_rank())
 
 # define FOR_ALL_RANKS_IN_REVERSE_ORDER(r) \
   for (int r = Logical_Core::group_size - 1;  r >= 0;  --r)

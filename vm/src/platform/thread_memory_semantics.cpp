@@ -143,6 +143,12 @@
     initialize_local_logical_core();
   }
 
+void Thread_Memory_Semantics::initialize_corekey_for_GC() {
+    assert_always(my_core_key != 0);
+    pthread_setspecific(my_core_key, Logical_Core::get_GC_core());
+    Thread_Memory_Semantics::my_core();
+}
+
   Logical_Core* Thread_Memory_Semantics::my_core() {
     assert(my_core_key != 0);
     return (Logical_Core*)pthread_getspecific(my_core_key);

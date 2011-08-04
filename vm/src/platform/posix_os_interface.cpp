@@ -81,6 +81,7 @@ void POSIX_OS_Interface::start_threads(void (*helper_core_main)(), char** /* arg
   pthread_setspecific(rank_key, (const void*)0);
   
   Logical_Core::initialize_all_cores();
+  Logical_Core::initialize_GC_core();
   
   Memory_Semantics::initialize_logical_cores();
 

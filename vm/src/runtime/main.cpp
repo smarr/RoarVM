@@ -270,6 +270,12 @@ void begin_interpretation() {
   if (The_Squeak_Interpreter()->make_checkpoint())
     The_Squeak_Interpreter()->save_all_to_checkpoint();
   
+  /*********************************************/
+  Abstract_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][1];
+  Object* o = h->firstAccessibleObject();
+  TEST_force_protectedPage_signal_trap(o);
+  /*********************************************/
+  
   assert_always(The_Squeak_Interpreter()->safepoint_ability == NULL);
   The_Squeak_Interpreter()->distribute_initial_interpreter();
   Message_Statics::run_timer = true;
@@ -349,6 +355,8 @@ int main(int argc, char *argv[]) {
   
   extern char** environ;
   sqr_main(argc, argv, environ);
+  
+  Logical_Core::start_GC_thread();
   
   begin_interpretation();
   

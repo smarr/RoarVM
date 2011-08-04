@@ -30,6 +30,7 @@ public:
   abstractMessage_class(                ) { sender = cpu_core_my_rank(); }
   abstractMessage_class( Receive_Marker*) { }
   virtual void send_to(int);
+  virtual void send_to_GC();
   virtual Message_Statics::messages get_message_type() const = 0;
   void send_to_other_cores();
   void send_to_all_cores();

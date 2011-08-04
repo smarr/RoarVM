@@ -97,6 +97,29 @@ template(transferControlMessage,updateEnoughInterpreterToTransferControlMessage,
 template(runPrimitiveMessage,updateEnoughInterpreterToTransferControlMessage, (int c, fn_t f), (), { argCount = c; fn = f; }, int argCount; fn_t fn; , no_ack, delay_when_have_acquired_safepoint) \
 template(runPrimitiveResponse, updateEnoughInterpreterToTransferControlMessage, (), (), , , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
+template(checkpointResponse, abstractMessage, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpointMessage, abstractMessage, (), (), {}, , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpoint_startMark_Message, checkpointMessage, (int NMT), (), {new_NMT = NMT; }, int new_NMT; , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpoint_startMark_Response, checkpointResponse, (), (), {roots=NULL;}, GC_Oop_Stack* roots;  , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpoint_finishMark_Message, checkpointMessage, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpoint_finishMark_Response, checkpointResponse, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpoint_startRelocate_Message, checkpointMessage, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpoint_startRelocate_Response, checkpointResponse, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpoint_startRemap_Message, checkpointMessage, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpoint_startRemap_Response, checkpointResponse, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(awaiting_finished_GC_cycle_Message, abstractMessage, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+
 
 // TODO: the following macros do not belong here, move them to a better place
 

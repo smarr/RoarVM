@@ -118,6 +118,8 @@
 		0ACF551912E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */; };
 		0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
+		3A263F3913E0625B0050B9DB /* parallel_gc_thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A263F3813E0625B0050B9DB /* parallel_gc_thread.cpp */; };
+		3AB16D6813E97D8D0075236F /* OS_signal_handling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AB16D6713E97D8D0075236F /* OS_signal_handling.cpp */; };
 		4E9B341713DDB19700E0E991 /* osx_os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784C9128DBF7400336BDE /* osx_os_interface.cpp */; };
 /* End PBXBuildFile section */
 
@@ -394,6 +396,11 @@
 		0ADA271212EF66EC009404B0 /* cacheline_aligned.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cacheline_aligned.h; sourceTree = "<group>"; };
 		0AEC1184128DF02F00EFF6D1 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
+		3A263F3713E061C60050B9DB /* checkpoint_closure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = checkpoint_closure.h; sourceTree = "<group>"; };
+		3A263F3813E0625B0050B9DB /* parallel_gc_thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parallel_gc_thread.cpp; sourceTree = "<group>"; };
+		3A263F3A13E064660050B9DB /* parallel_gc_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parallel_gc_thread.h; sourceTree = "<group>"; };
+		3AB16D6513E974CF0075236F /* OS_signal_handling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OS_signal_handling.h; sourceTree = "<group>"; };
+		3AB16D6713E97D8D0075236F /* OS_signal_handling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OS_signal_handling.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -434,8 +441,8 @@
 			isa = PBXGroup;
 			children = (
 				0A2783F4128DBF7300336BDE /* compiler_check.cpp */,
-				0A2783F5128DBF7300336BDE /* externals */,
 				0A2783F8128DBF7300336BDE /* from_squeak */,
+				0A2783F5128DBF7300336BDE /* externals */,
 				0A278443128DBF7300336BDE /* heap */,
 				0A278457128DBF7300336BDE /* ilib-intel */,
 				0A27845F128DBF7300336BDE /* image_readers */,
@@ -716,6 +723,8 @@
 		0A278443128DBF7300336BDE /* heap */ = {
 			isa = PBXGroup;
 			children = (
+				3A263F3813E0625B0050B9DB /* parallel_gc_thread.cpp */,
+				3A263F3713E061C60050B9DB /* checkpoint_closure.h */,
 				0A278444128DBF7300336BDE /* abstract_mark_sweep_collector.cpp */,
 				0A278445128DBF7300336BDE /* abstract_mark_sweep_collector.h */,
 				0A278446128DBF7300336BDE /* abstract_object_heap.cpp */,
@@ -735,6 +744,9 @@
 				0A278454128DBF7300336BDE /* multicore_object_table.h */,
 				0A278455128DBF7300336BDE /* multicore_object_table.inline.h */,
 				0A278456128DBF7300336BDE /* oop_closure.h */,
+				3A263F3A13E064660050B9DB /* parallel_gc_thread.h */,
+				3AB16D6513E974CF0075236F /* OS_signal_handling.h */,
+				3AB16D6713E97D8D0075236F /* OS_signal_handling.cpp */,
 			);
 			name = heap;
 			path = src/heap;
@@ -981,8 +993,8 @@
 				0A2784F9128DBF7400336BDE /* rvm_config.cpp */,
 				0A2784FA128DBF7400336BDE /* rvm_config.h */,
 				0A5D7C94135CA28500D13E53 /* rvm_squeak_config.h */,
-				0A2784FB128DBF7400336BDE /* safepoint.cpp */,
 				0A2784FC128DBF7400336BDE /* safepoint.h */,
+				0A2784FB128DBF7400336BDE /* safepoint.cpp */,
 				0A2784FD128DBF7400336BDE /* safepoint_ability.cpp */,
 				0A2784FE128DBF7400336BDE /* safepoint_ability.h */,
 				0A2784FF128DBF7400336BDE /* safepoint_request_queue.cpp */,
@@ -1283,6 +1295,8 @@
 				0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */,
 				0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */,
 				4E9B341713DDB19700E0E991 /* osx_os_interface.cpp in Sources */,
+				3A263F3913E0625B0050B9DB /* parallel_gc_thread.cpp in Sources */,
+				3AB16D6813E97D8D0075236F /* OS_signal_handling.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

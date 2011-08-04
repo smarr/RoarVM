@@ -17,3 +17,5 @@ const int Tag_Mask = 1;
 const int Int_Tag  = 1;
 const int Mem_Tag  = 0;
 
+const int NMT_Mask = 2;
+const int NMT_position =1;

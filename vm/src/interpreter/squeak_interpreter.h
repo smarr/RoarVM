@@ -1516,6 +1516,31 @@ public:
   static int ioCPUMSecs();
     
   bool getNextEvent_any_platform(void*);
+    
+/*************************************************
+ * GC aiding code
+ *************************************************/
+private:
+    int NMT;
+    GC_Oop_Stack* tempStack;
+public:
+  /* During mark */
+    void setNMT( int newNMT){  assert(NMT != newNMT); NMT = newNMT; };
+  void sendNMTTrappedRefsToGC();
+  void pushLocalOopStackToGCOopStack();
+    
+    void on_NMT_trap(Oop* p, Oop oldValue);
+    
+    void on_Protected_trap(Oop* p, Oop oldValue);
+    
+    void on_checkpoint_finishMark();
+    
+    
+    bool is_pointing_to_protected_page(Oop oop);
+    
+    
+    void doLVB(Oop* p);
+
 };
 
 

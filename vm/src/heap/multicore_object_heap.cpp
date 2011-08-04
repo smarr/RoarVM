@@ -89,6 +89,9 @@ void Multicore_Object_Heap::add_object_from_snapshot(Oop dst_oop, Object* dst_ob
   dst_obj->set_preheader(dst_oop); // now that baseHeader is set, can do this
 }
 
+void Abstract_Object_Heap::deallocateChunk(oop_int_t total_bytes) {
+    fatal("NYI");
+}
 
 Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
 
