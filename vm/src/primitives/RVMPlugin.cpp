@@ -294,30 +294,17 @@ void* primitivePrintReadWriteReadMostlyBytesUsed() { // only the current "local"
 // given rcvr, rank, isRead_Write, return array of all objs in that heap
 
 void* primitiveAllObjectsInHeap() {
-  fatal("*TODO*: implement decently.");
-  /*
+  fatal("*TODO*: change interface?");
   switch (The_Squeak_Interpreter()->get_argumentCount()) {
     default: break;
     case 2: {
-      bool isRead_Write = The_Squeak_Interpreter()->booleanValueOf(The_Squeak_Interpreter()->stackTop());
-      if (!The_Squeak_Interpreter()->successFlag)
-        break;
-      int rank = The_Squeak_Interpreter()->stackIntegerValue(1);
-      if (The_Squeak_Interpreter()->successFlag &&  0 <= rank  &&  rank < Logical_Core::group_size)
-        ;
-      else
-        break;
-      static const int rw = Memory_System::read_write;
-      static const int rm = Memory_System::read_mostly;
-      int mutability = isRead_Write ? rw : rm;
-      Multicore_Object_Heap* h = The_Memory_System()->heaps[rank][mutability];
       int n = 0;
-      FOR_EACH_OBJECT_IN_HEAP(h, p)
+      FOR_EACH_OBJECT(p)
         if (!p->isFreeObject())
           ++n;
       Object_p r = The_Squeak_Interpreter()->splObj(Special_Indices::ClassArray).as_object()->instantiateClass(n);
       int i = 0;
-      FOR_EACH_OBJECT_IN_HEAP(h, p) {
+      FOR_EACH_OBJECT(p) {
         if (p->isFreeObject())
           continue;
         if (i >= n)
@@ -328,7 +315,9 @@ void* primitiveAllObjectsInHeap() {
       The_Squeak_Interpreter()->popThenPush(3, r->as_oop());
       return 0;
     }
-  }*/
+  }
+  
+  
   The_Squeak_Interpreter()->primitiveFail();
   return 0;
 }

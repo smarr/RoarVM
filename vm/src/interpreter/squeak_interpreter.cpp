@@ -2746,7 +2746,7 @@ void Squeak_Interpreter::internalAboutToReturn(Oop resultObj, Oop aContext) {
 void Squeak_Interpreter::recycleContextIfPossible_on_its_core(Oop ctx) {
   Object_p ctx_obj = ctx.as_object();
   
-  #warning *TODO* implement decently
+  #warning Assertion: a context recycle is core-local.
   recycleContextIfPossible_here(ctx); // optimize critical case
 }
 

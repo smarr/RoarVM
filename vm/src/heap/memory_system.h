@@ -59,6 +59,7 @@ public:
   /* Global heap */
   char * heap_base, * heap_past_end;
   size_t page_size_used_in_heap;
+  int    unprotected_heap_offset;    // cfr. unprotected_heap_base
   
   /* Core-local heaps: at any time, each one is backed by a piece of page-aligned memory from the global heap */
   Multicore_Object_Heap* heaps[Max_Number_Of_Cores];
@@ -68,8 +69,38 @@ public:
   void   free(Page *);
   int    freePages();
   
+  /* GC Liveness Support */
+  typedef struct LPage {
+    int liveBytes;
+    
+    void setAllocated(bool v) {
+      if(v) liveBytes = 0;
+      else  liveBytes = Mega + 1;
+    }
+    
+    bool isAllocated() { 
+      return liveBytes < Mega; 
+    }
+    
+    void addLiveBytes(int n) {
+      if(liveBytes > Mega)
+        fatal("Should not happen");
+      else {
+        liveBytes += n;
+        if(liveBytes > Mega) 
+          liveBytes = Mega;
+      }   
+    }    
+  } LPage;
+  void    startGCpreparation();
+  LPage * stopGCpreparation();
+  void    adjustLivenessCopyForCore(int, bool);
+  
 
 private:
+  char * unprotected_heap_base;     // Maps to the same physical memory as [heap_base,heap_past_end[, but will never
+                                    // be protected and is meant for copying out contents of objects in protected pages.
+  
   void pushPage(Page*);
 
   char* image_name;
@@ -95,8 +126,11 @@ private:
     u_int32 mutator_start_time, last_gc_ms, inter_gc_ms;
     
     // Extra globals
-    char *               free_page;
     OS_Interface::Mutex* mutex;
+    char *               free_page;
+    LPage *              liveness;                  // For 
+    LPage *              livenessCopy;              // GC
+    bool *               adjustLivenessCopyForCore; // support
   };
   struct global_GC_values* global_GC_values;
 
@@ -125,6 +159,7 @@ public:
   struct init_buf {
     int32 snapshot_bytes, sws, fsf, lastHash;
     char* heap_base;
+    char* unprotected_heap_base;
     int32 page_size;
     int32 main_pid;
     Object_Table* object_table;

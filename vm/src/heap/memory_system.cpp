@@ -37,11 +37,12 @@ Memory_System::Memory_System() {
   global_GC_values->free_page = NULL;
   global_GC_values->mutex = (OS_Interface::Mutex*)Memory_Semantics::shared_malloc(sizeof(OS_Interface::Mutex));
   OS_Interface::mutex_init(global_GC_values->mutex);
-
+  
   page_size_used_in_heap = 0;
 
-  for (int rank = 0;  rank < Max_Number_Of_Cores;  ++rank)
+  for (int rank = 0;  rank < Max_Number_Of_Cores;  ++rank) {
       heaps[rank] = NULL;
+  }
 }
 
 
@@ -533,6 +534,7 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
   init_buf ib = {
     snapshot_bytes, sws, fsf, lastHash,
     heap_base,
+    unprotected_heap_base,
     page_size_used_in_heap, getpid(),
     object_table,
     global_GC_values
@@ -556,6 +558,9 @@ void Memory_System::set_page_size_used_in_heap() {
 void Memory_System::map_memory(int pid, size_t total_heap_size) {
   heap_base     = map_heap_memory(total_heap_size, total_heap_size, heap_base, 0, pid,  MAP_SHARED);
   heap_past_end = heap_base + total_heap_size;
+  
+  unprotected_heap_base     = map_heap_memory(total_heap_size, total_heap_size, unprotected_heap_base, 0, pid,  MAP_SHARED);
+  unprotected_heap_offset   = unprotected_heap_base - heap_base;
   
   assert(heap_base < heap_past_end);
 }
@@ -678,6 +683,8 @@ void Memory_System::initialize_helper() {
 
 void Memory_System::init_values_from_buffer(init_buf* ib) {
   heap_base = ib->heap_base;
+  unprotected_heap_base = ib->unprotected_heap_base;
+  unprotected_heap_offset = unprotected_heap_base - heap_base;
   page_size_used_in_heap = ib->page_size;
   object_table = ib->object_table;
   
@@ -869,7 +876,6 @@ void Memory_System::print() {
 
 
 void Memory_System::print_heaps() {
-  fatal("*TODO*: requires a new implementation?");
   FOR_ALL_RANKS(rank) {
     lprintf("heap %d:\n", rank);
     heaps[rank]->print(stdout);
@@ -1017,6 +1023,17 @@ void Memory_System::initialize_memory() {
   int                  pages = calculate_total_pages(page_size);
   u_int32    total_heap_size = pages *  page_size;  
   
+  global_GC_values->liveness =     (LPage *)Memory_Semantics::shared_malloc(sizeof(LPage) * pages);
+  global_GC_values->livenessCopy = (LPage *)Memory_Semantics::shared_malloc(sizeof(LPage) * pages);
+  for (int i = 0; i<pages; i++) {
+    global_GC_values->liveness[i].setAllocated(false);
+    global_GC_values->livenessCopy[i].setAllocated(false);
+  }
+  global_GC_values->adjustLivenessCopyForCore = (bool*)Memory_Semantics::shared_malloc(sizeof(bool) * Logical_Core::group_size);
+  for(int i=0;i<Logical_Core::group_size;i++) {
+    global_GC_values->adjustLivenessCopyForCore[i] = false;
+  }  
+  
   global_GC_values->free_page = heap_base;
   FOR_EACH_PAGE(page) {
     page->init();
@@ -1045,23 +1062,31 @@ void Memory_System::verify_memory_initialization() {
       
     cptr = optr->nextChunk();
   }
-  lprintf("=> Done traversing object memory.\n");
+  
+  int n2objects = 0;
+  for (Chunk* cptr = (Chunk*)(heap_base + unprotected_heap_offset); 
+       cptr < (Chunk*)(heap_past_end + unprotected_heap_offset); 
+       ) {
+    Object* optr = cptr->object_from_chunk();
+    
+    if (!optr->isFreeObject())
+      fatal("=> Error traversing object memory\n");
+    else
+      n2objects++;
+      
+    cptr = optr->nextChunk();
+  }  
+  
   
   // Test page freelist traversal
   int npages = 0;
   FOR_EACH_FREE_PAGE(pptr) {
     npages++;
   }
-  lprintf("=> Done traversing page memory.\n");
   
-  assert_always(desired_pages == npages && npages == nobjects);
-  
-  lprintf("=> Stats: Expected %d pages; got %d objects & %d pages.\n", 
-          desired_pages, nobjects, npages);
+  assert_always(desired_pages == npages && npages == nobjects && nobjects == n2objects);
           
-  lprintf("=> Contiguous bytes available: %d.\n", maxContiguousBytesLeft());
-          
-  /* Page Freelist Tests; *TODO* move */
+  /* Page Freelist Tests */
   Page* p1 = allocate(heap_past_end - heap_base);
   assert_always(p1 == (Page*)heap_base);
   Page* p2 = allocate(page_size);
@@ -1082,12 +1107,47 @@ void Memory_System::verify_memory_initialization() {
   free(p1);                                     // ->1->4->5->...
   Page* p4 = allocate(page_size*2);             // ->1->...
   assert_always(p1 == allocate(page_size));     // ->...
+  free(p1);
+  free(p2);
+  free(p3);
+  free(p4); 
+  free(p4 + 1);
+  
+  p1 = allocate(page_size);  
+  startGCpreparation();
+  p2 = allocate(page_size * 2);
+  adjustLivenessCopyForCore(Logical_Core::my_rank(), false);  // *pass checkpoint*
+  p3 = allocate(page_size * 2);                               // discarded in liveness copy
+  LPage* livenessArray = stopGCpreparation();
+  
+  for(int i=0; i<calculate_total_pages(page_size); i++) {
+    if (livenessArray[i].liveBytes != global_GC_values->liveness[i].liveBytes) {
+      assert_always(i == 3 || i == 4);
+    }
+  }
+  
+  free(p1);
+  free(p2);
+  free(p2 + 1);
+  free(p3);
+  free(p3 + 1);
+  
+  for(int i=0; i<calculate_total_pages(page_size); i++) {
+    assert_always(!global_GC_values->liveness[i].isAllocated());
+  }
+  
+  if(Verbose_Debug_Prints) {
+    fprintf(stdout, "Memory succesfully verified: Expected %d pages; got %d objects & %d pages, %d contiguous bytes available.\n", 
+            desired_pages, nobjects, npages, (int)maxContiguousBytesLeft());
+  }    
 }
 
 
 void Memory_System::free(Page * p) {
   p->initialize(page_size);
   pushPage(p);
+  if(Verbose_Debug_Prints) fprintf(stdout, "Freed page %d.\n",
+                                   (int)p);   
 }
 
 void Memory_System::pushPage(Page * p) {
@@ -1111,6 +1171,8 @@ void Memory_System::pushPage(Page * p) {
     prev->next_free_page = p;
     
   }
+  
+  global_GC_values->liveness[p - (Page*)heap_base].setAllocated(false);
   
   OS_Interface::mutex_unlock(global_GC_values->mutex);
 }
@@ -1143,9 +1205,18 @@ Page* Memory_System::allocate(size_t minSize_bytes) {
     *first = (*first + contiguousPages - 1)->next_free_page;
     
     p->initialize(page_size * contiguousPages);
+    
+    global_GC_values->liveness[p - (Page*)heap_base].setAllocated(true);
+    
+    if (Logical_Core::my_rank() < Logical_Core::group_size                          // exclude the GC core
+        && global_GC_values->adjustLivenessCopyForCore[Logical_Core::my_rank()])
+      global_GC_values->livenessCopy[p - (Page*)heap_base].setAllocated(true);
   } 
   
   OS_Interface::mutex_unlock(global_GC_values->mutex);
+  
+  if(Verbose_Debug_Prints) fprintf(stdout, "Allocated %d pages to Core %d's heap for the request of %d bytes.\n",
+                                   contiguousPages, Logical_Core::my_rank(), (int)minSize_bytes); 
   
   return p;
 }
@@ -1175,6 +1246,41 @@ u_int32 Memory_System::maxContiguousBytesLeft() {
   maxContiguousPages = max(contiguousPages,maxContiguousPages);
   
   return maxContiguousPages * page_size;
+}
+
+void Memory_System::startGCpreparation() {
+  OS_Interface::mutex_lock(global_GC_values->mutex); // atomic  
+
+  int pages = calculate_total_pages(page_size);
+  for(int i=0;i<pages;i++) {
+    global_GC_values->livenessCopy[i] = global_GC_values->liveness[i];
+  }
+  
+  for(int i=0;i<Logical_Core::group_size;i++) {
+    global_GC_values->adjustLivenessCopyForCore[i] = true;
+  }
+  
+  OS_Interface::mutex_unlock(global_GC_values->mutex);  
+}
+
+void Memory_System::adjustLivenessCopyForCore(int r, bool b) {
+  OS_Interface::mutex_lock(global_GC_values->mutex); // atomic  
+  
+  global_GC_values->adjustLivenessCopyForCore[r] = b;
+  
+  OS_Interface::mutex_unlock(global_GC_values->mutex);  
+}
+
+Memory_System::LPage* Memory_System::stopGCpreparation() {
+  OS_Interface::mutex_lock(global_GC_values->mutex); // atomic  
+
+  for(int i=0;i<Logical_Core::group_size;i++) {
+    global_GC_values->adjustLivenessCopyForCore[i] = false;
+  }
+  
+  OS_Interface::mutex_unlock(global_GC_values->mutex);  
+
+  return global_GC_values->livenessCopy;
 }
 
 /******************************************************************************/
