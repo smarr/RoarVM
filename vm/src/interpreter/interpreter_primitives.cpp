@@ -2098,18 +2098,35 @@ void Squeak_Interpreter::primitiveSuspend() {
     return;
   }
   Oop old_list;
+  Object_p proc = procToSuspend.as_object();
+  old_list = proc->my_list_of_process();
   {
-    Scheduler_Mutex sm("primitiveSuspend");
-    Object_p proc = procToSuspend.as_object();
-    old_list = proc->remove_process_from_scheduler_list("primitiveSuspend");
+    Scheduler_Mutex sm("primitiveSuspend", this);
     pop(1);
     push(old_list);
-    if (get_running_process() == procToSuspend)  {
-      put_running_process_to_sleep("primitiveSuspend");
-      transfer_to_highest_priority("primitiveSuspend");      
+    if(get_running_process() == procToSuspend) {
+      old_list = proc->my_list_of_process();
+      remove_running_process_from_scheduler_lists_and_put_it_to_sleep("primitiveSuspend");
+      transfer_to_highest_priority("primitiveSuspend");  
+      push(old_list);
+      return;
     }
-    else set_yield_requested(true);
+  }   
+  int core = proc->get_host_core_of_process();
+  old_list = proc->my_list_of_process();
+  if (core == my_rank()) {
+    proc->remove_process_from_scheduler_list("primitiveSuspend");
+    //set_yield_requested(true);
+  } else {
+    if (core >= 0) {
+      suspendAndRemoveProcess_class(procToSuspend).send_to(core);
+      old_list = roots.nilObj;
+    } else {
+      //not a multicore environment, so we have to be the process
+      proc->remove_process_from_scheduler_list("primitiveSuspend");
+    }
   }
+  push(old_list);
 }
 
 
@@ -2426,7 +2443,7 @@ void Squeak_Interpreter::primitiveWait() {
     if (excessSignals > 0)
       so->storeInteger(Object_Indices::ExcessSignalsIndex, excessSignals - 1);
     else {
-      Scheduler_Mutex sm("primitiveWait");
+      Scheduler_Mutex sm("primitiveWait", The_Squeak_Interpreter());
       Oop activeProc = remove_running_process_from_scheduler_lists_and_put_it_to_sleep("primitiveWait");
       so->addLastLinkToList(activeProc);
       transfer_to_highest_priority("primitiveWait");

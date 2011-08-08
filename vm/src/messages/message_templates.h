@@ -105,6 +105,7 @@ template(transformToSchedulerPerInterpreter, abstractMessage,(), (), , , post_ac
 \
 template(transformToGlobalScheduler, abstractMessage, (), (), , , post_ack_for_correctness, dont_delay_when_have_acquired_safepoint)\
 \
+template(suspendAndRemoveProcess,abstractMessage, (Oop p), (), {process = p;}, Oop process; , post_ack_for_correctness, dont_delay_when_have_acquired_safepoint) \
 
 
 

@@ -36,7 +36,8 @@ Squeak_Interpreter::Squeak_Interpreter()
   numberOfMovedMutatedRead_MostlyObjects = 0;
   cyclesMovingMutatedRead_MostlyObjects = 0;
   emergency_semaphore_signal_requested = false;
-    
+  suspendCurrentProcessInMulticoreInterrupt = false;  
+  
   static int dummy = 17;
   global_sequence_number = print_sequence_number = &dummy;
   running_process_by_core = NULL;
@@ -179,11 +180,12 @@ void Squeak_Interpreter::flushInterpreterCaches() {
 
 void Squeak_Interpreter::loadInitialContext() {
   if (Logical_Core::running_on_main()) {
-    Scheduler_Mutex sm("loadInitialContext");
+    Scheduler_Mutex sm("loadInitialContext", The_Squeak_Interpreter());
     assert_active_process_not_nil();
     Oop proc = schedulerPointer_obj()->fetchPointer(Object_Indices::ActiveProcessIndex);
-    proc.as_object()->add_process_to_scheduler_list(); // unlike squeak rvm keeps running procs in lists
     set_running_process(proc, "loadInitialContext");
+    The_Squeak_Interpreter()->get_scheduler()
+                                  ->fixBackPointerOfProcess(proc.as_object());
     set_activeContext(proc.as_object()->get_suspended_context_of_process_and_mark_running());
     // (activeContext < youngStart) ifTrue: [ self beRootIfOld: activeContext ].
     fetchContextRegisters(activeContext(), activeContext_obj());
@@ -341,7 +343,7 @@ void Squeak_Interpreter::interpret() {
 
     PERF_CNT(this, add_interpret_cycles(OS_Interface::get_cycle_count() - start));
     
-    // for debugging check that the stack is not growing to big
+    // for debugging check that the stack is not growing too big
     if (Include_Debugging_Code && (count_stack_depth() > 1000)) {
       OS_Interface::breakpoint();
     }
@@ -356,18 +358,18 @@ void Squeak_Interpreter::interpret() {
 void Squeak_Interpreter::let_one_through() {
   const int winner = Logical_Core::main_rank;
   const int my_rank = this->my_rank();
-
+  
   if (my_rank != winner) {
     roots.running_process_or_nil = roots.nilObj;
     if (Track_Processes)
       running_process_by_core[my_rank] = roots.running_process_or_nil;
-
+    
     set_activeContext(roots.nilObj);
     registers_stored();
     internalized(); // for first externalize in multicore_interrupt
     unexternalized();
     update_times_when_yielding();
-   }
+  }
   update_times_when_resuming();
   multicore_interrupt_check = true;
   addedScheduledProcessMessage_class().send_to_other_cores(); // one is enough for now; all tiles will wake up
@@ -1291,7 +1293,6 @@ void Squeak_Interpreter::createActualMessageTo(Oop aClass) {
 
 
 void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
-  Scheduler_Mutex sm("transfer_to_highest_priority");  // protect selection and xfer
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("on %d: about to transfer_to_highest_priority %s: ", my_rank(), why);
     print_process_lists(debug_printer);
@@ -1315,6 +1316,9 @@ void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
 
 
 Squeak_Interpreter* Squeak_Interpreter::compute_interpreter_to_resume_process(Oop aProcess) {
+  if(!Scheduler::scheduler_per_interpreter) {
+    return The_Squeak_Interpreter();
+  }
   Squeak_Interpreter* interpreter = The_Squeak_Interpreter();
   int coreMaskIdx = The_Process_Field_Locator.
               index_of_process_inst_var(Process_Field_Locator::coreMask);
@@ -1361,18 +1365,24 @@ void Squeak_Interpreter::resume(Oop aProcess, const char* why) {
     debug_printer->printf(" because %s\n", why);
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
   }
+  Object_p aProcess_obj = aProcess.as_object();
+  
+  if (aProcess_obj->my_list_of_process() != roots.nilObj) {
+    /* this process is already scheduled somewhere
+     * completely unsafe in a multicore environment, but no way
+     * to synchronize */
+    return;
+  }
   
   Squeak_Interpreter* interpreter;
   interpreter = compute_interpreter_to_resume_process(aProcess);
 
   {
     Scheduler_Mutex sm("resume", interpreter);
-    Object_p aProcess_obj = aProcess.as_object();
     assert(aProcess_obj->my_list_of_process() == roots.nilObj);
     aProcess_obj->add_process_to_scheduler_list();
   }
-  assert(!Scheduler_Mutex::is_held_for_interpreter(interpreter));
-
+  
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("on %d: mid-resume:\n", my_rank());
     if (Print_Scheduler_Verbose) print_process_lists(debug_printer);
@@ -1423,7 +1433,7 @@ void Squeak_Interpreter::signalExternalSemaphores(const char* why) {
 
 
 void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
-  Scheduler_Mutex sm("put_running_process_to_sleep"); // am changing a process's state
+  Scheduler_Mutex sm("put_running_process_to_sleep", The_Squeak_Interpreter()); // am changing a process's state
   Oop aProcess = get_running_process();
   if (aProcess == roots.nilObj) {
     assert_registers_stored();
@@ -1441,6 +1451,10 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
   storeContextRegisters(activeContext_obj()); // xxxxxx redundant maybe with newActiveContext call in start_running
   aProcess.as_object()->set_suspended_context_of_process(activeContext());
   unset_running_process();
+  
+  assert(!aProcess.as_object()->is_process_running());
+  scheduler.add_process_to_scheduler_list(aProcess.as_object());
+  
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d, AFTER put_running_process_to_sleep: ", my_rank());
     aProcess.print_process_or_nil(debug_printer);
@@ -1720,6 +1734,10 @@ void Squeak_Interpreter::print_all_processes_in_scheduler_or_on_a_list(Printer* 
   }
 }
   
+
+/* This method is probably no longer correct, as a process list is now
+ * local to an interpreter, and the macro no longer loops over all the
+ * possible process lists. REINOUT */
   
 bool Squeak_Interpreter::is_process_on_a_scheduler_list(Oop proc) {
   Object_p po = proc.as_object();
@@ -1740,7 +1758,7 @@ bool Squeak_Interpreter::verify_all_processes_in_scheduler() {
     for ( Object_p ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
          ll != roots.nilObj.as_object();
          ll = ll->fetchPointer(Object_Indices::NextLinkIndex).as_object()) {
-      ok = ok && ll->verify_process(); 
+      ok = ok && ll->verify_process(false); 
     }
   }
   return ok;
@@ -2046,17 +2064,22 @@ void Squeak_Interpreter::snapshot(bool /* embedded */) {
    
     lprintf("snapshot: quiesced\n");
     {
-      Scheduler_Mutex sm("snapshot prep");
+      Scheduler_Mutex sm("snapshot prep", The_Squeak_Interpreter());
       if (!process_is_scheduled_and_executing()) 
         transferTo(activeProc, "snapshot prep");
     }
 
     {
-      Scheduler_Mutex sm("snapshot");
-      storeContextRegisters(activeContext_obj());
-      remove_running_process_from_scheduler_lists_and_put_it_to_sleep("snapshot");  // unlike Squeak, RVM keeps running procs in list
+      
 
-      schedulerPointer_obj()->storePointer(Object_Indices::ActiveProcessIndex, activeProc);
+      Scheduler_Mutex sm("snapshot", The_Squeak_Interpreter());
+      storeContextRegisters(activeContext_obj());
+      put_running_process_to_sleep("snapshot");
+      scheduler.remove_process_from_list(activeProc, "snapshot");
+      
+      
+      schedulerPointer_obj()
+              ->storePointer(Object_Indices::ActiveProcessIndex, activeProc);
       assert_active_process_not_nil();
     }
     lprintf("snapshot: starting GC\n");
@@ -2071,11 +2094,17 @@ void Squeak_Interpreter::snapshot(bool /* embedded */) {
     The_Squeak_Interpreter()->postGCAction_everywhere(false); // With object table, may have moved things
 
     {
-      Scheduler_Mutex sm("snapshot recovery");
-
-      activeProc.as_object()->add_process_to_scheduler_list(); // unlike Squeak, we keep running proc in list
+      Scheduler_Mutex sm("snapshot recovery", The_Squeak_Interpreter());
+      
       transferTo(activeProc, "snapshot");
       if (Check_Prefetch) assert_always(have_executed_currentBytecode); // will return from prim and prefetch
+    }
+  }
+  FOR_EACH_READY_PROCESS_LIST(slo, p, processList, this) {
+    for ( Object_p ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
+         ll != roots.nilObj.as_object();
+         ll = ll->fetchPointer(Object_Indices::NextLinkIndex).as_object()) {
+      ll->verify_process(false); 
     }
   }
   lprintf("snapshot: finishing\n");
@@ -2376,6 +2405,13 @@ void Squeak_Interpreter::multicore_interrupt() {
   multicore_interrupt_check = false;
   assert_method_is_correct(false, "near start of multicore_interrupt");
 
+  if (suspendCurrentProcessInMulticoreInterrupt) {
+    remove_running_process_from_scheduler_lists_and_put_it_to_sleep
+                                ("suspendCurrentProcessInMulticoreInterrupt");
+    transfer_to_highest_priority("suspendCurrentProcessInMulticoreInterrupt");
+    suspendCurrentProcessInMulticoreInterrupt = false;
+  }
+  
   if (process_is_scheduled_and_executing()) {
     internal_undo_prefetch();
     externalizeIPandSP();
@@ -2589,6 +2625,8 @@ void Squeak_Interpreter::booleanCheat(bool cond) {
   internalPush(cond ? roots.trueObj : roots.falseObj);
 }
 
+
+
 void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
     scheduler.transferTo(newProc, why);
 }
@@ -2596,7 +2634,10 @@ void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
 
 void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
   assert_registers_stored();
-  assert(Scheduler_Mutex::is_held_for_interpreter(this));
+  assert(get_scheduler()->process_list_for_priority(newProc.as_object()->priority_of_process()) ==
+         newProc.as_object()->fetchPointer(Object_Indices::MyListIndex).as_object());
+  
+  //assert(Scheduler_Mutex::is_held_for_interpreter(this));
   
   if (newProc == roots.nilObj) {
     // print_process_lists(debug_printer);
@@ -2606,6 +2647,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
   
   Object_p newProc_obj = newProc.as_object();
   if (newProc_obj->is_process_running()) {
+    assert(false); //should no longer be possible
     lprintf("releasing/unset currently running process in start_running\n");
     unset_running_process();
     multicore_interrupt_check = true; // so we stop running
@@ -3139,8 +3181,8 @@ void Squeak_Interpreter::postGCAction_here(bool fullGC) {
 Oop Squeak_Interpreter::remove_running_process_from_scheduler_lists_and_put_it_to_sleep(const char* why) {
   Oop activeProc = get_running_process();
   // Don't need mutex at this level because we remove it first
-  activeProc.as_object()->remove_process_from_scheduler_list(why);
   put_running_process_to_sleep(why);
+  activeProc.as_object()->remove_process_from_scheduler_list(why);
   return activeProc;
 }
 

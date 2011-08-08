@@ -68,15 +68,16 @@ public:
   
   
 # if Omit_PThread_Locks
-  
+# error should not be set by sane people
   typedef int Mutex;
   static inline void mutex_init(Mutex*, void*) {}
   static inline void mutex_destruct(Mutex*)    {}
   static inline int  mutex_lock(Mutex*)        { return 0; }
   static inline bool mutex_trylock(Mutex*)     { return false; }
-  static inline int  mutex_unlock(Mutex*)      { return 0; }
+  static inline bool mutex_unlock(Mutex*)      { return false; }
   
 # elif Use_Spin_Locks && !On_Apple 
+# error should not be set by sane people
   
   typedef pthread_spinlock_t Mutex;
   
@@ -96,8 +97,8 @@ public:
     return 0 == pthread_spin_trylock(mutex);
   }
   
-  static inline int mutex_unlock(Mutex* mutex) {
-    return pthread_spin_unlock(mutex);
+  static inline bool mutex_unlock(Mutex* mutex) {
+    return 0 == pthread_spin_unlock(mutex);
   }
   
 # else
@@ -120,8 +121,8 @@ public:
     return 0 == pthread_mutex_trylock(mutex);
   }
   
-  static inline int mutex_unlock(Mutex* mutex) {
-    return pthread_mutex_unlock(mutex);
+  static inline bool mutex_unlock(Mutex* mutex) {
+    return 0 == pthread_mutex_unlock(mutex);
   }
   
 # endif // Omit_PThread_Locks elif Use_Spin_Locks

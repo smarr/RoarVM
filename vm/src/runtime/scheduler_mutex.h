@@ -53,9 +53,10 @@ public:
   
   
   Scheduler_Mutex(const char* w = "", 
-                  Squeak_Interpreter* interp = The_Squeak_Interpreter()) 
+                  Squeak_Interpreter* interp = NULL) 
   /* must be true while waiting to acquire, otherwise could deadlock */
   : sa(Safepoint_Ability::is_interpreter_able()), interpreter(interp) {
+    assert(interp != NULL);
     why = w;
     u_int64 start = OS_Interface::get_cycle_count();
     if (acquire_ID) trace_mutex_evt(acquire_ID, why);

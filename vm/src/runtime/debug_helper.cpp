@@ -36,6 +36,10 @@ void pst() {
   The_Squeak_Interpreter()->print_stack_trace(dittoing_stdout_printer);
 }
 
+void pst(Object_p process) {
+  The_Squeak_Interpreter()->print_stack_trace(dittoing_stdout_printer, process);
+}
+
 int printCallStack() { pst(); return 0; }
 
 void pat() {

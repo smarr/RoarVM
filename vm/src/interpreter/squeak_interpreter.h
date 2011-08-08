@@ -1410,7 +1410,9 @@ public:
     // xxxxxx If set multicore_interrupt_check whenever yield_requested() 
     //        will be true, could speed up this test.
     // -- dmu 4/09
-    if (multicore_interrupt_check || yield_requested() || Message_Queue::are_data_available(my_core()))
+    if (multicore_interrupt_check || yield_requested() || 
+        suspendCurrentProcessInMulticoreInterrupt ||
+        Message_Queue::are_data_available(my_core()))
        multicore_interrupt();
   }
 

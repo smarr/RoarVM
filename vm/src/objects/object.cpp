@@ -539,7 +539,6 @@ void Object::add_process_to_scheduler_list() {
 
 Oop Object::get_suspended_context_of_process_and_mark_running() {
   Squeak_Interpreter* const interp = The_Squeak_Interpreter();
-  assert(Scheduler_Mutex::is_held_for_interpreter(interp));
   interp->assert_registers_stored();
   Oop ctx = fetchPointer(Object_Indices::SuspendedContextIndex);
   assert(ctx != interp->roots.nilObj);
@@ -607,6 +606,11 @@ bool Object::is_process_allowed_to_run_on_this_core() {
   return is_process_allowed_to_run_on_given_interpreter_instance(The_Squeak_Interpreter());
 }
 
+oop_int_t Object::get_host_core_of_process() {
+  int hc = The_Process_Field_Locator.index_of_process_inst_var(Process_Field_Locator::hostCore);
+  return fetchInteger(hc);
+}
+
 void Object::store_host_core_of_process(int r) {
   int hc = The_Process_Field_Locator.index_of_process_inst_var(Process_Field_Locator::hostCore);
   if (hc < 0) return;
@@ -632,7 +636,7 @@ void Object::kvetch_nil_list_of_process(const char* why) {
 // Returns list if any process was on
 
 Oop Object::remove_process_from_scheduler_list(const char* why) {
-  Scheduler_Mutex sm("remove_process_from_scheduler_list");
+  Scheduler_Mutex sm("remove_process_from_scheduler_list", The_Squeak_Interpreter());
 
   Oop processListOop = my_list_of_process();
   Object_p processList =  
@@ -721,6 +725,7 @@ Oop Object::removeMiddleLinkOfList(Object_p prior, Object_p mid) {
 
 void Object::addLastLinkToList(Oop aProcess) {
   // Add given proc to linked list receiver, set backpointer
+  assert(fetchPointer(Object_Indices::LastLinkIndex) != aProcess);
   if (isEmptyList())
     storePointer(Object_Indices::FirstLinkIndex, aProcess);
   else
@@ -780,7 +785,8 @@ void Object::print_process_or_nil(Printer* p, bool print_stack) {
 }
 
 
-bool Object::verify_process() {
+bool Object::verify_process(bool should_be_running) {
+  assert_always_eq(should_be_running, is_process_running());
   assert_always(my_list_of_process().is_mem());
   Oop& p = pointer_at(Object_Indices::NextLinkIndex);
   assert_always(p.is_mem());

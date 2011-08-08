@@ -19,6 +19,7 @@ void dp(Object* x); // print Object
 void pat(); // print all stack traces
 void pet(); // print execution trace
 void pst(); // print stack trace
+void pst(Object_p);// print stack trace of process
 
 extern "C" {
   int printCallStack();

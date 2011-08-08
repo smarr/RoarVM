@@ -510,6 +510,7 @@ public:
   bool is_process_running();
   bool is_process_allowed_to_run_on_given_interpreter_instance(Squeak_Interpreter* const);
   bool is_process_allowed_to_run_on_this_core();
+  oop_int_t get_host_core_of_process();
   void store_host_core_of_process(int);
   void store_allowable_cores_of_process(u_int64 bitMask);
   void add_process_to_scheduler_list();
@@ -551,7 +552,7 @@ public:
   void print_compiled_method(Printer*);
   void print_frame(Printer*);
   void print_process_or_nil(Printer*, bool print_stack = false);
-  bool verify_process();
+  bool verify_process(bool should_be_running);
   bool selector_and_class_of_method_in_me_or_ancestors(Oop, Oop*, Oop*);
 
   inline bool equals_string(const char*);

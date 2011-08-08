@@ -47,7 +47,8 @@ void Semaphore_Mutex_Actions::acquire_action(const char*) {
 void Semaphore_Mutex_Actions::release_action(const char*) {
   OS_Mutex_Interface* mutex = get_mutex();
   if (tracking)  mutex->set_holder(-1);
-  OS_Interface::abort_if_error("Semaphore_Mutex", mutex->unlock());
+  bool unlocked = mutex->unlock();
+  assert_always_msg(unlocked, "Semaphore_Mutex");
 }
 
 

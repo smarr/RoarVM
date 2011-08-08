@@ -43,7 +43,8 @@ void Scheduler_Mutex_Actions::release_action(Squeak_Interpreter* interp,
                                              const char*) {
   OS_Mutex_Interface* mutex = get_mutex(interp);
   if (tracking)  mutex->set_holder(-1);
-  OS_Interface::abort_if_error("Scheduler_Mutex", mutex->unlock());
+  bool unlocked = mutex->unlock();
+  assert_always_msg(unlocked, "Scheduler_Mutex");
 }
 
 
