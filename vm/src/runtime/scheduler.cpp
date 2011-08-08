@@ -274,15 +274,17 @@ Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
   if (!get_interpreter()->is_ok_to_run_on_me()) {
     return get_interpreter()->roots.nilObj;
   }
+  
   const int nrSlices = 1;
   int length = process_lists_of_scheduler()->fetchWordLength();
-  if(Logical_Core::num_cores == 1 && !scheduler_per_interpreter) {
+  if (Logical_Core::num_cores == 1 && !scheduler_per_interpreter) {
     Oop result;
     result = find_non_running_process_for_core_between(length, 0,
                                                        get_interpreter());
     fixBackPointerOfProcess(result.as_object());
     return result;
   }
+  
   int sliceSize = length / nrSlices;
   assert(sliceSize * nrSlices == length);
   for(int i = nrSlices; i > 0; --i) {
@@ -298,15 +300,14 @@ Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
     
     //now we try to steal a process, we are such scallywags
     int my_rank = get_interpreter()->my_rank();
-    while (my_rank != get_interpreter()->my_rank()) {
+    do {
       my_rank = rand() % Logical_Core::num_cores; // STEFAN: rand() might be a bottleneck
-    }
-    
+    } while (my_rank == get_interpreter()->my_rank());
+      
     Squeak_Interpreter* owner = interpreters[my_rank];
     
     Oop stolen = owner->get_scheduler()->steal_process_from_me_in_range(hi, lo, get_interpreter());
     if (stolen != get_interpreter()->roots.nilObj) {
-      printf("STOLEN\n");
       fixBackPointerOfProcess(stolen.as_object());
       return stolen;
     }
@@ -322,11 +323,11 @@ Oop Scheduler::find_non_running_process_for_core_between(int hi, int lo, Squeak_
   // see find_a_process_to_run_and_start_running_it
   bool verbose = false;
   bool found_a_proc = false;
-  
+
   FOR_READY_PROCESS_LIST_BETWEEN (hi, lo, slo, p, processList, get_interpreter())  {  
     if (processList->isEmptyList())
       continue;
-    
+   
     found_a_proc = true;
     if (verbose)
       lprintf("find_and_move_to_end_highest_priority_non_running_process searching list %d\n", p + 1);
@@ -352,10 +353,10 @@ Oop Scheduler::find_non_running_process_for_core_between(int hi, int lo, Squeak_
       bool allowedToRun = proc_obj->is_process_allowed_to_run_on_given_interpreter_instance(runner);
       assert(prior_proc_obj != proc_obj);
       assert(!running);
-      if (running)
+
+      if(!allowedToRun) {
         ;
-      else if(!allowedToRun)
-        ;
+      }
       /* The order of these checks is important, as removeLastLink expects
        * the previous as argument, in case of a list with length 1 this is
        * a NULL pointer, which is not what you want */

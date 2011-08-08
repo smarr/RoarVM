@@ -100,7 +100,12 @@ public:
   static inline uint32_t leading_zeros(uint32_t x)    { return __insn_clz(x);  }
   static inline uint32_t population_count(uint32_t x) { return __insn_pcnt(x); }
   static inline uint32_t least_significant_one(uint64_t x) { 
-    return __insn_ffsll(x);
+    if (x == 0) {
+      return 0;
+    }
+    uint32_t trailing_zeros = __insn_ctz(x);
+    trailing_zeros += 1;
+    return trailing_zeros;
   }
 # if Use_CMem
   // About tmc_cmem_init:

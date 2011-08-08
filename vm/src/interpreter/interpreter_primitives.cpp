@@ -2108,26 +2108,21 @@ void Squeak_Interpreter::primitiveSuspend() {
       old_list = proc->my_list_of_process();
       remove_running_process_from_scheduler_lists_and_put_it_to_sleep("primitiveSuspend");
       transfer_to_highest_priority("primitiveSuspend");  
-      push(old_list);
       return;
     }
   }   
   int core = proc->get_host_core_of_process();
   old_list = proc->my_list_of_process();
-  if (core == my_rank()) {
-    proc->remove_process_from_scheduler_list("primitiveSuspend");
-    //set_yield_requested(true);
+  
+  //this value is -1 for older images that do not support multicore
+  if (core >= 0) { 
+    suspendAndRemoveProcess_class(procToSuspend).send_to(core);
   } else {
-    if (core >= 0) {
-      suspendAndRemoveProcess_class(procToSuspend).send_to(core);
-      old_list = roots.nilObj;
-    } else {
-      //not a multicore environment, so we have to be the process
-      proc->remove_process_from_scheduler_list("primitiveSuspend");
-    }
+    //not a multicore environment, so we have to be the process
+    proc->remove_process_from_scheduler_list("primitiveSuspend");
   }
-  push(old_list);
 }
+
 
 
 static void terminate_to(Oop aContext, Oop thisCntx) {
