@@ -99,7 +99,9 @@ public:
     
   static inline uint32_t leading_zeros(uint32_t x)    { return __insn_clz(x);  }
   static inline uint32_t population_count(uint32_t x) { return __insn_pcnt(x); }
-  
+  static inline uint32_t least_significant_one(uint64_t x) { 
+    return __insn_ffsll(x);
+  }
 # if Use_CMem
   // About tmc_cmem_init:
   // It would be more sensible to call it indirectly from main, but static constructors
