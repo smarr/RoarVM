@@ -1566,9 +1566,15 @@ public:
   void transformAllToGlobalScheduler();
   void transformToSchedulerPerInterpreter();  
   void transformToGlobalScheduler();
-
+  
+  void set_suspend_process_flag(bool value) {
+    suspendCurrentProcessInMulticoreInterrupt = value;
+  }
+  
 private:
   Squeak_Interpreter* compute_interpreter_to_resume_process(Oop);
+  
+  bool suspendCurrentProcessInMulticoreInterrupt;
   
 };
 
