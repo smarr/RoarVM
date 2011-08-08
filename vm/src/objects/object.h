@@ -40,6 +40,7 @@
  ---------------------
  
         === Object Representation in Memory, Including all Headers ===
+        (Note: this ensemble is referred to as a Chunk (cfr. Chunk.h))
  +-------------+-----------------+--------------------+---------------------+
  |Pre (k words)|Extra (0-2 words)|Base Header (1 word)|Data/Fields (n words)|
  +-------------+-----------------+--------------------+---------------------+
@@ -50,7 +51,7 @@
  a variable header size (the one complexity of the design).
 
  
- The format of the 0th header word is as follows:
+ The format of the 0th (base-)header word is as follows:
 
 	3 bits	reserved for gc (mark, root, unused)
 	12 bits	object hash (for HashSets)
@@ -60,21 +61,25 @@
 	2 bits	header type (0: 3-word, 1: 2-word, 2: forbidden, 3: 1-word)
 
  If a class is in the compact class table, then this is the only header
- information needed.  If it is not, then it will have another header word at
+ information needed.  If it is not, then it will have another (extra-)header word at
  offset -4 bytes with its class in the high 30 bits, and the header type
  repeated in its low 2 bits.
  
  If the objects size is greater than 255 bytes, then it will have yet another
- header word at offset -8 bytes with its full word size in the high 30 bits and
+ (extra-)header word at offset -8 bytes with its full word size in the high 30 bits and
  its header type repeated in the low two bits.
 
  The object format field provides the remaining information as given in the
  formatOf: method (including isPointers, isVariable, isBytes,
  and the low 2 size bits of byte-sized objects).
+ 
+ Note: the "Extra header" terminology used here is not to be confused with "extraHeaderBytes" 
+       and "extraHeaderOops" in the code. These last terms refer to the accumulated size of 
+       all of an object's headers before its Base header rather than the size of its "Extra header".
 
  
- Note on the original Squeak VM Garbage Collector
- ------------------------------------------------
+ Note on the original Squeak VM Garbage Collector 
+  -----------------------------------------------
  
  Note: the following two lines were true of the original Squeak VM, 
  but are not true in this this VM as of 11/15/10. -- dmu & sm

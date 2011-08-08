@@ -12,11 +12,13 @@
  ******************************************************************************/
 
 
-/*
- A chunk is the unit used by the memory system, the heap to manage the memory.
- 
- TODO: add information whether empty chunks are somehow abused to store data.
-       and how it is encoded.
+/**
+ * A Chunk is the unit used by the memory system, the heap to manage the memory.
+ * It represents a piece of memory that was allocated through an object_heap 
+ * (cfr. allocateChunk(total_bytes)) to store an object.
+ *
+ * The address of a piece of memory is typically statically casted to (Chunk*),
+ * which allows for easy object access and initialization.
  */
 
 class Chunk

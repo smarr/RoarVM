@@ -27,14 +27,14 @@ inline void Chunk::make_free_object(oop_int_t bytes_including_header, int id) {
   }
 }
 
-inline void Chunk::make_free_object_header(oop_int_t bytes_including_header, int id) {
-  oop_int_t bytes_excluding_preheader = bytes_including_header - preheader_byte_size;
-  assert(bytes_excluding_preheader > 0);
+inline void Chunk::make_free_object_header(oop_int_t byte_size_including_header, int id) {
+  oop_int_t byte_size_excluding_preheader = byte_size_including_header - preheader_byte_size;
+  assert(byte_size_excluding_preheader > 0);
   
   // skip over the preheader and initialize it later properly
   Object* const first_object_header_word = (Object*)((char*)this + preheader_byte_size);
   
-  oop_int_t contents = Object::make_free_object_header(bytes_excluding_preheader);
+  oop_int_t contents = Object::make_free_object_header(byte_size_excluding_preheader);
   
   DEBUG_STORE_CHECK((oop_int_t*)first_object_header_word, contents);  
   *(oop_int_t*)first_object_header_word = contents;  

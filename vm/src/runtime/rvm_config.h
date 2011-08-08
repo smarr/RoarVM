@@ -254,7 +254,7 @@
 # endif
 
 # ifndef Use_Mark_Sweep_GC_With_Object_Table
-#  define Use_Mark_Sweep_GC_With_Object_Table 1
+#  define Use_Mark_Sweep_GC_With_Object_Table 0
 # endif
 
 # if Use_Mark_Sweep_GC_With_Object_Table

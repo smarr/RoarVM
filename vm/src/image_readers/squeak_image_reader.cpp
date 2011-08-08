@@ -240,23 +240,19 @@ public:
 void Squeak_Image_Reader::complete_remapping_of_pointers() {
 # if !Use_Object_Table
   /* Extra pass for updating the pointers && deallocate the object table */
-  UpdateOop_Closure uoc(memory_system->object_table);
-  FOR_ALL_RANKS(r) {
-    for (int hi = 0; hi<Memory_System::max_num_mutabilities; hi++) {
-      Multicore_Object_Heap* heap = memory_system->heaps[r][hi];
-      FOR_EACH_OBJECT_IN_HEAP(heap, obj) {      
-        if (!obj->isFreeObject()) {
-          obj->set_backpointer(obj->as_oop());
+  UpdateOop_Closure uoc(memory_system->object_table);      
+  FOR_EACH_OBJECT(obj) {
+    if (!obj->isFreeObject()) {
+      obj->set_backpointer(obj->as_oop());
+       
+      obj->do_all_oops_of_object(&uoc,false);
           
-          obj->do_all_oops_of_object(&uoc,false);
-          
-          if(   Extra_Preheader_Word_Experiment
-             && ((Oop*)obj->extra_preheader_word())->is_mem())
-              fatal("shouldnt occur");
-        }
-      }
-    }   
+      if(   Extra_Preheader_Word_Experiment
+         && ((Oop*)obj->extra_preheader_word())->is_mem())
+          fatal("shouldnt occur");
+    }
   }
+  
   specialObjectsOop = memory_system->object_table->object_for(specialObjectsOop)->as_oop();
   
   memory_system->object_table->cleanup();

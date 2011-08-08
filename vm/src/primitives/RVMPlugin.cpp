@@ -282,7 +282,7 @@ void* primitiveTraceCores() {
   return 0;
 }
 
-void* primitivePrintReadWriteReadMostlyBytesUsed() { // only the current "local" heap stats
+void* primitivePrintReadWriteReadMostlyBytesUsed() { // only the current core-local heap stats
   FOR_ALL_RANKS(r)
     lprintf("%d: %d\n",
             r,
@@ -294,7 +294,7 @@ void* primitivePrintReadWriteReadMostlyBytesUsed() { // only the current "local"
 // given rcvr, rank, isRead_Write, return array of all objs in that heap
 
 void* primitiveAllObjectsInHeap() {
-  fatal("*TODO*: change interface?");
+  fatal("*TODO*: change interface (i.e., lose the arguments)?");
   switch (The_Squeak_Interpreter()->get_argumentCount()) {
     default: break;
     case 2: {

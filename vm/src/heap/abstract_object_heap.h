@@ -11,7 +11,20 @@
  *    Stefan Marr, Vrije Universiteit Brussel - Port to x86 Multi-Core Systems
  ******************************************************************************/
 
-
+/**
+ * An Object Heap is a Core's personal memory allocation facility. It manages a contiguous memory space
+ * of one or more pages, which is lazily obtained from the Memory System when the Core requires
+ * the allocation of a memory Chunk (cfr. allocateChunk). Depending on the size of the Chunk to allocate, 
+ * one or more contiguous pages are requested (cfr. sufficientSpaceToAllocate) with the Memory System to
+ * back the Object Heap.
+ *
+ *  > Note that an Object Heap will attempt to fill its allocated memory space as good as possible
+ *    by using it for multiple Chunk allocations, until it does no longer provide sufficient space.
+ *
+ *  > No inter-core Object Heap allocations will ever occur.
+ *
+ */
+ 
 class Abstract_Object_Heap {
  protected:
   int rank; // Owning Core's rank

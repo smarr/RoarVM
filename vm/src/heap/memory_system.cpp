@@ -551,6 +551,8 @@ void Memory_System::set_page_size_used_in_heap() {
   lprintf("Using %s pages.\n", use_huge_pages ? "huge" : "normal");
   int hps = huge_page_size,  nps = normal_page_size; // compiler bug, need to alias these
   page_size_used_in_heap = use_huge_pages ? hps : nps;
+  
+  assert_always(page_size % page_size_used_in_heap == 0); // Page-aligned memory required! (see Memory_System.h)
 }
 
 
@@ -656,8 +658,8 @@ void Memory_System::initialize_helper() {
   
   
   if (On_Tilera) {
-    int                  pages = calculate_total_pages(page_size_used_in_heap);
-    u_int32    total_heap_size = pages *  page_size_used_in_heap;     
+    int                  pages = calculate_total_pages(page_size);
+    u_int32    total_heap_size = pages *  page_size;     
     map_memory(ib->main_pid, total_heap_size);
   }
   
@@ -1003,11 +1005,6 @@ char* Memory_System::map_heap_memory(size_t total_size,
 
 /******************************** Page Support ********************************/
 
-# define FOR_EACH_PAGE(page) \
-for ( Page * page = (Page*)heap_base; \
-      (char*)page < heap_past_end; \
-             page++ )
-
 # define FOR_EACH_FREE_PAGE(page) \
 for ( Page * page  = (Page*)global_GC_values->free_page; \
              page != NULL; \
@@ -1248,6 +1245,30 @@ u_int32 Memory_System::maxContiguousBytesLeft() {
   return maxContiguousPages * page_size;
 }
 
+/**
+ *  Support for the Parallel GC.
+ *    
+ *    When a new GC cycle starts, the GC requires a liveness array copy which reflects all pages'
+ *    status *before* that GC cycle started. However, because not all interpreter Cores simultaneously
+ *    pass the GC-start-checkpoint (i.e., not all Cores simultaneously start a new GC cycle), the 
+ *    liveness array copy should be updated appropriately until all Cores passed this checkpoint. 
+ *
+ *    As soon as a Core passes the checkpoint, it has started the GC cycle and further page
+ *    allocations to this Core's Object Heap should no longer be reflected in the liveness 
+ *    array copy for that GC cycle.
+ *
+ *    To obtain a correct liveness array copy:
+ *      - the GC will request the Memory System to start the preparation for a new cycle *before* 
+ *        making the interpreter Cores pass the GC-start-checkpoint,
+ *        (cfr. startGCpreparation())
+ *      - an interpreter Core will notify the Memory System as soon as it passes the checkpoint,
+ *        (cfr. adjustLivenessCopyForCore())
+ *      - and the GC will request the Memory System to stop the cycle preparation after each
+ *        interpreter Core passed the checkpoint. At that point, it will obtain a correct liveness 
+ *        array copy :-). (cfr. stopGCpreparation())
+ */
+ 
+
 void Memory_System::startGCpreparation() {
   OS_Interface::mutex_lock(global_GC_values->mutex); // atomic  
 
@@ -1271,7 +1292,7 @@ void Memory_System::adjustLivenessCopyForCore(int r, bool b) {
   OS_Interface::mutex_unlock(global_GC_values->mutex);  
 }
 
-Memory_System::LPage* Memory_System::stopGCpreparation() {
+LPage* Memory_System::stopGCpreparation() {
   OS_Interface::mutex_lock(global_GC_values->mutex); // atomic  
 
   for(int i=0;i<Logical_Core::group_size;i++) {

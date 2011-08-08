@@ -12,8 +12,18 @@
  *    Wouter Amerijckx, Vrije Universiteit Brussel - Parallel Garbage Collection
  ******************************************************************************/
 
-static const int page_size = 1 * Mega; // bytes
-
+/**
+ *  The Page struct represents a "page" that can be allocated to a Core's Object Heap by 
+ *  the Memory System (i.e., on request). It provides a limited amount of memory for an 
+ *  Object Heap, in which the latter can allocate space to store new objects.
+ *  
+ *  Note: This struct is only useful for free pages (i.e., pages that have not been allocated
+ *        to an Object Heap). The latter overwrites the contents of the page which
+ *        renders the struct's accessors unusable.
+ *  
+ *  See Memory_System.h for more information.
+ */
+ 
 typedef struct Page {
   char      preheader[preheader_byte_size]; // Preheader (preheader_byte_size bytes)
 
@@ -37,8 +47,46 @@ typedef struct Page {
   }
   
   size_t size() {
-    return 
-    preheader_byte_size 
+    return preheader_byte_size 
            + ((Object*)((char*)this + preheader_byte_size))->sizeOfFree();
   }
-} Page;              
+} Page;     
+
+# define FOR_EACH_PAGE(page) \
+for ( Page * page = (Page*)The_Memory_System()->heap_base; \
+      (char*)page < heap_past_end; \
+             page++ )   
+             
+             
+/**
+ *  The LPage struct represents an entry for the aforementioned "page" in a Liveness Array. 
+ *  The Liveness Array is employed by both the Memory System and the Parallel_GC_Thread to 
+ *  support parallel garbage collection. In general, it keeps track of which pages are 
+ *  allocated and how much of their capacity is actually live (i.e., reachable by the GC's 
+ *  mark phase).
+ *
+ *  See Parallel_GC_Thread.h/cpp for more information.
+ */
+
+typedef struct LPage {
+  int liveBytes;
+    
+  void setAllocated(bool v) {
+    if(v) liveBytes = 0;
+    else  liveBytes = Mega + 1;
+  }
+   
+  bool isAllocated() { 
+    return liveBytes < Mega; 
+  }
+   
+  void addLiveBytes(int n) {
+    if(liveBytes > Mega)
+      fatal("Should not happen");
+    else {
+      liveBytes += n;
+      if(liveBytes > Mega) 
+        liveBytes = Mega;
+    }   
+  }    
+} LPage;
