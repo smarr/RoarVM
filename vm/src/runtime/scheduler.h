@@ -34,7 +34,7 @@ public:
   inline Squeak_Interpreter* get_interpreter() { return _interpreter; }
   void   set_interpreter(Squeak_Interpreter*);
 
-  static Squeak_Interpreter* get_random_interpreter();
+  Squeak_Interpreter* get_random_interpreter();
 
   
   void     initialize(Squeak_Interpreter*);
@@ -80,6 +80,7 @@ private:
   Oop process_lists_of_scheduler_pointer();
   Oop transform_one_interpreter(Object_p linkedListClass);
   OS_Interface::Mutex* shared_mutex;
+  uint32_t seed;
   
 };
 

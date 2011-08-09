@@ -51,6 +51,7 @@ Squeak_Interpreter* Scheduler::interpreters[Max_Number_Of_Cores] = { NULL };
 void Scheduler::initialize(Squeak_Interpreter* interpreter) {
   scheduler_mutex.initialize_globals();
   shared_mutex = scheduler_mutex.get_inner_mutex();
+  seed = interpreter->my_rank();
   
   set_interpreter(interpreter);
   _processSchedulerPointer = interpreter->splObj(Special_Indices::SchedulerAssociation);
@@ -302,7 +303,7 @@ Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
     //now we try to steal a process, we are such scallywags
     int my_rank = get_interpreter()->my_rank();
     do {
-      my_rank = rand() % Logical_Core::num_cores; // STEFAN: rand() might be a bottleneck
+      my_rank = rand_r(&seed) % Logical_Core::num_cores; // STEFAN: rand() might be a bottleneck
     } while (my_rank == get_interpreter()->my_rank());
       
     Squeak_Interpreter* owner = interpreters[my_rank];
@@ -505,6 +506,6 @@ Squeak_Interpreter* Scheduler::get_interpreter_at_rank(int rank) {
 
 
 Squeak_Interpreter* Scheduler::get_random_interpreter() {
-  int r = random() % Logical_Core::num_cores;
+  int r = rand_r(&seed) % Logical_Core::num_cores;
   return get_interpreter_at_rank(r);
 }

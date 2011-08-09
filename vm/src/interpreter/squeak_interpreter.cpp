@@ -1316,10 +1316,11 @@ void Squeak_Interpreter::transfer_to_highest_priority(const char* why) {
 
 
 Squeak_Interpreter* Squeak_Interpreter::compute_interpreter_to_resume_process(Oop aProcess) {
-  if(!Scheduler::scheduler_per_interpreter) {
-    return The_Squeak_Interpreter();
-  }
   Squeak_Interpreter* interpreter = The_Squeak_Interpreter();
+  if(!Scheduler::scheduler_per_interpreter) {
+    return interpreter;
+  }
+
   int coreMaskIdx = The_Process_Field_Locator.
               index_of_process_inst_var(Process_Field_Locator::coreMask);
   int64_t mask;
@@ -1328,7 +1329,7 @@ Squeak_Interpreter* Squeak_Interpreter::compute_interpreter_to_resume_process(Oo
     
   Oop coreMask = aProcess.as_object()->fetchPointer(coreMaskIdx);
   if (coreMask.bits() == interpreter->roots.nilObj.bits()) {
-    return Scheduler::get_random_interpreter();
+    return interpreter->get_scheduler()->get_random_interpreter();
   }
   
   interpreter->successFlag = true;
@@ -1340,7 +1341,7 @@ Squeak_Interpreter* Squeak_Interpreter::compute_interpreter_to_resume_process(Oo
       interpreter = Scheduler::get_interpreter_at_rank(core);
     } else {
       //can run everywhere
-    interpreter = Scheduler::get_random_interpreter();
+      interpreter = interpreter->get_scheduler()->get_random_interpreter();
     }
     assert(interpreter != NULL);
   }
@@ -2066,11 +2067,8 @@ void Squeak_Interpreter::snapshot(bool /* embedded */) {
     Safepoint_Ability sa(false);
    
     lprintf("snapshot: quiesced\n");
-    {
-      Scheduler_Mutex sm("snapshot prep", The_Squeak_Interpreter());
-      if (!process_is_scheduled_and_executing()) 
-        transferTo(activeProc, "snapshot prep");
-    }
+    if (!process_is_scheduled_and_executing()) 
+      transferTo(activeProc, "snapshot prep");
 
     {
       
@@ -2096,12 +2094,8 @@ void Squeak_Interpreter::snapshot(bool /* embedded */) {
     lprintf("snapshot: postGCAction_everywhere\n");
     The_Squeak_Interpreter()->postGCAction_everywhere(false); // With object table, may have moved things
 
-    {
-      Scheduler_Mutex sm("snapshot recovery", The_Squeak_Interpreter());
-      
-      transferTo(activeProc, "snapshot");
-      if (Check_Prefetch) assert_always(have_executed_currentBytecode); // will return from prim and prefetch
-    }
+    transferTo(activeProc, "snapshot");
+    if (Check_Prefetch) assert_always(have_executed_currentBytecode); // will return from prim and prefetch
   }
   FOR_EACH_READY_PROCESS_LIST(slo, p, processList, this) {
     for ( Object_p ll = processList->fetchPointer(Object_Indices::FirstLinkIndex).as_object();
