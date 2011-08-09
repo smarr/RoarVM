@@ -57,3 +57,18 @@ TEST(OS_Interface, AtomicCompareAndSwapVal) {
   ASSERT_EQ(42, OS_Interface::atomic_compare_and_swap_val(&i, 42, 66));
   ASSERT_EQ(66, i);  // Only changed when old_value == i
 }
+
+/**
+ * Test the semantics of least_significant_one
+ */
+TEST(OS_Interface, LeastSignificantOne) {
+  uint64_t zero = 0LL;
+  ASSERT_EQ(0, OS_Interface::least_significant_one(zero));
+  
+  uint64_t three = 1LL << 2;
+  ASSERT_EQ(3, OS_Interface::least_significant_one(three));
+  
+  uint64_t thirtythree = 1LL << 32;
+  ASSERT_EQ(33, OS_Interface::least_significant_one(thirtythree));
+  
+}
