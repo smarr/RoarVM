@@ -635,7 +635,7 @@ void Object::kvetch_nil_list_of_process(const char* why) {
 
 // Returns list if any process was on
 
-Oop Object::remove_process_from_scheduler_list(const char* why) {
+Oop Object::remove_process_from_scheduler_list__ACQ(const char* why) {
   Scheduler_Mutex sm("remove_process_from_scheduler_list", The_Squeak_Interpreter());
 
   Oop processListOop = my_list_of_process();

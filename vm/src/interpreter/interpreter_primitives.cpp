@@ -1741,7 +1741,7 @@ void Squeak_Interpreter::primitiveRelinquishProcessor() {
 void Squeak_Interpreter::primitiveResume() {
   Oop proc = stackTop();
   success(get_argumentCount() == 0  &&  proc.fetchClass() == splObj(Special_Indices::ClassProcess) );
-  if (successFlag)  resume(proc, "primitiveResume");
+  if (successFlag)  resume__ACQ(proc, "primitiveResume");
   addedScheduledProcessMessage_class().send_to_other_cores();
 }
 
@@ -2082,6 +2082,12 @@ void Squeak_Interpreter::primitiveSubtract() {
   pop2AndPushIntegerIfOK(stackIntegerValue(1) - stackIntegerValue(0));
 }
 
+/* suspend removes a process from the processlist and puts that process to sleep
+ * in case it was running. One of the problems is the interpreter which
+ * executes this primitive can be different from the one on which the process
+ * is running. We send a message to the correct core, hopefully catching up
+ * with the process (which can be stolen and moved to another interpreter/core) */
+
 void Squeak_Interpreter::primitiveSuspend() {
   if (!primitiveThisProcess_was_called()) {
     static int kvetch_count = 10;
@@ -2097,30 +2103,31 @@ void Squeak_Interpreter::primitiveSuspend() {
     primitiveFail();
     return;
   }
+  
   Oop old_list;
   Object_p proc = procToSuspend.as_object();
-  old_list = proc->my_list_of_process();
+  int core = proc->get_host_core_of_process();
   {
-    Scheduler_Mutex sm("primitiveSuspend", this);
+    /* no need for a mutex here:
+     * the my_list operation is unsafe, with or without a mutex.
+     * when the process is the running process it cant be stolen by other
+     * interpreters, so we do not care about that case.
+     * in the other case we do it by sending a message, which deals with the
+     * sync'ing */
+    old_list = proc->my_list_of_process();
     pop(1);
     push(old_list);
     if(get_running_process() == procToSuspend) {
-      old_list = proc->my_list_of_process();
       remove_running_process_from_scheduler_lists_and_put_it_to_sleep("primitiveSuspend");
       transfer_to_highest_priority("primitiveSuspend");  
       return;
+    } else if (core < 0) {
+      proc->remove_process_from_scheduler_list__ACQ("primitiveSuspend");
     }
   }   
-  int core = proc->get_host_core_of_process();
-  old_list = proc->my_list_of_process();
+    //this value is -1 for older images that do not support multicore
+  suspendAndRemoveProcess_class(procToSuspend).send_to(core);
   
-  //this value is -1 for older images that do not support multicore
-  if (core >= 0) { 
-    suspendAndRemoveProcess_class(procToSuspend).send_to(core);
-  } else {
-    //not a multicore environment, so we have to be the process
-    proc->remove_process_from_scheduler_list("primitiveSuspend");
-  }
 }
 
 
@@ -2438,7 +2445,6 @@ void Squeak_Interpreter::primitiveWait() {
     if (excessSignals > 0)
       so->storeInteger(Object_Indices::ExcessSignalsIndex, excessSignals - 1);
     else {
-      Scheduler_Mutex sm("primitiveWait", The_Squeak_Interpreter());
       Oop activeProc = remove_running_process_from_scheduler_lists_and_put_it_to_sleep("primitiveWait");
       so->addLastLinkToList(activeProc);
       transfer_to_highest_priority("primitiveWait");

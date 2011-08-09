@@ -518,7 +518,7 @@ public:
   Oop removeFirstLinkOfList();
   Oop removeLastLinkOfList(Object_p);
   Oop removeMiddleLinkOfList(Object_p, Object_p);
-  Oop remove_process_from_scheduler_list(const char*);
+  Oop remove_process_from_scheduler_list__ACQ(const char*);
   void kvetch_nil_list_of_process(const char*);
   void addLastLinkToList(Oop);
   void nil_out_my_list_and_next_link_fields_of_process();

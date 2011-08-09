@@ -255,7 +255,7 @@ void Scheduler::set_running_process(Oop proc, const char* why){
 
 
 Oop Scheduler::steal_process_from_me_in_range(int hi, int lo, Squeak_Interpreter* thief) {
-  Oop process = find_non_running_process_for_core_between(hi, lo, thief);
+  Oop process = find_non_running_process_for_core_between__ACQ(hi, lo, thief);
   if (process != get_interpreter()->roots.nilObj){
     // set correct backpointer for process
     int priority = process.as_object()->priority_of_process();
@@ -279,8 +279,8 @@ Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
   int length = process_lists_of_scheduler()->fetchWordLength();
   if (Logical_Core::num_cores == 1 && !scheduler_per_interpreter) {
     Oop result;
-    result = find_non_running_process_for_core_between(length, 0,
-                                                       get_interpreter());
+    result = find_non_running_process_for_core_between__ACQ(length, 0,
+                                                            get_interpreter());
     fixBackPointerOfProcess(result.as_object());
     return result;
   }
@@ -291,7 +291,8 @@ Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
     int hi = i * sliceSize;
     int lo = hi - sliceSize;
     Oop result = 
-        find_non_running_process_for_core_between(hi, lo, get_interpreter());
+        find_non_running_process_for_core_between__ACQ(hi, lo,
+                                                       get_interpreter());
     
     if (result != get_interpreter()->roots.nilObj) {
       fixBackPointerOfProcess(result.as_object());
@@ -316,7 +317,7 @@ Oop Scheduler::find_and_move_to_end_highest_priority_non_running_process() {
 }
 
 
-Oop Scheduler::find_non_running_process_for_core_between(int hi, int lo, Squeak_Interpreter* runner) {
+Oop Scheduler::find_non_running_process_for_core_between__ACQ(int hi, int lo, Squeak_Interpreter* runner) {
   Scheduler_Mutex sm("find_and_move_to_end_highest_priority_non_running_process",
                      get_interpreter());
   // return highest pri ready to run
@@ -387,7 +388,7 @@ Oop Scheduler::find_non_running_process_for_core_between(int hi, int lo, Squeak_
 
 
 
-int Scheduler::count_processes_in_scheduler() {
+int Scheduler::count_processes_in_scheduler__ACQ() {
   Scheduler_Mutex sm("count_processes_in_scheduler");
   // return highest pri ready to run
   // see find_a_process_to_run_and_start_running_it
@@ -477,7 +478,8 @@ void Scheduler::transferTo(Oop newProc, const char* why){
     debug_printer->printf(", %s\n", why);
   }
   if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
-  get_interpreter()->put_running_process_to_sleep(why);
+  assert(get_running_process() != newProc);
+  get_interpreter()->put_running_process_to_sleep__ACQ(why);
 
   if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
   OS_Interface::mem_fence();

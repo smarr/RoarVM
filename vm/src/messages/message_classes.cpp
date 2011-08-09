@@ -404,28 +404,32 @@ void transformToGlobalScheduler_class::handle_me() {
 void suspendAndRemoveProcess_class::handle_me() {
   Object_p proc_obj = process.as_object();
   Squeak_Interpreter* interp = The_Squeak_Interpreter();
-  int core_of_process = proc_obj->get_host_core_of_process();
-  {
-    Scheduler_Mutex sm("suspendAndRemoveProcess", interp);
-    if (interp->get_running_process() == process) {
-      /* this is the case when the current interpreter is executing the
-       * process but is waiting for smthg. Luckily the Smalltalk code
-       * 'assumes' async suspending of the process */
-      interp->set_suspend_process_flag(true);
+  Scheduler_Mutex sm("suspendAndRemoveProcess", interp);
+  int core_of_process; 
+  core_of_process = proc_obj->get_host_core_of_process();
+  if (interp->get_running_process() == process) {
+    /* this is the case when the current interpreter is executing the
+     * process but is waiting for smthg. Luckily the Smalltalk code
+     * 'assumes' async suspending of the process */
+    interp->set_suspend_process_flag(true);
+    interp->set_process_to_suspend(process);
+    return;
+  }
+  if (core_of_process == interp->my_rank()) {
+    //the process may have terminated in the mean time, meaning the context
+    //is set to nil and it is removed from the scheduler list
+    if (proc_obj->fetchPointer(Object_Indices::SuspendedContextIndex) !=
+       interp->roots.nilObj) {
+      interp->get_scheduler()->
+                remove_process_from_list(process, "suspendAndRemoveProcess");
       return;
-    } else if (core_of_process == interp->my_rank()) {
-      proc_obj->remove_process_from_scheduler_list("suspendAndRemoveProcess");
-      return;
-    } 
-    if (core_of_process >= 0) {
-      suspendAndRemoveProcess_class(process).send_to(core_of_process);
     }
   }
-  
   /* process must have been stolen by another processor, so we shall poke that
    * one and hopefully catch the process */
-  suspendAndRemoveProcess_class(process)
-                              .send_to(proc_obj->get_host_core_of_process());
+  if (core_of_process >= 0) {
+    suspendAndRemoveProcess_class(process).send_to(core_of_process);
+  }
 }
 
 void flushSelectiveMessage_class::do_all_roots(Oop_Closure* oc) {

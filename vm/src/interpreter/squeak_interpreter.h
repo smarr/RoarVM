@@ -1109,7 +1109,7 @@ public:
 
   void transfer_to_highest_priority(const char*);
 
-  void resume(Oop, const char*);
+  void resume__ACQ(Oop, const char*);
   void yield(const char*);
   bool interruptCheckForced() {
     // was forced by outside code?
@@ -1142,13 +1142,13 @@ public:
   void set_running_process(Oop, const char*);
 
 
-  void put_running_process_to_sleep(const char*);
+  void put_running_process_to_sleep__ACQ(const char*, bool remove = false);
   Oop remove_running_process_from_scheduler_lists_and_put_it_to_sleep(const char*);
 
   void transferTo(Oop newProc, const char* why);
   void start_running(Oop newProc, const char*);
   Oop  find_and_move_to_end_highest_priority_non_running_process();
-  int count_processes_in_scheduler();
+  int count_processes_in_scheduler__ACQ();
 
   void newActiveContext(Oop aContext, Object_p aContext_obj);
   void commonReturn(Oop localReturnContext, Oop localReturnValue);
@@ -1567,6 +1567,11 @@ public:
   void transformToSchedulerPerInterpreter();  
   void transformToGlobalScheduler();
   
+  
+  void set_process_to_suspend(Oop value) {
+    processToSuspend = value;
+  }
+  
   void set_suspend_process_flag(bool value) {
     suspendCurrentProcessInMulticoreInterrupt = value;
   }
@@ -1575,7 +1580,7 @@ private:
   Squeak_Interpreter* compute_interpreter_to_resume_process(Oop);
   
   bool suspendCurrentProcessInMulticoreInterrupt;
-  
+  Oop  processToSuspend;
 };
 
 

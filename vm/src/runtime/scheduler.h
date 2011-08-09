@@ -51,12 +51,12 @@ public:
  
   Oop steal_process_from_me_in_range(int hi, int lo, Squeak_Interpreter*);
   Oop find_and_move_to_end_highest_priority_non_running_process();
-  Oop find_non_running_process_for_core_between(int hi, int lo,Squeak_Interpreter*);
+  Oop find_non_running_process_for_core_between__ACQ(int hi, int lo,Squeak_Interpreter*);
   
   void fixBackPointerOfProcess(Object_p);
   
   
-  int count_processes_in_scheduler();
+  int count_processes_in_scheduler__ACQ();
   
   void transferTo(Oop newProc, const char* why);
   

@@ -501,7 +501,7 @@ inline void Object::synchronousSignal(const char* why) {
     }
   }
   if (will_resume)
-      The_Squeak_Interpreter()->resume(proc_to_resume, why);
+      The_Squeak_Interpreter()->resume__ACQ(proc_to_resume, why);
   if (added)
     addedScheduledProcessMessage_class().send_to_other_cores(); // must be outside the semaphore to avoid deadlock
 }

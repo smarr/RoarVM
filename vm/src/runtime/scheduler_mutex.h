@@ -65,13 +65,19 @@ public:
     /* Tricky; some mutexes may recurse since they have a receive_and_handle_one_message.
      If so, need to acquire mutex even though are recursing, so delay increment of recursion_count 
      However, clients of this macro must also manipulate recursion_count: see them! */
-    if (mutex->check_and_inc_recursion_depth() == 0  &&  
+    
+    Scheduler_Mutex_Actions::acquire_action(interpreter, why); 
+    sa.be_unable(); 
+    mutex->aquire(); 
+    if (acquire_ID) trace_mutex_evt(100+acquire_ID, why);
+    
+    /* if (mutex->check_and_inc_recursion_depth() == 0  &&  
         Scheduler_Mutex_Actions::is_initialized(interpreter)) { 
       Scheduler_Mutex_Actions::acquire_action(interpreter, why); 
       sa.be_unable(); 
       mutex->aquire(); 
       if (acquire_ID) trace_mutex_evt(100+acquire_ID, why);
-    } 
+    } */
     mutex->add_acq_cycles(OS_Interface::get_cycle_count() - start); 
   } 
   
@@ -81,13 +87,20 @@ public:
       trace_mutex_evt(release_ID, why);
     OS_Mutex_Interface* mutex = 
       Scheduler_Mutex_Actions::get_mutex(interpreter);
+    
+    /*
     if (mutex->dec_and_check_recursion_depth() <= 0  &&  
         Scheduler_Mutex_Actions::is_initialized(interpreter)) { 
       if (release_ID) trace_mutex_evt(100+release_ID, why);
-      /* assert_always(mutex->local.recursion_count == 0); */ 
+      * assert_always(mutex->local.recursion_count == 0); * 
       Scheduler_Mutex_Actions::release_action(interpreter, why); 
       mutex->release(); 
-    } 
+    }*/ 
+    if (release_ID) trace_mutex_evt(100+release_ID, why);
+    /* assert_always(mutex->local.recursion_count == 0); */ 
+    Scheduler_Mutex_Actions::release_action(interpreter, why); 
+    mutex->release(); 
+    
     mutex->add_rel_cycles(OS_Interface::get_cycle_count() - start); 
   } 
 };

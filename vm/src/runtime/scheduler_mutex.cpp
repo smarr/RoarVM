@@ -30,9 +30,9 @@ void Scheduler_Mutex_Actions::acquire_action(Squeak_Interpreter* interp,
   Timeout_Timer tt("scheduler mutex", 60, mutex->get_holder()); tt.start();
   while (!mutex->try_lock()) {
     Timeout_Timer::check_all();
-    mutex->dec_and_check_recursion_depth();
+    //mutex->dec_and_check_recursion_depth();
     Message_Statics::process_any_incoming_messages(false); // could check to ensure no_message
-    mutex->check_and_inc_recursion_depth();
+    //mutex->check_and_inc_recursion_depth();
   }
   if (tracking) mutex->set_holder(Logical_Core::my_rank());
   
