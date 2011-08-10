@@ -26,6 +26,15 @@ bool Object::verify() {
     oop_ptr->verify_oop();
   if ( contains_class_and_type_word() )
     get_class_oop().verify_oop();
+  
+  /* Class verification */
+  Oop klass = this->fetchClass(); 
+  bool is_meta;  
+  Oop className = klass.as_object()->name_of_class_or_metaclass(&is_meta);
+  Object_p class_name_obj = className.as_object();  
+  if (!class_name_obj->isBytes() || class_name_obj->isCompiledMethod())
+    return false;
+  
   return okayOop();
 }
 
@@ -162,7 +171,7 @@ Oop Object::className() {
 
 Oop Object::name_of_class_or_metaclass(bool* is_meta) {
   Oop cn = className();
-  if (!cn.is_mem()  ||  The_Memory_System()->object_table->probably_contains_not((void*)cn.bits())  ||  !The_Memory_System()->contains(cn.as_object()))
+  if (!cn.is_mem() /* ||  The_Memory_System()->object_table->probably_contains_not((void*)cn.bits())  SHOULD BE FALSE HERE, STEFAN */ ||  !The_Memory_System()->contains(cn.as_object()))
     return The_Squeak_Interpreter()->roots.nilObj;
   return (*is_meta = !(cn.bits() != 0  && cn.isBytes()))
     ? fetchPointer(Object_Indices::This_Class_Index).as_object()->className()
@@ -434,7 +443,9 @@ void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
     Oop new_c = c;
     oc->value(&new_c, (Object_p)this);
     if (new_c != c)
-      set_class_oop(new_c);
+      set_class_oop_no_barrier(new_c);
+    
+    assert(get_class_oop() == new_c);
   }
   if (Extra_Preheader_Word_Experiment)
     oc->value((Oop*)extra_preheader_word(), (Object_p)this);

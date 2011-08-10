@@ -118,6 +118,7 @@ public:
   Page * allocate(size_t);
   void   free(Page *);
   int    freePages();
+  Page * firstPage();
   
   /* GC Liveness Support */
   void    startGCpreparation();
@@ -128,6 +129,8 @@ public:
 private:
   char * unprotected_heap_base;     // Maps to the same physical memory as [heap_base,heap_past_end[, but will never
                                     // be protected and is meant for copying out contents of objects from protected pages.
+                                    
+  char * heap_past_used_end();
   
   void pushPage(Page*);
 
@@ -208,11 +211,6 @@ public:
 
 
   void compute_snapshot_offsets(u_int32 *offsets);
-  
- 
-  int32 adjust_for_snapshot(void* addr, u_int32* address_offsets) const {
-    return (int32)addr; /* todo: verify correctness :) */
-  }
 
 
 private:
@@ -328,7 +326,8 @@ public:
   void writeImageFile(char*);
 private:
   void writeImageFileIO(char* image_name);
-  void write_snapshot_header(FILE*, u_int32*);
+  void write_snapshot_header(FILE*, char*);
+  void write_snapshot_heap(FILE*, char*);
   int32 max_lastHash();
 
 

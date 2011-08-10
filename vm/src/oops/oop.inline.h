@@ -83,6 +83,7 @@ inline Object* Oop::as_untracked_object_ptr() {
 }
 
 inline Object_p Oop::as_object() {
+assert(is_mem());
 # if Use_Object_Table
   return (Object_p)The_Memory_System()->object_for(*this);
 # else

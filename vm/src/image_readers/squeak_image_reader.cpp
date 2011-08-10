@@ -95,6 +95,7 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
     perror("seek"), fatal();
 
   // "read in the image in bulk, then swap the bytes if necessary"
+
   xfread(memory, 1, dataSize, image_file);
 
   // "First, byte-swap every word in the image. This fixes objects headers."
@@ -315,7 +316,7 @@ Oop Squeak_Image_Reader::oop_for_addr(Object* obj) {
 
 
 Oop Squeak_Image_Reader::oop_for_relative_addr(int relative_addr) {
-  assert(u_int32(relative_addr) < dataSize);
+  assert(relative_addr >= 0 && u_int32(relative_addr) < dataSize);
   Oop* addr_in_table = &object_oops[relative_addr / sizeof(Oop)];
   Object* obj = (Object*) &memory[relative_addr];
   if (addr_in_table->bits() == 0) {

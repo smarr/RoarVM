@@ -21,7 +21,6 @@ inline void Memory_System::putLong(int32 x, FILE* f) {
   }
 }
 
-
 inline Object* Memory_System::allocate_chunk_on_this_core_for_object_in_snapshot(Multicore_Object_Heap* h, Object* src_obj_wo_preheader) {
   Chunk* c = h->allocateChunk(src_obj_wo_preheader->total_byte_size());
   Object* obj = (Object*)&((char*)c)[src_obj_wo_preheader->extra_header_bytes()];

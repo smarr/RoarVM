@@ -39,15 +39,6 @@ Object* Abstract_Object_Heap::firstAccessibleObject() {
 }
 
 
-Oop Abstract_Object_Heap::initialInstanceOf(Oop classPointer) {
-  // "Support for instance enumeration. Return the first instance of the given class, or nilObj if it has no instances."
-  FOR_EACH_OBJECT_IN_HEAP(this, obj)
-    if (!obj->isFreeObject()  &&  obj->fetchClass() == classPointer )
-      return obj->as_oop();
-  return The_Squeak_Interpreter()->roots.nilObj;
-}
-
-
 Object* Abstract_Object_Heap::first_object_or_null() {
   if (_start == _next)
     return NULL;
@@ -115,12 +106,6 @@ void Abstract_Object_Heap::multistore( Oop* dst, Oop* src, oop_int_t n) {
 void Abstract_Object_Heap::ensure_all_unmarked() {
   FOR_EACH_OBJECT_IN_HEAP(this, obj)
     assert_always(!obj->is_marked());
-}
-
-
-void Abstract_Object_Heap::do_all_oops(Oop_Closure* oc) {
-  FOR_EACH_OBJECT_IN_HEAP(this, obj)
-    obj->do_all_oops_of_object(oc);
 }
 
 void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {

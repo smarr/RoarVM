@@ -229,7 +229,11 @@ public:
   static const int CompactClassWidth = 5;
   static const int CompactClassMask = ((1 << CompactClassWidth) - 1) << CompactClassShift; // should be 0x1f000
 
-  oop_int_t compact_class_index() { return (baseHeader & CompactClassMask) >> CompactClassShift; }
+  oop_int_t compact_class_index() { 
+    uint32_t result = (baseHeader & CompactClassMask) >> CompactClassShift;
+    assert(0 == (0xFFFFFFE0 & result));
+    return  result;
+  }
 
 
   static const int HashShift = CompactClassShift + CompactClassWidth; // should be 17
