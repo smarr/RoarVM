@@ -282,7 +282,7 @@ void* primitiveTraceCores() {
   return 0;
 }
 
-void* primitivePrintReadWriteReadMostlyBytesUsed() { // only the current core-local heap stats
+void* primitivePrintReadWriteReadMostlyBytesUsed() { // only the current core-local heap stats!
   FOR_ALL_RANKS(r)
     lprintf("%d: %d\n",
             r,

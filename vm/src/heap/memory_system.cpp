@@ -101,7 +101,7 @@ bool Memory_System::verify_if(bool condition) {
     prev_prev_obj = prev_obj;
     prev_obj = obj;
   }
-  dittoing_stdout_printer->printf("Object_Heap %sverified\n", ok ? "" : "NOT ");
+  dittoing_stdout_printer->printf("Memory_System Heap %sverified\n", ok ? "" : "NOT ");
   
   return ok;
 }
@@ -399,7 +399,7 @@ u_int32 Memory_System::bytesTotal() {
   return heap_past_end - heap_base;
 }
 
-/* note: only on the object heaps' current pages */ 
+/* note: only on the object heaps' current pages; bytesLeftIncludingPages() is complete */ 
 u_int32 Memory_System::bytesLeft(bool includeSwap) {
   u_int32 sum = 0;
   FOR_ALL_RANKS(i)

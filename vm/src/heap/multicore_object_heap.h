@@ -43,7 +43,6 @@ class Multicore_Object_Heap: public Abstract_Object_Heap {
 
 
   void snapshotCleanUp();
-  void write_image_file(FILE*, u_int32*, bool&);
 
   Object_p object_address_unchecked(Oop);
 
