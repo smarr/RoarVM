@@ -13,88 +13,114 @@
 
 
 /**
- * The Memory_System manages the heap structure that is used for Smalltalk
+ * The Memory_System manages the heap structure that is eventually used for storing Smalltalk
  * objects.
  *
- * [DEPRECATED]
- * The heap is allocated per core and the memory of each core is divided
- * into a read-mostly and a read-write part.
  *
- * 
- * Conceptual Structure
- * --------------------
- *   TODO: add something about the object table
- *   A typical structure in memory could look like this:
+ * > The heap structure is *conceptually* divided into pages of page_size bytes, which are
+ *   managed by the Memory System. 
  *
- *     +-----------------+-----------------+
- *     |   read-mostly   |   read-write    |
- *     +----+----+----+--+----+----+----+--+
- *     | c1 | c2 | c3 |..| c1 | c2 | c3 |..|
- *     +----+----+----+--+----+----+----+--+
- *     0                n/2                n
+ *   Every Core's Object Heap will lazily request pages with the Memory System to allocate 
+ *   Chunks of memory (i.e., for storing Smalltalk objects). An Object Heap will fill its 
+ *   requested page(s) until the remaining space is insufficient for allocating a new Chunk. 
+ *   When this happens, the Object Heap will simply request one or more contiguous new pages 
+ *   to allocate more Chunks.
+ *   (cfr. Abstract_Object_Heap::allocateChunk(bytes), sufficientSpaceToAllocate(bytes) and
+ *         Memory_System::allocate(bytes)).
  *
- * Implementation Structure
- * ------------------------
  *
- * The heap is allocated with mmap in two parts but at consecutive addesses.
- * The first region is allocated for the read-mostly heap, and
- * the second region is allocated for the read-write heap.
- * See Memory_System::map_memory.
+ * > The parallel GC will protect the conceptual pages when their contents have to be moved (cfr. Parallel_GC_Thread; using mprotect).
+ *   Because this protection can only be set per *actual* page (i.e., a page from the TLB), 
+ *   all *conceptual pages* are actual-page-aligned (i.e., page_size is a multiple of 
+ *   page_size_used_in_heap, which is the size of an actual page).
  *
- * The memory allocation is done on the main core and all other cores
- * receive the base address via a message to map the same memory regions
- * into the same addresses.
- * For thread-based systems, this is only done on the main core, and the other
- * cores do not need to map in any memory.
  *
- * A temporary file is used to ensure that all cores are working on the same
- * memory.
+ * > All free pages are kept in a free list, in which they are sorted by ascending address.
+ *   As a consequence, freeing a page is an O(n) operation, but it's easy to allocate
+ *   contiguous pages. Allocating one or more contiguous pages to Object Heaps is also
+ *   an O(n) operation, but allocating a single page can be done in constant time.
+ *
+ *
+ * > The heap structure's visual representation:
+ *      
+ *       +----------+----------+----------+-----------+----------+
+ *       |    P1    |    P2    |    P3    |    ...    |    Pn    |
+ *       +----------+----------+----------+-----------+----------+
+ *       ↑          ↑                                            ↑
+ *       0      page_size                                    n*page_size = n*m*page_size_used_in_heap
+ *                                                            
+ *
+ *
+ * > The free list is encoded in the heap structure, for instance:
+ *
+ *                     +----------+----------+----------+-----------+----------+
+ *       free_page---->|    P1    |    P2    |    P3    |     P4    |    P5    |
+ *                     +----+-----+-----+----+----------+------+----+----------+    NULL
+ *                          |_____↑     |_______________↑      |______________________↑
+ *
+ *
+ * > The heap is stored in a single, physical memory space, but this physical memory space
+ *   is enitrely mapped from *two* virtual memory spaces (using mmap):
+ *
+ *     1. [heap_base, heap_past_end[: 
+ *          The typically used virtual memory space. Some of its conceptual pages can be protected
+ *          during a GC cycle (i.e., when their objects have to be relocated).
+ *          (see Parallel_GC_Thread.h/cpp for more information)
+ *
+ *     2. [heap_base + unprotected_heap_offset, heap_past_end + unprotected_heap_offset[:
+ *          The virtual memory space used for relocating objects. The conceptual pages in this
+ *          virtual memory space are *never* protected and hence this extra virtual memory space 
+ *          allows to copy out the contents from protected pages to their new location.
+ *  
+ *     The memory mapping is done on the main core and all other cores receive the base virtual addresses 
+ *     via a message to map the same memory regions into the same addresses.
+ *
+ *     For thread-based systems, this is only done on the main core, and the other cores do not need to 
+ *     map in any memory.
+ *
+ *     A temporary file is used to ensure that all cores are working on the same
+ *     memory. This file actually provides the single, physical memory space.
+ *
+ *  > Every free page is represented as a Free Object (i.e., it has the free object header). In addition,
+ *    a non-free page has a Free Object at its end (i.e., after the last allocated chunk, if there's
+ *    enough space left). As such, it's easy to iterate over the contents of the heap.
+ *    (cfr. FOR_EACH_OBJECT)
+ *
+ *
+ *  > To support the parallel GC, the Memory System also keeps track of which conceptual pages have been 
+ *    allocated (i.e., are not on the free list). To this end, it keeps a liveness array that has an LPage 
+ *    entry (cfr. page.h) for every conceptual page. A copy of this array is used during every GC cycle. 
+ *    
+ *    See Parallel_GC_Thread.h/cpp for more information.
+ *
  */
+ 
 
-class Page;
+/** prototypes **/
+struct Page;
+struct LPage;
+/****************/
 
-static const int page_size = 1 * Mega; // bytes
+static const int page_size = 1 * Mega; // the conceptual pages' size (necessarily multiple of page_size_used_in_heap!)
 
 class Memory_System {
 
 public:
   /* Global heap */
-  char * heap_base, * heap_past_end;
-  size_t page_size_used_in_heap;
-  int    unprotected_heap_offset;    // cfr. unprotected_heap_base
+  char * heap_base, * heap_past_end; 
+  size_t page_size_used_in_heap;      // the actual pages' size (i.e., of the pages in the TLB)
+  int    unprotected_heap_offset;     // cfr. unprotected_heap_base
   
-  /* Core-local heaps: at any time, each one is backed by a piece of page-aligned memory from the global heap */
+  /* Core-local heaps: each one can be backed by a piece of page-aligned memory from the global heap */
   Multicore_Object_Heap* heaps[Max_Number_Of_Cores];
   
   /* Page Management */
   Page * allocate(size_t);
   void   free(Page *);
   int    freePages();
-  Page*  firstPage();
+  Page * firstPage();
   
   /* GC Liveness Support */
-  typedef struct LPage {
-    int liveBytes;
-    
-    void setAllocated(bool v) {
-      if(v) liveBytes = 0;
-      else  liveBytes = page_size + 1;
-    }
-    
-    bool isAllocated() { 
-      return liveBytes < page_size; 
-    }
-    
-    void addLiveBytes(int n) {
-      if(liveBytes > page_size)
-        fatal("Should not happen: liveBytes > page_size in addLiveBytes(int)");
-      else {
-        liveBytes += n;
-        if(liveBytes > page_size) 
-          liveBytes = page_size;
-      }   
-    }    
-  } LPage;
   void    startGCpreparation();
   LPage * stopGCpreparation();
   void    adjustLivenessCopyForCore(int, bool);
@@ -102,7 +128,9 @@ public:
 
 private:
   char * unprotected_heap_base;     // Maps to the same physical memory as [heap_base,heap_past_end[, but will never
-                                    // be protected and is meant for copying out contents of objects in protected pages.
+                                    // be protected and is meant for copying out contents of objects from protected pages.
+                                    
+  char * heap_past_used_end();
   
   void pushPage(Page*);
 
@@ -183,11 +211,6 @@ public:
 
 
   void compute_snapshot_offsets(u_int32 *offsets);
-  
- 
-  int32 adjust_for_snapshot(void* addr, u_int32* address_offsets) const {
-    return (int32)addr; /* todo: verify correctness :) */
-  }
 
 public:
   int calculate_total_pages(int);
@@ -317,7 +340,8 @@ public:
   void writeImageFile(char*);
 private:
   void writeImageFileIO(char* image_name);
-  void write_snapshot_header(FILE*, u_int32*);
+  void write_snapshot_header(FILE*, char*);
+  void write_snapshot_heap(FILE*, char*);
   int32 max_lastHash();
 
 

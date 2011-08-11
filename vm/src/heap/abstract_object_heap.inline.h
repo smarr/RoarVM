@@ -91,7 +91,9 @@ inline Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
   }
   Oop* r = _next;
   _next += n;
-  ((Chunk*)_next)->make_free_object_header(bytesLeft(),0); 
+    
+  if (_next < _end)
+    ((Chunk*)_next)->make_free_object_header(bytesLeft(),0); // consumes one Oop.
   
   if (check_assertions) {
     // make sure the heaps are only modified by the associated cores
@@ -107,6 +109,10 @@ inline Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
   return (Chunk*)r;
 }
 
+
+/**
+ * Deallocates the last, allocated chunk of total_bytes bytes.
+ */
 inline void Abstract_Object_Heap::deallocateChunk(oop_int_t total_bytes) {
   int n = convert_byte_count_to_oop_count(total_bytes);
   

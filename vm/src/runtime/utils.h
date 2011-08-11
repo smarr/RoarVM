@@ -60,7 +60,7 @@ void wordset( int32*, int32, int n);
 
 inline int xfread(void* p, int sz, int n, FILE* f) {
   int r = fread(p, sz, n, f);
-  if (r != n) { fatal("xfread"); }
+  if (r != n) { fprintf(stdout, "Expected to read %d bytes but only read %d bytes...\n", n, r); fatal("xfread"); }
   return r;
 }
 

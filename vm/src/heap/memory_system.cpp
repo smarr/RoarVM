@@ -83,18 +83,27 @@ void Memory_System::enforce_coherence_before_this_core_stores_into_all_heaps() {
 bool Memory_System::verify_if(bool condition) {
   if (!condition)
     return true;
-
-  // do this one at a time because the read_mostly heap messages are really flying around
-  zapUnusedPortionOfHeapMessage_class().send_to_all_cores();
-
-  verifyInterpreterAndHeapMessage_class().send_to_all_cores();
-
-  if (object_table != NULL)
-    return object_table->verify();
-  else {
-    assert(not Use_Object_Table);
-    return true;
+  
+  bool ok = true;
+  Object *prev_obj = NULL;
+  __attribute__((unused)) Object *prev_prev_obj = NULL; // debugging
+  FOR_EACH_OBJECT(obj) {
+    if (obj->is_marked()) {
+      lprintf("object 0x%x should not be marked but is; header is 0x%x\n",
+      obj, obj->baseHeader);
+      fatal("");
+    }
+    if (!obj->isFreeObject() &&  obj->is_current_copy())
+      ok = obj->verify() && ok;
+    
+    if (!ok) dittoing_stdout_printer->printf("Failed to verify obj at %p\n", obj);
+    
+    prev_prev_obj = prev_obj;
+    prev_obj = obj;
   }
+  dittoing_stdout_printer->printf("Memory_System Heap %sverified\n", ok ? "" : "NOT ");
+  
+  return ok;
 }
 
 
@@ -332,12 +341,17 @@ int Memory_System::imageNameSize() { return strlen(image_name); }
 char* Memory_System::imageName() { return image_name; }
 
 void Memory_System::flushExternalPrimitives() {
-  FOR_ALL_RANKS(rank) {
-    heaps[rank]->flushExternalPrimitives();
+  FOR_EACH_OBJECT(oop) {
+      if (!oop->isFreeObject()
+        &&   oop->isCompiledMethod()
+        &&   oop->primitiveIndex() == Squeak_Interpreter::PrimitiveExternalCallIndex)
+      oop->flushExternalPrimitive();
   }
 }
 
 void Memory_System::handle_low_space_signals() {
+  // fatal("*TODO* is this still relevant?");
+  
   FOR_ALL_RANKS(rank) {
     heaps[rank]->handle_low_space_signal();
   }
@@ -345,12 +359,11 @@ void Memory_System::handle_low_space_signals() {
 
 
 Oop Memory_System::initialInstanceOf(Oop x) {
-  Oop r;
-  FOR_ALL_RANKS(rank) {
-    if ((r = heaps[rank]->initialInstanceOf(x)) != The_Squeak_Interpreter()->roots.nilObj)
-      return r;
-  }
-  return r;
+  FOR_EACH_OBJECT(obj)
+    if (!obj->isFreeObject()  &&  obj->fetchClass() == x )
+      return obj->as_oop();
+
+  return The_Squeak_Interpreter()->roots.nilObj;
 }
 
 
@@ -360,8 +373,25 @@ Oop Memory_System::nextInstanceAfter(Oop x) {
 
 
 void Memory_System::snapshotCleanUp() {
-  FOR_ALL_RANKS(rank)
-    heaps[rank]->snapshotCleanUp();
+  FOR_EACH_OBJECT(obj) {
+    if (obj->isFreeObject())
+      continue;
+    if (Object::Format::might_be_context(obj->format()) && obj->hasContextHeader()) {
+      int bytes_to_last_pointer = obj->lastPointer();
+      int bytes_to_pointer_after_last = bytes_to_last_pointer + sizeof(Oop);
+      int total_bytes = obj->sizeBits();
+      int oops_to_zap = (total_bytes - bytes_to_pointer_after_last) >> ShiftForWord;
+      Oop* zap_start = obj->as_oop_p() + (bytes_to_pointer_after_last >> ShiftForWord);
+      assert(The_Memory_System()->contains(zap_start));
+      oopset_no_store_check(
+                            zap_start,
+                            The_Squeak_Interpreter()->roots.nilObj,
+                            oops_to_zap);
+    }
+    else if (Object::Format::isCompiledMethod(obj->format())
+             &&  obj->primitiveIndex() == Squeak_Interpreter::PrimitiveExternalCallIndex)
+      obj->flushExternalPrimitive();
+  }
 }
 
 
@@ -369,6 +399,7 @@ u_int32 Memory_System::bytesTotal() {
   return heap_past_end - heap_base;
 }
 
+/* note: only on the object heaps' current pages; bytesLeftIncludingPages() is complete */ 
 u_int32 Memory_System::bytesLeft(bool includeSwap) {
   u_int32 sum = 0;
   FOR_ALL_RANKS(i)
@@ -420,11 +451,9 @@ void Memory_System::writeImageFileIO(char* image_name) {
     return;
   }
   
-  /* TODO: fix for single heap */
-  u_int32 heap_offsets[sizeof(heaps)/sizeof(heaps[0][0])];
-  compute_snapshot_offsets(heap_offsets);
+  char* end_of_used_heap = heap_past_used_end();
 
-  write_snapshot_header(f, heap_offsets);
+  write_snapshot_header(f, end_of_used_heap);
 
   if (!The_Squeak_Interpreter()->successFlag) {
     fclose(f);
@@ -436,21 +465,20 @@ void Memory_System::writeImageFileIO(char* image_name) {
     The_Squeak_Interpreter()->success(false);
     return;
   }
-  bool is_first_object = true; // see comment in write_image_file
-  FOR_ALL_RANKS(rank) {
-    heaps[rank]->write_image_file(f, heap_offsets, is_first_object /* passed by REF */ );
-  }
+  
+  write_snapshot_heap(f, end_of_used_heap); 
+  
   fclose(f);
   return;
 }
 
-void Memory_System::write_snapshot_header(FILE* f, u_int32* heap_offsets) {
+void Memory_System::write_snapshot_header(FILE* f, char* end_of_used_heap) {
   putLong(The_Squeak_Interpreter()->image_version, f);
   putLong(headerSize, f);
-  putLong(bytesUsed() - preheader_byte_size /* Squeak 64-bit VM bug workaround */, f);
+  putLong((end_of_used_heap - heap_base) - preheader_byte_size /* Squeak 64-bit VM bug workaround */, f); // dataSize
   // For explanation of preheader_byte_size above and below, see long comment about Squeak compatibility in write_image_file -- dmu 6/10
   putLong((int32)heap_base + preheader_byte_size/* Squeak 64-bit VM bug workaround */, f); // start of memory;
-  putLong(adjust_for_snapshot(The_Squeak_Interpreter()->roots.specialObjectsOop.as_object(), heap_offsets), f);
+  putLong((int32)The_Squeak_Interpreter()->roots.specialObjectsOop.as_object(), f);
   putLong(max_lastHash(), f);
   int screenSize, fullScreenFlag;
   The_Interactions.get_screen_info(&screenSize, &fullScreenFlag);
@@ -462,24 +490,93 @@ void Memory_System::write_snapshot_header(FILE* f, u_int32* heap_offsets) {
     putLong(0, f);
 }
 
-
-
-void Memory_System::compute_snapshot_offsets(u_int32* offsets) {
-  /*int last_offset = 0;
-  Multicore_Object_Heap* last_heap = NULL;
-  FOR_ALL_HEAPS(rank, mutability) {
-    Multicore_Object_Heap** hp = &heaps[rank][mutability];
-    Multicore_Object_Heap*  h = *hp;
-    offsets[hp - &heaps[0][0]] =
-      last_offset +=
-        last_heap == NULL  ?  0
-                           :  (char*)h->startOfMemory() - (char*)last_heap->end_objects();
-    last_heap = h;
-  } */
-  fatal("*TODO*: still required?"); 
+void Memory_System::write_snapshot_heap(FILE* f, char* end_of_used_heap) {
+  int     byteCount = 0; //debug
+  bool    is_first_object = true;
+  Object* last_obj = NULL;
+  
+  const oop_int_t preheader_placeholder = Object::make_free_object_header(preheader_byte_size);  
+    
+  FOR_EACH_OBJECT(obj) {
+    if ((char*)obj >= end_of_used_heap) {
+      /* past end of "active" heap */
+      assert_always(obj->isFreeObject());
+      continue;
+    }
+  
+    /* Free objects (can have a preheader!) */
+    if (obj->isFreeObject()) {
+      assert_always_msg(!is_first_object, "first object must not be free to work with Squeak 64 bit VM"); // Squeak 64-bit VM bug workaround
+      
+      if (preheader_oop_size) {
+        The_Memory_System()->putLong(preheader_placeholder, f); 
+        byteCount += 4; 
+      }
+      
+      int bytes = obj->sizeOfFree();
+      oop_int_t* p = obj->as_oop_int_p();
+      for (int i = 0;  i < bytes;  i += sizeof(int32)) {
+        The_Memory_System()->putLong(*p++, f);
+        byteCount += 4;
+      }
+      
+      last_obj = obj;
+      continue;
+    }    
+    
+    /* Non-free objects */
+    // Preheader (replace by a free object)
+    assert(sizeof(long) == sizeof(Oop));
+    if (preheader_oop_size  &&  !is_first_object /* see long comment above */) { // Squeak 64-bit VM bug workaround
+      The_Memory_System()->putLong(preheader_placeholder, f);
+      byteCount += 4;
+      for (int i = 1;  i  <  preheader_oop_size;  ++i) {
+        The_Memory_System()->putLong(Oop::Illegals::free_extra_preheader_words, f);
+        byteCount += 4;
+      }
+    }
+    
+    // Extra Headers
+    if (obj->contains_sizeHeader()) {
+      The_Memory_System()->putLong(obj->sizeHeader(), f);
+      byteCount += 4;
+    }
+ 
+    if (obj->contains_class_and_type_word()) {
+      The_Memory_System()->putLong(
+              Header_Type::extract_from( obj->class_and_type_word() )
+              |  Header_Type::without_type( (int32)(obj->get_class_oop().as_object()) ),
+              f);
+      byteCount += 4;
+    }
+              
+    // Base Header
+    The_Memory_System()->putLong(obj->baseHeader, f);    
+    byteCount += 4;
+    
+    // And the contents...
+    oop_int_t* p;
+    for ( p = &obj->baseHeader + 1;
+         (Oop*)p <= obj->last_pointer_addr();
+         ++p ) {
+       Oop oop = *(Oop*)p;
+       The_Memory_System()->putLong( oop.is_int()
+                                      ? oop.bits()
+                                      : (int32)oop.as_object()
+                                    ,  f);
+       byteCount += 4;
+    }
+    for (Chunk* next = obj->nextChunk();  p < (oop_int_t*)next;  The_Memory_System()->putLong(*p++, f))
+      byteCount += 4; // bytes
+      
+    last_obj = obj;
+    
+    is_first_object = false;    
+  }
+  if (Verbose_Debug_Prints)
+    lprintf("Written %d bytes from the heap to the image while expecting to write %d bytes.\n", 
+            byteCount, (heap_past_used_end() - heap_base - preheader_byte_size));
 }
-
-
 
 Oop Memory_System::firstAccessibleObject() {
   FOR_EACH_OBJECT(obj) {
@@ -551,6 +648,8 @@ void Memory_System::set_page_size_used_in_heap() {
   lprintf("Using %s pages.\n", use_huge_pages ? "huge" : "normal");
   int hps = huge_page_size,  nps = normal_page_size; // compiler bug, need to alias these
   page_size_used_in_heap = use_huge_pages ? hps : nps;
+  
+  assert_always(page_size % page_size_used_in_heap == 0); // Page-aligned memory required! (see Memory_System.h)
 }
 
 
@@ -660,8 +759,8 @@ void Memory_System::initialize_helper() {
   
   
   if (On_Tilera) {
-    int                  pages = calculate_total_pages(page_size_used_in_heap);
-    u_int32    total_heap_size = pages *  page_size_used_in_heap;     
+    int                  pages = calculate_total_pages(page_size);
+    u_int32    total_heap_size = pages *  page_size;     
     map_memory(ib->main_pid, total_heap_size);
   }
   
@@ -813,6 +912,7 @@ void Memory_System::restore_from_checkpoint(FILE* /* f */, int /* dataSize */, i
 
 
 void Memory_System::invalidate_heaps_and_fence(bool mine_too) {
+  fatal("*TODO* requires update w/ single heap?");
   FOR_ALL_RANKS(i)
     if (mine_too  ||  i != Logical_Core::my_rank())
       heaps[i]->invalidate_whole_heap();
@@ -861,8 +961,10 @@ void Memory_System::enforce_coherence_after_this_core_has_stored_into_all_heaps(
 
 void Memory_System::do_all_oops_including_roots_here(Oop_Closure* oc, bool sync_with_roots)  {
   The_Interactions.do_all_roots_here(oc);
-  FOR_ALL_RANKS(r)
-    heaps[r]->do_all_oops(oc);
+  
+  FOR_EACH_OBJECT(obj)
+    obj->do_all_oops_of_object(oc);
+    
   if (sync_with_roots)
     The_Squeak_Interpreter()->sync_with_roots();
 }
@@ -989,6 +1091,7 @@ char* Memory_System::map_heap_memory(size_t total_size,
     lprintf("mmap(<requested address> 0x%x, <byte count to map> 0x%x, PROT_READ | PROT_WRITE, <flags> 0x%x, open(%s, 0x%x, 0600), <offset> 0x%x) returned 0x%x\n",
             where, bytes_to_map, flags, mmap_filename, open_flags, offset, mmap_result);
   if (mmap_result == MAP_FAILED) {
+    printf("error at mmap() (errno: %d: %s).\n", errno, strerror(errno));  
     char buf[BUFSIZ];
     snprintf(buf, sizeof(buf),
              "mmap failed on core %d. Requested %.2f MB for %s. mmap", 
@@ -1148,6 +1251,9 @@ void Memory_System::verify_memory_initialization() {
   }    
 }
 
+Page * Memory_System::firstPage() {
+  return (Page*)heap_base;
+}
 
 void Memory_System::free(Page * p) {
   p->initialize(page_size);
@@ -1261,6 +1367,46 @@ u_int32 Memory_System::maxContiguousBytesLeft() {
   return maxContiguousPages * page_size;
 }
 
+char * Memory_System::heap_past_used_end() {
+  int pages = calculate_total_pages(page_size);  
+  int heap_used_end_page = -1;
+
+  for(int i=pages - 1;i>=0;i--) {
+    if(global_GC_values->liveness[i].isAllocated()) {
+      heap_used_end_page = i + 1;
+      break;
+    }
+  }
+  
+  assert(heap_used_end_page != -1); // at least one page *should* be allocated
+  
+  return (char*)(firstPage() + heap_used_end_page);
+}
+
+/**
+ *  Support for the Parallel GC.
+ *    
+ *    When a new GC cycle starts, the GC requires a liveness array copy which reflects all pages'
+ *    status *before* that GC cycle started. However, because not all interpreter Cores simultaneously
+ *    pass the GC-start-checkpoint (i.e., not all Cores simultaneously start a new GC cycle), the 
+ *    liveness array copy should be updated appropriately until all Cores passed this checkpoint. 
+ *
+ *    As soon as a Core passes the checkpoint, it has started the GC cycle and further page
+ *    allocations to this Core's Object Heap should no longer be reflected in the liveness 
+ *    array copy for that GC cycle.
+ *
+ *    To obtain a correct liveness array copy:
+ *      - the GC will request the Memory System to start the preparation for a new cycle *before* 
+ *        making the interpreter Cores pass the GC-start-checkpoint,
+ *        (cfr. startGCpreparation())
+ *      - an interpreter Core will notify the Memory System as soon as it passes the checkpoint,
+ *        (cfr. adjustLivenessCopyForCore())
+ *      - and the GC will request the Memory System to stop the cycle preparation after each
+ *        interpreter Core passed the checkpoint. At that point, it will obtain a correct liveness 
+ *        array copy :-). (cfr. stopGCpreparation())
+ */
+ 
+
 void Memory_System::startGCpreparation() {
   OS_Interface::mutex_lock(global_GC_values->mutex); // atomic  
 
@@ -1284,7 +1430,7 @@ void Memory_System::adjustLivenessCopyForCore(int r, bool b) {
   OS_Interface::mutex_unlock(global_GC_values->mutex);  
 }
 
-Memory_System::LPage* Memory_System::stopGCpreparation() {
+LPage* Memory_System::stopGCpreparation() {
   OS_Interface::mutex_lock(global_GC_values->mutex); // atomic  
 
   for(int i=0;i<Logical_Core::group_size;i++) {

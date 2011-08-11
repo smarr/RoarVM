@@ -88,104 +88,13 @@ void Multicore_Object_Heap::add_object_from_snapshot(Oop dst_oop, Object* dst_ob
   dst_obj->set_preheader(dst_oop); // now that baseHeader is set, can do this
 }
 
-void Multicore_Object_Heap::flushExternalPrimitives() {
-  FOR_EACH_OBJECT_IN_HEAP(this, oop) {
-    if (!oop->isFreeObject()
-        &&   oop->isCompiledMethod()
-        &&   oop->primitiveIndex() == Squeak_Interpreter::PrimitiveExternalCallIndex)
-      oop->flushExternalPrimitive();
-  }
-}
+
 
 
 void Multicore_Object_Heap::handle_low_space_signal() {
   if (The_Squeak_Interpreter()->signalLowSpace())  {
     The_Squeak_Interpreter()->set_signalLowSpace(false);
     The_Squeak_Interpreter()->signalSema(Special_Indices::TheLowSpaceSemaphore, "handle_low_space_signal");
-  }
-}
-
-
-
-void Multicore_Object_Heap::snapshotCleanUp() {
-  FOR_EACH_OBJECT_IN_HEAP(this, obj) {
-    if (obj->isFreeObject())
-      continue;
-    if (Object::Format::might_be_context(obj->format()) && obj->hasContextHeader()) {
-      int bytes_to_last_pointer = obj->lastPointer();
-      int bytes_to_pointer_after_last = bytes_to_last_pointer + sizeof(Oop);
-      int total_bytes = obj->sizeBits();
-      int oops_to_zap = (total_bytes - bytes_to_pointer_after_last) >> ShiftForWord;
-      Oop* zap_start = obj->as_oop_p() + (bytes_to_pointer_after_last >> ShiftForWord);
-      assert(The_Memory_System()->contains(zap_start));
-      oopset_no_store_check(
-                            zap_start,
-                            The_Squeak_Interpreter()->roots.nilObj,
-                            oops_to_zap);
-    }
-    else if (Object::Format::isCompiledMethod(obj->format())
-             &&  obj->primitiveIndex() == Squeak_Interpreter::PrimitiveExternalCallIndex)
-      obj->flushExternalPrimitive();
-  }
-}
-
-
-
-void Multicore_Object_Heap::write_image_file(FILE* f, u_int32* address_offsets, bool& is_first_object) {
-  
-
-  const oop_int_t preheader_placeholder = Object::make_free_object_header(preheader_byte_size);
-  __attribute__((unused)) Object* last_obj = NULL; // debugging aid
-  
-  // Squeak 64-bit VM bug workaround
-  // 64-bit Squeak VM starts oops at zero and uses squeakMemoryBase
-  // But it uses nil tests in for firstFree and freeChunk in the sweep phase
-  // If after it does a GC, the first word is free, "sweepPhase" fails!!! -- dmu 6/13/10
-  // So, we need to not output those first free words. Since our snapshot just did a GC, this should be only the preheader. -- dmu 6/10
-  
-  
-  FOR_EACH_OBJECT_IN_HEAP(this, obj) {
-    if (obj->isFreeObject()) {
-      assert_always_msg(!is_first_object, "first object must not be free to work with Squeak 64 bit VM"); // Squeak 64-bit VM bug workaround
-      int bytes = obj->sizeOfFree();
-      oop_int_t* p = obj->as_oop_int_p();
-      for (int i = 0;  i < bytes;  i += sizeof(int32))
-        The_Memory_System()->putLong(*p++, f);
-      last_obj = obj;
-      continue;
-    }
-
-    assert(sizeof(long) == sizeof(Oop));
-    if (preheader_oop_size  &&  !is_first_object /* see long comment above */) { // Squeak 64-bit VM bug workaround
-      The_Memory_System()->putLong(preheader_placeholder, f);
-      for (int i = 1;  i  <  preheader_oop_size;  ++i)
-        The_Memory_System()->putLong(Oop::Illegals::free_extra_preheader_words, f);
-    }
-
-    if (obj->contains_sizeHeader())
-      The_Memory_System()->putLong(obj->sizeHeader(), f);
-
-    if (obj->contains_class_and_type_word())
-      The_Memory_System()->putLong(
-              Header_Type::extract_from( obj->class_and_type_word() )
-              |  Header_Type::without_type( The_Memory_System()->adjust_for_snapshot(obj->get_class_oop().as_object(), address_offsets) ),
-              f);
-    The_Memory_System()->putLong(obj->baseHeader, f);
-
-    u_oop_int_t* p;
-    for ( p = &obj->baseHeader + 1;
-         (Oop*)p <= obj->last_pointer_addr();
-         ++p ) {
-       Oop oop = *(Oop*)p;
-       The_Memory_System()->putLong( oop.is_int()
-            ? oop.bits()
-            : The_Memory_System()->adjust_for_snapshot(oop.as_object(), address_offsets),  f);
-    }
-    for (Chunk* next = obj->nextChunk();  p < (u_oop_int_t*)next;  The_Memory_System()->putLong(*p++, f))
-      ; // bytes
-    last_obj = obj;
-    
-    is_first_object = false;
   }
 }
 

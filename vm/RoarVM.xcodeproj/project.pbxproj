@@ -1383,6 +1383,7 @@
 					"Collect_Performance_Counters=0",
 					LSB_FIRST,
 					ROAR_VM,
+					"DEBUG=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					src/runtime,

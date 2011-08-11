@@ -95,6 +95,7 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
     perror("seek"), fatal();
 
   // "read in the image in bulk, then swap the bytes if necessary"
+
   xfread(memory, 1, dataSize, image_file);
 
   // "First, byte-swap every word in the image. This fixes objects headers."
@@ -240,11 +241,19 @@ public:
 void Squeak_Image_Reader::complete_remapping_of_pointers() {
 # if !Use_Object_Table
   /* Extra pass for updating the pointers && deallocate the object table */
+<<<<<<< HEAD
   UpdateOop_Closure uoc(memory_system->object_table);
   FOR_EACH_OBJECT(obj) {   
     if (!obj->isFreeObject()) {
       obj->set_backpointer(obj->as_oop());
           
+=======
+  UpdateOop_Closure uoc(memory_system->object_table);      
+  FOR_EACH_OBJECT(obj) {
+    if (!obj->isFreeObject()) {
+      obj->set_backpointer(obj->as_oop());
+       
+>>>>>>> cd870a6aa0fabdae59b12f0cca4694873585b2d2
       obj->do_all_oops_of_object(&uoc,false);
           
       if(   Extra_Preheader_Word_Experiment
@@ -252,6 +261,7 @@ void Squeak_Image_Reader::complete_remapping_of_pointers() {
           fatal("shouldnt occur");
     }
   }
+  
   specialObjectsOop = memory_system->object_table->object_for(specialObjectsOop)->as_oop();
   
   memory_system->object_table->cleanup();
@@ -314,7 +324,7 @@ Oop Squeak_Image_Reader::oop_for_addr(Object* obj) {
 
 
 Oop Squeak_Image_Reader::oop_for_relative_addr(int relative_addr) {
-  assert(u_int32(relative_addr) < dataSize);
+  assert(relative_addr >= 0 && u_int32(relative_addr) < dataSize);
   Oop* addr_in_table = &object_oops[relative_addr / sizeof(Oop)];
   Object* obj = (Object*) &memory[relative_addr];
   if (addr_in_table->bits() == 0) {
