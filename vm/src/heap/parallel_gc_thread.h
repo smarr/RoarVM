@@ -102,7 +102,7 @@ private:
   
   GC_State* phase;
   
-  Memory_System::LPage* m_pageLiveness;
+  LPage* m_pageLiveness;
   //GC_Oop_Stack* mark_stack;
   GC_Oop_Stack mark_stack_;
   int m_rank;
@@ -155,7 +155,7 @@ private:
   int  comp_pageof(Object*);
   
   inline void verbosePrint_checkpoint(const char* str);
-  void printLivenessArray( Memory_System::LPage* la );
+  void printLivenessArray( LPage* la );
   
   void doCheckpoint(checkpointMessage_class* m, Message_Statics::messages responseType);
   void checkpoint_simple();

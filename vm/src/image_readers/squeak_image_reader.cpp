@@ -241,19 +241,11 @@ public:
 void Squeak_Image_Reader::complete_remapping_of_pointers() {
 # if !Use_Object_Table
   /* Extra pass for updating the pointers && deallocate the object table */
-<<<<<<< HEAD
-  UpdateOop_Closure uoc(memory_system->object_table);
-  FOR_EACH_OBJECT(obj) {   
-    if (!obj->isFreeObject()) {
-      obj->set_backpointer(obj->as_oop());
-          
-=======
   UpdateOop_Closure uoc(memory_system->object_table);      
   FOR_EACH_OBJECT(obj) {
     if (!obj->isFreeObject()) {
       obj->set_backpointer(obj->as_oop());
        
->>>>>>> cd870a6aa0fabdae59b12f0cca4694873585b2d2
       obj->do_all_oops_of_object(&uoc,false);
           
       if(   Extra_Preheader_Word_Experiment

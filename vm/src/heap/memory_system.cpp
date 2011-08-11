@@ -555,7 +555,7 @@ void Memory_System::write_snapshot_heap(FILE* f, char* end_of_used_heap) {
     byteCount += 4;
     
     // And the contents...
-    oop_int_t* p;
+    u_int32* p;
     for ( p = &obj->baseHeader + 1;
          (Oop*)p <= obj->last_pointer_addr();
          ++p ) {
@@ -566,7 +566,7 @@ void Memory_System::write_snapshot_heap(FILE* f, char* end_of_used_heap) {
                                     ,  f);
        byteCount += 4;
     }
-    for (Chunk* next = obj->nextChunk();  p < (oop_int_t*)next;  The_Memory_System()->putLong(*p++, f))
+    for (Chunk* next = obj->nextChunk();  p < (u_int32*)next;  The_Memory_System()->putLong(*p++, f))
       byteCount += 4; // bytes
       
     last_obj = obj;
@@ -1342,10 +1342,6 @@ int Memory_System::freePages() {
   FOR_EACH_FREE_PAGE(p)
     c++;
   return c;
-}
-
-Page*  Memory_System::firstPage() {
-  return (Page*)heap_base;
 }
 
 u_int32 Memory_System::maxContiguousBytesLeft() {

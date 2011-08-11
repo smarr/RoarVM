@@ -79,7 +79,7 @@ void GC_Thread_Class::do_work()
      phase_mark();
      phase_relocate();
      phase_remap();  
-    //m_stoprequested = true;
+    m_stoprequested = true;
   }
   
 }
@@ -510,7 +510,7 @@ void GC_Thread_Class::setNilObj(Oop nilObj ){
   m_nilObj = nilObj;
 }
 
-void GC_Thread_Class::printLivenessArray( Memory_System::LPage* la ){
+void GC_Thread_Class::printLivenessArray( LPage* la ){
   printf("printLivenessArray\n");
   printf("------------------\n");
   for(int i=0 ; i < The_Memory_System()->calculate_total_pages( page_size ) ; i++){

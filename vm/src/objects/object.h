@@ -104,6 +104,8 @@
 
 */
 
+struct Page;
+
 class Object
 # if !Work_Around_Extra_Words_In_Classes
 : public Word_Containing_Object_Type
