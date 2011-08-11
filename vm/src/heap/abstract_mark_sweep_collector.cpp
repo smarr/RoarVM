@@ -19,7 +19,7 @@ bool Abstract_Mark_Sweep_Collector::print_gc = true;
 
 
 Abstract_Mark_Sweep_Collector::Abstract_Mark_Sweep_Collector() {
-  mark_stack = NULL;
+  //mark_stack = NULL;
   weakRootCount = 0;
   weakRoot_accessor = NULL;
 }
@@ -119,8 +119,8 @@ void Abstract_Mark_Sweep_Collector::mark() {
   The_Memory_System()->enforce_coherence_after_this_core_has_stored_into_all_heaps();
 
   if (!mark_stack->is_empty()) fatal("");
-  delete mark_stack;
-  mark_stack = NULL;
+  //delete mark_stack;
+  //mark_stack = NULL;
 
 }
 

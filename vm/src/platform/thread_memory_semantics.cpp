@@ -185,3 +185,9 @@ u_int64 Thread_Memory_Semantics::my_rank_mask() {
   return my_core()->rank_mask();
 }
 
+/***/
+GC_Thread_Class _GC;
+void Thread_Memory_Semantics::initialize_GC() { 
+  _GC.start();
+}
+

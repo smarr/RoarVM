@@ -115,10 +115,15 @@ template(checkpoint_startRelocate_Response, checkpointResponse, (), (), {},  , n
 \
 template(checkpoint_startRemap_Message, checkpointMessage, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
-template(checkpoint_startRemap_Response, checkpointResponse, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
+template(checkpoint_startRemap_Response, checkpointResponse, (), (), {roots=NULL;}, GC_Oop_Stack* roots;  , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
 template(awaiting_finished_GC_cycle_Message, abstractMessage, (), (), {},  , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
+template(report_bulk_NMTtrapped_refs_Message, abstractMessage, (Contents* c), (), {newContents =c; }, Contents* newContents; , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+template(checkpoint_startInterpretation_Message, abstractMessage, (), (), {}, , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
+
 
 
 // TODO: the following macros do not belong here, move them to a better place

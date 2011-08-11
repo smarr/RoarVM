@@ -11,9 +11,7 @@
  *    Stefan Marr, Vrije Universiteit Brussel - Port to x86 Multi-Core Systems
  ******************************************************************************/
 
-
 # if !On_Tilera
-
 class Timeout_Timer_List_Head;
 
 class Thread_Memory_Semantics : public Abstract_Memory_Semantics {
@@ -37,6 +35,7 @@ public:
   
 public:
   static void initialize_memory_system();
+  static void initialize_GC();
   static void initialize_local_memory_system();
 
 
@@ -200,3 +199,6 @@ class Timeout_Timer_List_Head;
 
 # endif // !On_Tilera
 
+class GC_Thread_Class;
+extern GC_Thread_Class _GC;
+inline FORCE_INLINE GC_Thread_Class* The_GC_Thread() { return &_GC;  }

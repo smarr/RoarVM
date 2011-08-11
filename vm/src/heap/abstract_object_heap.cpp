@@ -29,6 +29,10 @@ void Abstract_Object_Heap::initialize(void* mem, int size) {
   lowSpaceThreshold = 1000;
 }
 
+void Abstract_Object_Heap::reset() {
+  _start = _next = _end = NULL;
+}
+
 
 // ObjectMemory object enumeration
 
@@ -99,6 +103,7 @@ void Abstract_Object_Heap::multistore( Oop* dst, Oop src, oop_int_t n) {
   oopset_no_store_check(dst, src, n /* never read-mostly */);
   check_multiple_stores_for_generations_only(dst, n);
 }
+
 void Abstract_Object_Heap::multistore( Oop* dst, Oop* src, oop_int_t n) {
   assert(The_Memory_System()->contains(dst));
 

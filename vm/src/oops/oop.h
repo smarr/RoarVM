@@ -58,7 +58,8 @@ private:
   Oop() { _bits = (Illegals::uninitialized & ~Tag_Mask)  |  Mem_Tag; } // illegal
 
 
-  inline oop_int_t bits() const { return _bits; }
+  inline oop_int_t bits() const { return is_mem() ? without_NMT(_bits) : _bits; }
+  inline oop_int_t raw_bits() const { return _bits; }
   oop_int_t bits_for_hash() { return u_oop_int_t(bits()) >> ShiftForWord;   } // for method cache
   oop_int_t integerValue() { assert(is_int());  return _bits >> Tag_Size; }
   static bool isIntegerValue(oop_int_t i) { return ((i << Tag_Size) >> Tag_Size) == i; }
@@ -73,26 +74,22 @@ private:
   bool operator == (Oop x) const {  return bits() == x.bits(); }
   bool operator != (Oop x) const {  return bits() != x.bits(); }
 
-  bool is_mem() { return (bits() & Tag_Mask) == Mem_Tag; }
-  bool is_int() { return (bits() & Tag_Mask) == Int_Tag; }
-
-    void setNMT(int newNMT){
-        if( getNMT() != newNMT){ 
-            if(newNMT == 0){
-                _bits = (_bits & ~NMT_Mask);
-            } else if(newNMT == 1){
-                _bits = (_bits | NMT_Mask);
-            }else {
-                fatal("ERROR: illegal NMT value.");
-            }
-        }
-    }
-    
-    int getNMT(){
-        return ((bits() & NMT_Mask) >> NMT_position);
-    }
+  bool is_mem() const { return (_bits & Tag_Mask) == Mem_Tag; }
+  bool is_int() const { return (_bits & Tag_Mask) == Int_Tag; }
+  
+  void setNMT(bool newNMT);
+  
+  bool getNMT() {
+    assert_always(is_mem());
+    return (_bits & NMT_Mask);
+  }
+  
+  int32 without_NMT(int32 bits) const {
+    return bits & ~NMT_Mask;
+  }  
 
   inline Object_p as_object();
+  inline Object_p as_object_in_unprotected_space();
   inline Object_p as_object_unchecked();
   inline Object_p as_object_if_mem();
   inline Object*  as_untracked_object_ptr();  // this should only be used when it is absolutly necessary! otherwise use always as_object()
@@ -140,7 +137,7 @@ private:
   static void test();
     
     static inline bool atomic_compare_and_swap(Oop* ptr, Oop old_value, Oop new_value) {
-        return __sync_bool_compare_and_swap((oop_int_t*)ptr, old_value.bits(), new_value.bits());
+        return __sync_bool_compare_and_swap((oop_int_t*)ptr, old_value.raw_bits(), new_value.raw_bits());
     }
 };
 

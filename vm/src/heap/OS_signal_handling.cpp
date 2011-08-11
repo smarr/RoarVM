@@ -22,41 +22,6 @@ int install_signalhandler_protectedPageAcces(){
   install_signalhandler(SIGBUS, (void*)signal_handler_setEax);
 }
 
-void TEST_force_protectedPage_signal_trap(void* p){
-  bool doProtection = true;
-  
-  Object* o = (Object*)p;
-  
-  Chunk* c = o->my_chunk();
-  int pageSize = getpagesize();
-  
-  printf("Pointer void:\t%p\n",p);
-  printf("Pointer object:\t%p\n",o);
-  printf("Pointer chunk:\t%p\n",o);
-  
-  int oModPS =((int)o%pageSize);
-  int oPageAligned = (int)o - oModPS;
-  
-  install_signalhandler_protectedPageAcces();
-  if( doProtection ){
-    int prot_res = mprotect((void*)oPageAligned,pageSize,PROT_NONE);
-    if(prot_res < 0){
-      if( errno == EACCES) printf("EACCES\n");
-      if( errno == EINVAL) printf("EINVAL\n");
-      if( errno == ENOTSUP) printf("ENOTSUP\n");
-    } else {
-      printf("Protection in object ok\n");
-    }
-  }
-  
-  // Do read barrier...
-  The_Squeak_Interpreter()->doLVB(o->as_oop_p());
-  
-  if( doProtection ){
-    mprotect((void*)oPageAligned,pageSize,PROT_READ | PROT_WRITE);
-  }
-}
-
 void TEST_force_protectedPage_signal_trap(){
   return;
   install_signalhandler_protectedPageAcces();

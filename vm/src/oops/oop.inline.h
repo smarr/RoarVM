@@ -83,11 +83,21 @@ inline Object* Oop::as_untracked_object_ptr() {
 }
 
 inline Object_p Oop::as_object() {
-//The_Squeak_Interpreter()->doLVB(this);
+  assert_always(is_mem());
+  The_Squeak_Interpreter()->doLVB(this);
+  //assert( !  The_Squeak_Interpreter()->is_pointing_to_protected_page( Oop::from_bits( bits() ) ) );
+# if Use_Object_Table 
+  return (Object_p)The_Memory_System()->object_for(*this);
+# else
+  return (Object_p)(Object*)(bits());
+# endif
+}
+
+inline Object_p Oop::as_object_in_unprotected_space() {
 # if Use_Object_Table
   return (Object_p)The_Memory_System()->object_for(*this);
 # else
-  return (Object_p)(Object*)bits();
+  return (Object_p)(Object*)(bits() + The_Memory_System()->unprotected_heap_offset );
 # endif
 }
 

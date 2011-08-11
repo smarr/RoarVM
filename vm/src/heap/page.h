@@ -12,8 +12,6 @@
  *    Wouter Amerijckx, Vrije Universiteit Brussel - Parallel Garbage Collection
  ******************************************************************************/
 
-static const int page_size = 1 * Mega; // bytes
-
 typedef struct Page {
   char      preheader[preheader_byte_size]; // Preheader (preheader_byte_size bytes)
 
@@ -21,7 +19,7 @@ typedef struct Page {
   Page*     next_free_page;                 // (4 bytes)
   
   char      rest[page_size - 8 - preheader_byte_size];
-
+  
   void init() {
     initialize(page_size);  
   
@@ -36,9 +34,35 @@ typedef struct Page {
     ((Chunk*)this)->make_free_object_header(size,0);  
   }
   
+  Object* firstObject() {
+    return ((Chunk*)this)->object_from_chunk();
+  }  
+  
+  int pageNumber() {
+    return this-(Page*)The_Memory_System()->firstPage(); 
+  }
+  
   size_t size() {
     return 
     preheader_byte_size 
            + ((Object*)((char*)this + preheader_byte_size))->sizeOfFree();
   }
-} Page;              
+} Page;
+
+/******************************** (Extern) Page Support ********************************/
+
+# define FOR_EACH_PAGE(page) \
+for ( Page * page = The_Memory_System()->firstPage(); \
+(char*)page < The_Memory_System()->heap_past_end; \
+page++ )
+
+
+# define FOR_EACH_OBJECT_IN_PAGE(page, object) \
+for ( Object* object = page->firstObject(); \
+      (Page*)object < (page + 1); \
+      object = object->nextObject() )
+
+# define FOR_EACH_OBJECT_IN_UNPROTECTED_PAGE(page, object) \
+for ( Object* object = page->firstObject(); \
+(Page*)object < (page + 1); \
+object = object->nextObject_unprotected() )

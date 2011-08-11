@@ -205,12 +205,12 @@ public:
   void copyHashes() {
     if (!copyHash) return;
     for (int i = 0;  i < len;  ++i) {
-      Object_p obj1 = o1[i].as_object();  oop_int_t* hdr1p = &obj1->baseHeader;  oop_int_t hdr1 = *hdr1p;
-      Object_p obj2 = o2[i].as_object();  oop_int_t* hdr2p = &obj2->baseHeader;  oop_int_t hdr2 = *hdr2p;
+      Object_p obj1 = o1[i].as_object();  u_oop_int_t* hdr1p = &obj1->baseHeader;  u_oop_int_t hdr1 = *hdr1p;
+      Object_p obj2 = o2[i].as_object();  u_oop_int_t* hdr2p = &obj2->baseHeader;  u_oop_int_t hdr2 = *hdr2p;
       if (twoWay) {
-        The_Memory_System()->store_enforcing_coherence(hdr1p, (hdr1 & ~Object::HashMask)  |  (hdr2 & Object::HashMask), obj1);
+        The_Memory_System()->store_enforcing_coherence((oop_int_t*)hdr1p, (hdr1 & ~Object::HashMask)  |  (hdr2 & Object::HashMask), obj1);
       }
-      The_Memory_System()->store_enforcing_coherence(hdr2p, (hdr2 & ~Object::HashMask)  |  (hdr1 & Object::HashMask), obj2);
+      The_Memory_System()->store_enforcing_coherence((oop_int_t*)hdr2p, (hdr2 & ~Object::HashMask)  |  (hdr1 & Object::HashMask), obj2);
     }
   }
 
@@ -562,6 +562,10 @@ void Memory_System::map_memory(int pid, size_t total_heap_size) {
   unprotected_heap_base     = map_heap_memory(total_heap_size, total_heap_size, unprotected_heap_base, 0, pid,  MAP_SHARED);
   unprotected_heap_offset   = unprotected_heap_base - heap_base;
   
+  printf("Memory_System:\n-----------\n");
+  printf("Classic\tfrom:%p\tto:%p\n",heap_base,heap_past_end);
+  printf("UnProt\tfrom:%p\tto:%p\n",unprotected_heap_base,heap_past_end+unprotected_heap_offset);
+  
   assert(heap_base < heap_past_end);
 }
 
@@ -708,6 +712,13 @@ void Memory_System::create_my_heap(init_buf* ib) {
   heaps[my_rank] = h;
 }
 
+void Memory_System::create_heap_for_GC() {
+  const int my_rank = Logical_Core::my_rank();
+  
+  Multicore_Object_Heap* h = new Multicore_Object_Heap();
+  h->initialize_multicore(0, page_size_used_in_heap, On_Tilera );
+  heaps[my_rank] = h;
+}
 
 // three phases (for read-mostly heaps); all machines pre-cohere all heaps, then scan, the all post-cohere
 
@@ -1003,11 +1014,6 @@ char* Memory_System::map_heap_memory(size_t total_size,
 
 /******************************** Page Support ********************************/
 
-# define FOR_EACH_PAGE(page) \
-for ( Page * page = (Page*)heap_base; \
-      (char*)page < heap_past_end; \
-             page++ )
-
 # define FOR_EACH_FREE_PAGE(page) \
 for ( Page * page  = (Page*)global_GC_values->free_page; \
              page != NULL; \
@@ -1146,8 +1152,7 @@ void Memory_System::verify_memory_initialization() {
 void Memory_System::free(Page * p) {
   p->initialize(page_size);
   pushPage(p);
-  if(Verbose_Debug_Prints) fprintf(stdout, "Freed page %d.\n",
-                                   (int)p);   
+  if(Verbose_Debug_Prints) fprintf(stdout, "Freed page %d.\n", (int)p);   
 }
 
 void Memory_System::pushPage(Page * p) {
@@ -1215,8 +1220,12 @@ Page* Memory_System::allocate(size_t minSize_bytes) {
   
   OS_Interface::mutex_unlock(global_GC_values->mutex);
   
-  if(Verbose_Debug_Prints) fprintf(stdout, "Allocated %d pages to Core %d's heap for the request of %d bytes.\n",
-                                   contiguousPages, Logical_Core::my_rank(), (int)minSize_bytes); 
+  if(Verbose_Debug_Prints) {
+    /*
+     fprintf(stdout, "Allocated %d pages to Core %d's heap for the request of %d bytes.\n",
+            contiguousPages, Logical_Core::my_rank(), (int)minSize_bytes); 
+     */
+  }
   
   return p;
 }
@@ -1227,6 +1236,10 @@ int Memory_System::freePages() {
   FOR_EACH_FREE_PAGE(p)
     c++;
   return c;
+}
+
+Page*  Memory_System::firstPage() {
+  return (Page*)heap_base;
 }
 
 u_int32 Memory_System::maxContiguousBytesLeft() {

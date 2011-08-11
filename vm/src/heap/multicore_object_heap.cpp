@@ -88,12 +88,6 @@ void Multicore_Object_Heap::add_object_from_snapshot(Oop dst_oop, Object* dst_ob
   dst_obj->set_preheader(dst_oop); // now that baseHeader is set, can do this
 }
 
-void Abstract_Object_Heap::deallocateChunk(oop_int_t total_bytes) {
-    fatal("NYI");
-}
-
-
-
 void Multicore_Object_Heap::flushExternalPrimitives() {
   FOR_EACH_OBJECT_IN_HEAP(this, oop) {
     if (!oop->isFreeObject()
@@ -178,7 +172,7 @@ void Multicore_Object_Heap::write_image_file(FILE* f, u_int32* address_offsets, 
               f);
     The_Memory_System()->putLong(obj->baseHeader, f);
 
-    oop_int_t* p;
+    u_oop_int_t* p;
     for ( p = &obj->baseHeader + 1;
          (Oop*)p <= obj->last_pointer_addr();
          ++p ) {
@@ -187,7 +181,7 @@ void Multicore_Object_Heap::write_image_file(FILE* f, u_int32* address_offsets, 
             ? oop.bits()
             : The_Memory_System()->adjust_for_snapshot(oop.as_object(), address_offsets),  f);
     }
-    for (Chunk* next = obj->nextChunk();  p < (oop_int_t*)next;  The_Memory_System()->putLong(*p++, f))
+    for (Chunk* next = obj->nextChunk();  p < (u_oop_int_t*)next;  The_Memory_System()->putLong(*p++, f))
       ; // bytes
     last_obj = obj;
     

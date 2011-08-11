@@ -1519,11 +1519,10 @@ public:
  * GC aiding code
  *************************************************/
 private:
-    int NMT;
-    GC_Oop_Stack* tempStack;
+    GC_Oop_Stack* const tempStack;
 public:
   /* During mark */
-    void setNMT( int newNMT){  assert(NMT != newNMT); NMT = newNMT; };
+  
   void sendNMTTrappedRefsToGC();
   void pushLocalOopStackToGCOopStack();
     
@@ -1534,6 +1533,7 @@ public:
     void on_checkpoint_finishMark();
     
     
+  bool is_pointing_to_protected_page_slowVersion(Oop oop);
     bool is_pointing_to_protected_page(Oop oop);
     
     

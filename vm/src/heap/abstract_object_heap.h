@@ -45,8 +45,8 @@ class Abstract_Object_Heap {
     // gc
   }
   void check_multiple_stores_for_generations_only( Oop dsts[], oop_int_t n);
+  void multistore( Oop* dst, Oop src, oop_int_t n);
   void multistore( Oop* dst, Oop* src, oop_int_t n);
-  void multistore( Oop* dst, Oop  src, oop_int_t n);
   void multistore( Oop* dst, Oop* end, Oop src);
   static void record_class_header(Object* /* obj */, Oop klass) { if (klass.is_new()) unimplemented();  }
 
@@ -57,12 +57,12 @@ class Abstract_Object_Heap {
  public:
   virtual void initialize();
   virtual void initialize(void* mem, int size);
+  void reset();
 
 
   bool sufficientSpaceToAllocate(oop_int_t bytes);
   void deallocateChunk(oop_int_t total_bytes);
   Chunk* allocateChunk(oop_int_t total_bytes);
-  void deallocateChunk(oop_int_t total_bytes);
   virtual Object_p object_address_unchecked(Oop) = 0;
 
   Object* accessibleObjectAfter(Object*);

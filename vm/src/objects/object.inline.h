@@ -21,8 +21,6 @@ inline void Object::set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB) {
 }
 # endif
 
-
-
 inline void Object::set_class_oop(Oop x) {
   The_Memory_System()->store_enforcing_coherence(&class_and_type_word(),
                                               Header_Type::extract_from(class_and_type_word())
@@ -211,6 +209,13 @@ inline void* Object::arrayValue() {
   return isWordsOrBytes() ? as_char_p() + BaseHeaderSize : (char*)(The_Squeak_Interpreter()->primitiveFail(), 0);
 }
 
+inline Page* Object::my_page() {
+  return (Page*)(((int)this & ~(page_size -1)));
+}
+
+inline int Object::my_pageNumber(){
+  return  my_page()->pageNumber();
+}
 
 inline oop_int_t Object::formatOfClass() {
   /* "**should be in-lined**"

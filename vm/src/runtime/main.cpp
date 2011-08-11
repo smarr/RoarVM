@@ -124,7 +124,6 @@ template("-print_moves_to_read_write",  The_Squeak_Interpreter()->set_print_move
 template("-replicate_methods",  Memory_System::replicate_methods = true, "replicating methods") \
 template("-use_checkpoint",     The_Squeak_Interpreter()->set_use_checkpoint(true), "using checkpoint") \
 template("-replicate_OT",       Segmented_Object_Table::replicate = true, "let hardware replicate the object table") \
-template("-print_gc",           Abstract_Mark_Sweep_Collector::print_gc = true, "Print GC") \
 template("-version",            print_version_info(), "Print full version information") \
 template("-use_cpu_ms",         The_Squeak_Interpreter()->set_use_cpu_ms(true), "use CPU time instead of elapsed time")
 
@@ -270,12 +269,6 @@ void begin_interpretation() {
   if (The_Squeak_Interpreter()->make_checkpoint())
     The_Squeak_Interpreter()->save_all_to_checkpoint();
   
-  /*********************************************/
-  Abstract_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][1];
-  Object* o = h->firstAccessibleObject();
-  TEST_force_protectedPage_signal_trap(o);
-  /*********************************************/
-  
   assert_always(The_Squeak_Interpreter()->safepoint_ability == NULL);
   The_Squeak_Interpreter()->distribute_initial_interpreter();
   Message_Statics::run_timer = true;
@@ -356,7 +349,7 @@ int main(int argc, char *argv[]) {
   extern char** environ;
   sqr_main(argc, argv, environ);
   
-  Logical_Core::start_GC_thread();
+  Logical_Core::start_GC_thread( The_Squeak_Interpreter() );
   
   begin_interpretation();
   

@@ -22,7 +22,7 @@
 
 Squeak_Interpreter::Squeak_Interpreter() 
 #if !On_Tilera
-: _my_rank(Logical_Core::my_rank()), _my_core(Logical_Core::my_core()) 
+: _my_rank(Logical_Core::my_rank()), _my_core(Logical_Core::my_core()) , tempStack(new GC_Oop_Stack())
 #endif
 {
   bcCount = 1;
@@ -239,6 +239,10 @@ void Squeak_Interpreter::flushExternalPrimitiveTable() { externalPrimitiveTable(
 __attribute__((unused)) static u_char lastBC;
 __attribute__((unused)) static int lastBCCount;
 void Squeak_Interpreter::interpret() {
+  
+  // Notify the GC-thread.
+  checkpoint_startInterpretation_Message_class().send_to_GC();
+  
   /*
    "This is the main interpreter loop. It normally loops forever,
     fetching and executing bytecodes. When running in the context of a browser
@@ -1843,7 +1847,7 @@ void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool /* defer */) {
     if (ccIndex == 0) {
       primitiveFail();  return;
     }
-    The_Memory_System()->store_enforcing_coherence(&ro->baseHeader,  (ro->baseHeader & ~Object::CompactClassMask) | ccIndex, ro);
+    The_Memory_System()->store_enforcing_coherence((oop_int_t*)&ro->baseHeader,  (ro->baseHeader & ~Object::CompactClassMask) | ccIndex, ro);
   }
   else {
     // exchange class pointer
@@ -3090,15 +3094,20 @@ void Squeak_Interpreter::receive_initial_interpreter_from_main(Squeak_Interprete
 #if On_Tilera
   *this = *sq;
 #else
-  const int           my_rank = this->_my_rank;
-  Logical_Core* const my_core = this->_my_core;
+  const int           my_rank   = this->_my_rank;
+  Logical_Core* const my_core   = this->_my_core;
+  GC_Oop_Stack* const tempStack = this->tempStack;
   
   memcpy(this, sq, sizeof(Squeak_Interpreter)); // initalize with copy; use memcpy to avoid complains about consts, was: *this = *sq;
  
-  void* const rankAddr = (void* const)&this->_my_rank;
-  void* const coreAddr = (void* const)&this->_my_core;
-  *((int*)rankAddr)           = my_rank;
-  *((Logical_Core**)coreAddr) = my_core;
+  void* const rankAddr      = (void* const)&this->_my_rank;
+  void* const coreAddr      = (void* const)&this->_my_core;
+  void* const tempStackAddr = (void* const)&this->tempStack;
+  
+  
+  *((int*)rankAddr)                = my_rank;
+  *((Logical_Core**)coreAddr)      = my_core;
+  *((GC_Oop_Stack**)tempStackAddr) = tempStack;
 #endif
   
   safepoint_tracker = new Safepoint_Tracker();
@@ -3296,37 +3305,66 @@ void  Squeak_Interpreter::sendNMTTrappedRefsToGC(){
 void Squeak_Interpreter::pushLocalOopStackToGCOopStack(){
     if( !tempStack->is_empty()){
         Contents* tempContents = tempStack->popCurrentContents();
-        
+      
         assert(tempContents->next_contents == NULL); // We allow only a single Contents-block in our local Oop-stack (up to 10.000 refs).
-        
-        GC_Thread_Class::addFilledContentsToMarkStack(tempContents);
-        
-    }/* else {
-      if no elements are on the local stack, we do not have to send anything.
-      }*/
+      //printf("Core %d sending %d elements in bulk\n",Logical_Core::my_rank(),tempContents->next_elem);
+      report_bulk_NMTtrapped_refs_Message_class(tempContents).send_to_GC();
+      assert(tempStack->is_empty());
+      /*
+      bool expectedNMT = Logical_Core::my_NMT();
+      int ok = 0;
+      int notOk = 0;
+      
+      FOR_EACH_OBJECT(object_ptr){
+        if( !object_ptr->is_free()){
+        FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(object_ptr, oop_ptr){
+          if(oop_ptr->is_mem()){
+          if( oop_ptr->getNMT() == expectedNMT ){
+            ok++;
+          } else {
+            notOk++;
+          }
+          }
+        }
+        }
+      }
+      //printf("Core %d has an NMT ratio of : %d/%d",Logical_Core::my_rank(),ok,notOk);
+       */
+    } else {
+      //if no elements are on the local stack, we do not have to send anything.
+      //printf("No elements on our tempStack, no need to send anything\n");
+      }
     
     
 }
 
+int s =0;
+int f = 0;
+
 void Squeak_Interpreter::on_NMT_trap(Oop* p, Oop value){
   Oop nmtCorrectOop = Oop::from_bits(value.bits());
-  nmtCorrectOop.setNMT( NMT );
-  
+  nmtCorrectOop.setNMT( Logical_Core::my_NMT() );
+
   // If CAS fails the pointer was already changed: ignore.
-  if (Oop::atomic_compare_and_swap(p,value,nmtCorrectOop) ) {
-    tempStack->push(p->as_object());
+  bool CAS_success = Oop::atomic_compare_and_swap(p,value,nmtCorrectOop);
+  if ( CAS_success ) {
+    tempStack->push( (Object*) value.bits()); // Do cast instead of as_object to avoid trapping in LVB again.
     if(tempStack->isAboutToCreateNewContents()){
       pushLocalOopStackToGCOopStack();
     }
   }
+  
+  assert(p->getNMT() == Logical_Core::my_NMT());
+  assert(p->raw_bits() != value.raw_bits());
+  //(CAS_success?s++:f++); printf("on_NMT_trap succes ratio: %d/%d\n",s,f);
 }
 
 void Squeak_Interpreter::on_Protected_trap(Oop* p, Oop oldValue){
-  printf("entered on on_Protected_trap(Oop* p, Oop oldValue)...\n"); return;
-  Oop* newAddress = GC_Thread_Class::getInstance()->lookUpNewLocation(oldValue);
+  printf("entered on on_Protected_trap(Oop* p, Oop oldValue)...\n");
+  Oop* newAddress = The_GC_Thread()->lookUpNewLocation(oldValue);
   if( newAddress == NULL){ // Not yet moved.
     Object* theObject = oldValue.as_object();
-    newAddress = theObject->relocateIfNoForwardingPointer( The_Memory_System()->heaps[ Logical_Core::my_rank() ][0] );
+    newAddress = theObject->relocateIfNoForwardingPointer( The_Memory_System()->heaps[ Logical_Core::my_rank() ] );
     assert(newAddress != NULL);
   }
   Oop::atomic_compare_and_swap(p, oldValue, *newAddress);
@@ -3336,11 +3374,21 @@ inline void Squeak_Interpreter::on_checkpoint_finishMark(){
     pushLocalOopStackToGCOopStack();
 }
 
+bool Squeak_Interpreter::is_pointing_to_protected_page_slowVersion(Oop oop){
+  Object* obj = (Object*)oop.bits();
+  The_GC_Thread()->isAlmostDead( obj->my_page() );
+  return false;
+}
 
 bool Squeak_Interpreter::is_pointing_to_protected_page(Oop oop){
+  
+  return is_pointing_to_protected_page_slowVersion(oop);
+  
   //printf("Entered is_pointing_to_protected_page(Oop oop)\n");
   int r_eax = -1;
-  int32 x = (int32)oop.as_object();
+  int32 x = oop.bits(); // Get bits() instead of as_object to avoid trapping in LVB again.
+  
+  Memory_System* mem = The_Memory_System();
   
   /*
    * Block of asembly:
@@ -3357,23 +3405,25 @@ bool Squeak_Interpreter::is_pointing_to_protected_page(Oop oop){
   asm volatile ("movl %%eax, %0\n" :"=r"(r_eax));
   
   bool res = (r_eax == TRAPPED);
-  //printf("Returning from is_pointing_to_protected_page (%s,%d)\n",res?"true":"false",r_eax);
+  if(res)printf("Returning from is_pointing_to_protected_page (%s,%d)\n",res?"true":"false",r_eax);
   return res;
 }
 
 
 void Squeak_Interpreter::doLVB(Oop* p){
   //printf("Entering Squeak_Interpreter::doLVB(Oop* p)\n");
-  Oop oldValue = Oop::from_bits(p->bits());
+  Oop oldValue = Oop::from_bits(p->raw_bits());
   
-  /*
-  if( oldValue.getNMT() != NMT ){
+  
+  
+
+  if( The_GC_Thread()->is_mark_phase()  && (oldValue.getNMT() != Logical_Core::my_NMT()) ){
         on_NMT_trap(p,oldValue);
-    }
-    */
-  
-    if ( is_pointing_to_protected_page( oldValue ) ) {
+    
+  } else {
+    /* DO NOTHING - all is ok*/
+  }
+    if ( (The_GC_Thread()->is_relocate_phase() || The_GC_Thread()->is_remap_phase() ) && is_pointing_to_protected_page( oldValue ) ) {
         on_Protected_trap(p,oldValue);
     }
-   
 }

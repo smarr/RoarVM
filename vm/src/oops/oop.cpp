@@ -41,6 +41,26 @@ bool Oop::isKindOf(char* className) {
 
 void Oop::test() { assert_always(sizeof(Oop) == 4); }
 
+void Oop::setNMT(bool newNMT){
+  //if(newNMT == false)printf("On core %d we want to set the NMT to 0...\n",Logical_Core::my_rank());
+  assert_always(is_mem());
+  oop_int_t  bitsOld = bits();
+  oop_int_t  _bitsOld = _bits;
+  
+  if( getNMT() != newNMT){ 
+    if(newNMT){
+      _bits = (_bits | NMT_Mask);
+    } else {
+      _bits = (_bits & ~NMT_Mask);
+    }
+    oop_int_t  _bitsNew = _bits;
+    assert( _bitsOld != _bitsNew );
+  }
+  oop_int_t  bitsNew = bits();
+  assert(getNMT() == newNMT);
+  assert_eq(bitsOld,bitsNew,"Calling \"bits()\" should result in the same value, even if NMT bit has changed.");
+}
+
 # if 0
 Oop Oop::check_after_munging() {
   if (check_many_assertions) {

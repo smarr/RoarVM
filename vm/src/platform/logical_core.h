@@ -19,6 +19,7 @@ class Logical_Core {
 private:
   int     _rank;
   u_int64 _rank_mask;
+  bool _NMT;
   
 public:
   Message_Queue  message_queue;
@@ -28,6 +29,16 @@ public:
     _rank = rank;
     _rank_mask = 1LL << u_int64(rank);
     coordinate.initialize(rank);
+    _NMT = false;
+  }
+  
+  inline void setNMT( bool newNMT ){
+    //printf("%d sets NMT from %s to %s\n", my_rank(), _NMT?"T":"F", newNMT?"T":"F" );
+    _NMT = newNMT;
+  }
+  
+  inline bool getNMT( ){
+    return _NMT;
   }
   
   inline int      rank()      const { assert(this != NULL); return _rank; }
@@ -69,6 +80,7 @@ public:
   static inline Logical_Core* my_core() { return Memory_Semantics::my_core();      }
   static inline int           my_rank() { return Memory_Semantics::my_rank();      }
   static inline u_int64  my_rank_mask() { return Memory_Semantics::my_rank_mask(); }
+  static inline bool           my_NMT() { return my_core()->getNMT();              }
   
   static void my_print_string(char* buf, int buf_size) {
     my_core()->print_string(buf, buf_size);
@@ -78,7 +90,7 @@ public:
   static void initialize_all_cores();
     
   static void initialize_GC_core();
-  static void start_GC_thread();
+  static void start_GC_thread(Squeak_Interpreter* initialInterpreter);
   static Logical_Core* get_GC_core(){ return &gc_core; }
   
   static inline Logical_Core* main_core() { return &logical_cores[main_rank]; }

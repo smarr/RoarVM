@@ -85,6 +85,11 @@ void Message_Statics::process_any_incoming_messages(bool wait) {
   for ( incoming_msg_count = 0;  receive_and_handle_one_message(wait);  wait = false, ++incoming_msg_count) ;
 }
 
+void Message_Statics::process_any_incoming_messages_as_GC(bool wait) {
+  // incoming_msg_count just for debugging
+  for ( incoming_msg_count = 0;  receive_and_handle_one_message_as_GC(wait);  wait = false, ++incoming_msg_count) ;
+}
+
 
 // Handle case where while waiting for A, we recursively get a call to wait for B
 // Must not release A, but rather return it eventually

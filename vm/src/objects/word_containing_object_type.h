@@ -15,10 +15,10 @@
 // see comment at top of object.h
 
 class Word_Containing_Object_Type {
-
+/*
   # define WORD_CONTAINING_OBJECT_TYPE_MEMBERS \
  private: \
-  /* could be object header word, size header word, class header word, backpointer, or any other preheader word  */ \
+  /* could be object header word, size header word, class header word, backpointer, or any other preheader word  / \
   oop_int_t some_word_in_an_object_header() { return *(oop_int_t*)this; } \
   \
  public: \
@@ -47,6 +47,35 @@ class Word_Containing_Object_Type {
   }
 
   WORD_CONTAINING_OBJECT_TYPE_MEMBERS
+  */
 
+private: \
+  /* could be object header word, size header word, class header word, backpointer, or any other preheader word  */
+   oop_int_t some_word_in_an_object_header() { return *(oop_int_t*)this; } 
+   
+   public: 
+   int headerType() { 
+   return Header_Type::extract_from(some_word_in_an_object_header()); 
+   } 
+   
+   int extra_header_bytes() { 
+   return Header_Type::extraHeaderBytes(headerType()); 
+   } 
+   
+   int extra_header_bytes_without_preheader() { 
+   return Header_Type::extraHeaderBytes_without_preheader(headerType()); 
+   } 
+   
+   int extra_header_oops() { 
+   return Header_Type::extraHeaderOops(headerType()); 
+   } 
+   
+   int extra_header_oops_without_preheader() { 
+   return Header_Type::extraHeaderOops_without_preheader(headerType()); 
+   } 
+   
+   bool is_free() { 
+   return Header_Type::Free == headerType(); 
+   }
 };
 

@@ -413,8 +413,8 @@ Oop* Object::last_strong_pointer_addr() {
   return &as_oop_p()[nonWeakFieldsOf()];
 }
 
-Oop* Object::last_strong_pointer_addr_remembering_weak_roots(Abstract_Mark_Sweep_Collector *gc) {
-  return  isWeak()  &&  gc->add_weakRoot(as_oop())  ?  last_strong_pointer_addr()  :  last_pointer_addr();
+Oop* Object::last_strong_pointer_addr_remembering_weak_roots() {
+  return  (isWeak()  &&  The_GC_Thread()->add_weakRoot(as_oop()) ) ?  last_strong_pointer_addr()  :  last_pointer_addr();
 }
 
 // ObjectMemory intialization
@@ -460,23 +460,6 @@ void Object::do_all_oops_of_object_for_reading_snapshot(Squeak_Image_Reader* r) 
 }
 
 
-void Object::do_all_oops_of_object_for_marking(Abstract_Mark_Sweep_Collector* gc, bool do_checks) {
-  FOR_EACH_STRONG_OOP_IN_OBJECT_EXCEPT_CLASS_RECORDING_WEAK_ROOTS(this, oopp, gc) {
-    if (do_checks)
-      The_Memory_System()->contains(oopp);
-    gc->mark(oopp);
-  }
-  if (contains_class_and_type_word()) {
-    Oop c = get_class_oop();
-    gc->mark(&c);
-  }
-  if (Extra_Preheader_Word_Experiment)
-    gc->mark((Oop*)extra_preheader_word());
-}
-
-
-
-
 // ObjectMemory allocation
 Oop Object::clone() {
   // Return a shallow copy, may GC
@@ -511,7 +494,7 @@ Oop Object::clone() {
 
   // fix base header: compute new hash and clear Mark and Root bits
   oop_int_t hash = h->newObjectHash(); // even though newChunk may be in global heap
-  The_Memory_System()->store_enforcing_coherence(&newObj->baseHeader,
+  The_Memory_System()->store_enforcing_coherence((oop_int_t*)&newObj->baseHeader,
                                               newObj->baseHeader & (Header_Type::Mask | SizeMask | CompactClassMask | FormatMask)
                                               |   ((hash << HashShift) & HashMask),
                                               newObj);
@@ -581,6 +564,7 @@ int Object::priority_of_process_or_nil() {
 }
 
 bool Object::is_process_running() {
+  // AS CLEAN OOP [MDW]
   return fetchPointer(Object_Indices::SuspendedContextIndex) == The_Squeak_Interpreter()->roots.nilObj;
 }
 
@@ -618,7 +602,8 @@ void Object::kvetch_nil_list_of_process(const char* why) {
   if (my_list_of_process() == The_Squeak_Interpreter()->roots.nilObj ) {
     static int kvetch_count = 10;
     if (kvetch_count) {
-      lprintf("WARNING: image has not been modified to allow dynamic priority changes; cannot nil out myList before calling remove_process_from_scheduler_list(%s)\n", why);
+      /*
+      lprintf("WARNING: image has not been modified to allow dynamic priority changes; cannot nil out myList before calling remove_process_from_scheduler_list(%s)\n", why);*/
       --kvetch_count;
     }
   }
@@ -1114,11 +1099,19 @@ int Object::index_of_string_in_array(const char* aString) {
 
   Object* Object::nextObject() {
     Chunk* c = nextChunk();
-    if ((char*)c < The_Memory_System()->heap_past_end) 
+    if (The_Memory_System()->contains(c)) 
       return c->object_from_chunk();
     else
       return NULL;
   }
+
+Object* Object::nextObject_unprotected() {
+  Chunk* c = nextChunk();
+  if (The_Memory_System()->unprotected_virtual_space_contains(c)) 
+    return c->object_from_chunk();
+  else
+    return NULL;
+}
   
   Oop Object::nextInstance() {
     Oop klass = fetchClass();
@@ -1129,3 +1122,23 @@ int Object::index_of_string_in_array(const char* aString) {
         return r->as_oop();
     }    
   }
+
+
+Oop Object::get_class_oop(){
+  {
+    Oop r = Oop::from_bits(Header_Type::without_type(class_and_type_word()));
+    if (check_many_assertions)
+      assert(r == Oop::from_mem_bits(u_oop_int_t(class_and_type_word()) >> Header_Type::Width));
+    
+    bool currentNMTbit = getNMTbitOfClassOopFromHeader( baseHeader );
+    bool expectedNMTbit = Logical_Core::my_core()->getNMT();
+    
+    if( currentNMTbit != expectedNMTbit ){
+      //fatal("NYI - report this oop to the GC");
+    }
+    
+    setNMTbitOfClassOopIfDifferent( expectedNMTbit );
+    r.setNMT( expectedNMTbit );
+    return r;
+  }
+}

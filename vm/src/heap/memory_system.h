@@ -53,6 +53,8 @@
 
 class Page;
 
+static const int page_size = 1 * Mega; // bytes
+
 class Memory_System {
 
 public:
@@ -68,6 +70,7 @@ public:
   Page * allocate(size_t);
   void   free(Page *);
   int    freePages();
+  Page*  firstPage();
   
   /* GC Liveness Support */
   typedef struct LPage {
@@ -75,20 +78,20 @@ public:
     
     void setAllocated(bool v) {
       if(v) liveBytes = 0;
-      else  liveBytes = Mega + 1;
+      else  liveBytes = page_size + 1;
     }
     
     bool isAllocated() { 
-      return liveBytes < Mega; 
+      return liveBytes < page_size; 
     }
     
     void addLiveBytes(int n) {
-      if(liveBytes > Mega)
-        fatal("Should not happen");
+      if(liveBytes > page_size)
+        fatal("Should not happen: liveBytes > page_size in addLiveBytes(int)");
       else {
         liveBytes += n;
-        if(liveBytes > Mega) 
-          liveBytes = Mega;
+        if(liveBytes > page_size) 
+          liveBytes = page_size;
       }   
     }    
   } LPage;
@@ -186,10 +189,11 @@ public:
     return (int32)addr; /* todo: verify correctness :) */
   }
 
-
+public:
+  int calculate_total_pages(int);
 private:
   void set_page_size_used_in_heap();
-  int calculate_total_pages(int);
+  
   bool ask_Linux_for_huge_pages(int);
   int how_many_huge_pages();
   void request_huge_pages(int);
@@ -202,7 +206,12 @@ public:
   void initialize_helper();
 
   void create_my_heap(init_buf*);
+  void create_heap_for_GC();
   void init_values_from_buffer(init_buf*);
+  
+  Abstract_Object_Heap* my_heap(){
+    return heaps[Logical_Core::my_rank()];
+  }
 
 
   void ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(Oop dst_oop, Object* src_obj_wo_preheader) {
@@ -231,7 +240,15 @@ public:
   int assign_rank_for_snapshot_object();
 
   bool contains(void* p) const {
-    return heap_base <= (char*)p  &&  (char*)p < heap_past_end;
+    return regular_virtual_space_contains((char*)p);                        // regular virtual address space
+  }
+  
+  bool regular_virtual_space_contains(char* p) const {
+    return (heap_base <= p  &&  p < heap_past_end);
+  }
+  
+  bool unprotected_virtual_space_contains(void* p) const {
+    return ((heap_base + unprotected_heap_offset) <= (char*)p  &&  (char*)p < (heap_past_end + unprotected_heap_offset));
   }
 
 

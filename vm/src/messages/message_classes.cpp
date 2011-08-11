@@ -396,6 +396,11 @@ void checkpointResponse_class::handle_me(){
     printf("Handeling checkpointResponse_class(%d)...\n",Logical_Core::my_rank());
 }
 
+void checkpoint_startInterpretation_Message_class::handle_me(){
+  /* ON GC THREAD */
+  /* DO NOTHING just for synch purpose */
+}
+
 /***************
  * MARK
  ***************/
@@ -403,35 +408,36 @@ void checkpointResponse_class::handle_me(){
 /* Checkpoint messages before actual marking */
 
 void checkpoint_startMark_Message_class::handle_me(){
-    /* ON INTERPRETER THREAD */
-    
-    // Set new expected NMT value for this core (new_NMT).
-    // Might change to flipNMT(), but that is less general.
-    The_Squeak_Interpreter()->setNMT( new_NMT );
-    
-    // Set all root-refs' NMT value to the new value,
-    // And collect them.
-    SetNMTbitAndCollectRoots_Oop_Closure oc( new_NMT );
-    The_Squeak_Interpreter()->do_all_roots(&oc);
-
-    // Ask memory-system for new allocation page.
-    fatal("NYI - ask for new page");
-    
-    checkpoint_startMark_Response_class m;
-    m.roots = oc.roots; // Send the collected roots to the GC_thread.
-
-    m.send_to_GC();
+  lprintf("received start mark\n");
+  /* ON INTERPRETER THREAD */
+  
+  // Set new expected NMT value for this core (new_NMT).
+  // Might change to flipNMT(), but that is less general.
+  Logical_Core::my_core()->setNMT( new_NMT );
+  
+  // Set all root-refs' NMT value to the new value,
+  // And collect them.
+  
+  SetNMTbitAndCollectRoots_Oop_Closure oc( new_NMT );
+  The_Squeak_Interpreter()->do_all_roots(&oc);
+  
+  // Ask memory-system for new allocation page.
+  The_Memory_System()->my_heap()->reset();
+  
+  The_Memory_System()->adjustLivenessCopyForCore(Logical_Core::my_rank(), false);
+  
+  checkpoint_startMark_Response_class m;
+  m.roots = oc.roots; // Send the collected roots to the GC_thread.
+  m.send_to_GC();
 }
 
 void checkpoint_startMark_Response_class::handle_me(){
     /* ON GC THREAD */
     
-    // Add all root refs to markstack.
-    fatal("Is this thread-safe? Mutator threads can already be adding NTM-trapped-refs");
-    GC_Oop_Stack* stack = GC_Thread_Class::getInstance()->getMarkStack();
-    assert(roots->contents->next_contents == NULL); //Expect rootset of Interpreters not to be larger than N(=10.000)
-    if(! stack->is_empty())roots->contents->next_contents = stack->contents;
-    stack->contents = roots->contents;
+  printf("Adding some roots to the mark stack...\n");
+  
+  if( roots == NULL ) return; // No roots to report.
+  The_GC_Thread()->addRoots( roots );
 }
 
 /* Checkpoint messages to verify if we can stop the marking phase */
@@ -449,6 +455,11 @@ void checkpoint_finishMark_Response_class::handle_me(){
     /* ON GC THREAD */
     /* DO NOTHING */
     // NMT-trapped-refs are added to stack, no continue mark-loop is stack is not empty.
+}
+
+void report_bulk_NMTtrapped_refs_Message_class::handle_me(){
+  //printf("Ask to add bulk NMT trapped refs to markstack\n");
+  The_GC_Thread()->addNewTopContents( newContents );
 }
 
 /***************
@@ -477,11 +488,25 @@ void checkpoint_startRelocate_Response_class::handle_me(){
  ***************/
 
 void checkpoint_startRemap_Message_class::handle_me(){
-    /* ON INTERPRETER THREAD */
+  /* ON INTERPRETER THREAD */
+  
+  // Get all root-refs: collect them.
+     
+  CollectRoots_Oop_Closure oc;
+  The_Squeak_Interpreter()->do_all_roots(&oc);
+  
+  checkpoint_startRemap_Response_class m;
+  m.roots = oc.roots; // Send the collected roots to the GC_thread.
+  m.send_to_GC();
 }
 
 void checkpoint_startRemap_Response_class::handle_me(){
-    /* ON GC THREAD */
+  /* ON GC THREAD */
+  
+  printf("Adding some roots to the mark stack...\n");
+  
+  if( roots == NULL ) return; // No roots to report.
+  The_GC_Thread()->addRoots( roots );
 }
 
 /***************
@@ -489,7 +514,7 @@ void checkpoint_startRemap_Response_class::handle_me(){
  ***************/
 
 void awaiting_finished_GC_cycle_Message_class::handle_me(){
-    GC_Thread_Class::setAsAwaitingFinishedGCCycle(sender);
+    The_GC_Thread()->setAsAwaitingFinishedGCCycle(sender);
 }
 
 /**/

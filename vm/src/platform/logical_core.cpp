@@ -37,9 +37,10 @@ void Logical_Core::initialize_GC_core(){
     gc_core.initialize(num_cores);
 }
 
-void Logical_Core::start_GC_thread(){
-    // Create an instance of GC_thread_Class and start (spawn+run)
-    // The instance is also stored statically in GC_Thread_Class. 
-    GC_Thread_Class gc_thread(gc_core);
-    gc_thread.start();
+void Logical_Core::start_GC_thread( Squeak_Interpreter* initialInterpreter ){
+  // Create an instance of GC_thread_Class and start (spawn+run)
+  // The instance is also stored statically in GC_Thread_Class. 
+  Thread_Memory_Semantics:
+  The_GC_Thread()->setNilObj( initialInterpreter->roots.nilObj );
+  The_GC_Thread()->start();
 }

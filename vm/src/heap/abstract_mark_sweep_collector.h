@@ -29,7 +29,7 @@ protected:
   virtual void finish();
 
   void mark();
-  GC_Oop_Stack* mark_stack;
+  //GC_Oop_Stack* mark_stack;
 
   u_int32   weakRootCount;
   Oop       weakRoots[10000];
@@ -54,7 +54,7 @@ protected:
 
   void mark_an_object(Object* o) {
     // was o->do_all_oops_of_object(&mark_closure);
-    o->do_all_oops_of_object_for_marking(this);
+    //o->do_all_oops_of_object_for_marking(this);
   }
  protected:
   void sweep_unmark_and_compact_or_free(Abstract_Mark_Sweep_Collector*);

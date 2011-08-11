@@ -131,6 +131,7 @@
 # include "oop.h"
 # include "oop_closure.h"
 
+
 # include "abstract_cpu_coordinate.h"
 # include "dummy_cpu_coordinate.h"
 # include "tile_cpu_coordinate.h"
@@ -151,7 +152,6 @@
 # include "process_memory_semantics.h"
 
 # include "logical_core.h"
-
 
 # include "checkpoint_closure.h" //MDW
 # include "gc_oop_stack.h" // MDW moved before squeak_interpreter.h and messages
@@ -194,6 +194,7 @@
 
 
 
+
 # include "object_table.h"
 # include "abstract_object_table.h"
 # include "segmented_object_table.h"
@@ -201,6 +202,7 @@
 # include "dummy_object_table.h"
 
 # include "memory_system.h"
+# include "parallel_gc_thread.h" // MDW
 
 # include "page.h"
 
@@ -209,7 +211,7 @@
 # include "method_cache.h"
 # include "at_cache.h"
 
-# include "parallel_gc_thread.h" // MDW
+
 
 # include "externals.h"
 # include "abstract_primitive_table.h"
@@ -222,10 +224,6 @@
 
 # include "squeak_image_reader.h"
 
-
-# include "abstract_mark_sweep_collector.h"
-# include "indirect_oop_mark_sweep_collector.h"
-# include "mark_sweep_collector.h"
 
 # include "RVMPlugin.h"
 

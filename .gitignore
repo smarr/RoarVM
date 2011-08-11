@@ -24,3 +24,5 @@ vm/src/tests/*.o
 # Unit tests
 vm/_trial_temp/
 *.pyc
+
+DerivedData

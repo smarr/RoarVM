@@ -35,6 +35,7 @@ public:
   static void print_size();
   
   static void process_any_incoming_messages(bool);
+  static void process_any_incoming_messages_as_GC(bool);
   static void receive_and_handle_messages_returning_a_match(messages msg, const abstractMessage_class*, int);
   static bool receive_and_handle_one_message(bool wait_for_msg);
     

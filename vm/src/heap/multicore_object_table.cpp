@@ -53,7 +53,7 @@ void Multicore_Object_Table::save_to_checkpoint(FILE* f) {
 
 
 bool Multicore_Object_Table::is_OTE_free(Oop x) {
-  return !The_Memory_System()->contains(word_for(x)->obj());
+  return ! The_Memory_System()->contains(word_for(x)->obj());
 }
 
 
