@@ -89,6 +89,7 @@ private:
   }  
 
   inline Object_p as_object();
+  inline Object_p as_object_noLVB();
   inline Object_p as_object_in_unprotected_space();
   inline Object_p as_object_unchecked();
   inline Object_p as_object_if_mem();
@@ -102,6 +103,8 @@ private:
 
   inline bool verify_oop();
   inline bool verify_object();
+  inline bool verify_oop_noLVB();
+  inline bool verify_object_noLVB();
   bool verify_object_or_null() { return bits() == 0  ||  verify_object(); }
   bool okayOop();
 

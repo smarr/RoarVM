@@ -84,6 +84,11 @@
       
       pthread_setspecific(interpreter_key, interp);
     }
+
+    void Thread_Memory_Semantics::initialize_local_interpreter_GC(Squeak_Interpreter* interp) {
+      assert(interpreter_key != 0 /* i.e. thread local storage is initialized */);
+      pthread_setspecific(interpreter_key, interp);
+    }
   # endif // !On_Intel_Linux
 # endif // Force_Direct_Squeak_Interpreter_Access
 

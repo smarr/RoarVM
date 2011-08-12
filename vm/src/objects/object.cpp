@@ -575,7 +575,6 @@ int Object::priority_of_process_or_nil() {
 }
 
 bool Object::is_process_running() {
-  // AS CLEAN OOP [MDW]
   return fetchPointer(Object_Indices::SuspendedContextIndex) == The_Squeak_Interpreter()->roots.nilObj;
 }
 
@@ -1137,19 +1136,134 @@ Object* Object::nextObject_unprotected() {
 
 Oop Object::get_class_oop(){
   {
+    /*
+     * Since the class-pointer (before baseHeader) is seperated from its NMT-bit (in baseHeader).
+     * This implies that we cannot pass the class-oop by reference, and thus we invoke (simulate)
+     * the LVB here.
+     * We also ensure it takes effect.
+     */
     Oop r = Oop::from_bits(Header_Type::without_type(class_and_type_word()));
-    if (check_many_assertions)
-      assert(r == Oop::from_mem_bits(u_oop_int_t(class_and_type_word()) >> Header_Type::Width));
+    r.setNMT( getNMTbitOfClassOop()  );
+    doLVB(&r);
+    setNMTbitOfClassOopIfDifferent( r.getNMT() );
+    set_class_oop_no_barrier( r );
     
-    bool currentNMTbit = getNMTbitOfClassOopFromHeader( baseHeader );
-    bool expectedNMTbit = Logical_Core::my_core()->getNMT();
-    
-    if( currentNMTbit != expectedNMTbit ){
-      //fatal("NYI - report this oop to the GC");
-    }
-    
-    setNMTbitOfClassOopIfDifferent( expectedNMTbit );
-    r.setNMT( expectedNMTbit );
     return r;
   }
+}
+
+/*
+ *
+ */
+
+/*
+ * This function tries to copy this object to the current new-alloc-page in the
+ * supplied-by-argument Abstract_Object_Heap.
+ * If this object is already a forwarding-pointer (contains pointer to a copy of this object,
+ * in a part of the heap that is not under the protection of the GC) then we do nothing but returning false (#f).
+ * In the case where the object is still a simple object we copy the object to a new location. If after copying
+ * the object is still no forwarding pointer, we convert it to a forwarding pointer.
+ * If during copying the object changed to an forwarding pointer, we return the memory used for the copy back to the
+ * supplied-by-argument Abstract_Object_Heap.
+ * The function relocateIfNoForwardingPointer( Abstract_Object_Heap* ) returns the forward pointing Oop (fresh copy or
+ * already present forwarding pointer).[MDW]
+ */
+Oop Object::relocateIfNoForwardingPointer( Abstract_Object_Heap* m_objectHeap ){
+  bool succeeded = false;
+  int totalSizeInBytes = total_byte_size();
+  
+  /*
+   * Keep a copy of the first 64 bits of this object (baseheader + first oop),
+   * to compare against in the CAS operation. [MDW]
+   */
+  int64 oldBaseHeaderAndFirstOopAsInt64 = getBaseheaderAndFirstOopAsInt64();
+  
+  if( isForwardingPointer() ){
+    return getForwardingPointer();
+  } else {
+    Chunk* dst_chunk =  m_objectHeap->allocateChunk( totalSizeInBytes );
+    Chunk* src_chunk = my_chunk();
+    memcpy(dst_chunk, src_chunk, totalSizeInBytes);
+    
+    Chunk* tempCpy = (Chunk*)malloc(totalSizeInBytes);
+    memcpy(tempCpy, src_chunk, totalSizeInBytes);
+    Object* tempObj = tempCpy->object_from_chunk();
+    
+    Oop newOop = (dst_chunk->object_from_chunk()->as_oop());
+    succeeded = makeForwardingPointer( oldBaseHeaderAndFirstOopAsInt64, newOop  );
+    
+    if( !succeeded ) { // If transformation to forwarding pointer failed, it must already be a forwarding pointer ...
+      m_objectHeap->deallocateChunk( totalSizeInBytes );
+      return getForwardingPointer();
+    } else {
+      assert( getForwardingPointer() == newOop );
+      assert( Object::verify( tempObj , newOop.as_object_noLVB() ) );
+      return newOop;
+    }
+  }
+  
+}
+
+bool Object::verify( Object* a, Object* b ){
+  assert(a->baseHeader == b->baseHeader);
+  
+  Oop* lastOopOfA = a->last_pointer_addr();
+  Oop* lastOopOfB = b->last_pointer_addr();
+  
+  while( !lastOopOfA->is_mem() && lastOopOfA > a->as_oop_p()){
+    assert( !lastOopOfB->is_mem() );
+    assert( lastOopOfB > b->as_oop_p() );
+    lastOopOfA--;
+    lastOopOfB--;
+  }
+  if( lastOopOfA > a->as_oop_p() ){
+    assert( lastOopOfB > b->as_oop_p() );
+    Object* lastOfA = lastOopOfA->as_object_noLVB();
+    Object* lastOfB = lastOopOfB->as_object_noLVB();
+    assert( lastOfA->baseHeader == lastOfB->baseHeader );
+    //printf("Rather 'deep' verification succeded...\n");
+  }
+  return true;
+}
+
+/*
+ * An object is a forwarding pointer if the headerType-bits are set to 2.
+ * To verify this from a int64 we have to check bits numbers 31-32 (offset 0)
+ */
+bool Object::header_is_forwardingPointer(int32 basehdr) { return basehdr & ForwardPointerBit; }
+
+bool  Object::isForwardingPointer(  ){
+  return header_is_forwardingPointer( baseHeader );
+}
+
+Oop Object::getForwardingPointer(){
+  assert(isForwardingPointer());
+  Oop ret =  Oop::from_bits(*(oop_int_t*)firstFixedField());
+  ret.verify_oop_noLVB();
+  return ret;
+}
+
+u_int64 Object::getBaseheaderAndFirstOopAsInt64(){
+  u_int32 bhdr = *(u_int32*)this;
+  u_int32 fptr = *(((u_int32*)this) + 1);
+  u_int64 comb = *(u_int64*)this;
+  assert(comb == (bhdr | ((u_int64)fptr << 32))); // Careful, *this* is the correct decomposition/recomposition! :-)
+  
+  u_int64 oldBaseheaderAndFirstOop =  *((u_int64*)this);
+  return oldBaseheaderAndFirstOop;
+}
+
+bool Object::makeForwardingPointer(u_int64 oldBaseheaderAndFirstOop, Oop oop){
+  u_int32 newBaseHeader = (oldBaseheaderAndFirstOop >> 32) | ForwardPointerBit; // baseheader marked as 'forwarding pointer'
+  u_int32 newFirstOop = oop.bits() | (Logical_Core::my_NMT()<<1);               // the forwarding pointer
+  u_int64 newBaseheaderAndForwardingPointer =  newBaseHeader | ((u_int64)newFirstOop << 32);
+  
+  assert(header_is_forwardingPointer(newBaseHeader));
+  
+  bool res =  POSIX_OS_Interface::atomic_compare_and_swap((int64*)this,oldBaseheaderAndFirstOop,newBaseheaderAndForwardingPointer);
+  
+  assert(getBaseheaderAndFirstOopAsInt64() == newBaseheaderAndForwardingPointer);
+  assert( baseHeader == newBaseHeader);
+  assert( isForwardingPointer() );
+  return res;
 }

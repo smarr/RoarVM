@@ -44,6 +44,9 @@ public:
   static void wait_for_ack(messages, int);
   static void process_delayed_requests();
   
+  static Message_Statics::messages getLastMessageType();
+
+  
 public:
   
   static const bool verbose = false;

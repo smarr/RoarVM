@@ -13,7 +13,6 @@ void GC_Oop_Stack::tests(){
    * This test is NOT complete!
    */
   // Create stack
-  GC_Oop_Stack stack;
   GC_Oop_Stack* p_stack = new GC_Oop_Stack();
   
   // Is a newly created stack empty?
@@ -21,12 +20,12 @@ void GC_Oop_Stack::tests(){
   
   // Can we push objects?
   for(int i=0; i<3*CONTENTS_SIZE ; i++){
-    p_stack->push((Object*)i);
+    p_stack->push((Object*)(i+1));
   }
   
   // Are the popped objects the objects we pushed?
-  int last = (3*CONTENTS_SIZE)-1;
-  for(int i=0; i<CONTENTS_SIZE+10 ; i++){
+  int last = (3*CONTENTS_SIZE);
+  for(int i=0; i<CONTENTS_SIZE+2 ; i++){
     int t = (int)p_stack->pop();
     if( t != last) fatal("ERROR IN TEST\n");
     last--;
@@ -35,12 +34,12 @@ void GC_Oop_Stack::tests(){
   // Is the stack -non-empty if we only popped some elements?
   if( p_stack->is_empty()) fatal("error in tests\n");
   
-  for(int i=++last; i<3*CONTENTS_SIZE ; i++){
+  for(int i=++last; i<=3*CONTENTS_SIZE ; i++){
     p_stack->push((Object*)i);
   }
   
   // Are all popped objects the objects we pushed?
-  last = (3*CONTENTS_SIZE)-1;
+  last = (3*CONTENTS_SIZE);
   for(int i=0; i<3*CONTENTS_SIZE ; i++){
     int t = (int)p_stack->pop();
     if( t != last) fatal("ERROR IN TEST\n");
@@ -56,7 +55,7 @@ void GC_Oop_Stack::tests(){
   if( !p_stack->is_empty()) fatal("error in tests\n");
   
   
-  for(int i=++last; i<3*CONTENTS_SIZE ; i++){
+  for(int i=++last; i<=3*CONTENTS_SIZE ; i++){
     p_stack->push((Object*)i);
   }
   
@@ -141,9 +140,10 @@ void GC_Oop_Stack::addNewTopContents(Contents*  newContents ){
 
 void GC_Oop_Stack::push(Object* x) {
   assert_always(this != NULL);
-  if (contents->next_elem < CONTENTS_SIZE){
-    contents->objs[contents->next_elem++] = x;
-  }else {
+  if(x == NULL){
+    volatile int a = 1;
+  }
+  if ( !contents->push(x) ){
     if (free_contents == NULL){
       //printf("Creating new contents block....\n");
       contents = new Contents(contents);
@@ -160,7 +160,18 @@ void GC_Oop_Stack::push(Object* x) {
   verify();
 }
 
-bool GC_Oop_Stack::is_empty() { return contents->next_elem == 0  &&  contents->next_contents == NULL; }
+bool GC_Oop_Stack::is_empty() {
+  if( contents->is_empty() ){
+    if(contents->next_contents != NULL){
+      setContentsToNextContents();
+      return is_empty();
+    } else {
+      return true;
+    }
+  } else {
+    return false;
+  }
+}
 
 void GC_Oop_Stack::setContentsToNextContents(){
   if (contents->next_contents != NULL) {
@@ -174,13 +185,13 @@ void GC_Oop_Stack::setContentsToNextContents(){
 }
 
 Object* GC_Oop_Stack::pop() {
-  if (contents->next_elem == 0) {
+  if(this->is_empty()) fatal("Should not pop when empty.\n");
+  /*
+   while(contents->is_empty() && contents->hasNextContents()) {
     setContentsToNextContents();
-    if (contents->next_elem == 0){
-      return NULL;
-    }
   }
-  Object* r = contents->objs[--(contents->next_elem)];
+   */
+  Object* r = contents->pop();
   verify();
   return r;
 }

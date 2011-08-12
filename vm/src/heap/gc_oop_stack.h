@@ -26,6 +26,27 @@ typedef struct Contents {
     return storage;
   }
   
+  bool push(Object* x){
+    if( next_elem >= CONTENTS_SIZE) return false;
+    assert(x != NULL);
+    objs[next_elem++] = x;
+    return true;
+  }
+  
+  Object* pop(){
+    assert(next_elem > 0);
+    return objs[--next_elem];
+  }
+  
+  bool is_empty(){
+    assert(next_contents >= 0);
+    return next_elem == 0;
+  }
+  
+  bool hasNextContents(){
+    return (next_contents != NULL);
+  }
+  
   Contents(){ next_contents = NULL; }
   ~Contents() { if (next_contents != NULL) { delete next_contents; next_contents = NULL;  } }
 } Contents;

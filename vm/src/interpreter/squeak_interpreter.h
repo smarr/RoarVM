@@ -343,7 +343,7 @@ public:
 
   Oop activeContext() { return roots._activeContext; }
   Object_p activeContext_obj() { return _activeContext_obj; }
-
+  
   void set_activeContext(Oop x, Object_p o) {
     assert_eq(o->as_oop().bits(), x.bits(), "activeContext messed up");
     roots._activeContext = x;
@@ -683,10 +683,17 @@ public:
 #endif
 
     roots.receiverClass = roots.lkupClass = rcvr.fetchClass();
-
-    assert(  roots.lkupClass.verify_oop()
-           &&     roots.lkupClass.is_mem()
-           &&     roots.lkupClass != roots.nilObj);
+        
+    if(!The_Memory_System()->contains(roots.lkupClass.as_object())){
+      
+      volatile int c = 3;
+      rcvr.fetchClass();
+      volatile int a = 3;
+    }
+    
+    assert(  roots.lkupClass.verify_oop() );
+    assert(     roots.lkupClass.is_mem());
+    assert(    roots.lkupClass != roots.nilObj);
 
     commonSend();
   }
@@ -797,6 +804,7 @@ public:
 
   void internalNewActiveContext(Oop aContext, Object_p aContext_obj) {
     assert(aContext_obj->as_oop() == aContext);
+    
     internalStoreContextRegisters(activeContext(), activeContext_obj());
     aContext_obj->beRootIfOld();
     assert(aContext != roots.nilObj);
@@ -1521,25 +1529,22 @@ public:
 private:
     GC_Oop_Stack* const tempStack;
 public:
-  /* During mark */
   
   void sendNMTTrappedRefsToGC();
   void pushLocalOopStackToGCOopStack();
-    
-    void on_NMT_trap(Oop* p, Oop oldValue);
-    
-    void on_Protected_trap(Oop* p, Oop oldValue);
-    
-    void on_checkpoint_finishMark();
-    
-    
-  bool is_pointing_to_protected_page_slowVersion(Oop oop);
-    bool is_pointing_to_protected_page(Oop oop);
-    
-    
-    void doLVB(Oop* p);
+  
+  void on_checkpoint_finishMark();
+  
+  void recordNMTtrappedOop(Oop value){
+    tempStack->push( (Object*) value.bits()); // Do cast instead of as_object to avoid trapping in LVB again.
+    if(tempStack->isAboutToCreateNewContents()){
+      pushLocalOopStackToGCOopStack();
+    }
+  }
 
 };
+
+
 
 
 

@@ -135,6 +135,10 @@ void Message_Statics::print_size() {
 // Return true if we got a message.
 Message_Statics::messages last_msg_type = Message_Statics::noMessage; // for debugging
 
+Message_Statics::messages Message_Statics::getLastMessageType(){
+  return last_msg_type;
+}
+
 /*
  * receive_and_handle_all_checkpoint_responses_GC starts a loop that processes all messages,
  * until for each of the running interpreters (group_size), a msg of the expected type has arrived.

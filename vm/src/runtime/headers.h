@@ -204,6 +204,7 @@
 # include "memory_system.h"
 # include "parallel_gc_thread.h" // MDW
 
+
 # include "page.h"
 
 # include "runtime_tester.h"
@@ -221,6 +222,9 @@
 # include "external_primitive_table.h"
 # include "debug_store_checks.h"
 # include "squeak_interpreter.h"
+
+
+# include "LVB.h" // MDW
 
 # include "squeak_image_reader.h"
 

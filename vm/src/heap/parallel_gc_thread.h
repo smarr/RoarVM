@@ -46,7 +46,7 @@ public:
   void addRoots( GC_Oop_Stack* aRootStack );
   void addToMarkStack(Oop* object);
   void setAsAwaitingFinishedGCCycle(int rank);
-  bool isAlmostDead(Page* p);
+  bool isAlmostDead(int pageNbr);
   
   /* Inspect current running GC-phase(s) */
   bool is_mark_phase(){ return phase->is_mark_phase(); };
@@ -82,14 +82,14 @@ public:
     pthread_join(m_myThread, NULL);
   }
   
-  Oop* lookUpNewLocation(Oop p);
+  Oop lookUpNewLocation(Oop p);
   void addNewTopContents(Contents* c){
     mark_stack_.addNewTopContents( c );
   }
   
   bool add_weakRoot(Oop);
   
-  void setNilObj(Oop nilObj );
+  void setInitialInterpreter(Squeak_Interpreter* initialInterpreter );
   
 private:
   bool* awaitingFinished;
@@ -106,7 +106,7 @@ private:
   //GC_Oop_Stack* mark_stack;
   GC_Oop_Stack mark_stack_;
   int m_rank;
-  Oop m_nilObj;
+  Squeak_Interpreter* m_initialInterpreter;
   
   pthread_t m_myThread;
   
@@ -134,7 +134,7 @@ private:
   void checkpoint_startMark();
   void checkpoint_finishMark();
   void finalizeInternalDataStructuresForMark();
-  void mark_traverse(Object*);
+  bool mark_traverse(Object*);
   
   // RELOCATE
   void phase_relocate();
@@ -207,7 +207,11 @@ public:
   
   void value(Oop* p, Object_p) { 
     //Scrub by dereferencing.
-    if(p->is_mem()) p->as_object();
+    if(p->is_mem()) {
+      p->as_object();
+      assert(p->raw_bits() != 2);
+    }
+    
     else { /* do integers need to be moved while scrubbing */ }
   }
   
@@ -232,13 +236,8 @@ public:
     bool succeeded = false;
     if (!p->is_mem()) return;
     
-    //Object_p o_ptr = The_Squeak_Interpreter()->newMethod_obj();
-    Oop p1 = Oop::from_bits(p->raw_bits());
-    roots->push( p->as_object() );
-    Oop p2 = Oop::from_bits(p->raw_bits());
-    if( p1.raw_bits() != p2.raw_bits()){
-      printf("Found moved root:from %d to %d\n",p1.bits(),p2.bits());
-    }
+    Object* o = p->as_object();
+    roots->push( o );
   }
   
   virtual const char* class_name(char*) { return "CollectRoots_Oop_Closure"; }

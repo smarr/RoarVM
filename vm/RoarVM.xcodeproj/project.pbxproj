@@ -121,6 +121,7 @@
 		34B7135A13E1E7E500FA911F /* segmented_object_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34B7135813E1E7E400FA911F /* segmented_object_table.cpp */; };
 		3A263F3913E0625B0050B9DB /* parallel_gc_thread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A263F3813E0625B0050B9DB /* parallel_gc_thread.cpp */; };
 		3A86088D13EFCBEE0044511B /* gc_oop_stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A86088C13EFCBEE0044511B /* gc_oop_stack.cpp */; };
+		3A9DD42E13F5777F0068317F /* LVB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3A9DD42D13F5777E0068317F /* LVB.cpp */; };
 		3AB16D6813E97D8D0075236F /* OS_signal_handling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AB16D6713E97D8D0075236F /* OS_signal_handling.cpp */; };
 		4E9B341713DDB19700E0E991 /* osx_os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784C9128DBF7400336BDE /* osx_os_interface.cpp */; };
 /* End PBXBuildFile section */
@@ -404,6 +405,8 @@
 		3A263F3813E0625B0050B9DB /* parallel_gc_thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parallel_gc_thread.cpp; sourceTree = "<group>"; };
 		3A263F3A13E064660050B9DB /* parallel_gc_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parallel_gc_thread.h; sourceTree = "<group>"; };
 		3A86088C13EFCBEE0044511B /* gc_oop_stack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gc_oop_stack.cpp; sourceTree = "<group>"; };
+		3A9DD42C13F572840068317F /* LVB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LVB.h; sourceTree = "<group>"; };
+		3A9DD42D13F5777E0068317F /* LVB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LVB.cpp; sourceTree = "<group>"; };
 		3AB16D6513E974CF0075236F /* OS_signal_handling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OS_signal_handling.h; sourceTree = "<group>"; };
 		3AB16D6713E97D8D0075236F /* OS_signal_handling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OS_signal_handling.cpp; sourceTree = "<group>"; };
 		4EB3312F13E7EB7400D395C9 /* page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = page.h; sourceTree = "<group>"; };
@@ -757,6 +760,8 @@
 				34B7135913E1E7E400FA911F /* segmented_object_table.h */,
 				34B7135B13E2035900FA911F /* segmented_object_table.inline.h */,
 				4EB3312F13E7EB7400D395C9 /* page.h */,
+				3A9DD42C13F572840068317F /* LVB.h */,
+				3A9DD42D13F5777E0068317F /* LVB.cpp */,
 			);
 			name = heap;
 			path = src/heap;
@@ -828,6 +833,7 @@
 		0A27847A128DBF7400336BDE /* messages */ = {
 			isa = PBXGroup;
 			children = (
+				0A278483128DBF7400336BDE /* message_classes.cpp */,
 				0A27847B128DBF7400336BDE /* abstract_message.cpp */,
 				0A27847C128DBF7400336BDE /* abstract_message.h */,
 				0A27847D128DBF7400336BDE /* deferred_request.cpp */,
@@ -836,7 +842,6 @@
 				0A278480128DBF7400336BDE /* interactions.h */,
 				0A278481128DBF7400336BDE /* interpreter_subset_for_control_transfer.cpp */,
 				0A278482128DBF7400336BDE /* interpreter_subset_for_control_transfer.h */,
-				0A278483128DBF7400336BDE /* message_classes.cpp */,
 				0A278484128DBF7400336BDE /* message_classes.h */,
 				0A278485128DBF7400336BDE /* message_or_ack_request.cpp */,
 				0A278486128DBF7400336BDE /* message_or_ack_request.h */,
@@ -1309,6 +1314,7 @@
 				34B7135713E1E58B00FA911F /* dummy_object_table.cpp in Sources */,
 				34B7135A13E1E7E500FA911F /* segmented_object_table.cpp in Sources */,
 				3A86088D13EFCBEE0044511B /* gc_oop_stack.cpp in Sources */,
+				3A9DD42E13F5777F0068317F /* LVB.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

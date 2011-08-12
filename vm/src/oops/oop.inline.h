@@ -82,15 +82,26 @@ inline Object* Oop::as_untracked_object_ptr() {
 # endif
 }
 
-inline Object_p Oop::as_object() {
+inline Object_p Oop::as_object_noLVB() {
   assert_always(is_mem());
-  The_Squeak_Interpreter()->doLVB(this);
+  
+  Object_p obj;
   //assert( !  The_Squeak_Interpreter()->is_pointing_to_protected_page( Oop::from_bits( bits() ) ) );
 # if Use_Object_Table 
-  return (Object_p)The_Memory_System()->object_for(*this);
+  obj = (Object_p)The_Memory_System()->object_for(*this);
 # else
-  return (Object_p)(Object*)(bits());
+  obj = (Object_p)(Object*)(bits());
 # endif
+  
+  assert(The_Memory_System()->contains(obj));
+  
+  return obj;
+}
+
+inline Object_p Oop::as_object() {
+  assert_always(is_mem());
+  doLVB(this);
+  return as_object_noLVB();
 }
 
 inline Object_p Oop::as_object_in_unprotected_space() {
@@ -122,6 +133,13 @@ inline bool Oop::verify_oop() {
 }
 inline bool Oop::verify_object() {
   return !is_mem()  ||  as_object()->verify();
+}
+
+inline bool Oop::verify_oop_noLVB() {
+  return !is_mem()  ||  as_object_noLVB()->verify_address();
+}
+inline bool Oop::verify_object_noLVB() {
+  return !is_mem()  ||  as_object_noLVB()->verify();
 }
 
 inline bool Oop::okayOop() { return  !is_mem()  ||  as_object()->okayOop(); }

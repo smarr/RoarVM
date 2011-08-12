@@ -181,6 +181,10 @@ void Abstract_Object_Heap::scan_compact_or_make_free_objects(bool compacting, Ab
   // enforce coherence at higher level
 }
 
+void Abstract_Object_Heap::encodeFreeObjectInRemainingSpace() {
+  if (_next < _end)
+    ((Chunk*)_next)->make_free_object_header(bytesLeft(),0); // consumes one Oop.
+}
 
 void Abstract_Object_Heap::zap_unused_portion() {
   assert_always(end_of_space() != NULL);
@@ -190,6 +194,9 @@ void Abstract_Object_Heap::zap_unused_portion() {
     for (Oop* p = (Oop*)end_objects();
          p < (Oop*)end_of_space();
          *p++ = Oop::from_bits(Oop::Illegals::zapped)) {}
+    
+    encodeFreeObjectInRemainingSpace();
+    
 
     enforce_coherence_after_store(end_objects(), (char*)end_of_space() - (char*)end_objects());
   }

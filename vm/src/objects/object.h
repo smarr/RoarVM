@@ -137,7 +137,6 @@ public:
   int32*     as_int32_p()    { return (int32*)this; }
   Oop*       as_oop_p()      { return (Oop*)this; }
   
-  Page* my_page();
   int my_pageNumber();
   
   bool contains_sizeHeader() {
@@ -214,7 +213,9 @@ public:
   
 # endif
   
-  
+   bool getNMTbitOfClassOop(){
+     return getNMTbitOfClassOopFromHeader(baseHeader);
+   }
   
   bool getNMTbitOfClassOopFromHeader( int32 baseHeaderCopy){
     return (((baseHeaderCopy & NMT_BIT_IN_BASE_HEADER_MASK)>>NMT_BIT_IN_BASE_HEADER_SHIFT) == 1);
@@ -225,83 +226,23 @@ public:
     return oop->as_object_in_unprotected_space();
   }
   
-  
-  /*
-   * This function tries to copy this object to the current new-alloc-page in the
-   * supplied-by-argument Abstract_Object_Heap.
-   * If this object is already a forwarding-pointer (contains pointer to a copy of this object,
-   * in a part of the heap that is not under the protection of the GC) then we do nothing but returning false (#f).
-   * In the case where the object is still a simple object we copy the object to a new location. If after copying
-   * the object is still no forwarding pointer, we convert it to a forwarding pointer.
-   * If during copying the object changed to an forwarding pointer, we return the memory used for the copy back to the
-   * supplied-by-argument Abstract_Object_Heap.
-   * The function relocateIfNoForwardingPointer( Abstract_Object_Heap* ) returns the forward pointing Oop (fresh copy or
-   * already present forwarding pointer).[MDW]
-   */
-  Oop* relocateIfNoForwardingPointer( Abstract_Object_Heap* m_objectHeap ){
-    bool succeeded = false;
-    int totalSizeInBytes = total_byte_size();
-    
-    /*
-     * Keep a copy of the first 64 bits of this object (baseheader + first oop),
-     * to compare against in the CAS operation. [MDW]
-     */
-    int64 oldBaseHeaderAndFirstOopAsInt64 = getBaseheaderAndFirstOopAsInt64();
-    
-    if( Object::is_forwardingPointer( oldBaseHeaderAndFirstOopAsInt64 ) ){
-      return getForwardingPointer();
-    } else{
-      Chunk* dst_chunk =  m_objectHeap->allocateChunk( totalSizeInBytes );
-      Chunk* src_chunk = my_chunk();
-      memcpy(dst_chunk, src_chunk, totalSizeInBytes);
-      Oop* newOop = (dst_chunk->object_from_chunk()->as_oop_p());
-      succeeded = makeForwardingPointer( oldBaseHeaderAndFirstOopAsInt64, *newOop  );
-      if( !succeeded ) { // If transformation to forwarding pointer failed, it must already be a forwarding pointer ...
-        m_objectHeap->deallocateChunk( totalSizeInBytes );
-        return getForwardingPointer();
-      } else {
-        return newOop;
-      }
-    }
-    
-  }
-  
-  /*
-   * An object is a forwarding pointer if the headerType-bits are set to 2.
-   * To verify this from a int64 we have to check bits numbers 31-32 (offset 0)
-   */
-  static const int int32_to_high_bits_int64_shift = 32;
-  static bool header_is_forwardingPointer(int32 hdr) { return hdr & ForwardPointerBit; }
-  
-  static bool  is_forwardingPointer( int64 baseHeaderAndFirstOopAsInt64 ){
-    int32 temp = (baseHeaderAndFirstOopAsInt64 >> int32_to_high_bits_int64_shift);
-    return header_is_forwardingPointer(temp);
-  }
-  
-  bool  is_forwardingPointer(  ){
-    return header_is_forwardingPointer( baseHeader );
-  }
-  
-  Oop* getForwardingPointer(){
-    return (Oop*)firstFixedField();
-  }
-  
-private:
-  int64 getBaseheaderAndFirstOopAsInt64(){
-    Oop* oldFirstOop = (Oop*)firstFixedField();
-    int64 oldBaseheaderAndFirstOop =  baseHeader;
-    oldBaseheaderAndFirstOop = (oldBaseheaderAndFirstOop<< int32_to_high_bits_int64_shift) & oldFirstOop->bits() ;
-    return oldBaseheaderAndFirstOop;
-  }
-  
-public:
-  bool makeForwardingPointer(int64 oldBaseheaderAndFirstOop, Oop oop){
-    int64 newBaseheaderAndForwardingPointer =  baseHeader;
-    newBaseheaderAndForwardingPointer = (newBaseheaderAndForwardingPointer << int32_to_high_bits_int64_shift) & oop.bits();
-    
-    return POSIX_OS_Interface::atomic_compare_and_swap((int64*)&baseHeader,oldBaseheaderAndFirstOop,newBaseheaderAndForwardingPointer);
-  }
-  
+   /*
+    * Object2Forwarding-pointer
+    */
+ public:
+   Oop relocateIfNoForwardingPointer( Abstract_Object_Heap* m_objectHeap );
+   bool  isForwardingPointer();
+   Oop getForwardingPointer();
+ private:
+   static const int int32_to_high_bits_int64_shift = 32;
+   static bool header_is_forwardingPointer(int32 basehdr);
+   u_int64 getBaseheaderAndFirstOopAsInt64();
+   bool makeForwardingPointer(u_int64 oldBaseheaderAndFirstOop, Oop oop);
+   static bool verify( Object* a, Object* b );
+
+   
+   
+     
 public:
   
   static const int SizeShift = Header_Type::Width + Header_Type::Shift; // but never used since size is in words, and we need it by bytes anyway
@@ -332,7 +273,11 @@ public:
   static const int CompactClassWidth = 5;
   static const int CompactClassMask = ((1 << CompactClassWidth) - 1) << CompactClassShift; // should be 0x1f000
 
-  oop_int_t compact_class_index() { 
+  oop_int_t compact_class_index() {
+    if( contains_class_and_type_word() ){
+      // If the class-oop is stored in the extraheader, the object does not hold the index for the compact class.
+      return 0;
+    }
     uint32_t result = (baseHeader & CompactClassMask) >> CompactClassShift;
     assert(0 == (0xFFFFFFE0 & result));
     return  result;
@@ -375,11 +320,9 @@ public:
    */
   void setNMTbitOfClassOopIfDifferent( bool correctNMT ){
     
-    return;
-    
     int32 baseHeaderCopy = baseHeader;
     int32 newBaseHeader = baseHeaderCopy;
-    u_int32 oldFormat =format();
+    u_int32 oldFormat = format(); //DEBUG
     if( getNMTbitOfClassOopFromHeader( baseHeaderCopy ) != correctNMT){
       if(correctNMT == false){
         newBaseHeader = (baseHeaderCopy & ~NMT_BIT_IN_BASE_HEADER_MASK);
@@ -390,8 +333,8 @@ public:
       }
       POSIX_OS_Interface::atomic_compare_and_swap((int32*)&baseHeader,(int32)baseHeaderCopy,(int32)newBaseHeader);
     }
-    u_int32 newFormat =format();
-    assert_eq(oldFormat, newFormat, "Checking format has not changed in Object::setNMTbitOfClassOopIfDifferent");
+    u_int32 newFormat =format(); //DEBUG
+    assert_eq(oldFormat, newFormat, "Checking format has not changed in Object::setNMTbitOfClassOopIfDifferent"); //DEBUG
   }
   
   

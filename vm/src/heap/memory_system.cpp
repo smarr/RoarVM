@@ -1258,7 +1258,7 @@ Page * Memory_System::firstPage() {
 void Memory_System::free(Page * p) {
   p->initialize(page_size);
   pushPage(p);
-  if(Verbose_Debug_Prints) fprintf(stdout, "Freed page %d.\n", (int)p);   
+  if(Verbose_Debug_Prints);// fprintf(stdout, "Freed page %d.\n", (int)p);   
 }
 
 void Memory_System::pushPage(Page * p) {
@@ -1433,8 +1433,8 @@ LPage* Memory_System::stopGCpreparation() {
     global_GC_values->adjustLivenessCopyForCore[i] = false;
   }
   
-  OS_Interface::mutex_unlock(global_GC_values->mutex);  
-
+  OS_Interface::mutex_unlock(global_GC_values->mutex);
+  
   return global_GC_values->livenessCopy;
 }
 

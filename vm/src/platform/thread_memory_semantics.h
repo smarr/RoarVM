@@ -59,6 +59,7 @@ public:
   
   static void initialize_interpreter();
   static void initialize_local_interpreter();
+  static void initialize_local_interpreter_GC(Squeak_Interpreter* interp);
   
 #pragma mark Timeout Timers
   

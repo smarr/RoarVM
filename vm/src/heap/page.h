@@ -72,7 +72,7 @@ for ( Object* object = page->firstObject(); \
 
 # define FOR_EACH_OBJECT_IN_UNPROTECTED_PAGE(page, object) \
 for ( Object* object = page->firstObject(); \
-      (Page*)object < (page + 1); \
+      (Page*)object < (page + 1) && ( object != NULL) ; \
       object = object->nextObject_unprotected() )
 
 
@@ -91,20 +91,20 @@ typedef struct LPage {
     
   void setAllocated(bool v) {
     if(v) liveBytes = 0;
-    else  liveBytes = Mega + 1;
+    else  liveBytes = page_size + 1;
   }
    
   bool isAllocated() { 
-    return liveBytes < Mega; 
+    return liveBytes <= page_size; 
   }
    
   void addLiveBytes(int n) {
-    if(liveBytes > Mega)
+    if(liveBytes > page_size)
       fatal("Should not happen");
     else {
       liveBytes += n;
-      if(liveBytes > Mega) 
-        liveBytes = Mega;
+      if(liveBytes > page_size) 
+        liveBytes = page_size;
     }   
   }    
 } LPage;

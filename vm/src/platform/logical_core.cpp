@@ -39,8 +39,7 @@ void Logical_Core::initialize_GC_core(){
 
 void Logical_Core::start_GC_thread( Squeak_Interpreter* initialInterpreter ){
   // Create an instance of GC_thread_Class and start (spawn+run)
-  // The instance is also stored statically in GC_Thread_Class. 
-  Thread_Memory_Semantics:
-  The_GC_Thread()->setNilObj( initialInterpreter->roots.nilObj );
+  // The instance is also stored statically in GC_Thread_Class.
+  The_GC_Thread()->setInitialInterpreter(initialInterpreter);
   The_GC_Thread()->start();
 }

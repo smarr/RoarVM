@@ -271,6 +271,8 @@ void begin_interpretation() {
   
   assert_always(The_Squeak_Interpreter()->safepoint_ability == NULL);
   The_Squeak_Interpreter()->distribute_initial_interpreter();
+
+  
   Message_Statics::run_timer = true;
   {
     Safepoint_Ability sa(true);
@@ -322,6 +324,8 @@ int main(int argc, char *argv[]) {
     fatal("rlimit");
   }
   // set_sim_tracing(SIM_TRACE_NONE);
+  
+  
   
   initialize_basic_subsystems();
   

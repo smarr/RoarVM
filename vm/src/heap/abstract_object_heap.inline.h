@@ -73,7 +73,6 @@ inline bool Abstract_Object_Heap::sufficientSpaceToAllocate(oop_int_t bytes) {
   return false;
 }
 
-
 inline Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
 
   bool enoughSpace = sufficientSpaceToAllocate(total_bytes);
@@ -92,8 +91,7 @@ inline Chunk* Abstract_Object_Heap::allocateChunk(oop_int_t total_bytes) {
   Oop* r = _next;
   _next += n;
     
-  if (_next < _end)
-    ((Chunk*)_next)->make_free_object_header(bytesLeft(),0); // consumes one Oop.
+  encodeFreeObjectInRemainingSpace();
   
   if (check_assertions) {
     // make sure the heaps are only modified by the associated cores

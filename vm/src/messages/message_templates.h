@@ -123,6 +123,8 @@ template(report_bulk_NMTtrapped_refs_Message, abstractMessage, (Contents* c), ()
 \
 template(checkpoint_startInterpretation_Message, abstractMessage, (), (), {}, , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
+template(temp_GC_ISREADY_Message, abstractMessage, (), (), {}, , no_ack, dont_delay_when_have_acquired_safepoint) \
+\
 
 
 
