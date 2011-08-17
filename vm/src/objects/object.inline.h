@@ -163,7 +163,7 @@ inline void Object::byteSwapIfByteObject() {
   // no store barrier, only for reading snapshots
 }
 
-inline oop_int_t Object::total_byte_size() {
+inline oop_int_t Object::total_byte_size() {  
   oop_int_t r = bytes_to_next_chunk() + extra_header_bytes();
   if (check_many_assertions) assert(!(r & (sizeof(oop_int_t) - 1)));
   return r;
@@ -174,6 +174,8 @@ inline oop_int_t Object::total_byte_size_without_preheader() {
 }
 
 inline oop_int_t Object::sizeBits() {
+  //assert( ! isForwardingPointer() ); // Beeing a forwardingpointer invalidates the calculation of the size of this object (and chunck)
+
   // "Answer the number of bytes in the given object, including its base header, rounded up to an integral number of words."
   // "Note: byte indexable objects need to have low bits subtracted from this size."
   if (check_many_assertions) assert_always(!isFreeObject());
@@ -210,7 +212,10 @@ inline void* Object::arrayValue() {
 }
 
 inline int Object::my_pageNumber(){
-  return  (Page*)this-The_Memory_System()->firstPage(); 
+  int pageNbr =   (Page*)this-The_Memory_System()->firstPage();
+  assert(pageNbr >= 0);
+  assert(pageNbr < The_Memory_System()->calculate_total_pages( page_size ));
+  return pageNbr;
 }
 
 inline oop_int_t Object::formatOfClass() {

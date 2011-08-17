@@ -139,6 +139,9 @@ void GC_Oop_Stack::addNewTopContents(Contents*  newContents ){
 }
 
 void GC_Oop_Stack::push(Object* x) {
+  if( !The_GC_Thread()->is_mark_phase() ) assert( !The_GC_Thread()->isCompletelyDead( x->my_pageNumber() ));
+  assert( The_Memory_System()->contains(x) );
+  
   assert_always(this != NULL);
   if(x == NULL){
     volatile int a = 1;

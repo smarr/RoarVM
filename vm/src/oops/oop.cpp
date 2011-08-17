@@ -14,6 +14,11 @@
 
 #include "headers.h"
 
+Oop::Oop(oop_int_t b) {
+  bool currentNMT = Logical_Core::my_NMT();
+  this->_bits = b; 
+  //if(this->is_mem() && The_Memory_System()->contains((void*)b)) this->setNMT(currentNMT); /* only for *real* oops */
+}
 
 void Oop::print(Printer* p) {
   if (is_int())

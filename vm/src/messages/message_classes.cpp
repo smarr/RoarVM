@@ -430,29 +430,20 @@ void checkpoint_startMark_Message_class::handle_me(){
   checkpoint_startMark_Response_class m;
   m.roots = oc.roots; // Send the collected roots to the GC_thread.
   m.send_to_GC();
-  
-  if( Logical_Core::running_on_main() ){
-    Safepoint_for_moving_objects* sp = NULL;
-    sp = new Safepoint_for_moving_objects();
-    
-    bool keepReceiving = true;
-    while (keepReceiving){
-      printf("Main core still holds safepoint\n");
-      Message_Statics::receive_and_handle_one_message(true);
-      keepReceiving = (Message_Statics::getLastMessageType() != Message_Statics::temp_GC_ISREADY_Message);
-    }
-    
-    delete sp;
-
-    printf("Main core released safepoint...\n");
-    
-    sp = NULL;
+    /*
+  bool keepReceiving = true;
+  while (keepReceiving){
+    lprintf("Still waiting for finios GCos\n");
+    Message_Statics::receive_and_handle_one_message(true);
+    keepReceiving = (Message_Statics::getLastMessageType() != Message_Statics::temp_GC_ISREADY_Message);
   }
   
+  lprintf("Done waiting for finios GCos\n");
+     */
 }
 
 void temp_GC_ISREADY_Message_class::handle_me(){
-  printf("Main core received release msg\n");
+  lprintf("core received release msg\n");
 }
 
 void checkpoint_startMark_Response_class::handle_me(){
@@ -493,15 +484,15 @@ void report_bulk_NMTtrapped_refs_Message_class::handle_me(){
 /* Checkpoint message to let all interpreters scrub their root set */
 
 void checkpoint_startRelocate_Message_class::handle_me(){
-    /* ON INTERPRETER THREAD */
-    
-    ScrubExistingStaleRefs_Oop_Closure oc;
+  /* ON INTERPRETER THREAD */
+  
+  ScrubExistingStaleRefs_Oop_Closure oc;
   The_Squeak_Interpreter()->do_all_roots(&oc);
   The_Squeak_Interpreter()->sync_with_roots();
   
-    
-    checkpoint_startRelocate_Response_class m;
-    m.send_to_GC();
+  
+  checkpoint_startRelocate_Response_class m;
+  m.send_to_GC();
 }
 
 void checkpoint_startRelocate_Response_class::handle_me(){
@@ -532,15 +523,19 @@ void checkpoint_startRemap_Response_class::handle_me(){
   printf("Adding some roots to the mark stack...\n");
   
   if( roots == NULL ) return; // No roots to report.
-  The_GC_Thread()->addRoots( roots );
+  
+  // relies on the sequential handeling of messages for a single core
+  The_GC_Thread()->addRoots( roots ); 
 }
 
 /***************
  * OTHER
  ***************/
 
+
 void awaiting_finished_GC_cycle_Message_class::handle_me(){
-    The_GC_Thread()->setAsAwaitingFinishedGCCycle(sender);
+  /* ON GC THREAD */
+  The_GC_Thread()->setAsAwaitingFinishedGCCycle(sender);
 }
 
 /**/

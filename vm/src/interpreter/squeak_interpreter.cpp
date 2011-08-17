@@ -2161,6 +2161,7 @@ Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_proces
         break;
 
       prior_proc_obj = proc_obj;
+      assert(prior_proc_obj != NULL);
       proc = proc_obj->fetchPointer(Object_Indices::NextLinkIndex);
       proc_obj = proc.as_object();
     }
@@ -3316,7 +3317,7 @@ void Squeak_Interpreter::pushLocalOopStackToGCOopStack(){
       int notOk = 0;
       
       FOR_EACH_OBJECT(object_ptr){
-        if( !object_ptr->is_free()){
+        if( !object_ptr->isFreeObject()){
         FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(object_ptr, oop_ptr){
           if(oop_ptr->is_mem()){
           if( oop_ptr->getNMT() == expectedNMT ){

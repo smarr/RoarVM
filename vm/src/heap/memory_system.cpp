@@ -88,11 +88,6 @@ bool Memory_System::verify_if(bool condition) {
   Object *prev_obj = NULL;
   __attribute__((unused)) Object *prev_prev_obj = NULL; // debugging
   FOR_EACH_OBJECT(obj) {
-    if (obj->is_marked()) {
-      lprintf("object 0x%x should not be marked but is; header is 0x%x\n",
-      obj, obj->baseHeader);
-      fatal("");
-    }
     if (!obj->isFreeObject() &&  obj->is_current_copy())
       ok = obj->verify() && ok;
     
@@ -1317,11 +1312,15 @@ Page* Memory_System::allocate(size_t minSize_bytes) {
     
     p->initialize(page_size * contiguousPages);
     
-    global_GC_values->liveness[p - (Page*)heap_base].setAllocated(true);
+    for(int i=0; i<contiguousPages; i++) {
+      global_GC_values->liveness[p->pageNumber() + i].setAllocated(true);
     
-    if (Logical_Core::my_rank() < Logical_Core::group_size                          // exclude the GC core
-        && global_GC_values->adjustLivenessCopyForCore[Logical_Core::my_rank()])
-      global_GC_values->livenessCopy[p - (Page*)heap_base].setAllocated(true);
+      if (Logical_Core::my_rank() < Logical_Core::group_size                          // exclude the GC core
+          && global_GC_values->adjustLivenessCopyForCore[Logical_Core::my_rank()])
+        global_GC_values->livenessCopy[p->pageNumber() + i].setAllocated(true);
+    }
+    
+    lprintf("Got myself page %d, spanning %d pages.\n", p->pageNumber(), contiguousPages);
   } 
   
   OS_Interface::mutex_unlock(global_GC_values->mutex);

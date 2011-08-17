@@ -97,8 +97,19 @@ typedef struct LPage {
   bool isAllocated() { 
     return liveBytes <= page_size; 
   }
-   
+
+  void removeLiveBytes(int n) {
+    assert(n>=0);
+    if(liveBytes > page_size)
+      fatal("Should not happen");
+    else {
+      liveBytes -= n;
+      assert(liveBytes >= 0);
+    }   
+  } 
+  
   void addLiveBytes(int n) {
+    assert(n>=0);
     if(liveBytes > page_size)
       fatal("Should not happen");
     else {

@@ -256,6 +256,9 @@ void Squeak_Image_Reader::complete_remapping_of_pointers() {
   
   specialObjectsOop = memory_system->object_table->object_for(specialObjectsOop)->as_oop();
   
+  // Test doubly-mapped memory
+  assert(specialObjectsOop.as_object()->baseHeader == specialObjectsOop.as_object_in_unprotected_space()->baseHeader);
+  
   memory_system->object_table->cleanup();
   delete memory_system->object_table;
   memory_system->object_table = NULL;

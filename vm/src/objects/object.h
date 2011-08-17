@@ -222,8 +222,8 @@ public:
   }
   
   static Object* as_object_in_unprotected_space( Object* object ){
-    Oop* oop = object->as_oop_p();
-    return oop->as_object_in_unprotected_space();
+    Oop oop = object->as_oop();
+    return oop.as_object_in_unprotected_space();
   }
   
    /*

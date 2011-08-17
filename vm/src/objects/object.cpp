@@ -1170,17 +1170,24 @@ Oop Object::get_class_oop(){
  */
 Oop Object::relocateIfNoForwardingPointer( Abstract_Object_Heap* m_objectHeap ){
   bool succeeded = false;
-  int totalSizeInBytes = total_byte_size();
+  
+  assert(The_Memory_System()->unprotected_virtual_space_contains(this));
   
   /*
    * Keep a copy of the first 64 bits of this object (baseheader + first oop),
    * to compare against in the CAS operation. [MDW]
    */
+  
+  int size_Bits = this->sizeBits();
+  
   int64 oldBaseHeaderAndFirstOopAsInt64 = getBaseheaderAndFirstOopAsInt64();
   
   if( isForwardingPointer() ){
     return getForwardingPointer();
   } else {
+    int totalSizeInBytes = total_byte_size();
+    
+    assert( The_GC_Thread()->is_relocate_phase() );
     Chunk* dst_chunk =  m_objectHeap->allocateChunk( totalSizeInBytes );
     Chunk* src_chunk = my_chunk();
     memcpy(dst_chunk, src_chunk, totalSizeInBytes);
@@ -1191,37 +1198,61 @@ Oop Object::relocateIfNoForwardingPointer( Abstract_Object_Heap* m_objectHeap ){
     
     Oop newOop = (dst_chunk->object_from_chunk()->as_oop());
     succeeded = makeForwardingPointer( oldBaseHeaderAndFirstOopAsInt64, newOop  );
+    assert_eq( sizeBits() , size_Bits ,"bits after relocate" );
+    
+    assert( isForwardingPointer() );
     
     if( !succeeded ) { // If transformation to forwarding pointer failed, it must already be a forwarding pointer ...
       m_objectHeap->deallocateChunk( totalSizeInBytes );
       return getForwardingPointer();
     } else {
+      
+      
+      
       assert( getForwardingPointer() == newOop );
       assert( Object::verify( tempObj , newOop.as_object_noLVB() ) );
+      
+      /*DEBUG
+      // Force relocate&remap
+      FOR_EACH_STRONG_OOP_IN_OBJECT_EXCEPT_CLASS_RECORDING_WEAK_ROOTS(newOop.as_object_noLVB(), oopp) {
+        if(oopp->is_mem()){
+          oopp->as_object();
+        }
+      }   
+      // Strong oops
+      FOR_EACH_STRONG_OOP_IN_OBJECT_EXCEPT_CLASS_RECORDING_WEAK_ROOTS(newOop.as_object_noLVB(), oopp) {
+        if(oopp->is_mem()){
+          oopp->as_object();
+        }
+      }         
+      /*END-DEBUG*/
+      
       return newOop;
     }
   }
   
 }
 
+/* 
+ * This verification is not guaranteed to hold under concurrent runs with mutators
+ *(they can adapt the new copy)
+ */
 bool Object::verify( Object* a, Object* b ){
   assert(a->baseHeader == b->baseHeader);
   
   Oop* lastOopOfA = a->last_pointer_addr();
   Oop* lastOopOfB = b->last_pointer_addr();
   
-  while( !lastOopOfA->is_mem() && lastOopOfA > a->as_oop_p()){
-    assert( !lastOopOfB->is_mem() );
+  while( lastOopOfA > a->as_oop_p() ){
     assert( lastOopOfB > b->as_oop_p() );
+    
+    assert( lastOopOfA->raw_bits() == lastOopOfB->raw_bits() );
+    if( lastOopOfA->is_mem()){
+      assert( The_Memory_System()->contains( lastOopOfB->as_object_noLVB() ) );
+    }
+    
     lastOopOfA--;
     lastOopOfB--;
-  }
-  if( lastOopOfA > a->as_oop_p() ){
-    assert( lastOopOfB > b->as_oop_p() );
-    Object* lastOfA = lastOopOfA->as_object_noLVB();
-    Object* lastOfB = lastOopOfB->as_object_noLVB();
-    assert( lastOfA->baseHeader == lastOfB->baseHeader );
-    //printf("Rather 'deep' verification succeded...\n");
   }
   return true;
 }
@@ -1254,16 +1285,20 @@ u_int64 Object::getBaseheaderAndFirstOopAsInt64(){
 }
 
 bool Object::makeForwardingPointer(u_int64 oldBaseheaderAndFirstOop, Oop oop){
-  u_int32 newBaseHeader = (oldBaseheaderAndFirstOop >> 32) | ForwardPointerBit; // baseheader marked as 'forwarding pointer'
+  assert(The_Memory_System()->contains(oop.as_object_noLVB()));
+  
+  u_int32 oldBaseHeader = (oldBaseheaderAndFirstOop & (((int64)1 << 32) - 1));
+  u_int32 newBaseHeader = oldBaseHeader | ForwardPointerBit; // baseheader marked as 'forwarding pointer'
   u_int32 newFirstOop = oop.bits() | (Logical_Core::my_NMT()<<1);               // the forwarding pointer
   u_int64 newBaseheaderAndForwardingPointer =  newBaseHeader | ((u_int64)newFirstOop << 32);
   
   assert(header_is_forwardingPointer(newBaseHeader));
   
   bool res =  POSIX_OS_Interface::atomic_compare_and_swap((int64*)this,oldBaseheaderAndFirstOop,newBaseheaderAndForwardingPointer);
-  
-  assert(getBaseheaderAndFirstOopAsInt64() == newBaseheaderAndForwardingPointer);
-  assert( baseHeader == newBaseHeader);
+  if(res){
+    assert(getBaseheaderAndFirstOopAsInt64() == newBaseheaderAndForwardingPointer);
+    assert( baseHeader == newBaseHeader);
+  }
   assert( isForwardingPointer() );
   return res;
 }

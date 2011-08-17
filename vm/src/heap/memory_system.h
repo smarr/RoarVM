@@ -125,12 +125,13 @@ public:
   LPage * stopGCpreparation();
   void    adjustLivenessCopyForCore(int, bool);
   
+  char * heap_past_used_end();
+  
 
 private:
   char * unprotected_heap_base;     // Maps to the same physical memory as [heap_base,heap_past_end[, but will never
                                     // be protected and is meant for copying out contents of objects from protected pages.
                                     
-  char * heap_past_used_end();
   
   void pushPage(Page*);
 
@@ -439,3 +440,8 @@ for ( Object* object_ptr  =  ((Chunk*)(The_Memory_System()->heap_base))->object_
               object_ptr !=  NULL; \
               object_ptr  =  object_ptr->nextObject() )
 
+# define FOR_EACH_OBJECT_EFFICIENT(object_ptr, past_used_end) \
+char* past_used_end = The_Memory_System()->heap_past_used_end(); \
+for ( Object* object_ptr  =  ((Chunk*)(The_Memory_System()->heap_base))->object_from_chunk(); \
+object_ptr !=  NULL && object_ptr < (Object*)past_used_end; \
+object_ptr  =  object_ptr->nextObject() )

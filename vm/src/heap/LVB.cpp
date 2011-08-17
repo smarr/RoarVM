@@ -22,21 +22,36 @@ void on_Protected_trap(Oop* p, Oop oldValue){
   Oop newAddress = The_GC_Thread()->lookUpNewLocation(oldValue);
   if( newAddress.raw_bits() == 0){ // Not yet moved.
     //printf("relocateIfNoForwardingPointer\n");
-    assert( The_GC_Thread()->is_relocate_phase() || The_GC_Thread()->is_remap_phase() );
+    if ( !The_GC_Thread()->is_relocate_phase() ){
+      printf("PAGE %d\n",oldValue.as_object_noLVB()->my_pageNumber());
+    }
+    assert( The_GC_Thread()->is_relocate_phase() );
     Object* theObject = oldValue.as_object_in_unprotected_space();
     newAddress = theObject->relocateIfNoForwardingPointer( The_Memory_System()->my_heap() );
     assert(newAddress.as_object_noLVB() != NULL);
+    
+    
+
   } else {
     /**/
   }
   if(Oop::atomic_compare_and_swap(p, oldValue, newAddress)){
     /**/
   }
-}
+  
+  
+  if(The_GC_Thread()->is_remap_phase()){
+    //printf("new addr was %p.\n", newAddress.as_object_noLVB());
+  }
+  
+  
+ }
 
 bool is_pointing_to_protected_page_slowVersion(Oop oop){
   Object* obj = (Object*)oop.bits();
-  return The_GC_Thread()->isAlmostDead( obj->my_pageNumber() );
+  //assert( !The_GC_Thread()->isCompletelyDead( obj->my_pageNumber() ));
+  return   The_GC_Thread()->isAlmostDead( obj->my_pageNumber() )      // during relocate phase
+        || The_GC_Thread()->isCompletelyDead( obj->my_pageNumber() ); // after relocation (liveness array is modified !!!)
 }
 
 bool is_pointing_to_protected_page(Oop oop){
@@ -71,13 +86,14 @@ bool is_pointing_to_protected_page(Oop oop){
 void doLVB(Oop* p){
   Oop oldValue = Oop::from_bits(p->raw_bits());
   
-  if( The_GC_Thread()->is_mark_phase()  && (oldValue.getNMT() != Logical_Core::my_NMT()) ){
+  
+  if(  The_GC_Thread()->is_mark_phase()  && (oldValue.getNMT() != Logical_Core::my_NMT()) && (The_GC_Thread()->isAllocated(oldValue.as_object_noLVB()->my_pageNumber())) ){
     on_NMT_trap(p,oldValue);
     
   } else {
     /* DO NOTHING - all is ok*/
   }
-  if ( (The_GC_Thread()->is_relocate_phase() || The_GC_Thread()->is_remap_phase() ) && is_pointing_to_protected_page( oldValue ) ) {
+  if ( ( The_GC_Thread()->is_relocate_phase() || The_GC_Thread()->is_remap_phase() ) && is_pointing_to_protected_page( oldValue ) ) {
     on_Protected_trap(p,oldValue);
   }
 }

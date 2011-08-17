@@ -93,13 +93,14 @@ inline Object_p Oop::as_object_noLVB() {
   obj = (Object_p)(Object*)(bits());
 # endif
   
-  assert(The_Memory_System()->contains(obj));
+  assert(The_Memory_System()->contains(obj)); // must *always* be within regular heap boundaries
   
   return obj;
 }
 
 inline Object_p Oop::as_object() {
-  assert_always(is_mem());
+  assert(is_mem());
+  assert(The_Memory_System()->contains(as_object_noLVB())); // must *always* be within regular heap boundaries
   doLVB(this);
   return as_object_noLVB();
 }

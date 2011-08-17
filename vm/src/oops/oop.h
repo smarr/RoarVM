@@ -30,7 +30,7 @@ class Oop
 {
 private:
   oop_int_t _bits;
-  Oop(oop_int_t b) { this->_bits = b; }
+  Oop(oop_int_t b);
 
  public:
   class Illegals {
@@ -41,7 +41,7 @@ private:
     static const oop_int_t shifted = 0xbadcad00; // low-order bits are different
     static const oop_int_t zapped = 0xdeaddeac;
     static const oop_int_t trimmed_end = 0xdead1100;
-    static const oop_int_t allocated = 0xfefefefe;
+    static const oop_int_t allocated = 0xfefefefc; // = 0xfefefefe w/o last 2 bits
     static const oop_int_t made_free = 0xd0dedede; // 2nd nibble is different; look for dede
     static const oop_int_t free_extra_preheader_words = 0xe0e0e0e0;
   };

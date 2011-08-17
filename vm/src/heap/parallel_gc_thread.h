@@ -47,6 +47,8 @@ public:
   void addToMarkStack(Oop* object);
   void setAsAwaitingFinishedGCCycle(int rank);
   bool isAlmostDead(int pageNbr);
+  bool isAllocated(int pageNbr); 
+  bool isCompletelyDead(int pageNbr);
   
   /* Inspect current running GC-phase(s) */
   bool is_mark_phase(){ return phase->is_mark_phase(); };
@@ -54,7 +56,7 @@ public:
   bool is_remap_phase(){ return phase->is_remap_phase(); };
   
   GC_Thread_Class()
-  : m_stoprequested(false), m_running(false),m_rank(Logical_Core::num_cores+1),phase(new GC_State())
+  : m_stoprequested(false), m_running(false),m_rank(Logical_Core::num_cores+1),phase(new GC_State()),m_pageLiveness(NULL)
   {
     mark_stack_ = GC_Oop_Stack();
     awaitingFinished = (bool*)(malloc(sizeof(bool)*Logical_Core::group_size));
@@ -89,6 +91,8 @@ public:
   
   bool add_weakRoot(Oop);
   
+  GC_State* phase;
+  
   void setInitialInterpreter(Squeak_Interpreter* initialInterpreter );
   
 private:
@@ -100,7 +104,7 @@ private:
   volatile bool m_stoprequested;
   volatile bool m_running;
   
-  GC_State* phase;
+  
   
   LPage* m_pageLiveness;
   //GC_Oop_Stack* mark_stack;
@@ -129,7 +133,7 @@ private:
   
   void initInternalDataStructuresForMark();
   bool flipNMT(){ Logical_Core::my_core()->setNMT( ! Logical_Core::my_NMT() ); }
-  inline void updateNMTbitIfNeeded(Oop* p, Oop &oldValue);
+  inline bool updateNMTbitIfNeeded(Oop* p, Oop &oldValue);
   void updateNMTbitIfNeededAndPushOnStack(Oop* p);
   void checkpoint_startMark();
   void checkpoint_finishMark();
@@ -139,16 +143,17 @@ private:
   // RELOCATE
   void phase_relocate();
   void initInternalDataStructuresForRelocate();
-  void protectAlmostDeadPages();
+  void freeAndProtectPages();
   void doRelocation();
   void relocateLiveObjectsOfPage(Page* page);
   
   // REMAP
   void phase_remap();
   void checkpoint_startRemap();
-  void remapAndUnMarkAllFromMarkStack();
+  void remapAndMarkAllFromMarkStack();
   void freeFreePages();
   void freeFreePage(Page* page);
+  void unmarkAllObjects();
   
   // OTHER
   int  comp_sizeof(Object*);
