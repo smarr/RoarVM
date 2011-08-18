@@ -80,6 +80,7 @@
 		0A5D7DAD135E37CB00D13E53 /* timeout_deferral.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D60135E37CB00D13E53 /* timeout_deferral.cpp */; };
 		0A5D7DAE135E37CB00D13E53 /* timeout_timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D62135E37CB00D13E53 /* timeout_timer.cpp */; };
 		0A5D7DAF135E37CB00D13E53 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7D66135E37CB00D13E53 /* utils.cpp */; };
+		0A890E9A13FDA46400067C04 /* Squeak72x72.png in Resources */ = {isa = PBXBuildFile; fileRef = 0A890E9913FDA46400067C04 /* Squeak72x72.png */; };
 		0AA32BAA135EC5EE00B97FB8 /* sqFilePluginBasicPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32B32135EC5EE00B97FB8 /* sqFilePluginBasicPrims.c */; };
 		0AA32BAB135EC5EE00B97FB8 /* Error.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32B38135EC5EE00B97FB8 /* Error.c */; };
 		0AA32BAC135EC5EE00B97FB8 /* jcapimin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AA32B39135EC5EE00B97FB8 /* jcapimin.c */; };
@@ -437,6 +438,7 @@
 		0A5D7D66135E37CB00D13E53 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
 		0A5D7D67135E37CB00D13E53 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		0A5D7D69135E37CB00D13E53 /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		0A890E9913FDA46400067C04 /* Squeak72x72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Squeak72x72.png; sourceTree = "<group>"; };
 		0AA32B2D135EC5EE00B97FB8 /* AsynchFilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsynchFilePlugin.h; sourceTree = "<group>"; };
 		0AA32B2F135EC5EE00B97FB8 /* FileCopyPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileCopyPlugin.h; sourceTree = "<group>"; };
 		0AA32B31135EC5EE00B97FB8 /* FilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilePlugin.h; sourceTree = "<group>"; };
@@ -599,7 +601,7 @@
 		1D3623240D0F684500981E51 /* SqueakNoOGLIPhoneAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SqueakNoOGLIPhoneAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* SqueakNoOGLIPhoneAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SqueakNoOGLIPhoneAppDelegate.m; sourceTree = "<group>"; };
 		1D3623EB0D0F72F000981E51 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		1D6058910D05DD3D006BFB54 /* Squeak.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Squeak.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* RoarVM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoarVM.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		28AD733E0D9D9553002E5188 /* MainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = vm/Common/main.m; sourceTree = "<group>"; };
@@ -1860,7 +1862,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* Squeak.app */,
+				1D6058910D05DD3D006BFB54 /* RoarVM.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1868,6 +1870,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				0A890E9913FDA46400067C04 /* Squeak72x72.png */,
 				9412CAB20E6C037B00DB8625 /* Settings.bundle */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -2223,9 +2226,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1D6058900D05DD3D006BFB54 /* SqueakNoOGLIPhone */ = {
+		1D6058900D05DD3D006BFB54 /* RoarVMIPad */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "SqueakNoOGLIPhone" */;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "RoarVMIPad" */;
 			buildPhases = (
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
@@ -2235,9 +2238,9 @@
 			);
 			dependencies = (
 			);
-			name = SqueakNoOGLIPhone;
+			name = RoarVMIPad;
 			productName = SqueakNoOGLIPhone;
-			productReference = 1D6058910D05DD3D006BFB54 /* Squeak.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* RoarVM.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2262,7 +2265,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				1D6058900D05DD3D006BFB54 /* SqueakNoOGLIPhone */,
+				1D6058900D05DD3D006BFB54 /* RoarVMIPad */,
 			);
 		};
 /* End PBXProject section */
@@ -2289,6 +2292,7 @@
 				0AA32BE4135EC5EE00B97FB8 /* SocketPrims.pdf in Resources */,
 				0AA32C01135EC69F00B97FB8 /* Info.plist in Resources */,
 				0AA32C03135EC69F00B97FB8 /* SqueakObjectiveC.xcodeproj.zip in Resources */,
+				0A890E9A13FDA46400067C04 /* Squeak72x72.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2679,7 +2683,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "SqueakNoOGLIPhone" */ = {
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "RoarVMIPad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				947E5F3710A9FD0400D3B69E /* Debug */,

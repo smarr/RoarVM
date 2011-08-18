@@ -10,6 +10,11 @@
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
 	<string>Squeak72x72.png</string>
+	<key>CFBundleIconFiles</key>
+	<array>
+		<string>Squeak72x72.png</string>
+		<string>Squeak72x72.png</string>
+	</array>
 	<key>CFBundleIdentifier</key>
 	<string>soft.roarvm.poc</string>
 	<key>CFBundleInfoDictionaryVersion</key>
