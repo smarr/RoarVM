@@ -162,8 +162,13 @@ Oop Object::className() {
 
 Oop Object::name_of_class_or_metaclass(bool* is_meta) {
   Oop cn = className();
-  if (!cn.is_mem()  ||  The_Memory_System()->object_table->probably_contains_not((void*)cn.bits())  ||  !The_Memory_System()->contains(cn.as_object()))
+  
+  if (    !cn.is_mem()
+      ||  (Use_Object_Table && The_Memory_System()->object_table->probably_contains_not((void*)cn.bits()))
+      ||  !The_Memory_System()->contains(cn.as_object())) {
     return The_Squeak_Interpreter()->roots.nilObj;
+  }
+  
   return (*is_meta = !(cn.bits() != 0  && cn.isBytes()))
     ? fetchPointer(Object_Indices::This_Class_Index).as_object()->className()
     : cn;
