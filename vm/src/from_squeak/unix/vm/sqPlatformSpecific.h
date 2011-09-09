@@ -1,41 +1,31 @@
 /* sqPlatformSpecific.h -- platform-specific modifications to sq.h
- *
+ * 
  *   Copyright (C) 1996-2005 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
- *
+ *   
  *   This file is part of Unix Squeak.
- *
- *      You are NOT ALLOWED to distribute modified versions of this file
- *      under its original name.  If you modify this file then you MUST
- *      rename it before making your modifications available publicly.
- *
- *   This file is distributed in the hope that it will be useful, but WITHOUT
- *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- *   FITNESS FOR A PARTICULAR PURPOSE.
- *
- *   You may use and/or distribute this file ONLY as part of Squeak, under
- *   the terms of the Squeak License as described in `LICENSE' in the base of
- *   this distribution, subject to the following additional restrictions:
- *
- *   1. The origin of this software must not be misrepresented; you must not
- *      claim that you wrote the original software.  If you use this software
- *      in a product, an acknowledgment to the original author(s) (and any
- *      other contributors mentioned herein) in the product documentation
- *      would be appreciated but is not required.
- *
- *   2. You must not distribute (or make publicly available by any
- *      means) a modified copy of this file unless you first rename it.
- *
- *   3. This notice must not be removed or altered in any source distribution.
- *
- *   Using (or modifying this file for use) in any context other than Squeak
- *   changes these copyright conditions.  Read the file `COPYING' in the
- *   directory `platforms/unix/doc' before proceeding with any such use.
- *
+ * 
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
+ * 
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
+ * 
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
+ * 
  * Author: ian.piumarta@squeakland.org
- *
- * Last edited: 2005-03-28 22:59:56 by piumarta on emilia.local
+ * 
  */
 
 /* undefine clock macros (these are implemented as functions) */
@@ -52,9 +42,54 @@
 #include "sqMemoryAccess.h"
 
 extern sqInt sqAllocateMemory(sqInt minHeapSize, sqInt desiredHeapSize);
+#define allocateMemoryMinimumImageFileHeaderSize(heapSize, minimumMemory, fileStream, headerSize) \
+sqAllocateMemory(minimumMemory, heapSize)
 extern sqInt sqGrowMemoryBy(sqInt oldLimit, sqInt delta);
 extern sqInt sqShrinkMemoryBy(sqInt oldLimit, sqInt delta);
 extern sqInt sqMemoryExtraBytesLeft(sqInt includingSwap);
+#if COGVM
+extern void sqMakeMemoryExecutableFromTo(unsigned long, unsigned long);
+extern void sqMakeMemoryNotExecutableFromTo(unsigned long, unsigned long);
+
+extern int isCFramePointerInUse(void);
+#endif
+
+/* warnPrintf is provided (and needed) on the win32 platform.
+ * But it may be mentioned elsewhere, so provide a suitable def.
+ */
+#define warnPrintf printf
+
+/* Thread support for thread-safe signalSemaphoreWithIndex and/or the COGMTVM */
+#if STACKVM
+# define sqLowLevelYield() sched_yield()
+/* linux's sched.h defines clone that conflicts with the interpreter's */
+# define clone NameSpacePollutant
+# include <pthread.h>
+# undef clone
+# define sqOSThread pthread_t
+/* these are used both in the STACKVM & the COGMTVM */
+# define ioOSThreadsEqual(a,b) pthread_equal(a,b)
+# define ioCurrentOSThread() pthread_self()
+# if COGMTVM
+/* Please read the comment for CogThreadManager in the VMMaker package for
+ * documentation of this API.
+ */
+typedef struct {
+		pthread_cond_t	cond;
+		pthread_mutex_t mutex;
+		int				count;
+	} sqOSSemaphore;
+#  define ioDestroyOSSemaphore(ptr) 0
+#  if !ForCOGMTVMImplementation /* this is a read-only export */
+extern const pthread_key_t tltiIndex;
+#  endif
+#  define ioGetThreadLocalThreadIndex() ((long)pthread_getspecific(tltiIndex))
+#  define ioSetThreadLocalThreadIndex(v) (pthread_setspecific(tltiIndex,(void*)(v)))
+#  define ioOSThreadIsAlive(thread) (pthread_kill(thread,0) == 0)
+#  define ioTransferTimeslice() sched_yield()
+#  define ioMilliSleep(ms) usleep((ms) * 1000)
+# endif /* COGMTVM */
+#endif /* STACKVM */
 
 #include <sys/types.h>
 
@@ -70,12 +105,17 @@ extern void sqFilenameFromString(char *uxName, sqInt stNameIndex, int sqNameLeng
 #undef dispatchFunctionPointerOnin
 /* we'd like to untypedef fptr too, but such is life */
 
-#include <unistd.h>
+#include <unistd.h> /* for declaration of ftruncate */
 
 #undef	sqFTruncate
+/* sqFTruncate should return 0 on success, ftruncate does also */
 #define	sqFTruncate(f,o) ftruncate(fileno(f), o)
+#define ftell ftello
+#define fseek fseeko
 
-#ifndef __GNUC__
+#if defined(__GNUC__)
+# define VM_LABEL(foo) asm("\n.globl L" #foo "\nL" #foo ":")
+#else
 # if HAVE_ALLOCA_H
 #   include <alloca.h>
 # else
@@ -87,4 +127,9 @@ extern void sqFilenameFromString(char *uxName, sqInt stNameIndex, int sqNameLeng
 #     endif
 #   endif
 # endif
+#endif
+
+#if !defined(VM_LABEL) || COGVM
+# undef VM_LABEL
+# define VM_LABEL(foo) 0
 #endif

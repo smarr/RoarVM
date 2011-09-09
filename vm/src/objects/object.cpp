@@ -20,7 +20,7 @@ bool Object::verify() {
   if (isFreeObject()) {
     return true;
   }
-  assert_always(sizeBits() >= sizeof(baseHeader));
+  assert_always(size_t(sizeBits()) >= sizeof(baseHeader));
   verify_preheader();
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oop_ptr)
     oop_ptr->verify_oop();
@@ -140,7 +140,7 @@ void Object::print_compiled_method(Printer* p) {
   for (int i = 0;  i < literalCount();  ++i) {
     p->printf("literal %d: ", i);  literal(i).print(p); p->nl();
   }
-  for (int i = 0;  i < byteSize() - sizeof(oop_int_t);  ++i) {
+  for (size_t i = 0;  i < byteSize() - sizeof(oop_int_t);  ++i) {
     u_char* bcp = (u_char*)&first_byte_address()[i];
     u_char bc = *bcp;
     p->printf("0x%x: byte %d: %d %s\n", bcp, i,  bc, Squeak_Interpreter::bytecode_name(bc));
@@ -253,6 +253,18 @@ Oop Object::signed64BitIntegerFor(int64 integerValue) {
 }
 
 
+/*	Answer the number of slots in a class. For example the instanceSizeOf: 
+    ClassPoint is 2, for the x & y slots. The instance size of non-pointer
+    classes is 0. */
+oop_int_t Object::instanceSizeOfClass() {
+  // STEFAN: this is extracted from below, needs testing!!
+#warning Untested and to many magic numbers here. Please fix!
+
+  oop_int_t classFormat = formatOfClass();
+  oop_int_t sizeHiBits = (classFormat & 0x60000) >> 9;
+  oop_int_t byteSize = (classFormat & (SizeMask | Size4Bit)) | sizeHiBits; // low bits 0
+  return ((byteSize - BaseHeaderSize) >> 2);
+}
 
 
 Object_p Object::instantiateClass(oop_int_t size, Logical_Core* where) {
@@ -273,7 +285,7 @@ Object_p Object::instantiateClass(oop_int_t size, Logical_Core* where) {
   int hash = h->newObjectHash();
   oop_int_t classFormat = formatOfClass();
   // low 2 bits are 0
-  oop_int_t header1 = (classFormat & 0x1ff00) | (hash << HashShift) & HashMask;
+  oop_int_t header1 = (classFormat & 0x1ff00) | ((hash << HashShift) & HashMask);
   Oop header2 = as_oop();
   oop_int_t header3 = 0;
   oop_int_t cClass = header1 & CompactClassMask;
@@ -496,7 +508,7 @@ Oop Object::clone() {
   oop_int_t hash = h->newObjectHash(); // even though newChunk may be in global heap
   The_Memory_System()->store_enforcing_coherence(&newObj->baseHeader,
                                               newObj->baseHeader & (Header_Type::Mask | SizeMask | CompactClassMask | FormatMask)
-                                              |   (hash << HashShift) & HashMask,
+                                              |   ((hash << HashShift) & HashMask),
                                               newObj);
 
   The_Memory_System()->object_table->allocate_oop_and_set_preheader(newObj, Logical_Core::my_rank()  COMMA_TRUE_OR_NOTHING);
@@ -936,15 +948,20 @@ void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
   Chunk* dst_chunk = h->allocateChunk(ehb + bnc);
   oop = The_Squeak_Interpreter()->popRemappableOop();
   char* src_chunk = as_char_p() - ehb;
+  
   Object_p new_obj = (Object_p)(Object*) (((char*)dst_chunk) + ehb);
 
   h->enforce_coherence_before_store(dst_chunk, ehb + bnc);
   DEBUG_MULTIMOVE_CHECK(dst_chunk, src_chunk, (ehb + bnc) / bytes_per_oop );
   bcopy(src_chunk, dst_chunk, ehb + bnc);
-  // set backpointer is redundant but this routine does the safepoint
+  
+  // update the oop entry in the OT and set backpointer
+  // setting the backpointer is redundant but this routine does the safepoint
   new_obj->set_object_address_and_backpointer(oop  COMMA_TRUE_OR_NOTHING);
+  // this is also redundant, depending on the logic behind set_extra_preheader_word
   if (Extra_Preheader_Word_Experiment)
     new_obj->set_extra_preheader_word(get_extra_preheader_word());
+  
   h->enforce_coherence_after_store(dst_chunk, ehb + bnc);
 
   ((Chunk*)src_chunk)->make_free_object(ehb + bnc, 2); // without this GC screws up
@@ -1054,7 +1071,7 @@ Object_p Object::get_external_primitive_literal_of_method() {
   Oop lit = literal(Object_Indices::External_Primitive_Literal_Index);
   if (!lit.is_mem()) return (Object_p)NULL;
   Object_p lo = lit.as_object();
-  return lo->isArray()  &&  lo->lengthOf() == Object_Indices::EPL_Length  ?  lo  :  (Object_p)NULL;
+  return lo->isArray()  &&  lo->lengthOf() == u_oop_int_t(Object_Indices::EPL_Length)  ?  lo  :  (Object_p)NULL;
 }
 
 

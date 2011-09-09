@@ -344,7 +344,7 @@ void distributeInitialInterpreterMessage_class::handle_me() {
 void verifyInterpreterAndHeapMessage_class::handle_me() {
   The_Squeak_Interpreter()->verify();
   The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_mostly]->verify();
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::  read_write]->verify();
+  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System:: read_write]->verify();
 }
 
 
@@ -366,7 +366,7 @@ void screenInfoResponse_class::handle_me() {}
 void getNextEventMessage_class::handle_me() {
   assert(Logical_Core::running_on_main());
   getNextEventResponse_class m;
-  m.got_one = Squeak_Interpreter::getNextEvent_any_platform(m.evtBuf);
+  m.got_one = The_Squeak_Interpreter()->getNextEvent_any_platform(m.evtBuf);
   m.send_to(sender);
 }
 
@@ -404,10 +404,10 @@ void recycleContextIfPossibleMessage_class::do_all_roots(Oop_Closure* oc) {
 void flushByMethodMessage_class::do_all_roots(Oop_Closure* oc) {
   oc->value(&method, (Object_p)NULL);
 }
-void addObjectFromSnapshotResponse_class::do_all_roots(Oop_Closure* oc) {
+void addObjectFromSnapshotResponse_class::do_all_roots(Oop_Closure* /* oc */) {
   fatal("unimp, but should not be called");
 }
-void hereIsARootResponse_class::do_all_roots(Oop_Closure* oc) {
+void hereIsARootResponse_class::do_all_roots(Oop_Closure* /* oc */) {
   fatal("unimp, but should not be called");
 }
 void updateEnoughInterpreterToTransferControlMessage_class::do_all_roots(Oop_Closure* oc) {

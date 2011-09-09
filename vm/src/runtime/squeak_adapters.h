@@ -16,6 +16,14 @@
 
 # define clone sqr_clone
 
+
+# include "types.h"
+# define BASE_HEADER_SIZE  /* BaseHeaderSize */ sizeof(int32)
+
+// STEFAN: added this and set it to 7 since that seems to be the
+//         verion the original RVM/RoarVM was start of with
+# define VM_PROXY_MINOR 7
+
 # if On_Tilera && !defined(__APPLE__) || defined(RVM_CODE_NOT_SQUEAK_CODE)
 typedef int sqInt;
 typedef long long sqLong;
@@ -23,6 +31,8 @@ typedef long long sqLong;
 
 # ifdef __cplusplus
 extern "C" { char* pointerForIndex_xxx_dmu(sqInt); }
+# else
+extern char* pointerForIndex_xxx_dmu();
 # endif
 
 # ifdef __cplusplus

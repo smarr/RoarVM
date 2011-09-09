@@ -1,42 +1,33 @@
 /* aio.c -- asynchronous file i/o
- *
+ * 
  *   Copyright (C) 1996-2006 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
- *
+ *   
  *   This file is part of Unix Squeak.
- *
- *      You are NOT ALLOWED to distribute modified versions of this file
- *      under its original name.  If you modify this file then you MUST
- *      rename it before making your modifications available publicly.
- *
- *   This file is distributed in the hope that it will be useful, but WITHOUT
- *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- *   FITNESS FOR A PARTICULAR PURPOSE.
- *
- *   You may use and/or distribute this file ONLY as part of Squeak, under
- *   the terms of the Squeak License as described in `LICENSE' in the base of
- *   this distribution, subject to the following additional restrictions:
- *
- *   1. The origin of this software must not be misrepresented; you must not
- *      claim that you wrote the original software.  If you use this software
- *      in a product, an acknowledgment to the original author(s) (and any
- *      other contributors mentioned herein) in the product documentation
- *      would be appreciated but is not required.
- *
- *   2. You must not distribute (or make publicly available by any
- *      means) a modified copy of this file unless you first rename it.
- *
- *   3. This notice must not be removed or altered in any source distribution.
- *
- *   Using (or modifying this file for use) in any context other than Squeak
- *   changes these copyright conditions.  Read the file `COPYING' in the
- *   directory `platforms/unix/doc' before proceeding with any such use.
+ * 
+ *   Permission is hereby granted, free of charge, to any person obtaining a
+ *   copy of this software and associated documentation files (the "Software"),
+ *   to deal in the Software without restriction, including without limitation
+ *   the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *   and/or sell copies of the Software, and to permit persons to whom the
+ *   Software is furnished to do so, subject to the following conditions:
+ * 
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
+ * 
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ *   DEALINGS IN THE SOFTWARE.
  */
 
 /* Author: Ian.Piumarta@squeakland.org
- *
- * Last edited: 2006-04-17 21:44:32 by piumarta on margaux.local
+ * 
+ * Last edited: 2006-04-23 12:55:59 by piumarta on emilia.local
  */
 
 #include "sqaio.h"
@@ -49,27 +40,27 @@
 #   include <sys/types.h>
 #   include <unistd.h>
 # endif /* HAVE_UNISTD_H */
-
+  
 # ifdef NEED_GETHOSTNAME_P
     extern int gethostname();
 # endif
-
+  
 # include <stdio.h>
 # include <signal.h>
 # include <errno.h>
 # include <fcntl.h>
 # include <sys/ioctl.h>
-
+  
 # ifdef HAVE_SYS_TIME_H
 #   include <sys/time.h>
 # else
 #   include <time.h>
 # endif
-
+  
 # ifdef HAS_SYS_SELECT_H
 #   include <sys/select.h>
 # endif
-
+  
 # ifndef FIONBIO
 #   ifdef HAVE_SYS_FILIO_H
 #     include <sys/filio.h>
@@ -100,29 +91,16 @@
 
 
 #undef	DEBUG
-#undef	DEBUG_TICKER
 
 #if defined(DEBUG)
   int aioLastTick= 0;
   int aioThisTick= 0;
-# define FPRINTF(X) { aioThisTick= ioLowResMSecs();  fprintf(stderr, "%8d %8d ", aioThisTick, aioThisTick - aioLastTick);  aioLastTick= aioThisTick;  fprintf X; }
+# define FPRINTF(X) { aioThisTick= ioMSecs();  fprintf(stderr, "%8d %8d ", aioThisTick, aioThisTick - aioLastTick);  aioLastTick= aioThisTick;  fprintf X; }
 #else
 # define FPRINTF(X)
 #endif
 
-#if defined(DEBUG_TICKER)
-  static char *ticks= "-\\|/";
-  static char *ticker= "";
-  #define DO_TICK()				\
-  {						\
-    fprintf(stderr, "\r%c\r", *ticker);		\
-    if (!*ticker++) ticker= ticks;		\
-  }
-#else
-# define DO_TICK()
-#endif
-
-#define _DO_FLAG_TYPE()	_DO(AIO_R, rd) _DO(AIO_W, wr) _DO(AIO_X, ex)
+#define _DO_FLAG_TYPE()	do { _DO(AIO_R, rd) _DO(AIO_W, wr) _DO(AIO_X, ex) } while (0)
 
 static int one= 1;
 
@@ -198,29 +176,58 @@ void aioFini(void)
 
 
 /* answer whether i/o becomes possible within the given number of microSeconds */
+#define max(x,y) (((x)>(y))?(x):(y))
+
+long pollpip = 0; /* set in sqUnixMain.c by -pollpip arg */
+#if COGMTVM
+/* If on the MT VM and pollpip > 1 only pip if a threaded FFI call is in
+ * progress, which we infer from disownCount being non-zero.
+ */
+extern long disownCount;
+# define SHOULD_TICK() (pollpip == 1 || (pollpip > 1 && disownCount))
+#else
+# define SHOULD_TICK() pollpip
+#endif
+
+static char *ticks= "-\\|/";
+static char *ticker= "";
+static int tickCount = 0;
+#define TICKS_PER_CHAR 10
+#define DO_TICK(bool)				\
+do if ((bool) && !(++tickCount % TICKS_PER_CHAR)) {		\
+	fprintf(stderr, "\r%c\r", *ticker);		\
+	if (!*ticker++) ticker= ticks;			\
+} while (0)
 
 int aioPoll(int microSeconds)
 {
-  int	 fd, ms;
+  int	 fd;
   fd_set rd, wr, ex;
+  unsigned long long us;
 
   FPRINTF((stderr, "aioPoll(%d)\n", microSeconds));
-  DO_TICK();
+  DO_TICK(SHOULD_TICK());
 
   /* get out early if there is no pending i/o and no need to relinquish cpu */
 
+#ifdef TARGET_OS_IS_IPHONE
+  if (maxFd == 0)
+    return 0;
+#else
   if ((maxFd == 0) && (microSeconds == 0))
     return 0;
+#endif
 
   rd= rdMask;
   wr= wrMask;
   ex= exMask;
-  ms= ioMSecs();
+  us= ioUTCMicroseconds();
 
   for (;;)
     {
       struct timeval tv;
-      int n, now;
+      int n;
+      unsigned long long now;
       tv.tv_sec=  microSeconds / 1000000;
       tv.tv_usec= microSeconds % 1000000;
       n= select(maxFd, &rd, &wr, &ex, &tv);
@@ -232,11 +239,11 @@ int aioPoll(int microSeconds)
 	  perror("select");
 	  return 0;
 	}
-      now= ioMSecs();
-      microSeconds -= (now - ms) * 1000;
+      now= ioUTCMicroseconds();
+      microSeconds -= max(now - us,1);
       if (microSeconds <= 0)
 	return 0;
-      ms= now;
+      us= now;
     }
 
   for (fd= 0; fd < maxFd; ++fd)
@@ -259,23 +266,22 @@ int aioPoll(int microSeconds)
 
 
 /* sleep for microSeconds or until i/o becomes possible, avoiding
-   sleeping in select() is timeout too small */
+   sleeping in select() if timeout too small */
 
-int aioSleep(int microSeconds)
+int aioSleepForUsecs(int microSeconds)
 {
+#if defined(HAVE_NANOSLEEP)
   if (microSeconds < (1000000/60))	/* < 1 timeslice? */
     {
-#    if defined(__MACH__)		/* can sleep with 1ms resolution */
       if (!aioPoll(0))
 	{
 	  struct timespec rqtp= { 0, microSeconds * 1000 };
 	  struct timespec rmtp;
-	  while ((nanosleep(&rqtp, &rmtp) < 0) && (errno == EINTR))
-	    rqtp= rmtp;
+	  nanosleep(&rqtp, &rmtp);
+	  microSeconds= 0;			/* poll but don't block */
 	}
-#    endif
-      microSeconds= 0;			/* poll but don't block */
     }
+#endif
   return aioPoll(microSeconds);
 }
 
@@ -311,11 +317,33 @@ void aioEnable(int fd, void *data, int flags)
   else
     {
       /* enable non-blocking asynchronous i/o and delivery of SIGIO to the active process */
-      int flags;
+      int arg;
       FD_CLR(fd, &xdMask);
-      if (        fcntl(fd, F_SETOWN, getpid()                    )  < 0)  perror("fcntl(F_SETOWN, getpid())");
-      if ((flags= fcntl(fd, F_GETFL,  0                           )) < 0)  perror("fcntl(F_GETFL)");
-      if (        fcntl(fd, F_SETFL,  flags | O_NONBLOCK | O_ASYNC)  < 0)  perror("fcntl(F_SETFL, O_ASYNC)");
+
+#    if defined(O_ASYNC)
+      if (      fcntl(fd, F_SETOWN, getpid()                  )  < 0)
+		perror("fcntl(F_SETOWN, getpid())");
+      if ((arg= fcntl(fd, F_GETFL,  0                         )) < 0)
+		perror("fcntl(F_GETFL)");
+      if (      fcntl(fd, F_SETFL,  arg | O_NONBLOCK | O_ASYNC)  < 0)
+		perror("fcntl(F_SETFL, O_ASYNC)");
+
+#    elif defined(FASYNC)
+      if (      fcntl(fd, F_SETOWN, getpid()                  )  < 0)
+		perror("fcntl(F_SETOWN, getpid())");
+      if ((arg= fcntl(fd, F_GETFL,  0                         )) < 0)
+		perror("fcntl(F_GETFL)");
+      if (      fcntl(fd, F_SETFL,  arg | O_NONBLOCK | FASYNC )  < 0)
+		perror("fcntl(F_SETFL, FASYNC)");
+
+#    elif defined(FIOASYNC)
+      arg= getpid();
+	  if (ioctl(fd, SIOCSPGRP, &arg) < 0)
+		perror("ioctl(SIOCSPGRP, getpid())");
+      arg= 1;
+	  if (ioctl(fd, FIOASYNC,  &arg) < 0)
+		perror("ioctl(FIOASYNC, 1)");
+#    endif
     }
 }
 

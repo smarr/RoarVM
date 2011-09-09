@@ -57,6 +57,7 @@
 # endif
 
 # if On_iOS
+#  include <libkern/OSAtomic.h>
 # elif On_Apple
 #  include <monitor.h>
 #  include <libkern/OSAtomic.h>
@@ -182,7 +183,7 @@
 # include       "oop_tracer.h"
 # include "execution_tracer.h"
 # include "profiling_tracer.h"
-# include "debugging_tracer.h"
+# include "gc_debugging_tracer.h"
 
 
 

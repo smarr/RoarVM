@@ -792,7 +792,7 @@ void Squeak_Interpreter::lookup_in_obsoleteNamedPrimitiveTable(Oop functionName,
 fn_t Squeak_Interpreter::munge_arguments_and_load_function_from_plugin_on_main(Oop functionName, Object_p& fno, int functionLength,
                                                                                Oop  moduleName, Object_p& mno, int moduleLength) { 
   char fn[10000], mod[10000];
-  assert_always(functionLength < sizeof(fn)  &&  moduleLength < sizeof(mod));
+  assert_always((size_t)functionLength < sizeof(fn)  &&  (size_t)moduleLength < sizeof(mod));
   strncpy( fn, fno->as_char_p() + Object::BaseHeaderSize, functionLength);  fn[functionLength] = '\0';
   strncpy(mod, mno->as_char_p() + Object::BaseHeaderSize,   moduleLength); mod[  moduleLength] = '\0';
   fn_t addr = The_Interactions.load_function_from_plugin(Logical_Core::main_rank, fn, mod);
@@ -1000,9 +1000,12 @@ void Squeak_Interpreter::primitiveGetNextEvent() {
   int evtBuf[evtBuf_size];
   for (int i = 0;  i < evtBuf_size;  ++i)  evtBuf[i] = 0;
   bool got_one = The_Interactions.getNextEvent_on_main(evtBuf); // do this from here so we can GC if need be
-   if (!got_one)
+  if (!got_one) {
     primitiveFail();
-  if (!successFlag) return;
+    return;
+  }
+  
+  successFlag = true;
 
   Oop arg = stackTop(); Object_p ao;
   if (!arg.is_mem() || !(ao = arg.as_object())->isArray() || ao->slotSize() != 8) {
@@ -1141,7 +1144,7 @@ void Squeak_Interpreter::primitiveIntegerAt() {
   Oop rcvr = stackValue(1);
   Object_p ro;
   if (!rcvr.is_mem()  ||  !(ro = rcvr.as_object())->isWords()
-      || index < 1  || index > ro->lengthOf() ) {
+      || index < 1  || index > (oop_int_t)ro->lengthOf() ) {
     success(false); return;
   }
   int32 value = ro->as_int32_p()[Object::BaseHeaderSize/sizeof(int32) + index - 1];
@@ -1161,7 +1164,7 @@ void Squeak_Interpreter::primitiveIntegerAtPut() {
 
   if (!rcvr.is_mem() || !(ro = rcvr.as_object())->isWords()
     ||  index < 1
-    ||  index > ro->lengthOf() ) {
+    ||  index > (oop_int_t)ro->lengthOf() ) {
     success(false);
     return;
   }

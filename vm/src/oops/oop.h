@@ -55,7 +55,7 @@ private:
 
 
 
-  Oop() { _bits = Illegals::uninitialized & ~Tag_Mask  |  Mem_Tag; } // illegal
+  Oop() { _bits = (Illegals::uninitialized & ~Tag_Mask)  |  Mem_Tag; } // illegal
 
 
   inline oop_int_t bits() const { return _bits; }

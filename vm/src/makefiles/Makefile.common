@@ -41,6 +41,7 @@ INCLUDES = \
     -I$(SRC_DIR)/from_squeak/Cross \
     -I$(SRC_DIR)/from_squeak/Cross/plugins \
     -I$(SRC_DIR)/from_squeak/Cross/plugins/SocketPlugin \
+    -I$(SRC_DIR)/from_squeak/Cross/plugins/SoundPlugin \
     -I$(SRC_DIR)/from_squeak/Cross/plugins/FilePlugin \
     -I$(SRC_DIR)/from_squeak/Cross/plugins/RePlugin \
     -I$(SRC_DIR)/from_squeak/Cross/plugins/B3DAcceleratorPlugin \
@@ -56,6 +57,7 @@ INCLUDES = \
     -I$(SRC_DIR)/from_squeak/intplugins/MiscPrimitivePlugin \
     -I$(SRC_DIR)/from_squeak/intplugins/SocketPlugin \
     -I$(SRC_DIR)/from_squeak/unix \
+    -I$(SRC_DIR)/from_squeak/unix/plugins/B3DAcceleratorPlugin \
     -I$(SRC_DIR)/from_squeak/unix/vm-display-X11 \
     -I$(SRC_DIR)/from_squeak/unix/vm-sound-null \
     -I$(SRC_DIR)/from_squeak/unix/vm-sound-custom \
@@ -78,11 +80,11 @@ INCLUDES += \
 endif
 
 
-CONFIG_FLAGS += -DExtra_Preheader_Word_Experiment=1
+CONFIG_FLAGS += -DExtra_Preheader_Word_Experiment=1 -DLSB_FIRST=1 -DROAR_VM
 
 # removed -Winline warning for now, was not useful so far
-#CONFIG_FLAGS += -Winline 
-#CXX_CONFIG_FLAGS += -Winline
+# CONFIG_FLAGS += -Winline 
+# CXX_CONFIG_FLAGS += -Winline
 
 CFLAGS = $(INCLUDES) $(CONFIG_FLAGS) -include rvm_config.h
 CXXFLAGS = -fno-rtti $(CXX_CONFIG_FLAGS)
@@ -202,7 +204,7 @@ RVM_HEADERS = \
   oop_tracer.h \
   execution_tracer.h \
   profiling_tracer.h \
-  debugging_tracer.h \
+  gc_debugging_tracer.h \
   performance_counters.h \
   safepoint.h \
   abstract_mutex.h \
@@ -344,7 +346,8 @@ vpath %.c $(SRC_DIR)/from_squeak/intplugins/SoundPlugin
 vpath %.c $(SRC_DIR)/from_squeak/intplugins/UnixOSProcessPlugin
 vpath %.c $(SRC_DIR)/from_squeak/intplugins/SocketPlugin
 vpath %.c $(SRC_DIR)/from_squeak/unix
-vpath %.c $(SRC_DIR)/from_squeak/unix/SocketPlugin
+vpath %.c $(SRC_DIR)/from_squeak/unix/plugins/SocketPlugin
+vpath %.c $(SRC_DIR)/from_squeak/unix/plugins/SoundPlugin
 vpath %.c $(SRC_DIR)/from_squeak/unix/vm
 vpath %.c $(SRC_DIR)/from_squeak/unix/vm-display-X11
 vpath %.c $(SRC_DIR)/from_squeak/unix/vm-sound-custom
@@ -359,6 +362,7 @@ vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/B3DAcceleratorPlugin
 vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/FilePlugin
 vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/RePlugin
 vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/SocketPlugin
+vpath %.h $(SRC_DIR)/from_squeak/Cross/plugins/SoundPlugin
 vpath %.h $(SRC_DIR)/from_squeak/Cross/vm
 vpath %.h $(SRC_DIR)/from_squeak/intplugins
 vpath %.h $(SRC_DIR)/from_squeak/intplugins/B2DPlugin
@@ -371,6 +375,7 @@ vpath %.h $(SRC_DIR)/from_squeak/intplugins/SoundPlugin
 vpath %.h $(SRC_DIR)/from_squeak/intplugins/UnixOSProcessPlugin
 vpath %.h $(SRC_DIR)/from_squeak/intplugins/SocketPlugin
 vpath %.h $(SRC_DIR)/from_squeak/unix
+vpath %.h $(SRC_DIR)/from_squeak/unix/plugins/B3DAcceleratorPlugin
 vpath %.h $(SRC_DIR)/from_squeak/unix/vm
 vpath %.h $(SRC_DIR)/from_squeak/unix/vm-display-X11
 vpath %.h $(SRC_DIR)/from_squeak/unix/vm-sound-custom
@@ -457,12 +462,12 @@ OBJS = \
   SoundPlugin.opt \
   SocketPlugin.opt \
   sqFilePluginBasicPrims.opt \
-  sqrNamedPrims.opt \
-  sqrUnixCharConv.opt \
-  sqrUnixExternalPrims.opt \
-  sqrUnixMain.opt \
-  sqrUnixX11.opt \
-  sqrVirtualMachine.opt \
+  sqNamedPrims.opt \
+  sqUnixCharConv.opt \
+  sqUnixExternalPrims.opt \
+  sqUnixMain.opt \
+  sqUnixX11.opt \
+  sqVirtualMachine.opt \
   squeak_adapters.opt \
   squeak_image_reader.opt \
   squeak_interpreter.opt \
@@ -473,7 +478,7 @@ OBJS = \
   utils.opt \
   execution_tracer.opt \
   profiling_tracer.opt \
-  debugging_tracer.opt \
+  gc_debugging_tracer.opt \
   performance_counters.opt \
   safepoint.opt \
   abstract_mutex.opt \

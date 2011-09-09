@@ -259,7 +259,8 @@ void Squeak_Interpreter::interpret() {
 
   for (let_one_through();  ; ) {
     check_for_multicore_interrupt();
-    u_int64 start = OS_Interface::get_cycle_count();
+    if (Collect_Performance_Counters)
+      u_int64 start = OS_Interface::get_cycle_count();
 
     assert(activeContext_obj()->is_read_write());
 
@@ -339,6 +340,12 @@ void Squeak_Interpreter::interpret() {
     assert_stored_if_no_proc();
 
     PERF_CNT(this, add_interpret_cycles(OS_Interface::get_cycle_count() - start));
+    
+    // for debugging check that the stack is not growing to big
+    if (Include_Debugging_Code && (count_stack_depth() > 1000)) {
+      OS_Interface::breakpoint();
+    }
+    
   }
   internal_undo_prefetch();
 	externalizeIPandSP();
@@ -791,7 +798,7 @@ void Squeak_Interpreter::findNewMethodInClass(Oop klass) {
 
 Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
   assert(safepoint_ability->is_able()); // need to be able to allocate message object without deadlock
-  Object_p currentClass_obj;
+  Object_p currentClass_obj = (Object_p)NULL;
   for (  Oop currentClass = lkupClass;
          currentClass != roots.nilObj;
        currentClass = currentClass_obj->superclass()) {
@@ -925,7 +932,7 @@ void Squeak_Interpreter::internalActivateNewMethod() {
     nco = newContext.as_object();
     assert(nco->my_heap_contains_me());
     Oop nfc = nco->fetchPointer(Object_Indices::Free_Chain_Index);
-    assert(nfc == Object::NilContext()  ||  nfc.is_mem() && nfc.as_object()->headerType() == Header_Type::Short);
+    assert(nfc == Object::NilContext()  ||  (nfc.is_mem() && nfc.as_object()->headerType() == Header_Type::Short));
     roots.freeContexts = nfc;
   }
   else {
@@ -1616,6 +1623,31 @@ void Squeak_Interpreter::print_stack_trace(Printer* p, Object_p proc) {
 }
 
 
+uint32_t Squeak_Interpreter::count_stack_depth() {
+  Object_p proc = get_running_process().as_object();
+  if (proc == roots.nilObj.as_object())
+    return 0;
+
+  Oop cntxt = proc->fetchPointer(Object_Indices::SuspendedContextIndex);
+  if (cntxt != roots.nilObj) ;
+  else if ((cntxt = activeContext()) != roots.nilObj) ;
+  else
+    return 0;
+
+  
+  uint32_t stack_depth = 0;
+  for (Oop c = cntxt;
+       c != roots.nilObj;
+       c = c.as_object()->fetchPointer(Object_Indices::SenderIndex)) {
+    if (c.bits() == 0) {
+      break;
+    }
+    stack_depth++;
+  }
+  
+  return stack_depth;
+}
+
 void Squeak_Interpreter::print_all_stack_traces(Printer* pr) {
   // print_all_processes_in_scheduler(pr, true);
    print_all_processes_in_scheduler_or_on_a_list(pr, true);
@@ -1747,7 +1779,8 @@ void Squeak_Interpreter::commonAtPut(bool stringy) {
   oop_int_t index = positive32BitValueOf(stackValue(1));
   Oop rcvr = stackValue(2);
   if (!successFlag || !rcvr.is_mem()) {
-    primitiveFail();  return;
+    primitiveFail();
+    return;
   }
   Object_p ro = rcvr.as_object();
   if (roots.messageSelector == specialSelector(17)  &&  roots.lkupClass == ro->fetchClass()) {
@@ -1774,7 +1807,7 @@ void Squeak_Interpreter::commonAtPut(bool stringy) {
 
 
 
-void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool defer) {
+void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool /* defer */) {
    /*
    "Change the class of the receiver into the class specified by the argument
     given that the format of the receiver matches the format of the argument.
@@ -1960,7 +1993,7 @@ void Squeak_Interpreter::primitivePerformAt(Oop lookupClass) {
 }
 
 
-void Squeak_Interpreter::snapshot(bool embedded) {
+void Squeak_Interpreter::snapshot(bool /* embedded */) {
 
   Oop r = popStack();
   pushBool(true);
@@ -2097,7 +2130,7 @@ Oop Squeak_Interpreter::find_and_move_to_end_highest_priority_non_running_proces
 
     Oop        proc = first_proc;
     Object_p proc_obj = proc.as_object();
-    Object_p prior_proc_obj;
+    Object_p prior_proc_obj = (Object_p)NULL;
     for (;;)  {
       if (verbose) {
         debug_printer->printf("on %d: find_and_move_to_end_highest_priority_non_running_process proc: ",
@@ -2385,7 +2418,8 @@ void Squeak_Interpreter::multicore_interrupt() {
   if (Message_Queue::are_data_available(my_core()))
     PERF_CNT(this, count_data_available());
 
-  const u_int64 start = OS_Interface::get_cycle_count();
+  if (Collect_Performance_Counters)
+    const u_int64 start = OS_Interface::get_cycle_count();
 
 
   multicore_interrupt_check = false;
@@ -2490,7 +2524,7 @@ void Squeak_Interpreter::give_up_CPU_instead_of_spinning(uint32_t& busyWaitCount
   }
   
   useconds_t sleep = 1 << (busyWaitCount - 32); // wait an exponentially growing time span
-  static const int max_sleep_usecs = 500; // experimentally determined on Mac by watching Kiviats, etc -- dmu 10/1/10
+  static const u_int32 max_sleep_usecs = 500; // experimentally determined on Mac by watching Kiviats, etc -- dmu 10/1/10
   if (Logical_Core::running_on_main())
     ioRelinquishProcessorForMicroseconds(min(max_sleep_usecs, sleep));
   else 
@@ -2786,7 +2820,7 @@ void Squeak_Interpreter::recycleContextIfPossible_here(Oop ctx) {
 
 
 Object_p Squeak_Interpreter::allocateOrRecycleContext(bool needsLarge) {
-  if (Trace_For_Debugging  &&  debugging_tracer() != NULL
+  if (Trace_GC_For_Debugging  &&  debugging_tracer() != NULL
   &&  debugging_tracer()->force_real_context_allocation())
     ;
   else {
@@ -2829,7 +2863,7 @@ Oop Squeak_Interpreter::stObjectAt(Object_p a, oop_int_t index) {
   oop_int_t fmt = a->format();
   oop_int_t fixedFields = a->fixedFieldsOfArray();
   oop_int_t stSize =  Object::Format::might_be_context(fmt) && a->hasContextHeader()
-  ? a->fetchStackPointer()  :  a->lengthOf() - fixedFields;
+  ? a->fetchStackPointer()  :  oop_int_t(a->lengthOf() - fixedFields);
   if ( u_oop_int_t(index) >= u_oop_int_t(1)  &&  u_oop_int_t(index) <= u_oop_int_t(stSize))
     return subscript(a, index + fixedFields);
   successFlag = false;
@@ -2980,8 +3014,8 @@ void Squeak_Interpreter::trace_execution() {
 }
 
 void Squeak_Interpreter::trace_for_debugging() {
-  if (!Trace_For_Debugging) fatal("should never happen");
-  set_debugging_tracer(new Debugging_Tracer());
+  if (!Trace_GC_For_Debugging) fatal("should never happen");
+  set_debugging_tracer(new GC_Debugging_Tracer());
   lprintf("Tracing for debugging\n");
 }
 
@@ -3015,7 +3049,7 @@ bool Squeak_Interpreter::process_is_scheduled_and_executing() {
 void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const char* where) {
   const char* msg = "";
   Oop lit;
-  int litx;
+  int litx = 0;
 
   if (!process_is_scheduled_and_executing())
     return;
@@ -3277,10 +3311,10 @@ bool Squeak_Interpreter::roomToPushNArgs(int n) {
   return stackPointerIndex() + n  <=  cntxSize;
 }
 
-int Squeak_Interpreter::getNextEvent_any_platform(void* p) {
-  int r = ioGetNextEvent(p);
-# if On_iOS
-    r = The_Squeak_Interpreter()->successFlag;
-# endif
-  return r;
+bool Squeak_Interpreter::getNextEvent_any_platform(void* p) {
+  bool preserved_successFlag = successFlag;
+  ioGetNextEvent(p);
+  int successFlag_value = successFlag;
+  successFlag = preserved_successFlag;
+  return successFlag_value;
 }

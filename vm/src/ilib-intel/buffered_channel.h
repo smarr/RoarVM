@@ -40,10 +40,10 @@ private:
 
 public:
   BufferedChannel(size_t numberOfBuffers, size_t sizeOfSingleBuffer)
-  : num_buffers(numberOfBuffers),
-    size_of_single_buffer(sizeOfSingleBuffer),
-    buffer_memory(malloc(numberOfBuffers * (sizeOfSingleBuffer + sizeof(buffer)))),
-    free_list_buffer(malloc(sizeof(int32_t) * numberOfBuffers)),
+  : buffer_memory(malloc(numberOfBuffers * (sizeOfSingleBuffer + sizeof(buffer)))),
+    num_buffers(numberOfBuffers),
+	size_of_single_buffer(sizeOfSingleBuffer),
+	free_list_buffer(malloc(sizeof(int32_t) * numberOfBuffers)),
     waiting_list_buffer(malloc(sizeof(int32_t) * numberOfBuffers)),
     used_list_buffer(malloc(sizeof(int32_t) * numberOfBuffers))
   {

@@ -41,3 +41,4 @@ int printCallStack() { pst(); return 0; }
 void pat() {
   The_Squeak_Interpreter()->print_all_stack_traces(dittoing_stdout_printer);
 }
+int printAllStacks() { pat(); return 0; }

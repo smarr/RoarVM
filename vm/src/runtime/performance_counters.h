@@ -10,8 +10,6 @@
  ******************************************************************************/
 
 
-#pragma mark Global Macros
-
 # if Collect_Performance_Counters
   // use like PERF_CNT(The_Squeak_Interpreter(), add_interpret_cycles(foo - start));
   # define PERF_CNT(interp, counter_or_accumulator_call) interp->perf_counter.counter_or_accumulator_call
@@ -21,15 +19,12 @@
 
 # endif  // Collect_Performance_Counters
 
-#pragma mark -
 
 
 class Performance_Counters {
 private:
 
   static Performance_Counters* _all_perf_counters[Max_Number_Of_Cores];
-  
-#pragma mark Standard Counters
   
   # define FOR_ALL_PERFORMANCE_COUNTERS_DO(template) \
     template(acquire_safepoint,           int, 0) \
@@ -46,9 +41,8 @@ private:
     template(multicore_interrupt_check,   int, 0) \
     template(yield_requested,             int, 0) \
     template(data_available,              int, 0) \
-  
-#pragma mark Accumulators for other Values
-  
+ 
+ 
   # define FOR_ALL_PERFORMANCE_ACCUMULATORS_DO(template) \
     template(interpret_cycles,            u_int64, 0LL) \
     template(multicore_interrupt_cycles,  u_int64, 0LL) \
@@ -58,7 +52,6 @@ private:
     template(mi_cyc_1a2,                  u_int64, 0LL) \
     template(mi_cyc_1b,                   u_int64, 0LL) \
 
-#pragma mark -
 
   # define DECLARE_MEMBERS(name, type, initial_value) \
     type name;

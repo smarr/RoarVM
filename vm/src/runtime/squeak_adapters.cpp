@@ -26,6 +26,7 @@ extern "C" {
   sqInt byteSwapped(sqInt);
     sqInt characterTable(void);
   sqInt checkedIntegerValueOf(sqInt);
+    sqInt classAlien(void);
     sqInt classArray(void);
     sqInt classBitmap(void);
   sqInt classByteArray(void);
@@ -61,6 +62,7 @@ extern "C" {
   void*  firstIndexableField(sqInt);
   double floatValueOf(sqInt oop);
   void   fullDisplayUpdate();
+  void  tenuringIncrementalGC();
   sqInt fullGC(void);
   sqInt getInterruptKeycode();
   sqInt getNextWakeupTick();
@@ -68,6 +70,7 @@ extern "C" {
   sqInt getSavedWindowSize();
   sqInt getThisSessionID();
   sqInt incrementalGC(void);
+  sqInt instanceSizeOf(sqInt);
   sqInt instantiateClassindexableSize(sqInt, sqInt);
   sqInt  integerObjectOf(sqInt value);
   sqInt  integerValueOf(sqInt oop);
@@ -75,6 +78,7 @@ extern "C" {
     sqInt isFloatObject(sqInt oop);
     sqInt isInMemory(sqInt address);
     sqInt isKindOf(sqInt oop, char *aString);
+  sqInt isKindOfClass(sqInt oop, sqInt aClass);
 
   sqInt includesBehaviorThatOf(sqInt aClass, sqInt aSuperClass);
   sqInt isArray(sqInt oop);
@@ -93,17 +97,21 @@ extern "C" {
     sqInt makePointwithxValueyValue(sqInt xValue, sqInt yValue);
   sqInt  methodArgumentCount(void);
   sqInt  methodPrimitiveIndex(void);
+  sqInt  methodReturnValue(sqInt oop);
   sqInt nilObject(void);
   sqInt  primitiveIndexOf(sqInt methodPointer);
   sqInt  obsoleteDontUseThisFetchWordofObject(sqInt index, sqInt oop);
   sqInt pop(sqInt);
   sqInt popRemappableOop(void);
+  sqInt topRemappableOop(void);  
   sqInt  popthenPush(sqInt nItems, sqInt oop);
   sqInt positive32BitIntegerFor(sqInt);
   sqInt  positive32BitValueOf(sqInt oop);
   sqInt  positive64BitIntegerFor(sqLong integerValue);
   sqLong positive64BitValueOf(sqInt oop);
   sqInt primitiveFail();
+  sqInt primitiveFailFor(sqInt);
+  sqInt primitiveFailureCode();
     sqInt primitiveMethod(void);
   sqInt push(sqInt);
   sqInt pushBool(sqInt);
@@ -170,7 +178,7 @@ void*  arrayValueOf(sqInt oop) { return Oop::from_bits(oop).arrayValue(); }
 
 void assert(sqInt b) { if (!b) fatal(); }
 
-sqInt becomewith(sqInt array1, sqInt array2) {
+sqInt becomewith(sqInt /* array1 */, sqInt /* array2 */) {
   unimpExt(); return 0;
 }
 
@@ -187,6 +195,7 @@ sqInt characterTable(void) { return The_Squeak_Interpreter()->splObj(Special_Ind
 sqInt  checkedIntegerValueOf(sqInt intOop) { return Oop::from_bits(intOop).checkedIntegerValue(); }
 
 
+sqInt classAlien(void) { return The_Squeak_Interpreter()->splObj(Special_Indices::ClassAlien).bits(); }
 sqInt classArray(void) { return The_Squeak_Interpreter()->splObj(Special_Indices::ClassArray).bits(); }
 sqInt classBitmap(void) { return The_Squeak_Interpreter()->splObj(Special_Indices::ClassBitmap).bits(); }
 sqInt classByteArray() { return The_Squeak_Interpreter()->splObj(Special_Indices::ClassByteArray).bits(); }
@@ -272,9 +281,12 @@ sqInt getSavedWindowSize() { return The_Memory_System()->snapshot_window_size.sa
 sqInt getThisSessionID() { return The_Squeak_Interpreter()->globalSessionID; }
 
 sqInt incrementalGC(void) { The_Memory_System()->incrementalGC(); return 0; }
+void  tenuringIncrementalGC(void) { The_Memory_System()->incrementalGC(); }
 
 
 sqInt instantiateClassindexableSize(sqInt k, sqInt s) { return Oop::from_bits(k).as_object()->instantiateClass(s)->as_oop().bits(); }
+
+sqInt instanceSizeOf(sqInt classObj) { return Oop::from_bits(classObj).as_object()->instanceSizeOfClass(); }
 
 sqInt  integerObjectOf(sqInt v) { return Oop::from_int(v).bits(); }
 
@@ -284,12 +296,13 @@ sqInt isBytes(sqInt x) { return Oop::from_bits(x).isBytes(); }
 
 sqInt isFloatObject(sqInt oop) { return Oop::from_bits(oop).is_mem() && Oop::from_bits(oop).as_object()->isFloatObject(); }
 
-sqInt isInMemory(sqInt address) { unimpExt(); return 1;}
+sqInt isInMemory(sqInt /* address */) { unimpExt(); return 1;}
 
 sqInt isKindOf(sqInt oop, char *aString) { return Oop::from_bits(oop).isKindOf(aString); }
+sqInt isKindOfClass(sqInt /* oop */, sqInt /* aClass */)  { unimpExt(); return 0; }  // STEFAN TODO: necessary for the FFI I think
 
 
-sqInt includesBehaviorThatOf(sqInt aClass, sqInt aSuperClass) { unimpExt(); return 0; }
+sqInt includesBehaviorThatOf(sqInt /* aClass */, sqInt /* aSuperClass */) { unimpExt(); return 0; }
 sqInt isArray(sqInt oop) { return Oop::from_bits(oop).isArray(); }
 sqInt isIndexable(sqInt oop) { return Oop::from_bits(oop).isIndexable(); }
 sqInt isIntegerObject(sqInt objectPointer) { return Oop::from_bits(objectPointer).is_int(); }
@@ -311,19 +324,21 @@ sqInt  literalCountOf(sqInt methodPointer) { return Oop::from_bits(methodPointer
 
 sqInt  literalofMethod(sqInt offset, sqInt methodPointer) { return Oop::from_bits(methodPointer).as_object()->literal(offset).bits(); }
 
-sqInt loadBitBltFrom(sqInt bbOop) { unimpExt(); return 0; }
+sqInt loadBitBltFrom(sqInt /* bbOop */) { unimpExt(); return 0; }
 
 sqInt makePointwithxValueyValue(sqInt xValue, sqInt yValue) { return Object::makePoint(xValue, yValue)->as_oop().bits(); }
 
 
 sqInt  methodArgumentCount(void) { return The_Squeak_Interpreter()->methodArgumentCount(); }
 sqInt  methodPrimitiveIndex(void)  { return The_Squeak_Interpreter()->methodPrimitiveIndex(); }
+sqInt  methodReturnValue(sqInt /* oop */) { unimpExt(); return 0; }
 
 sqInt nilObject() { return The_Squeak_Interpreter()->roots.nilObj.bits(); }
 
-sqInt  obsoleteDontUseThisFetchWordofObject(sqInt index, sqInt oop) {unimpExt(); return 0;}
+sqInt  obsoleteDontUseThisFetchWordofObject(sqInt /* index */, sqInt /* oop */) {unimpExt(); return 0;}
 
 sqInt popRemappableOop(void) { return The_Squeak_Interpreter()->popRemappableOop().bits(); }
+sqInt topRemappableOop(void) { return The_Squeak_Interpreter()->topRemappableOop().bits(); }
 
 sqInt  popthenPush(sqInt nItems, sqInt oop) { The_Squeak_Interpreter()->popThenPush(nItems, Oop::from_bits(oop)); return 0; }
 
@@ -338,6 +353,11 @@ sqLong positive64BitValueOf(sqInt oop) { return The_Squeak_Interpreter()->positi
 sqInt  primitiveIndexOf(sqInt methodPointer) { return Oop::from_bits(methodPointer).as_object()->primitiveIndex(); }
 
 sqInt primitiveFail() { The_Squeak_Interpreter()->primitiveFail(); return 0; }
+sqInt primitiveFailFor(sqInt reasonCode) { 
+  The_Squeak_Interpreter()->primitiveFailFor(reasonCode);
+  return 0;
+}
+sqInt primitiveFailureCode() { return The_Squeak_Interpreter()->primFailCode; }
 
 sqInt primitiveMethod(void) { unimpExt(); return 0; }
 

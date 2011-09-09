@@ -23,7 +23,7 @@ u_int32  Memory_System::log_memory_per_read_mostly_heap = 0;
 u_int32  Memory_System::memory_per_read_mostly_heap = 0;
 u_int32  Memory_System::log_memory_per_read_write_heap = 0;
   int    Memory_System::round_robin_period = 1;
-  size_t Memory_System::min_heap_MB = On_Tilera ? 256 : 1024; // Fewer GCs on Mac
+  size_t Memory_System::min_heap_MB =  On_iOS ? 32 : On_Tilera ? 256 : 1024; // Fewer GCs on Mac
 
 # define FOR_ALL_HEAPS(rank, mutability) \
   FOR_ALL_RANKS(rank) \
@@ -160,10 +160,12 @@ void Memory_System::level_out_heaps_if_needed() {
       Safepoint_Ability sa(false);
 
       Object* first = biggest->firstAccessibleObject();
-      Object* first_object_to_spread = first;
-      for ( ; 
-           first_object_to_spread  &&  (char*)first_object_to_spread - (char*)first  <  smallest->bytesUsed();  
+      Object* first_object_to_spread;
+      
+      for (first_object_to_spread = first; 
+           first_object_to_spread  &&  ((char*)first_object_to_spread - (char*)first)  <  smallest->bytesUsed();  
            first_object_to_spread = biggest->accessibleObjectAfter(first_object_to_spread)) {}
+      
       if (first_object_to_spread) {
         lprintf("Spreading objects around to prevent GC storms\n"); // by spreading only excess if needed
         The_Squeak_Interpreter()->preGCAction_everywhere(false); // false because caches are oop-based, and we just move objs
@@ -242,9 +244,9 @@ public:
       Object_p obj1 = o1[i].as_object();  oop_int_t* hdr1p = &obj1->baseHeader;  oop_int_t hdr1 = *hdr1p;
       Object_p obj2 = o2[i].as_object();  oop_int_t* hdr2p = &obj2->baseHeader;  oop_int_t hdr2 = *hdr2p;
       if (twoWay) {
-        The_Memory_System()->store_enforcing_coherence(hdr1p, hdr1 & ~Object::HashMask  |  hdr2 & Object::HashMask, obj1);
+        The_Memory_System()->store_enforcing_coherence(hdr1p, (hdr1 & ~Object::HashMask)  |  (hdr2 & Object::HashMask), obj1);
       }
-      The_Memory_System()->store_enforcing_coherence(hdr2p, hdr2 & ~Object::HashMask  |  hdr1 & Object::HashMask, obj2);
+      The_Memory_System()->store_enforcing_coherence(hdr2p, (hdr2 & ~Object::HashMask)  |  (hdr1 & Object::HashMask), obj2);
     }
   }
 
@@ -598,7 +600,7 @@ int Memory_System::calculate_total_read_write_pages(int page_size) {
 }
 
 
-int Memory_System::calculate_bytes_per_read_mostly_heap(int page_size) {
+int Memory_System::calculate_bytes_per_read_mostly_heap(int /* page_size */) {
   int min_bytes_per_core = divide_and_round_up(min_heap_MB * Mega,  Logical_Core::group_size);
   return round_up_to_power_of_two(min_bytes_per_core);
 }
@@ -619,8 +621,8 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
   snapshot_window_size.initialize(sws, fsf);
 
 
-  int total_read_write_memory_size     =  rw_pages *  page_size_used_in_heap;
-  int total_read_mostly_memory_size    =  rm_pages *  page_size_used_in_heap;
+  u_int32 total_read_write_memory_size     =  rw_pages *  page_size_used_in_heap;
+  u_int32 total_read_mostly_memory_size    =  rm_pages *  page_size_used_in_heap;
 
   read_mostly_memory_base = read_write_memory_base = NULL;
 
@@ -975,7 +977,7 @@ bool Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
     move_read_mostly_to_read_write       ? read_write  :
     obj->mutability();
     int dst_rank = spread ?  smallest_heap(dst_mutability)  :   j++ % num_cores  +  first;
-    if (obj->sizeBits() + 2500  >  heaps[dst_rank][dst_mutability]->bytesLeft(false)) {
+    if (u_int32(obj->sizeBits() + 2500)  >  heaps[dst_rank][dst_mutability]->bytesLeft(false)) {
       return false;
     }
     else {
@@ -1022,7 +1024,7 @@ bool Memory_System::moveAllToRead_MostlyHeaps() {
           return false;
         }
 
-        if (obj->sizeBits() + 32 + heaps[dst_rank][read_mostly]->lowSpaceThreshold  >  heaps[dst_rank][read_mostly]->bytesLeft(false))
+        if (u_int32(obj->sizeBits() + 32 + heaps[dst_rank][read_mostly]->lowSpaceThreshold)  >  heaps[dst_rank][read_mostly]->bytesLeft(false))
           continue;
 
         obj->move_to_heap(dst_rank, read_mostly, false);
@@ -1064,7 +1066,7 @@ void Memory_System::save_to_checkpoint(FILE* f) {
 }
 
 
-void Memory_System::restore_from_checkpoint(FILE* f, int dataSize, int lastHash, int savedWindowSize, int fullScreenFlag) {
+void Memory_System::restore_from_checkpoint(FILE* /* f */, int /* dataSize */, int /* lastHash */, int /* savedWindowSize */, int /* fullScreenFlag */) {
 # if true
   assert_always_msg(false, "deactivated checkpointing until threadsafe memory_system is ready for Tilera");
 # else
@@ -1121,7 +1123,7 @@ void Memory_System::invalidate_heaps_and_fence(bool mine_too) {
   OS_Interface::mem_fence();
 }
 
-void Memory_System::enforce_coherence_before_store_into_object_by_interpreter(void* p, int nbytes, Object_p dst_obj_to_be_evacuated) {
+void Memory_System::enforce_coherence_before_store_into_object_by_interpreter(void* p, int /* nbytes */, Object_p dst_obj_to_be_evacuated) {
   // to avoid deadlock caused by asking other cores to invalidate lines in the middle of interpreter and not being able to gc when another core asks me,
   // just move this object to read-write heap afterwards. Don't do enforce_coherence_before_store stuff.
   assert(contains(p));
@@ -1199,11 +1201,11 @@ void Memory_System::print_heaps() {
 
 # define DEF_SEC(T) \
 void Memory_System::store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_evacuated_or_null) { \
-  if (sizeof(T) == bytes_per_oop) DEBUG_STORE_CHECK((oop_int_t*)(p), (oop_int_t)(x)); \
+  if (sizeof(T) == bytes_per_oop) { DEBUG_STORE_CHECK((oop_int_t*)(p), (oop_int_t)(x)); } \
   assert(contains(p)); \
   if (is_address_read_write(p)) { *p = x; return; } \
   assert(!Safepoint_Ability::is_interpreter_able()); \
-  if (*p == x) return ; \
+  if (*p == x) return; \
   pre_cohere(p, sizeof(x));  \
   *p = x;  \
   post_cohere(p, sizeof(x)); \

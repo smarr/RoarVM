@@ -69,7 +69,8 @@ public:
   void set_run_mask_and_request_yield(u_int64);
 
   oop_int_t reclaimableContextCount;
-  bool successFlag;
+  bool  successFlag;
+  int32 primFailCode;
 
 
 # define FOR_ALL_BROADCAST(template) \
@@ -87,7 +88,7 @@ public:
   template(Core_Tracer*,int32,core_tracer, NULL) \
   template(Oop_Tracer*,int32,mutated_read_mostly_object_tracer, NULL) \
   template(Execution_Tracer*,int32,execution_tracer, NULL) \
-  template(Debugging_Tracer*,int32,debugging_tracer, NULL) \
+  template(GC_Debugging_Tracer*,int32,debugging_tracer, NULL) \
   \
   template(bool,bool,am_receiving_objects_from_snapshot, true) \
   \
@@ -233,17 +234,12 @@ public:
 
   u_char  prevBytecode; // interp version is out of order
   int     _argumentCount;
-  int     get_argumentCount() { return _argumentCount; }
+  int     get_argumentCount() const { return _argumentCount; }
   void    set_argumentCount(int x) { _argumentCount = x; } // for debugging, easy point to catch changes -- dmu 5/10
 
   fn_t    primitiveFunctionPointer; bool do_primitive_on_main;
 
 
-#pragma mark -
-#pragma mark Statistical Information
-// STEFAN: added those pragmas here for the first time
-//         think it helps with Xcode, and should be applied gradually throughout the whole code
-  
   oop_int_t interruptChecksEveryNms;
 
 
@@ -261,7 +257,6 @@ public:
 
   Performance_Counters perf_counter;
   
-#pragma mark -
   
   int     methodArgumentCount() { return get_argumentCount(); }
   int     methodPrimitiveIndex() { return primitiveIndex; }
@@ -305,7 +300,7 @@ public:
   void pushRemappableOop(Oop x) { remapBuffer[remapBufferCount++] = x; }
   Oop  popRemappableOop()       {return remapBuffer[--remapBufferCount]; }
   void popRemappableOops(int n) { remapBufferCount -= n; assert(remapBufferCount >= 0); }
-
+  Oop  topRemappableOop()       {return remapBuffer[remapBufferCount]; }
 
   void do_all_roots(Oop_Closure* oc);
 
@@ -392,9 +387,10 @@ public:
   void flushObsoleteIndexedPrimitives();
   void flushExternalPrimitiveTable();
 
-  void primitiveFail() { successFlag = false; }
-  bool failed() { return !successFlag; }
-  void success(bool b) { successFlag = successFlag && b; }
+  void inline primitiveFail() { successFlag = false; }
+  void inline primitiveFailFor(int32 reasonCode) { successFlag = false; primFailCode = reasonCode; }
+  bool inline failed() const { return !successFlag; }
+  void inline success(bool b) { successFlag = successFlag && b; }
 
 
   void loadInitialContext();
@@ -1304,6 +1300,7 @@ public:
   void fullDisplayUpdate();
 
   void print_stack_trace(Printer*, Object_p proc = (Object_p)NULL);
+  uint32_t count_stack_depth();
   void print_all_stack_traces(Printer*);
   void print_process_lists(Printer*);
   void print_all_processes_in_scheduler(Printer*, bool);
@@ -1383,8 +1380,6 @@ public:
   void let_one_through();
  public:
 
-#pragma mark -
-#pragma mark Scheduling
   
   void unset_running_process();
   bool process_is_scheduled_and_executing();
@@ -1403,7 +1398,6 @@ public:
   void try_to_find_a_process_to_run_and_start_running_it();
   void minimize_scheduler_mutex_load_by_spinning_till_there_might_be_a_runnable_process();
 
-#pragma mark -
   
   void give_up_CPU_instead_of_spinning(uint32_t&);
   void fixup_localIP_after_being_transferred_to();
@@ -1521,7 +1515,7 @@ public:
   }
   static int ioCPUMSecs();
     
-  static int getNextEvent_any_platform(void*);
+  bool getNextEvent_any_platform(void*);
 };
 
 

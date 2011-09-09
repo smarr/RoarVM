@@ -41,6 +41,16 @@ struct Preheader {
     extra_preheader_word = (0 << Tag_Size) | Int_Tag;
 # endif
   }
+  
+  void mark_all_preheader_words_free_for_debugging() {
+    if (check_assertions) {
+      backpointer = 0xe0e0e0e0 /* Oop::Illegals::free_extra_preheader_words, not used because of include dependencies */;
+      
+      # if Extra_Preheader_Word_Experiment
+      extra_preheader_word = 0xe0e0e0e0 /* Oop::Illegals::free_extra_preheader_words, not used because of include dependencies */;
+      # endif
+    }
+  }
 };
 
 static const int backpointer_oop_size = 1;

@@ -21,7 +21,7 @@ void Oop::print(Printer* p) {
   else
     as_object()->print(p);
 }
-void Oop::print_briefly(Printer* p) {
+void Oop::print_briefly(Printer* /* p */) {
   unimplemented();
 }
 void Oop::print_process_or_nil(Printer* p) {

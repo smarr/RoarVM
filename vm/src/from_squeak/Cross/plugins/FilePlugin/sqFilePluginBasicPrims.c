@@ -1,10 +1,10 @@
 /****************************************************************************
 *   PROJECT: File Interface
 *   FILE:    sqFilePluginBasicPrims.c
-*   CONTENT:
+*   CONTENT: 
 *
-*   AUTHOR:
-*   ADDRESS:
+*   AUTHOR:  
+*   ADDRESS: 
 *   EMAIL:   ]
 *   RCSID:   $Id: sqFilePluginBasicPrims.c 1283 2005-12-31 00:51:12Z rowledge $
 *
@@ -27,6 +27,7 @@
 * and thus bypasses this file
 */
 
+#include <errno.h>
 #include "sq.h"
 #ifndef NO_STD_FILE_SUPPORT
 #include "FilePlugin.h"
@@ -52,11 +53,13 @@
 	positioning operation to be done automatically if needed.
 
 	typedef struct {
-		File	*file;
 		int		sessionID;
-		int		writable;
+		File	*file;
 		squeakFileOffsetType		fileSize;  //JMM Nov 8th 2001 64bits we hope
-		int		lastOp;  // 0 = uncommitted, 1 = read, 2 = write //
+		char	writable;
+		char	lastOp;  		// 0 = uncommitted, 1 = read, 2 = write //
+		char	lastChar;		// one character peek for stdin //
+		char	isStdioStream;
 	} SQFile;
 
 ***/
@@ -76,20 +79,32 @@
 int thisSession = 0;
 extern struct VirtualMachine * interpreterProxy;
 
+/* Since SQFile instaces are held on the heap in 32-bit-aligned byte arrays we
+ * may need to use memcpy to avoid alignment faults.
+ */
+#if DOUBLE_WORD_ALIGNMENT
 static void setFile(SQFile *f, FILE *file)
 {
   void *in= (void *)&file;
   void *out= (void *)&f->file;
   memcpy(out, in, sizeof(FILE *));
 }
+#else
+# define setFile(f,fileptr) ((f)->file = (fileptr))
+#endif
 
+#if DOUBLE_WORD_ALIGNMENT
 static void setSize(SQFile *f, squeakFileOffsetType size)
 {
   void *in= (void *)&size;
   void *out= (void *)&f->fileSize;
   memcpy(out, in, sizeof(squeakFileOffsetType));
 }
+#else
+# define setSize(f,size) ((f)->fileSize = (size))
+#endif
 
+#if DOUBLE_WORD_ALIGNMENT
 static FILE *getFile(SQFile *f)
 {
   FILE *file;
@@ -98,7 +113,11 @@ static FILE *getFile(SQFile *f)
   memcpy(out, in, sizeof(FILE *));
   return file;
 }
+#else
+# define getFile(f) ((FILE *)((f)->file))
+#endif
 
+#if DOUBLE_WORD_ALIGNMENT
 static squeakFileOffsetType getSize(SQFile *f)
 {
   squeakFileOffsetType size;
@@ -107,25 +126,43 @@ static squeakFileOffsetType getSize(SQFile *f)
   memcpy(out, in, sizeof(squeakFileOffsetType));
   return size;
 }
+#else
+# define getSize(f) ((f)->fileSize)
+#endif
 
+#if 0
+# define pentry(func) do { int fn = fileno(getFile(f)); if (f->isStdioStream) printf("\n"#func "(%s) %lld %d\n", fn == 0 ? "in" : fn == 1 ? "out" : "err", (long long)ftell(getFile(f)), f->lastChar); } while (0)
+# define pexit(expr) (f->isStdioStream && printf("\n\t^"#expr " %lld %d\n", (long long)(sqFileValid(f) ? ftell(getFile(f)) : -1), f->lastChar)), expr
+# define pfail() printf("\tFAIL\n");
+#else
+# define pentry(func) 0
+# define pexit(expr) expr
+# define pfail() 0
+#endif
 
 sqInt sqFileAtEnd(SQFile *f) {
 	/* Return true if the file's read/write head is at the end of the file. */
 
-	if (!sqFileValid(f)) return interpreterProxy->success(false);
+	if (!sqFileValid(f))
+		return interpreterProxy->success(false);
+	pentry(sqFileAtEnd);
+	if (f->isStdioStream)
+		return pexit(feof(getFile(f)));
 	return ftell(getFile(f)) == getSize(f);
 }
 
 sqInt sqFileClose(SQFile *f) {
 	/* Close the given file. */
 
-	if (!sqFileValid(f)) return interpreterProxy->success(false);
+	if (!sqFileValid(f))
+		return interpreterProxy->success(false);
 	fclose(getFile(f));
 	setFile(f, 0);
 	f->sessionID = 0;
 	f->writable = false;
 	setSize(f, 0);
 	f->lastOp = UNCOMMITTED;
+	return 1;
 }
 
 sqInt sqFileDeleteNameSize(char* sqFileName, sqInt sqFileNameSize) {
@@ -143,6 +180,7 @@ sqInt sqFileDeleteNameSize(char* sqFileName, sqInt sqFileNameSize) {
 	if (err) {
 		return interpreterProxy->success(false);
 	}
+	return 1;
 }
 
 squeakFileOffsetType sqFileGetPosition(SQFile *f) {
@@ -150,9 +188,15 @@ squeakFileOffsetType sqFileGetPosition(SQFile *f) {
 
 	squeakFileOffsetType position;
 
-	if (!sqFileValid(f)) return interpreterProxy->success(false);
+	if (!sqFileValid(f))
+		return interpreterProxy->success(false);
+	pentry(sqFileGetPosition);
+	if (f->isStdioStream
+	 && !f->writable)
+		return pexit(f->lastChar == EOF ? 0 : 1);
 	position = ftell(getFile(f));
-	if (position == -1) return interpreterProxy->success(false);
+	if (position == -1)
+		return interpreterProxy->success(false);
 	return position;
 }
 
@@ -184,7 +228,8 @@ sqInt sqFileOpen(SQFile *f, char* sqFileName, sqInt sqFileNameSize, sqInt writeF
 	char cFileName[1001];
 
 	/* don't open an already open file */
-	if (sqFileValid(f)) return interpreterProxy->success(false);
+	if (sqFileValid(f))
+		return interpreterProxy->success(false);
 
 	/* copy the file name into a null-terminated C string */
 	if (sqFileNameSize > 1000) {
@@ -203,8 +248,8 @@ sqInt sqFileOpen(SQFile *f, char* sqFileName, sqInt sqFileNameSize, sqInt writeF
 			if (getFile(f) != NULL) {
 			    char type[4],creator[4];
 				dir_GetMacFileTypeAndCreator(sqFileName, sqFileNameSize, type, creator);
-				if (strncmp(type,"BINA",4) == 0 || strncmp(type,"????",4) == 0 || *(int *)type == 0 )
-				    dir_SetMacFileTypeAndCreator(sqFileName, sqFileNameSize,"TEXT","R*ch");
+				if (strncmp(type,"BINA",4) == 0 || strncmp(type,"????",4) == 0 || *(int *)type == 0 ) 
+				    dir_SetMacFileTypeAndCreator(sqFileName, sqFileNameSize,"TEXT","R*ch");	
 			}
 		}
 		f->writable = true;
@@ -226,6 +271,50 @@ sqInt sqFileOpen(SQFile *f, char* sqFileName, sqInt sqFileNameSize, sqInt writeF
 		fseek(file, 0, SEEK_SET);
 	}
 	f->lastOp = UNCOMMITTED;
+	return 1;
+}
+
+/*
+ * Fill-in files with handles for stdin, stdout and stderr as available and
+ * answer a bit-mask of the availability, 1 corresponding to stdin, 2 to stdout
+ * and 4 to stderr, with 0 on error or unavailablity.
+ */
+sqInt
+sqFileStdioHandlesInto(SQFile files[3])
+{
+#if defined(_IONBF) && 0
+	if (isatty(fileno(stdin)))
+# if 0
+		setvbuf(stdin,0,_IONBF,1);
+# else
+		setvbuf(stdin,0,_IOFBF,0);
+# endif
+#endif
+	files[0].sessionID = thisSession;
+	files[0].file = stdin;
+	files[0].fileSize = 0;
+	files[0].writable = false;
+	files[0].lastOp = READ_OP;
+	files[0].isStdioStream = true;
+	files[0].lastChar = EOF;
+
+	files[1].sessionID = thisSession;
+	files[1].file = stdout;
+	files[1].fileSize = 0;
+	files[1].writable = true;
+	files[1].isStdioStream = true;
+	files[1].lastChar = EOF;
+	files[1].lastOp = WRITE_OP;
+
+	files[2].sessionID = thisSession;
+	files[2].file = stderr;
+	files[2].fileSize = 0;
+	files[2].writable = true;
+	files[2].isStdioStream = true;
+	files[2].lastChar = EOF;
+	files[2].lastOp = WRITE_OP;
+
+	return 7;
 }
 
 size_t sqFileReadIntoAt(SQFile *f, size_t count, char* byteArrayIndex, size_t startIndex) {
@@ -239,14 +328,47 @@ size_t sqFileReadIntoAt(SQFile *f, size_t count, char* byteArrayIndex, size_t st
 	char *dst;
 	size_t bytesRead;
 	FILE *file;
+#if COGMTVM
+	sqInt myThreadIndex;
+#endif
 
-	if (!sqFileValid(f)) return interpreterProxy->success(false);
-	file= getFile(f);
-	if (f->writable && (f->lastOp == WRITE_OP)) fseek(file, 0, SEEK_CUR);  /* seek between writing and reading */
+	if (!sqFileValid(f))
+		return interpreterProxy->success(false);
+	pentry(sqFileReadIntoAt);
+	file = getFile(f);
+	if (f->writable) {
+		if (f->isStdioStream)
+			return interpreterProxy->success(false);
+		if (f->lastOp == WRITE_OP)
+			fseek(file, 0, SEEK_CUR);  /* seek between writing and reading */
+	}
 	dst = byteArrayIndex + startIndex;
-	bytesRead = fread(dst, 1, count, file);
+#if COGMTVM
+	if (f->isStdioStream) {
+		if (interpreterProxy->isInMemory((sqInt)f)
+		 && interpreterProxy->isYoung((sqInt)f)
+		 || interpreterProxy->isInMemory((sqInt)dst)
+		 && interpreterProxy->isYoung((sqInt)dst)) {
+			interpreterProxy->primitiveFailFor(PrimErrObjectMayMove);
+			return 0;
+		}
+		myThreadIndex = interpreterProxy->disownVM(DisownVMLockOutFullGC);
+	}
+#endif
+	do {
+		clearerr(file);
+		bytesRead = fread(dst, 1, count, file);
+	} while (bytesRead <= 0 && ferror(file) && errno == EINTR);
+#if COGMTVM
+	if (f->isStdioStream)
+		interpreterProxy->ownVM(myThreadIndex);
+#endif
+	/* support for skipping back 1 character for stdio streams */
+	if (f->isStdioStream)
+		if (bytesRead > 0)
+			f->lastChar = dst[bytesRead-1];
 	f->lastOp = READ_OP;
-	return bytesRead;
+	return pexit(bytesRead);
 }
 
 sqInt sqFileRenameOldSizeNewSize(char* oldNameIndex, sqInt oldNameSize, char* newNameIndex, sqInt newNameSize) {
@@ -266,38 +388,61 @@ sqInt sqFileRenameOldSizeNewSize(char* oldNameIndex, sqInt oldNameSize, char* ne
 	if (err) {
 		return interpreterProxy->success(false);
 	}
+	return 1;
 }
 
 sqInt sqFileSetPosition(SQFile *f, squeakFileOffsetType position) {
 	/* Set the file's read/write head to the given position. */
 
-	if (!sqFileValid(f)) return interpreterProxy->success(false);
+	if (!sqFileValid(f))
+		return interpreterProxy->success(false);
+	if (f->isStdioStream) {
+		pentry(sqFileSetPosition);
+		/* support one character of pushback for stdio streams. */
+		if (!f->writable
+		 && f->lastChar != EOF) {
+			squeakFileOffsetType currentPos = f->lastChar == EOF ? 0 : 1;
+			if (currentPos == position)
+				return pexit(1);
+			if (currentPos - 1 == position) {
+				ungetc(f->lastChar, getFile(f));
+				f->lastChar = EOF;
+				return pexit(1);
+			}
+		}
+		pfail();
+		return interpreterProxy->success(false);
+	}
 	fseek(getFile(f), position, SEEK_SET);
 	f->lastOp = UNCOMMITTED;
+	return 1;
 }
 
 squeakFileOffsetType sqFileSize(SQFile *f) {
 	/* Return the length of the given file. */
 
-	if (!sqFileValid(f)) return interpreterProxy->success(false);
+	if (!sqFileValid(f))
+		return interpreterProxy->success(false);
+	if (f->isStdioStream)
+		return interpreterProxy->success(false);
 	return getSize(f);
 }
 
 sqInt sqFileFlush(SQFile *f) {
-	/* Return the length of the given file. */
 
-	if (!sqFileValid(f)) return interpreterProxy->success(false);
+	if (!sqFileValid(f))
+		return interpreterProxy->success(false);
+	pentry(sqFileFlush);
 	fflush(getFile(f));
 	return 1;
 }
 
 sqInt sqFileTruncate(SQFile *f,squeakFileOffsetType offset) {
-	/* Truncate the file*/
 
-	if (!sqFileValid(f)) return interpreterProxy->success(false);
- 	if (sqFTruncate(getFile(f), offset)) {
-            return interpreterProxy->success(false);
-        }
+	if (!sqFileValid(f))
+		return interpreterProxy->success(false);
+ 	if (sqFTruncate(getFile(f), offset))
+		return interpreterProxy->success(false);
 	setSize(f, ftell(getFile(f)));
 	return 1;
 }
@@ -321,8 +466,10 @@ size_t sqFileWriteFromAt(SQFile *f, size_t count, char* byteArrayIndex, size_t s
 	squeakFileOffsetType position;
 	FILE *file;
 
-	if (!(sqFileValid(f) && f->writable)) return interpreterProxy->success(false);
-	file= getFile(f);
+	if (!(sqFileValid(f) && f->writable))
+		return interpreterProxy->success(false);
+	pentry(sqFileWriteFromAt);
+	file = getFile(f);
 	if (f->lastOp == READ_OP) fseek(file, 0, SEEK_CUR);  /* seek between reading and writing */
 	src = byteArrayIndex + startIndex;
 	bytesWritten = fwrite(src, 1, count, file);
@@ -336,12 +483,10 @@ size_t sqFileWriteFromAt(SQFile *f, size_t count, char* byteArrayIndex, size_t s
 		interpreterProxy->success(false);
 	}
 	f->lastOp = WRITE_OP;
-	return bytesWritten;
+	return pexit(bytesWritten);
 }
 
 sqInt sqFileThisSession() {
 	return thisSession;
 }
-
 #endif /* NO_STD_FILE_SUPPORT */
-

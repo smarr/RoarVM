@@ -17,9 +17,9 @@ extern "C" { void rvm_exit(); }
 class Abstract_OS_Interface {
 public:
   
-  static inline void abort() { fatal(); }
-  static inline void die(const char* err_msg) { fatal(); }
-  static inline void exit()  { fatal(); }
+  static inline void abort()                         __attribute__((noreturn)) { ::exit(255); }
+  static inline void die(const char* /* err_msg */)  __attribute__((noreturn)) { ::exit(255); }
+  static inline void exit()                          __attribute__((noreturn)) { ::exit(255); }
   static inline void breakpoint() {}
   
   static inline void initialize() {}
@@ -47,7 +47,7 @@ public:
    * Atomically compare the memory location with the old value, and 
    * if they are equal set the new value and return true, false otherwise.
    */
-  static inline bool atomic_compare_and_swap(int* ptr, int old_value, int new_value) { fatal(); return false; }
+  static inline bool atomic_compare_and_swap(int* /* ptr */, int /* old_value */, int /* new_value */) { fatal(); return false; }
   
   /**
    * Atomically compare the memory location with the old value, and 
@@ -55,22 +55,22 @@ public:
    * 
    * Returns the initial value at ptr.
    */
-  static inline int atomic_compare_and_swap_val(int* ptr, int old_value, int new_value) { fatal(); return *ptr; }
+  static inline int atomic_compare_and_swap_val(int* ptr, int /* old_value */, int /* new_value */) { fatal(); return *ptr; }
   
-  static inline uint32_t leading_zeros(uint32_t x)    { fatal(); return 0; }
-  static inline uint32_t population_count(uint32_t x) { fatal(); return 0; }
+  static inline uint32_t leading_zeros   (uint32_t /* x */) { fatal(); return 0; }
+  static inline uint32_t population_count(uint32_t /* x */) { fatal(); return 0; }
   
   struct OS_Heap {};
   
-  static inline void* rvm_malloc_shared(uint32_t sz) { fatal(); return NULL; }
-  static inline void* rvm_calloc_shared(uint32_t num_members, uint32_t mem_size)  { fatal(); return NULL; }
-  static inline void* rvm_memalign(OS_Heap, int al, int sz) { fatal(); return NULL; }
-  static inline void* rvm_memalign(int al, int sz) { fatal(); return NULL; }
-  static inline void* malloc_in_mem(int /* alignment */, int /* size */) { fatal(); return NULL; }
-  static inline void  invalidate_mem(void*, size_t) {}
-  static inline void  mem_flush(void* ptr, size_t size) {}
-  static inline void  mem_fence() { fatal(); }
-  static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool replicate) { fatal(); return 0; }
+  static inline void* rvm_malloc_shared(uint32_t /* sz */)                                    { fatal(); return NULL; }
+  static inline void* rvm_calloc_shared(uint32_t /* num_members */, uint32_t /* mem_size */)  { fatal(); return NULL; }
+  static inline void* rvm_memalign(OS_Heap, int /* al */, int /* sz */)                       { fatal(); return NULL; }
+  static inline void* rvm_memalign(int /* al */, int /* sz */)                                { fatal(); return NULL; }
+  static inline void* malloc_in_mem(int /* alignment */, int /* size */)                      { fatal(); return NULL; }
+  static inline void  invalidate_mem(void*, size_t)                                           {}
+  static inline void  mem_flush(void* /* ptr */, size_t /* size */)                           {}
+  static inline void  mem_fence()                                                             { fatal(); }
+  static inline int   mem_create_heap_if_on_Tilera(OS_Heap* /* heap */, bool /* replicate */) { fatal(); return 0; }
   
   /* To enable the RVM to use more than one core, one of the following functions
      has to be implemented.

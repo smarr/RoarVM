@@ -181,7 +181,7 @@ void Execution_Tracer::print_entries(Oop ents, Printer* p) {
       case k_aux: {
         int rank         = eo->fetchPointer(i * e_N  +  e_rank).integerValue();
         int aux1         = eo->fetchPointer(i * e_N  +  e_aux1).integerValue();
-        int aux2         = eo->fetchPointer(i * e_N  +  e_aux2).integerValue();
+        //int aux2         = eo->fetchPointer(i * e_N  +  e_aux2).integerValue();
         int id           = eo->fetchPointer(i * e_N  +  e_id  ).integerValue();
         // p->printf("on %d: aux1 0x%x aux2 0x%x id %d", rank, aux1, aux2, id);
         p->printf("on %d: aux1 %s id %d", rank, aux1, id);

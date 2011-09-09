@@ -26,6 +26,6 @@ int Logical_Core::remaining  = -1;
 void Logical_Core::initialize_all_cores() {
   logical_cores = new Logical_Core[num_cores];
 
-  for (size_t i = 0;  i < num_cores;  ++i)
+  for (size_t i = 0;  i < size_t(num_cores);  ++i)
     logical_cores[i].initialize(i);
 }

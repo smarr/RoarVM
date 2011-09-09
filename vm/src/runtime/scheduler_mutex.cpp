@@ -22,7 +22,7 @@ bool Scheduler_Mutex_Actions::is_held() {
   return get_mutex()->is_held();
 }
 
-void Scheduler_Mutex_Actions::acquire_action(const char* why) {
+void Scheduler_Mutex_Actions::acquire_action(const char* /* why */) {
   OS_Mutex_Interface* mutex = get_mutex();
 
   // spin and receive to avoid deadlock; other core may be trying to send US something

@@ -17,7 +17,7 @@
 
 char* ioListExternalModule(int) {  unimpExt(); return NULL; }
 
-int setCompilerInitialized(int flagValue) {unimpExt(); return 0; }
+int setCompilerInitialized(int /* flagValue */) { unimpExt(); return 0; }
 
 int (*compilerHooks[])() = {NULL};
 
@@ -70,8 +70,8 @@ void* dummy_fn(...) {unimplemented(); return 0;}
 int ioGetNextEvent(void*) { unimpExt(); }
 
 # if !On_iOS
-int ioGetButtonState() {unimpExt(); return 0; }
-int32 ioMousePoint() {unimpExt(); return 0;}
+  int ioGetButtonState() {unimpExt(); return 0; }
+  int32 ioMousePoint() {unimpExt(); return 0;}
   int ioSetDisplayMode(int, int, int, int) {unimpExt();  return true;}
 # endif
 

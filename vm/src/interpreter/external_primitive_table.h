@@ -26,7 +26,7 @@ public:
     for (int i = 0;  i < size;  ++i)
       if (contents[i] == NULL) {
         // Entry is empty, lets try to set it
-        if (OS_Interface::atomic_compare_and_swap((int*)&contents[i], NULL, (int)addr)) {
+        if (OS_Interface::atomic_compare_and_swap((int*)&contents[i], (int)NULL, (int)addr)) {
           execute_on_main[i] = on_main;
           return i + 1;
         }

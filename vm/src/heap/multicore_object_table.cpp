@@ -67,7 +67,7 @@ Multicore_Object_Table::Segment::Segment(Multicore_Object_Table* mot, int rank  
   }
 }
 
-void* Multicore_Object_Table::Segment::operator new(size_t s) {
+void* Multicore_Object_Table::Segment::operator new(size_t /* s */) {
   void* p = OS_Interface::rvm_memalign(The_Memory_System()->object_table->heap, alignment_and_size, sizeof(Segment));
   assert(sizeof(Segment) <= alignment_and_size);
   if (p == NULL) fatal("OT Segment allocation");

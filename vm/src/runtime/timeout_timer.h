@@ -88,8 +88,8 @@ public:
   void restart();
   bool is_running() { return start_time != never; }
   bool has_timed_out() { return is_running()  &&  elapsed_cycles()  >  timeout_cycles; }
-  u_int64 elapsed_cycles() { return OS_Interface::get_cycle_count() - start_time; }
-  int elapsed_seconds() { return elapsed_cycles() / cycles_per_sec; }
+  u_int64 elapsed_cycles()  { return OS_Interface::get_cycle_count() - start_time; }
+  u_int64 elapsed_seconds() { return elapsed_cycles() / cycles_per_sec; }
   static void check_all();
   static void restart_all();
 

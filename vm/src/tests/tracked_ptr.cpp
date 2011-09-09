@@ -579,8 +579,8 @@ public:
   InvalidationDuringCall() : testField1(true), testField2(true) {}
   
   void someMethodChangingFields() {
-    testField1 = not testField1 or testField2;
-    this->testField2 = not this->testField2;
+    testField1 = !testField1 or testField2;
+    this->testField2 = !this->testField2;
   }
   
   void somethingComplexWhichWillProvokeInvalidationInTheMiddle() {

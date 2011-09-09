@@ -16,35 +16,35 @@ class Abstract_Object_Table {
  public:
   Abstract_Object_Table() {}
 
-  Oop allocate_OTE_for_object_in_snapshot(Object*) { return Oop::from_bits(fatal()); }
-  int rank_for_adding_object_from_snapshot(Oop) { fatal(); return -1; }
+  Oop allocate_OTE_for_object_in_snapshot(Object*)  { fatal(); return Oop::from_bits(0); }
+  int rank_for_adding_object_from_snapshot(Oop)     { fatal(); return -1; }
 
-  Oop allocate_oop_and_set_backpointer(Object*, int COMMA_DCL_ESB) { return Oop::from_bits(fatal()); }
-  Oop allocate_oop_and_set_preheader(Object* obj, int  COMMA_DCL_ESB) { return Oop::from_bits(fatal()); }
+  Oop allocate_oop_and_set_backpointer(Object*, int           COMMA_DCL_ESB) { fatal(); return Oop::from_bits(0); }
+  Oop allocate_oop_and_set_preheader(Object* /* obj */, int   COMMA_DCL_ESB) { fatal(); return Oop::from_bits(0); }
 
   void prepare_for_objects(int /* about_how_many */) { }
 
-  void save_baseHeader(Oop, Object*) { fatal(); }
+  void save_baseHeader(Oop, Object*)    { fatal(); }
   void restore_baseHeader(Oop, Object*) { fatal(); }
 
-  Object* local_object_for(Oop) { return (Object*)fatal(); }
+  Object* local_object_for(Oop) { fatal(); return NULL; }
   void set_local_object_for(Oop, Object*) { fatal(); }
 
-  bool is_local_copy_in_use(Oop) { return fatal(); }
+  bool is_local_copy_in_use(Oop) { fatal(); return false; }
 
-  Object* global_object_for(Oop) { return (Object*)fatal(); }
-  Object* global_object_for_unchecked(Oop) { return (Object*)fatal(); }
+  Object* global_object_for(Oop) { fatal(); return NULL; }
+  Object* global_object_for_unchecked(Oop) { fatal(); return NULL; }
   void set_global_object_for(Oop, Object*, bool /* do_check = true */ ) { fatal(); }
 
-  Object* object_for(Oop) { return (Object*)fatal(); }
-  Object* object_for_unchecked(Oop) { return (Object*)fatal(); }
+  Object* object_for(Oop) { fatal(); return NULL; }
+  Object* object_for_unchecked(Oop) { fatal(); return NULL; }
   void set_object_for(Oop, Object_p, bool /* do_check = true */ ) { fatal(); }
 
-  bool spare_bit_for(Oop)  { return fatal(); }
+  bool spare_bit_for(Oop)  { fatal(); return false; }
   void set_spare_bit_for(Oop, bool /* dont */ )  { fatal(); }
 
   void save_to_checkpoint(FILE*) { fatal(); }
-  static bool restore_from_checkpoint(FILE*) { return fatal(); }
+  static bool restore_from_checkpoint(FILE*) { fatal(); return false; }
 
 
 
@@ -54,13 +54,13 @@ class Abstract_Object_Table {
 
   void free_oop(Oop) { fatal(); }
 
-  bool verify() { return fatal(); }
-  bool verify_no_local_objects() { return fatal(); }
-  bool verify_after_mark() { return fatal(); }
+  bool verify() { fatal(); return false; }
+  bool verify_no_local_objects() { fatal(); return false; }
+  bool verify_after_mark() { fatal(); return false; }
 
-  bool probably_contains(void*) const { return fatal(); }
+  bool probably_contains(void*) const { fatal(); return false; }
 
-  Oop get_stats(int) { return Oop::from_bits(fatal()); }
+  Oop get_stats(int) { fatal(); return Oop::from_bits(0); }
 
   void print() { fatal(); }
 

@@ -1,6 +1,7 @@
 #ifndef __sqUnixMain_h
 #define __sqUnixMain_h
 
+extern char   imageName[];
 extern char   shortImageName[];
 extern int    inputEventSemaIndex;
 extern char   vmPath[];

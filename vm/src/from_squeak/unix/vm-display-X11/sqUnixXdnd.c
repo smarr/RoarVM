@@ -1,58 +1,49 @@
 /* sqUnixXdnd.c -- drag-and-drop for the X Window System.	-*- C -*-
- *
- *   Copyright (C) 1996-2004 by Ian Piumarta and other authors/contributors
+ * 
+ *   Copyright (C) 1996-2007 by Ian Piumarta and other authors/contributors
  *                              listed elsewhere in this file.
  *   All rights reserved.
- *
+ *   
  *   This file is part of Unix Squeak.
- *
- *      You are NOT ALLOWED to distribute modified versions of this file
- *      under its original name.  If you modify this file then you MUST
- *      rename it before making your modifications available publicly.
- *
- *   This file is distributed in the hope that it will be useful, but WITHOUT
- *   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- *   FITNESS FOR A PARTICULAR PURPOSE.
- *
- *   You may use and/or distribute this file ONLY as part of Squeak, under
- *   the terms of the Squeak License as described in `LICENSE' in the base of
- *   this distribution, subject to the following additional restrictions:
- *
- *   1. The origin of this software must not be misrepresented; you must not
- *      claim that you wrote the original software.  If you use this software
- *      in a product, an acknowledgment to the original author(s) (and any
- *      other contributors mentioned herein) in the product documentation
- *      would be appreciated but is not required.
- *
- *   2. You must not distribute (or make publicly available by any
- *      means) a modified copy of this file unless you first rename it.
- *
- *   3. This notice must not be removed or altered in any source distribution.
- *
- *   Using (or modifying this file for use) in any context other than Squeak
- *   changes these copyright conditions.  Read the file `COPYING' in the
- *   directory `platforms/unix/doc' before proceeding with any such use.
+ * 
+ *   Permission is hereby granted, free of charge, to any person obtaining a copy
+ *   of this software and associated documentation files (the "Software"), to deal
+ *   in the Software without restriction, including without limitation the rights
+ *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *   copies of the Software, and to permit persons to whom the Software is
+ *   furnished to do so, subject to the following conditions:
+ * 
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
+ * 
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *   SOFTWARE.
  */
 
 /* Author: Ian Piumarta <ian.piumarta@inria.fr>
- *
- * Last edited: 2004-04-04 23:06:38 by piumarta on cartman.inria.fr
- *
+ * 
+ * Last edited: 2009-08-19 04:21:30 by piumarta on emilia-2.local
+ * 
  * BUGS
- *
+ * 
  * - This only works with version 3 and higher of the XDND protocol.
  *   No attempt whatsoever is made to check for and deal with earlier
  *   versions.  Since version 3 is at least six years old now, I doubt
  *   this matters much.
- *
+ * 
  * - Some memory could be released between drop operations, but it's
  *   only a few tens of bytes so who cares?
- *
+ * 
  * - Only filenames (MIME type text/uri-list) are handled, although
  *   it would be trivial to extend the code to cope with dropping text
  *   selections into the Squeak clipboard.  I'm simply too lazy to be
  *   bothered.
- *
+ * 
  * - No attempt is made to verify that XDND protocol messages arrive
  *   in the correct order.  (If your WM or file manager is broken, you
  *   get to keep all the shrapnel that will be left behind after
@@ -70,7 +61,9 @@
 #include <X11/Xatom.h>
 
 
-#define DEBUG_XDND	0
+#if !defined(DEBUG_XDND)
+# define DEBUG_XDND	0
+#endif
 
 
 static	Atom	  XdndVersion= (Atom)3;
@@ -91,24 +84,45 @@ static	Atom	  XdndActionPrivate;
 static	Atom	  XdndTypeList;
 static	Atom	  XdndTextUriList;
 static	Atom	  XdndSelectionAtom;
+static	Atom	  XdndSqueakLaunchDrop;
+static	Atom	  XdndSqueakLaunchAck;
 
 static	Window	  xdndSourceWindow= 0;
-static	Atom	 *xdndTypeList= 0;
+static	int	  isUrlList= 0;
 static	int	  xdndWillAccept= 0;
+
+/* To keep backword compatibitily, xdndWillAccept is always 1.
+ * isUrlList is 1 only if the dropped type includes "text/uri-list".
+ * 
+ * case isUrlList == 1: Get url list and send dndFinished immediately.  Then record drag event.
+ * case isUrlList == 0: Record drag event anyway (uxDropFileCount= 0).  The image will get the data and send dndFinished.
+ */
+
+static Atom	 *xdndInTypes= 0;   /* all targets in clipboard */
+
+static Window     xdndOutTarget= None;
+static Atom      *xdndOutTypes= 0;  /* Types offered by source window */
+
+static XSelectionRequestEvent xdndOutRequestEvent; /* RequestEvent from target */
 
 enum XdndState {
   XdndStateIdle,
   XdndStateEntered,
-  XdndStateTracking
+  XdndStateTracking,
+  XdndStateOutTracking,
+  XdndStateOutAccepted
 };
 
-static enum XdndState xdndState= XdndStateIdle;
-
+enum {
+  DndOutStart	= -1,
+  DndInFinished	= -2
+};
 
 #define xdndEnter_sourceWindow(evt)		( (evt)->data.l[0])
 #define xdndEnter_version(evt)			( (evt)->data.l[1] >> 24)
 #define xdndEnter_hasThreeTypes(evt)		(((evt)->data.l[1] & 0x1UL) == 0)
 #define xdndEnter_typeAt(evt, idx)		( (evt)->data.l[2 + (idx)])
+#define xdndEnter_targets(evt)			( (evt)->data.l + 2)
 
 #define xdndPosition_sourceWindow(evt)		((Window)((evt)->data.l[0]))
 #define xdndPosition_rootX(evt)			((evt)->data.l[2] >> 16)
@@ -127,10 +141,14 @@ static enum XdndState xdndState= XdndStateIdle;
 
 
 #if (DEBUG_XDND)
-# define dprintf(ARGS) do { fprintf ARGS; } while (0)
+# define fdebugf(ARGS) do { fprintf ARGS; } while (0)
 #else
-# define dprintf(ARGS) do { } while (0)
+# define fdebugf(ARGS) 0
 #endif
+
+static void updateCursor(int state);
+
+void getMousePosition(void);
 
 
 static void *xmalloc(size_t size)
@@ -181,6 +199,12 @@ static int hexValue(const int c)
 }
 
 
+/* e.g. StandardFileStream>>requestDropStream: doesn't deal with file: URIs.
+ * Neither does unix/plugins/DropPlugin/sqUnixDragDrop.c::dropRequestFileHandle.
+ * Simplest thing is to convert file: URIs to file names at source.
+ */
+#define USE_FILE_URIs 0
+#if !USE_FILE_URIs
 static char *uri2string(const char *uri)
 {
   size_t len= strlen(uri);
@@ -189,7 +213,9 @@ static char *uri2string(const char *uri)
   if (!strncmp(uri, "file:", 5))
     {
       char *in= string, *out= string;
-      strncpy(string, uri + 5, len);
+      strncpy(string, /* chop file:///absolute/path to /absolute/path */
+	      uri + (uri[5] == '/' && uri[6] == '/' && uri[7] == '/' ? 7 : 5),
+	      len);
       while (*in)
 	if ((in[0] == '%') && isxdigit(in[1]) && isxdigit(in[2]))
 	  {
@@ -202,37 +228,331 @@ static char *uri2string(const char *uri)
     }
   else
     {
-      strncpy(string, uri, len);
+      strncpy(string, uri, len+1);
     }
-  dprintf((stderr, "uri2string: <%s>\n", string));
+  fdebugf((stderr, "  uri2string: <%s>\n", string));
   return string;
+}
+#endif /* !USE_FILE_URIs */
+
+
+/*** Handle DnD Output ***/
+
+
+#define DndWindow stParent
+
+/* Answer dndAware window under the cursor, or None if not found.
+ */
+static Window dndAwareWindow(Window root, Window child, int *versionReturn)
+{
+  Atom actualType;
+  int actualFormat;
+  unsigned long nitems, bytesAfter;
+  unsigned char *data;
+  Window rootReturn, childReturn;
+  int rootX, rootY, winX, winY;
+  unsigned int mask;
+
+  if (None == child) return None;
+  XGetWindowProperty(stDisplay, child, XdndAware,
+		     0, 0x8000000L, False, XA_ATOM,
+		     &actualType, &actualFormat, &nitems,
+		     &bytesAfter, &data);
+  if (nitems > 0)
+    {
+      *versionReturn= (int)*data;
+      return child;
+    }
+  
+  XQueryPointer(stDisplay, child, &rootReturn, &childReturn, &rootX, &rootY, &winX, &winY, &mask);
+
+  if (childReturn == None) return None;
+
+  return dndAwareWindow(root, childReturn, versionReturn);
+}
+
+
+/* Send ClientMessage to drop target.
+ *
+ * long data[5] : event specific data
+ * Window source : source window (stParent)
+ * Window target : target window
+ * char * type : event type name
+ */
+static void sendClientMessage(long *data, Window source, Window target, Atom type)
+{
+  XEvent e;
+  XClientMessageEvent *evt= &e.xclient;
+  if (None == target) return;
+  evt->type= ClientMessage;
+  evt->serial= 0;
+  evt->send_event= 0;
+  evt->display= stDisplay;
+  evt->window= target;
+  evt->message_type= type;
+  evt->format= 32;
+  evt->data.l[0]= source;
+  evt->data.l[1]= data[1];
+  evt->data.l[2]= data[2];
+  evt->data.l[3]= data[3];
+  evt->data.l[4]= data[4];
+  XSendEvent(stDisplay, target, 0, 0, &e);
+/*fdebugf((stderr, "Send %s to: 0x%lx\n", type, target));*/
+}
+
+static void sendEnter(Window target, Window source)
+{
+  long data[5]= { 0, 0, 0, 0, 0 };
+  data[1] |= 0x0UL; /* just three data types */
+  data[1] |= XdndVersion << 24; /* version num */
+
+  if (0 != xdndOutTypes)
+    {
+      data[2]= xdndOutTypes[0];
+      if (None != xdndOutTypes[1])
+	{
+	  data[3]= xdndOutTypes[1];
+	  if (None != xdndOutTypes[2])
+	    {
+	      data[4]= xdndOutTypes[1];
+	    }
+	}
+    }
+  fdebugf((stderr, "Send XdndEnter (output) source: 0x%lx target: 0x%lx\n", source, target));
+  sendClientMessage(data, source, target, XdndEnter);
+}
+
+
+static void sendPosition(Window target, Window source, int rootX, int rootY, Time timestamp)
+{
+  long data[5]= { 0, 0, 0, 0, 0 };
+  data[2]= (rootX << 16) | rootY;
+  data[3]= timestamp;
+  data[4]= XdndActionCopy;
+  sendClientMessage(data, source, target, XdndPosition);
+}
+
+
+static void sendDrop(Window target, Window source, Time timestamp)
+{
+  long data[5]= { 0, 0, 0, 0, 0 };
+  data[2]= timestamp;
+  fdebugf((stderr, "Send XdndDrop (output) source: 0x%lx target: 0x%lx\n", source, target));
+
+  sendClientMessage(data, source, target, XdndDrop);
+}
+
+
+static void sendLeave(Window target, Window source)
+{
+  long data[5]= { 0, 0, 0, 0, 0 };
+  fdebugf((stderr, "Send XdndLeave (output) source: 0x%lx target: 0x%lx\n", source, target));
+  sendClientMessage(data, source, target, XdndLeave);
+}
+
+
+static enum XdndState dndOutInitialize(enum XdndState state)
+{
+  fdebugf((stderr, "Internal signal DndOutStart (output)\n"));
+  memset(&xdndOutRequestEvent, 0, sizeof(xdndOutRequestEvent));
+  XSetSelectionOwner(stDisplay, XdndSelection, DndWindow, CurrentTime);
+  updateCursor(-1);
+  return XdndStateOutTracking;
+}
+
+
+/* Track the current mouse position.
+ */
+static enum XdndState dndOutMotion(enum XdndState state, XMotionEvent *evt)
+{
+  Window currentWindow= None;
+  int versionReturn= 0;
+
+  if ((XdndStateOutTracking != state) && (XdndStateOutAccepted != state)) return state;
+
+  currentWindow= dndAwareWindow(evt->root, evt->root, &versionReturn);
+  if (DndWindow == currentWindow) /* Cursor is on myself */
+    {
+      xdndOutTarget= None;
+      return XdndStateOutTracking;
+    }
+  
+  updateCursor(XdndStateOutAccepted == state);
+
+  if ((XdndVersion > versionReturn)	/* Target's version is too low. */
+      || (None == currentWindow))	/* I can't find XdndAware window. */
+    {
+      xdndOutTarget= None;
+      return XdndStateOutTracking;
+    }
+  
+  fdebugf((stderr, "Receive MotionNotify (output) root: 0x%lx awareWindow: 0x%lx\n", evt->root, currentWindow));
+  if (currentWindow != xdndOutTarget)
+    {
+      sendLeave(xdndOutTarget, DndWindow);
+      sendEnter(currentWindow, DndWindow);
+    }
+
+  sendPosition(currentWindow, DndWindow, evt->x_root, evt->y_root, evt->time);
+  xdndOutTarget= currentWindow;
+
+  return state;
+}
+
+
+/* A status message to know accept or not is received.
+ */
+static enum XdndState dndOutStatus(enum XdndState state, XClientMessageEvent *evt)
+{
+  long *ldata= evt->data.l;
+  fdebugf((stderr, "Receive XdndStatus (output) status: 0x%lx target: 0x%lx\n", ldata[1], ldata[0]));
+
+  if ((XdndStateOutTracking != state) && (XdndStateOutAccepted != state))
+    {
+      /*printf("%i is not expected in XdndStatus\n", state);*/
+      sendLeave(ldata[0], DndWindow);
+      return state;
+    }
+  
+  if (xdndOutTarget != ldata[0]) return state;
+
+  if (ldata[1] && 0x1UL)
+    return XdndStateOutAccepted;
+  else
+    return XdndStateOutTracking;
+}
+
+
+/* The mouse button was released.
+*/
+static enum XdndState dndOutRelease(enum XdndState state, XButtonEvent *evt)
+{
+  if (XdndStateIdle == state) return XdndStateIdle;
+  fdebugf((stderr, "Receive ButtonRelease (output) window: 0x%lx\n", evt->window));
+
+  if (XdndStateOutAccepted == state)
+    {
+      sendDrop(xdndOutTarget, DndWindow, evt->time);
+      return XdndStateOutAccepted;
+    }
+  sendLeave(xdndOutTarget, DndWindow);
+  return XdndStateIdle;
+}
+
+
+/* Another application is requesting the selection.
+*/
+static enum XdndState dndOutSelectionRequest(enum XdndState state, XSelectionRequestEvent *req)
+{
+  fdebugf((stderr, "Receive SelectionRequest for %s (output) owner: 0x%lx : requestor: 0x%lx\n",
+           XGetAtomName(stDisplay, req->target), req->owner, req->requestor));
+  if (XdndStateOutAccepted != state)
+    {
+      /*printf("%i is not expected in SelectionRequest\n", state);*/
+      return state;
+    }
+  memcpy(&xdndOutRequestEvent, req, sizeof(xdndOutRequestEvent));
+  recordDragEvent(DragRequest, 1);
+  return state;
+}
+
+
+/* A finished message is received.
+ */
+static enum XdndState dndOutFinished(enum XdndState state, XClientMessageEvent *evt)
+{
+  fdebugf((stderr, "Receive XdndFinished (output) source: 0x%lx target: 0x%lx\n",
+           DndWindow, xdndFinished_targetWindow(evt)));
+  xdndOutTarget= None;
+  return XdndStateIdle;
+}
+
+
+/* Change cursor
+ * TODO: The cursor should be controlled by the image, so it should be removed finally.
+ *
+ * state = -1 : Cursor is on Squeak window.
+ * state =  0 : Target window doesn't accept.
+ * state =  1 : Target window accepts.
+ */
+static void updateCursor(int state)
+{
+  static int lastCursor= -1;
+
+  if (lastCursor == state) return;
+  fdebugf((stderr, "Cursor change (output) previous: %i new: %i\n", lastCursor, state));
+  if (1 == state)
+    {
+      Cursor cursor;
+      cursor= XCreateFontCursor(stDisplay, 90);
+      XDefineCursor(stDisplay, stWindow, cursor);
+    }
+  else
+    XDefineCursor(stDisplay, stWindow, None);
+  
+  lastCursor= state;
+}
+
+
+static void dndInDestroyTypes(void)
+{
+  if (xdndInTypes == NULL)
+    return;
+  free(xdndInTypes);
+  xdndInTypes= NULL;
+}
+
+
+static void updateInTypes(Atom *newTargets, int targetSize)
+{
+  int i;
+  dndInDestroyTypes();
+  xdndInTypes= (Atom *)calloc(targetSize + 1, sizeof(Atom));
+  for (i= 0;  i < targetSize;  ++i)
+    xdndInTypes[i]= newTargets[i];
+  xdndInTypes[targetSize]= None;
+}
+
+
+/* Answer non-zero if dnd input object is available.
+*/
+static int dndAvailable(void)
+{
+  return useXdnd && xdndInTypes;
+}
+
+
+/* Answer types for dropping object.
+ * types - returned types (it should be copied by client), or NULL if unavailable.
+ * count - number of types.
+ */
+static void dndGetTargets(Atom **types, int *count)
+{
+  int i;
+  *types= 0;
+  *count= 0;
+  if (!xdndInTypes) return;
+  for (i= 0;  None != xdndInTypes[i];  ++i);
+  *count= i;
+  *types= xdndInTypes;
 }
 
 
 static void dndGetTypeList(XClientMessageEvent *evt)
 {
-  if (xdndTypeList)
-    {
-      free(xdndTypeList);
-      xdndTypeList= 0;
-    }
-
   xdndWillAccept= 0;
+  isUrlList= 0;
 
   if (xdndEnter_hasThreeTypes(evt))
     {
-      int i;
-      dprintf((stderr, "  3 types\n"));
-      xdndTypeList= (Atom *)xcalloc(3 + 1, sizeof(Atom));
-      for (i= 0;  i <  3;  ++i)
-	xdndTypeList[i]= xdndEnter_typeAt(evt, i);
-      xdndTypeList[3]= 0;
+      fdebugf((stderr, "  3 types\n"));
+      updateInTypes((Atom *) xdndEnter_targets(evt), 3);
     }
   else
     {
-      Atom type, *atoms;
+      Atom type;
       int format;
-      unsigned long i, count, remaining;
+      unsigned long count, remaining;
       unsigned char *data= 0;
 
       XGetWindowProperty(stDisplay, xdndSourceWindow, XdndTypeList, 0, 0x8000000L, False, XA_ATOM,
@@ -245,29 +565,28 @@ static void dndGetTypeList(XClientMessageEvent *evt)
 	  return;
 	}
 
-      xdndTypeList= (Atom *)xcalloc(count + 1, sizeof(Atom));
-      atoms= (Atom *)data;
-      for (i= 0;  i < count;  ++i)
-	xdndTypeList[i]= atoms[i];
-      xdndTypeList[count]= 0;
+      updateInTypes((Atom *) data, count);
       XFree(data);
-      dprintf((stderr, "  %ld types\n", count));
+      fdebugf((stderr, "  %ld types\n", count));
     }
 
   /* We only accept filenames (MIME type "text/uri-list"). */
   {
     int i;
-    for (i= 0;  xdndTypeList[i];  ++i)
+    for (i= 0;  xdndInTypes[i];  ++i)
       {
-	dprintf((stderr, "  type %d == %ld %s\n", i, xdndTypeList[i], XGetAtomName(stDisplay, xdndTypeList[i])));
-	if (XdndTextUriList == xdndTypeList[i])
-	  xdndWillAccept= 1;
+	fdebugf((stderr, "  type %d == %ld %s\n", i, xdndInTypes[i], XGetAtomName(stDisplay, xdndInTypes[i])));
+	if (XdndTextUriList == xdndInTypes[i])
+	  {
+	    isUrlList= 1;
+	    xdndWillAccept= 1;
+	  }
       }
   }
+  xdndWillAccept= 1;
 }
 
-
-static void dndSendStatus(Window target, int willAccept, Atom action)
+static void dndSendStatus(int willAccept, Atom action)
 {
   XClientMessageEvent evt;
   memset(&evt, 0, sizeof(evt));
@@ -278,22 +597,21 @@ static void dndSendStatus(Window target, int willAccept, Atom action)
   evt.message_type = XdndStatus;
   evt.format	   = 32;
 
-  xdndStatus_targetWindow(&evt)= target;
+  xdndStatus_targetWindow(&evt)= DndWindow;
   xdndStatus_setWillAccept(&evt, willAccept);
   xdndStatus_setWantPosition(&evt, 0);
   xdndStatus_action(&evt)= action;
 
   XSendEvent(stDisplay, xdndSourceWindow, 0, 0, (XEvent *)&evt);
 
-  dprintf((stderr, "sent status to %ld will accept %d data %ld action %ld %s\n",
-	   xdndSourceWindow, willAccept, evt.data.l[1], action, XGetAtomName(stDisplay, action)));
+  /* fdebugf((stderr, "  sent status to 0x%lx willAccept=%d data=%ld action=%s(%ld)\n",
+             xdndSourceWindow, willAccept, evt.data.l[1], XGetAtomName(stDisplay, action), action)); */
 }
 
-
-static void dndSendFinished(Window target)
+static void dndSendFinished(void)
 {
     XClientMessageEvent evt;
-    memset (&evt, 0, sizeof(evt));
+    memset(&evt, 0, sizeof(evt));
 
     evt.type	     = ClientMessage;
     evt.display	     = stDisplay;
@@ -301,105 +619,84 @@ static void dndSendFinished(Window target)
     evt.message_type = XdndFinished;
     evt.format	     = 32;
 
-    xdndFinished_targetWindow(&evt)= target;
-
+    xdndFinished_targetWindow(&evt)= DndWindow;
     XSendEvent(stDisplay, xdndSourceWindow, 0, 0, (XEvent *)&evt);
 
-    dprintf((stderr, "sent finished to %ld\n", xdndSourceWindow));
+    fdebugf((stderr, "dndSendFinished target: 0x%lx source: 0x%lx\n", DndWindow, xdndSourceWindow));
 }
 
 
-static void dndEnter(XClientMessageEvent *evt)
+static enum XdndState dndInEnter(enum XdndState state, XClientMessageEvent *evt)
 {
-  dprintf((stderr, "dndEnter\n"));
+  fdebugf((stderr, "Receive XdndEnter (input)\n"));
   if (xdndEnter_version(evt) < 3)
     {
-      fprintf(stderr, "xdnd: protocol version %ld not supported\n", xdndEnter_version(evt));
-      return;
+      fprintf(stderr, "  xdnd: protocol version %ld not supported\n", xdndEnter_version(evt));
+      return state;
     }
   xdndSourceWindow= xdndEnter_sourceWindow(evt);
   dndGetTypeList(evt);
-  xdndState= XdndStateEntered;
+
+  fdebugf((stderr, "  dndEnter target: 0x%lx source: 0x%lx\n", evt->window, xdndSourceWindow));
+  return XdndStateEntered;
 }
 
 
-static void dndLeave(XClientMessageEvent *evt)
+static enum XdndState dndInLeave(enum XdndState state)
 {
-  dprintf((stderr, "dndLeave\n"));
+  fdebugf((stderr, "Receive XdndLeave (input)\n"));
   recordDragEvent(DragLeave, 1);
-  xdndState= XdndStateIdle;
+  return XdndStateIdle;
 }
 
 
-static void dndPosition(XClientMessageEvent *evt)
+static enum XdndState dndInPosition(enum XdndState state, XClientMessageEvent *evt)
 {
-  dprintf((stderr, "dndPosition\n"));
+  /*fdebugf((stderr, "Receive XdndPosition (input)\n"));*/
 
   if (xdndSourceWindow != xdndPosition_sourceWindow(evt))
     {
-      dprintf((stderr, "dndPosition: wrong source window\n"));
-      return;
+      fdebugf((stderr, "dndInPosition: wrong source window\n"));
+      return XdndStateIdle;
     }
 
-  {
-    Window root;
-    unsigned int x, y, w, h, b, d;
-    XGetGeometry(stDisplay, stWindow, &root, &x, &y, &w, &h, &b, &d);
-    mousePosition.x= xdndPosition_rootX(evt) - x;
-    mousePosition.y= xdndPosition_rootY(evt) - y;
-  }
+  getMousePosition();
 
-  if (xdndState == XdndStateEntered)
+  if ((state != XdndStateEntered) && (state != XdndStateTracking))
     {
-      if (xdndWillAccept)
-	recordDragEvent(DragEnter, 1);
-      xdndState= XdndStateTracking;
+      fdebugf((stderr, "dndInPosition: wrong state\n"));
+      return XdndStateIdle;
     }
-
-  if (xdndState != XdndStateTracking)
-    {
-      dprintf((stderr, "dndPosition: wrong state\n"));
-      return;
-    }
-
+  
+  if ((state == XdndStateEntered) && xdndWillAccept)
+    recordDragEvent(DragEnter, 1);
+  
   if (xdndWillAccept)
     {
       Atom action= xdndPosition_action(evt);
-      dprintf((stderr, "  action = %ld %s\n", action, XGetAtomName(stDisplay, action)));
+      /*fdebugf((stderr, "  dndInPosition: action = %ld %s\n", action, XGetAtomName(stDisplay, action)));*/
       xdndWillAccept= (action == XdndActionMove) | (action == XdndActionCopy)
 	|             (action == XdndActionLink) | (action == XdndActionAsk);
     }
 
   if (xdndWillAccept)
     {
-      dprintf((stderr, "accepting\n"));
-      dndSendStatus(evt->window, 1, XdndActionCopy);
+      /*fdebugf((stderr, "  dndInPosition: accepting\n"));*/
+      dndSendStatus(1, XdndActionCopy);
       recordDragEvent(DragMove, 1);
     }
   else /* won't accept */
     {
-      dprintf((stderr, "not accepting\n"));
-      dndSendStatus(evt->window, 0, XdndActionPrivate);
+      /*fdebugf((stderr, "  dndInPosition: not accepting\n"));*/
+      dndSendStatus(0, XdndActionPrivate);
     }
+  return XdndStateTracking;
 }
 
-
-static void dndDrop(XClientMessageEvent *evt)
+static void
+initDropFileNames()
 {
-  dprintf((stderr, "dndDrop\n"));
-
-  if (xdndSourceWindow != xdndDrop_sourceWindow(evt))
-    dprintf((stderr, "dndDrop: wrong source window\n"));
-  else if (xdndWillAccept)
-    {
-      Window owner;
-      dprintf((stderr, "converting selection\n"));
-      if (!(owner= XGetSelectionOwner(stDisplay, XdndSelection)))
-	fprintf(stderr, "dndDrop: XGetSelectionOwner failed\n");
-      else
-	XConvertSelection(stDisplay, XdndSelection, XdndTextUriList, XdndSelectionAtom, stWindow, xdndDrop_time(evt));
-      if (uxDropFileCount)
-	{
+  if (uxDropFileCount) {
 	  int i;
 	  assert(uxDropFileNames);
 	  for (i= 0;  i < uxDropFileCount;  ++i)
@@ -407,17 +704,149 @@ static void dndDrop(XClientMessageEvent *evt)
 	  free(uxDropFileNames);
 	  uxDropFileCount= 0;
 	  uxDropFileNames= 0;
-	}
-    }
-  else
-    dprintf((stderr, "refusing selection -- finishing\n"));
-
-  dndSendFinished(evt->window);
-  dndLeave(evt);
-
-  xdndState= XdndStateIdle;
+  }
 }
 
+enum XdndState dndInDrop(enum XdndState state, XClientMessageEvent *evt)
+{
+  fdebugf((stderr, "Receive XdndDrop (input)\n"));
+
+  /* If there is "text/url-list" in xdndInTypes, the selection is
+   * processed only in DropFilesEvent. But if none (file count == 0),
+   * the selection is handled ClipboardExtendedPlugin.
+   */
+  if (isUrlList == 0)
+    {
+      fdebugf((stderr, "  dndInDrop: no url list\n"));
+      recordDragEvent(DragDrop, 0);
+      return state;
+    }
+  dndInDestroyTypes();
+
+  if (xdndSourceWindow != xdndDrop_sourceWindow(evt))
+    {
+      fdebugf((stderr, "  dndInDrop: wrong source window\n"));
+    }
+  else if (xdndWillAccept)
+    {
+      Window owner;
+      fdebugf((stderr, "  dndInDrop: converting selection\n"));
+      if (!(owner= XGetSelectionOwner(stDisplay, XdndSelection)))
+	fprintf(stderr, "  dndInDrop: XGetSelectionOwner failed\n");
+      else
+	XConvertSelection(stDisplay, XdndSelection, XdndTextUriList, XdndSelectionAtom, stWindow, xdndDrop_time(evt));
+      initDropFileNames();
+    }
+  else
+    {
+      fdebugf((stderr, "  dndInDrop: refusing selection -- finishing\n"));
+    }
+
+  dndSendFinished();
+  recordDragEvent(DragLeave, 1);
+
+  return XdndStateIdle;
+}
+
+
+static void addDropFile(char *fileName);
+static void generateSqueakDropEventIfDroppedFiles(void);
+struct { char *fileName; Window sourceWindow; } *launchDrops = 0;
+static int numLaunchDrops = 0;
+
+/* drastically simplified case of dndInDrop that leaves out the 8 step dance
+ * (see http://www.newplanetsoftware.com/xdnd/).  Instead grab the fileName in
+ * the XdndSqueakLaunchDrop property and send an ack message.
+ */
+enum XdndState
+dndInLaunchDrop(XClientMessageEvent *evt)
+{
+	Atom actualType;
+	int actualFormat;
+	unsigned long nitems, bytesAfter;
+	unsigned char *fileName;
+	unsigned int mask;
+
+	fdebugf((stderr, " dndInLaunchDrop <%d> (%d)\n", evt->message_type, XdndSqueakLaunchDrop));
+	XGetWindowProperty(stDisplay, xdndDrop_sourceWindow(evt),
+			   XdndSqueakLaunchDrop,
+			   0, 0x8000000L, False, XA_ATOM,
+			   &actualType, &actualFormat, &nitems,
+			   &bytesAfter, &fileName);
+
+	if (nitems > 0) {
+		int i;
+		fdebugf((stderr, " got launch drop <%s>\n", fileName));
+		/* The convention is that we free the previous uxDropFileNames
+		 * and zero uxDropFileCount /before/ each dnd interchange,
+		 * which saves having to rely on consumption by the image in the
+		 * right order.  But it means that if we want multiple launch
+		 * drops we're going to have to send them in one go, e.g. by
+		 * concatenating a set of null-terminated names.  Too lazy now.
+		 * But, but, but.  This convention means multiple launch drops
+		 * can smash previous ones.  Broken.  Needs more thought.
+		 */
+		initDropFileNames();
+		addDropFile(fileName);
+		generateSqueakDropEventIfDroppedFiles();
+		for (i = 0; i < numLaunchDrops; i++)
+			if (!launchDrops[i].fileName)
+				break;
+		if (i >= numLaunchDrops) {
+			i = numLaunchDrops;
+			launchDrops = xrealloc(launchDrops,
+									++numLaunchDrops * sizeof(*launchDrops));
+		}
+		launchDrops[i].fileName = fileName;
+		launchDrops[i].sourceWindow = xdndDrop_sourceWindow(evt);
+	}
+}
+
+/* Send a XdndSqueakLaunchAck essage back to the launch dropper if the filename
+ * matches a dndInLaunchDrop event.
+ */
+static sqInt
+display_dndReceived(char *fileName)
+{
+	int i;
+
+	for (i = 0; i < numLaunchDrops; i++)
+		if (launchDrops[i].fileName
+		 && !strcmp(fileName, launchDrops[i].fileName)) {
+			long data[5];
+			memset(data, 0, sizeof(data));
+			data[0] = stParent;
+			sendClientMessage(data,
+					  stParent,
+					  launchDrops[i].sourceWindow,
+					  XdndSqueakLaunchAck);
+			XFree(launchDrops[i].fileName);
+			launchDrops[i].fileName = 0;
+			return 0;
+		}
+	return 1;
+}
+
+static void
+addDropFile(char *fileName)
+{
+  if (uxDropFileCount)
+    uxDropFileNames= (char **)xrealloc(uxDropFileNames, (uxDropFileCount + 1) * sizeof(char *));
+  else
+    uxDropFileNames= (char **)xcalloc(1, sizeof(char *));
+#if USE_FILE_URIs
+    uxDropFileNames[uxDropFileCount++]= strdup(fileName);
+#else
+    uxDropFileNames[uxDropFileCount++]= uri2string(fileName);
+#endif
+}
+
+static void
+generateSqueakDropEventIfDroppedFiles()
+{
+	if (uxDropFileCount)
+		recordDragEvent(DragDrop, uxDropFileCount);
+}
 
 static void dndGetSelection(Window owner, Atom property)
 {
@@ -435,56 +864,318 @@ static void dndGetSelection(Window owner, Atom property)
     fprintf(stderr, "dndGetSelection: XGetWindowProperty has more than 64K (why?)\n");
   else
     {
-      char *tokens= data;
-      char *item= 0;
+      char *tokens= (char *)data;
+      char *item;
       while ((item= strtok(tokens, "\n\r")))
 	{
-	  dprintf((stderr, "got URI <%s>\n", item));
-	  if (!strncmp(item, "file:", 5))		/*** xxx BOGUS -- just while image is broken ***/
-	    {
-	      if (uxDropFileCount)
-		uxDropFileNames= (char **)xrealloc(uxDropFileNames, (uxDropFileCount + 1) * sizeof(char *));
-	      else
-		uxDropFileNames= (char **)xcalloc(1, sizeof(char *));
-	      uxDropFileNames[uxDropFileCount++]= uri2string(item);
-	    }
-	  tokens= 0;
+	  fdebugf((stderr, "  got URI <%s>\n", item));
+	  if (!strncmp(item, "file:", 5)) /*** xxx BOGUS -- just while image is broken ***/
+	    addDropFile(item);
+	  tokens= 0; /* strtok is weird.  this ensures more tokens, not less. */
 	}
-      if (uxDropFileCount)
-	recordDragEvent(DragDrop, uxDropFileCount);
-      dprintf((stderr, "+++ DROP %d\n", uxDropFileCount));
+      generateSqueakDropEventIfDroppedFiles();
+      fdebugf((stderr, "  uxDropFileCount = %d\n", uxDropFileCount));
     }
   XFree(data);
 }
 
 
-int dndHandleSelectionNotify(XSelectionEvent *evt)
+static enum XdndState dndInSelectionNotify(enum XdndState state, XSelectionEvent *evt)
 {
-  if (evt->property == XdndSelectionAtom)
-    {
-      dndGetSelection(evt->requestor, evt->property);
-      dndSendFinished(evt->requestor);
-      dndLeave((XClientMessageEvent *)evt);
-      return 1;
-    }
-  return 0;
+  fdebugf((stderr, "Receive SelectionNotify (input)\n"));
+  if (evt->property != XdndSelectionAtom) return state;
+
+  dndGetSelection(evt->requestor, evt->property);
+  dndSendFinished();
+  recordDragEvent(DragLeave, 1);
+  return XdndStateIdle;
 }
 
 
-int dndHandleClientMessage(XClientMessageEvent *evt)
+static enum XdndState dndInFinished(enum XdndState state)
 {
-  int handled= 1;
+  fdebugf((stderr, "Internal signal DndInFinished (input)\n"));
+  dndSendFinished();
+  recordDragEvent(DragLeave, 1);
+  dndInDestroyTypes();
+  return XdndStateIdle;
+}
+
+
+/* DnD client event handler */
+
+static enum XdndState dndHandleClientMessage(enum XdndState state, XClientMessageEvent *evt)
+{
   Atom type= evt->message_type;
-  if      (type == XdndEnter)	 dndEnter(evt);
-  else if (type == XdndPosition) dndPosition(evt);
-  else if (type == XdndDrop)	 dndDrop(evt);
-  else if (type == XdndLeave)	 dndLeave(evt);
-  else				 handled= 0;
-  return handled;
+  if (type == XdndStatus)
+    return dndOutStatus(state, evt);
+  if (type == XdndFinished)
+    return dndOutFinished(state, evt);
+  if (type == XdndEnter)
+    return dndInEnter(state, evt);
+  if (type == XdndPosition)
+    return dndInPosition(state, evt);
+  if (type == XdndDrop)
+    return dndInDrop(state, evt);
+  if (type == XdndLeave)
+    return dndInLeave(state);
+  if (type == XdndSqueakLaunchDrop)
+    return dndInLaunchDrop(evt);
+  return state;
 }
 
 
-void dndInitialise(void)
+/* DnD event handler */
+
+static void dndHandleEvent(int type, XEvent *evt)
+{
+  static enum XdndState state= XdndStateIdle;
+
+  switch(type)
+    {
+    case DndOutStart:	   state= dndOutInitialize(state);					break;
+    case MotionNotify:	   state= dndOutMotion(state, &evt->xmotion);				break;
+    case ButtonRelease:	   state= dndOutRelease(state, &evt->xbutton);				break;
+    case SelectionRequest: state= dndOutSelectionRequest(state, &evt->xselectionrequest);	break;
+    case SelectionNotify:  state= dndInSelectionNotify(state, &evt->xselection);		break;
+    case DndInFinished:	   state= dndInFinished(state);						break;
+    case ClientMessage:	   state= dndHandleClientMessage(state, &evt->xclient);			break;
+    }
+}
+
+
+static sqInt display_dndOutStart(char *types, int ntypes)
+{
+  int pos, i;
+  int typesSize= 0;
+
+  if (xdndOutTypes != 0)
+    {
+      free(xdndOutTypes);
+      xdndOutTypes= 0;
+    }
+
+  for (pos= 0; pos < ntypes; pos += strlen(types + pos) + 1)
+    typesSize++;
+
+  if (typesSize > 3) return 0; /* Supported types are up to 3 now */
+
+  xdndOutTypes= xmalloc(sizeof(Atom) * (typesSize + 1));
+  xdndOutTypes[typesSize]= None;
+
+  for (pos= 0, i= 0; pos < ntypes; pos += strlen(types + pos) + 1, i++)
+    xdndOutTypes[i]= XInternAtom(stDisplay, types + pos, False);
+
+  for (i= 0; i < typesSize; i++)
+    fdebugf((stderr, "dndOutStart: %s\n", XGetAtomName(stDisplay, xdndOutTypes[i])));
+  dndHandleEvent(DndOutStart, 0);
+
+  return 1;
+}
+
+static void display_dndOutSend (char *bytes, int nbytes)
+{
+  XEvent notify;
+  XSelectionEvent *res= &notify.xselection;
+  Atom targetProperty= ((None == xdndOutRequestEvent.property)
+			? xdndOutRequestEvent.target
+			: xdndOutRequestEvent.property);
+
+  res->type	  = SelectionNotify;
+  res->display	  = xdndOutRequestEvent.display;
+  res->requestor  = xdndOutRequestEvent.requestor;
+  res->selection  = xdndOutRequestEvent.selection;
+  res->target	  = xdndOutRequestEvent.target;
+  res->time	  = xdndOutRequestEvent.time;
+  res->send_event = True;
+  res->property	  = targetProperty; /* override later if error */
+
+  XChangeProperty(stDisplay, res->requestor,
+		  targetProperty, xdndOutRequestEvent.target,
+		  8, PropModeReplace,
+		  (unsigned char *)bytes,
+		  nbytes);
+
+  XSendEvent(stDisplay, res->requestor, False, 0, &notify);
+  fdebugf((stderr, "Send data for %s (output) requestor: 0x%lx\n",
+           XGetAtomName(stDisplay, res->target), res->requestor));
+}
+
+static sqInt display_dndOutAcceptedType(char * buf, int nbuf)
+{
+  char *type;
+  if (xdndOutRequestEvent.target == None) return 0;
+  type= XGetAtomName(stDisplay, xdndOutRequestEvent.target);
+  strncpy(buf, type, nbuf);
+  XFree(type);
+  return 1;
+}
+
+/* support for findWindowWithLabel */
+static inline int
+windowHasLabel(Window w, char *label)
+{
+	XTextProperty win_text;
+	int hasLabel;
+
+	if (!XGetWMName(stDisplay, w, &win_text)) {
+		char *win_name;
+		if (!XFetchName(stDisplay, w, &win_name))
+			return 0;
+		hasLabel = !strcmp(label, win_name);
+		(void)XFree(win_name);
+		return hasLabel;
+	}
+	/* If there are multiple items and we need to support that see use of
+	 * XmbTextPropertyToTextList in xwininfo.
+	 * If UTF8 is required see stringprep_locale_to_utf8 & libidn.
+	 */
+	if (win_text.nitems <= 0)
+		return 0;
+	hasLabel = !strcmp(label, win_text.value);
+	(void)XFree(win_text.value);
+	return hasLabel;
+}
+
+static Window
+findWindowWithLabel(Window w, char *label)
+{
+	Window pane = 0, root, parent, *children;
+	unsigned int nwindows, i;
+
+	if (w == stParent) /* ignore this process's labelled main window */
+		return 0;
+
+	if (windowHasLabel(w, label))
+		return w;
+
+	if (!XQueryTree(stDisplay, w, &root, &parent, &children, &nwindows))
+		return 0;
+
+	for (i = 0; i < nwindows && !pane; i++)
+		pane = findWindowWithLabel(children[i], label);
+
+	XFree(children);
+	return pane;
+}
+
+static Bool
+isDropAck(Display *dpy, XEvent *evt, XPointer arg)
+{
+  return ClientMessage == evt->type
+      && XdndSqueakLaunchAck == ((XClientMessageEvent *)evt)->message_type;
+}
+
+static void
+yieldCyclesToRecipient()
+{
+# define MINSLEEPNS 2000 /* don't bother sleeping for short times */
+	struct timespec naptime;
+
+	naptime.tv_sec = 0; naptime.tv_nsec = 10000000; /* 10 ms */
+
+	while (nanosleep(&naptime, &naptime) == -1
+		&& (naptime.tv_sec > 0 || naptime.tv_nsec > MINSLEEPNS)) /*repeat*/
+		if (errno != EINTR) {
+			perror("nanosleep");
+			exit(1);
+		}
+}
+
+/* If the VM is running as a single instance and there is a pre-existing
+ * instance then look for a pre-existing instance and if found send it a
+ * drop event of the argument and if successful exit.  Otherwise return
+ * and allow the normal start-up sequence to continue.
+ */
+static int
+dndLaunchFile(char *filename)
+{
+	long data[5];
+	char abspath[MAXPATHLEN+1];
+	struct timeval start, now, timeout;
+	time_t tnow;
+	int pid = getpid();
+	Window target;
+
+	tnow = time(0);
+	printf("dndLaunchFile(%s,%d) \"%s\" %s", filename, pid, defaultWindowLabel, ctime(&tnow));
+	target = findWindowWithLabel(DefaultRootWindow(stDisplay), defaultWindowLabel);
+
+	if (!target) {
+		tnow = time(0);
+		printf("dndLaunchFile(%s,%d) %s\tFAILED TO FIND WINDOW:\"%s\"\n", filename, pid, ctime(&tnow), defaultWindowLabel);
+		return 0;
+	}
+
+	if (*filename == '/')
+		strcpy(abspath,filename);
+	else {
+		/* For consistency with drops files should be relative to the image.
+		 * For sanity creating streams drops should be absolute paths (i.e.
+		 * primDropRequestFileHandle: doesn't know what the image path is and
+		 * so interprets things relative to pwd, so give it an absolute path).
+		 * So by default make the full path by prepending the image.
+		 */
+#if !defined(DROP_FILENAMES_RELATIVE_TO_PWD)
+# define DROP_FILENAMES_RELATIVE_TO_PWD 0
+#endif
+#if DROP_FILENAMES_RELATIVE_TO_PWD
+		getcwd(abspath,sizeof(abspath));
+		abspath[strlen(abspath)] = '/';
+		strcat(abspath,filename);
+#else
+		strcpy(abspath,imageName);
+		strcpy(strrchr(abspath,'/')+1,filename);
+#endif
+	}
+
+	/* Only drop if the file exists. */
+    if (access(abspath, F_OK|R_OK)) {
+		tnow = time(0);
+		printf("dndLaunchFile(%s,%d) %s\tFAILED TO VALIDATE:\"%s\"\n", filename, pid, ctime(&tnow), abspath);
+		return 0;
+	}
+
+	tnow = time(0);
+	printf("dndLaunchFile(%s,%d) %s\tvalidated:\"%s\"\n", filename, pid, ctime(&tnow), abspath);
+
+	/* Include the null in the filename so that we're immune to XGetWindowProp'
+	 * answering the size in 32-bit units.
+	 */
+	XChangeProperty(stDisplay, stParent,
+			XdndSqueakLaunchDrop, XA_ATOM, 8, PropModeReplace,
+			(unsigned char *)abspath, strlen(abspath) + 1);
+
+	memset(data, 0, sizeof(data));
+	data[0] = stParent; /* => xdndDrop_sourceWindow */
+	sendClientMessage(data, stParent, target, XdndSqueakLaunchDrop);
+
+	/* How can there be 10 odd get event functions and yet none provide
+	 * peek with timeout functionality?  X is sad.
+	 */
+	timeout.tv_sec = launchDropTimeoutMsecs / 1000;
+	timeout.tv_usec = (launchDropTimeoutMsecs % 1000) * 1000;
+	gettimeofday(&start, 0);
+	timeradd(&start, &timeout, &timeout);
+
+	do {
+		XEvent evt;
+		/* Don't spin hard; the dnd recipient needs cycles to receive and ack. */
+		yieldCyclesToRecipient();
+		if (XCheckIfEvent(stDisplay, &evt, isDropAck, 0)) {
+			tnow = time(0);
+			printf("dndLaunchFile(%s,%d) %s\tgot drop ack for:\"%s\"\n", filename, pid, ctime(&tnow), abspath);
+			return 1;
+		}
+		gettimeofday(&now, 0);
+	}
+	while (timercmp(&now, &timeout, <));
+	tnow = time(0);
+	printf("dndLaunchFile(%s,%d) %s\t%ld msec DROP TIMEOUT FOR:\"%s\"\n", filename, pid, ctime(&tnow), launchDropTimeoutMsecs, abspath);
+	return 0;
+}
+
+static void dndInitialise(void)
 {
   XdndAware=		 XInternAtom(stDisplay, "XdndAware", False);
   XdndSelection=	 XInternAtom(stDisplay, "XdndSelection", False);
@@ -502,8 +1193,10 @@ void dndInitialise(void)
   XdndTypeList=		 XInternAtom(stDisplay, "XdndTypeList", False);
   XdndTextUriList=	 XInternAtom(stDisplay, "text/uri-list", False);
   XdndSelectionAtom=	 XInternAtom(stDisplay, "XdndSqueakSelection", False);
+  XdndSqueakLaunchDrop=	 XInternAtom(stDisplay, "XdndSqueakLaunchDrop", False);
+  XdndSqueakLaunchAck=	 XInternAtom(stDisplay, "XdndSqueakLaunchAck", False);
 
-  XChangeProperty(stDisplay, stParent, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char *)&XdndVersion, 1);
+  XChangeProperty(stDisplay, DndWindow, XdndAware, XA_ATOM, 32, PropModeReplace, (unsigned char *)&XdndVersion, 1);
 }
 
 
@@ -544,7 +1237,7 @@ static void run(void)
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
   stDisplay= XOpenDisplay(0);
   if (!stDisplay) fail("cannot open display");
@@ -562,11 +1255,11 @@ int main()
     valuemask |= CWEventMask;
 
     win= XCreateWindow(stDisplay, DefaultRootWindow(stDisplay),
-		       100, 100, 100, 100,	// geom
-		       0,			// border
-		       CopyFromParent,		// depth
-		       CopyFromParent,		// class
-		       CopyFromParent,		// visual
+		       100, 100, 100, 100,	/* geom */
+		       0,			/* border */
+		       CopyFromParent,		/* depth */
+		       CopyFromParent,		/* class */
+		       CopyFromParent,		/* visual */
 		       valuemask,
 		       &attributes);
   }

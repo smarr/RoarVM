@@ -19,9 +19,9 @@
 class ILib_OS_Interface : public Abstract_OS_Interface {
 public:
   
-  static inline void abort()                  { ilib_abort(); }
-  static inline void die(const char* err_msg) { ilib_die(err_msg); }
-  static inline void exit() {
+  static inline void abort() __attribute__((noreturn))  { ilib_abort(); }
+  static inline void die(const char* err_msg) __attribute__((noreturn)) { ilib_die(err_msg); }
+  static inline void exit() __attribute__((noreturn)) {
     // set_sim_tracing(SIM_TRACE_NONE);
     profiler_disable();
     ilib_terminate();
@@ -119,9 +119,11 @@ public:
     rvm_malloc_shared_init(); // called by static ctor, so need to do it here, sigh
     return tmc_cmem_calloc(num_members, mem_size);
   }
-  static inline void* rvm_malloc_shared_init() {  
+private:
+  static inline void rvm_malloc_shared_init() {  
     abort_if_error("tmc_cmem_init failed", tmc_cmem_init(0)); 
   }
+public:
 # else
   static inline void* rvm_malloc_shared(size_t sz) {
     return malloc_shared(sz);

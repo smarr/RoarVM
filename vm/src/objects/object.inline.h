@@ -169,9 +169,9 @@ inline oop_int_t Object::sizeBits() {
   // "Answer the number of bytes in the given object, including its base header, rounded up to an integral number of words."
   // "Note: byte indexable objects need to have low bits subtracted from this size."
   if (check_many_assertions) assert_always(!isFreeObject());
-  oop_int_t r =  contains_sizeHeader()
-  ?  longSizeBits()
-  :  shortSizeBits();
+  oop_int_t r = contains_sizeHeader()
+                  ?  longSizeBits()
+                  :  shortSizeBits();
   if (check_many_assertions) assert_always((size_t)r >= sizeof(baseHeader));
   return r;
 }
@@ -187,12 +187,12 @@ inline oop_int_t Object::stSize() {
   // return number of indexable fields in given object, e.g. ST size
   return Format::might_be_context(format()) && hasContextHeader()
   ? fetchStackPointer()
-  : lengthOf() - fixedFieldsOfArray();
+  : oop_int_t(lengthOf() - fixedFieldsOfArray());
 }
 
 inline int Object::rightType(oop_int_t headerWord) {
   // "Compute the correct header type for an object based on the size and compact class fields of the given base header word, rather than its type bits. This is used during marking, when the header type bits are used to record the state of tracing."
-  if (!(headerWord & SizeMask        ))       return Header_Type::SizeAndClass;
+  if (!(headerWord & SizeMask        ))  return Header_Type::SizeAndClass;
   if (!(headerWord & CompactClassMask))  return Header_Type::Class;
   return Header_Type::Short;
 }
@@ -239,7 +239,7 @@ inline Oop  Object::fetchPointer(oop_int_t fieldIndex) {
 }
 
 
-inline void Object::catch_stores_of_method_in_home_ctxs(Oop* addr, int n,  Oop x) {
+inline void Object::catch_stores_of_method_in_home_ctxs(Oop* /* addr */, int n,  Oop x) {
 # if Extra_OTE_Words_for_Debugging_Block_Context_Method_Change_Bug
   if (n != Object_Indices::MethodIndex)  return;
   if (get_count_of_blocks_homed_to_this_method_ctx() <= 0)   return;
@@ -302,7 +302,7 @@ inline Object_p Object::instantiateSmallClass(oop_int_t sizeInBytes) {
   if (sizeInBytes & (bytesPerWord - 1))  { fatal("size must be integral number of words"); }
   Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write];
   oop_int_t hash = h->newObjectHash();
-	oop_int_t header1 = (hash << HashBitsOffset) & HashBits  |  formatOfClass();
+	oop_int_t header1 = ((hash << HashBitsOffset) & HashBits)  |  formatOfClass();
 	Oop header2 = as_oop();
   int hdrSize =
   (header1 & CompactClassMask) > 0 // "is this a compact class"
@@ -458,7 +458,7 @@ inline Object_p Object::instantiateContext(oop_int_t  sizeInBytes ) {
    */
   Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write];
 	int hash = h->newObjectHash();
-  oop_int_t	header1 = (hash << HashShift) & HashMask | formatOfClass();
+  oop_int_t	header1 = ((hash << HashShift) & HashMask) | formatOfClass();
 	Oop header2 = as_oop();
 	int hdrSize =
   header1 & CompactClassMask  // "are contexts compact?"
@@ -649,8 +649,8 @@ inline bool Object::is_suitable_for_replication() {
   if (klass == The_Squeak_Interpreter()->roots.sched_list_class                 ) return false;
 
 
-  return The_Memory_System()->replicate_methods && isCompiledMethod()
-  ||     The_Memory_System()->replicate_all   && !hasContextHeader();
+  return (The_Memory_System()->replicate_methods &&  isCompiledMethod())
+    ||   (The_Memory_System()->replicate_all     && !hasContextHeader());
 }
 
 

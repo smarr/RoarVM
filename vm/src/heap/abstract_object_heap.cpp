@@ -75,6 +75,9 @@ bool Abstract_Object_Heap::verify() {
     }
     if (!obj->isFreeObject() &&  obj->is_current_copy())
       ok = obj->verify() && ok;
+    
+    if (!ok) dittoing_stdout_printer->printf("Failed to verify obj at %p\n", obj);
+    
     prev_prev_obj = prev_obj;
     prev_obj = obj;
   }
@@ -199,7 +202,7 @@ void Abstract_Object_Heap::zap_unused_portion() {
 
 
 
-void Abstract_Object_Heap::print(FILE* f) {
+void Abstract_Object_Heap::print(FILE*) {
   lprintf("start 0x%x, next 0x%x, end 0x%x\n", _start, _next, _end);
 }
 

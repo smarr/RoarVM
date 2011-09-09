@@ -25,7 +25,7 @@ extern "C" {
 # if On_iOS
   void setFullScreenFlag(int32 value);
   int32 getFullScreenFlag(void);
- # endif
+# endif
 
   int sqr_main(int, char**, char**);
 
@@ -89,11 +89,12 @@ extern "C" {
   void sigint();
   
 # if On_iOS
-  
-  void basic_init();
+  /* Will be used from Obj-C code to initalize the VM */
+  void initialize_basic_subsystems();
   void set_num_cores(char* num_cores_str);
-  void go_parallel();
-  void interpret_rvm(char* image_path);
+  void initialize_interpreter_instances_selftest_and_interpreter_proxy(char** orig_argv);
+  void read_image(char* image_path);
+  void begin_interpretation();
 # endif
 
 }

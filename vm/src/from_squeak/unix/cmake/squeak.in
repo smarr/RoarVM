@@ -1,0 +1,105 @@
+#!/bin/sh
+# 
+# Launch squeakvm from the command line or a menu script, with a good
+# plugin path, text encodings and pulseaudio kludge
+# 
+# Last edited: 2010-05-13 14:15:38 by piumarta on emilia-2.local
+
+PATH=/usr/bin:/bin
+
+realpath () {
+    path="$1"
+    while test -L "${path}"; do
+	dir=`dirname "${path}"`
+	dir=`cd "${dir}" && pwd -P`
+	path=`basename "${path}"`
+	path=`ls -l "${dir}/${path}" | sed 's,.* -> ,,'`
+	if test `expr "${path}" : "/"` -eq 0; then
+	    path="${dir}/${path}"
+	fi
+    done
+    if test -d "${path}"; then
+	(cd "${path}" && pwd -P)
+    else
+	dir=`dirname "${path}"`
+	base=`basename "${path}"`
+	(cd "${dir}" && echo "`pwd -P`/${base}")
+    fi
+}
+
+bindir=`realpath "${0}"`
+bindir=`dirname  "${bindir}"`
+prefix=`dirname  "${bindir}"`
+libdir="${prefix}/lib/squeak"
+plgdir="${libdir}/[version]"
+useoss="[useoss]"
+vm="squeakvm"
+plugins=""
+wrapper=""
+
+for opt in $*; do
+    case ${opt} in
+	-vm-sound*)     useoss="false";;
+	-vm)            case "$2" in sound*) useoss="false"; esac;;
+    esac
+done
+
+# find the vm and set the plugin path
+
+if test -x "${plgdir}/${vm}"; then	# bin/squeak -> lib/squeak/x.y-z/squeakvm
+    vm="${plgdir}/${vm}"
+    plugins="${plgdir}"
+elif test -x "${bindir}/${vm}"; then	# bld/squeak -> bld/squeakvm
+    vm="${bindir}/${vm}"
+    plugins="${bindir}/%n"
+elif test -x `which ${vm}`; then
+    vm=`which ${vm}`
+    plugins=""
+else    
+    echo "cannot find ${vm}" >&2
+    exit 1
+fi
+
+# command-line overrides environment, so communicate anything we decide here via the environment
+
+if test -z "${SQUEAK_PATHENC}";  then SQUEAK_PATHENC="UTF-8";  export SQUEAK_PATHENC;  fi
+if test -z "${SQUEAK_ENCODING}"; then SQUEAK_ENCODING="UTF-8"; export SQUEAK_ENCODING; fi
+
+if test -z "${SQUEAK_PLUGINS}"; then
+    if test -n "${plugins}"; then
+	SQUEAK_PLUGINS="${plugins}"
+	export SQUEAK_PLUGINS
+    fi
+fi
+
+# deal with pulseaudio if it is running
+
+if test -z "${SQUEAK_VM}"; then
+    if ${useoss}; then
+	if pulseaudio --check 2>/dev/null; then
+	    if padsp true 2>/dev/null; then
+		wrapper="padsp"
+		SQUEAK_VM="sound-OSS"
+		export SQUEAK_VM
+	    fi
+	fi
+    fi
+fi
+
+# fix broken locales
+
+if test -z "$LC_ALL"; then
+    LC_ALL="$LANG"
+    export LC_ALL
+fi
+
+# debug output
+
+if test "0$SQUEAK_DEBUG" -gt "0"; then
+    set | fgrep SQUEAK_
+    set -x
+fi
+
+# run the vm
+
+exec ${wrapper} "${vm}" "$@"

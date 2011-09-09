@@ -32,10 +32,10 @@ class Multicore_Object_Table: public Abstract_Object_Table {
     Object* obj() { return (Object*)(i & obj_mask); }
         
     void set_obj(Object* x  COMMA_DCL_ESB)  {
-      set((oop_int_t)x & obj_mask  |  i & bit_mask  COMMA_USE_ESB);
+      set(((oop_int_t)x & obj_mask)  |  (i & bit_mask)  COMMA_USE_ESB);
     }
     int bits() {  return i & bit_mask; }
-    void set_bits(int x  COMMA_DCL_ESB) { set(i & obj_mask  |  x & bit_mask  COMMA_USE_ESB); }
+    void set_bits(int x  COMMA_DCL_ESB) { set((i & obj_mask)  |  (x & bit_mask)  COMMA_USE_ESB); }
     bool get_spare_bit() {
       return i & spare_bit;
     }
@@ -45,7 +45,7 @@ class Multicore_Object_Table: public Abstract_Object_Table {
       else    set(i & ~spare_bit  COMMA_USE_ESB);
     }
     void set_obj_and_spare_bit(Object* obj,  bool spare  COMMA_DCL_ESB) {
-      set(oop_int_t(obj) & ~bit_mask  |  (spare ? spare_bit : 0)  COMMA_USE_ESB);
+      set((oop_int_t(obj) & ~bit_mask)  |  (spare ? spare_bit : 0)  COMMA_USE_ESB);
     }
     void set(oop_int_t x  COMMA_DCL_ESB) {
       if (!ESB_OR_FALSE  ||  !replicate) i = x;

@@ -68,7 +68,7 @@ public:
 
  private:
   static contents_t bit_for(int x) { return 1LL << contents_t(x); }
-  static contents_t contents_for_all_up_to(int x)  { return x == 64 ? ~0LL : bit_for(x) - 1LL; }
+  static contents_t contents_for_all_up_to(int x)  { return x == 64 ? ~0ULL : bit_for(x) - 1ULL; }
 
   void verify_includes_only(int a = -1, int b = -1) const;
 
