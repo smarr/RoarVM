@@ -161,10 +161,11 @@ public:
   }
 
 # else // !Has_Preheader
-  inline void set_preheader(Oop) const {}
+  inline void set_preheader(Oop)          const {}
   inline void init_extra_preheader_word() const {}
-  oop_int_t* extra_preheader_word() const { return NULL; }
-
+  oop_int_t* extra_preheader_word()       const { return NULL; }
+  oop_int_t  get_extra_preheader_word()   const { return -1; }
+   
 # endif // Has_Preheader
    
   inline void set_extra_preheader_word(oop_int_t w);
