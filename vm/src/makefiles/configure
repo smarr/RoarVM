@@ -42,7 +42,20 @@ PERF_COUNTERS=0
 CONFIGURE_ARGS="$@"
 CONFIG_FLAGS="-m32 -Wextra -Wno-write-strings"
 PWD=`pwd`
-SRC_DIR=`dirname $PWD`/src
+
+# Not sure whether we need absolute file names, but will preserve it for now.
+# However, spaces do break things, so, try to use relative pathes
+# instead if there is a space in the path.
+case "$PWD" in
+    *\ * )
+        SRC_DIR=../src
+        ;;
+    *)
+        SRC_DIR=`dirname $PWD`/src
+        ;;
+esac
+
+
 #SYSCTL="/sbin/sysctl"
 #if [ ! -e $SYSCTL ] then SYSCTL="/usr$SYSCTL" fi
 #number_of_cores=`$SYSCTL `
