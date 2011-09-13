@@ -258,6 +258,7 @@
 # endif
 
 # if Use_Mark_Sweep_GC_With_Object_Table
+#  error This is not supported anymore, this codebased comes with the pauseless GC and does not use an object-table
 #  define Use_Object_Table 1
 #  define Enforce_Backpointer 1
 # else

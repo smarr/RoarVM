@@ -178,7 +178,6 @@ RVM_HEADERS = \
   tile_cpu_coordinate.h \
   logical_core.h \
   headers.h \
-  abstract_mark_sweep_collector.h \
   oop_closure.h \
   indirect_oop_mark_sweep_collector.h \
   abstract_object_heap.h \
@@ -274,6 +273,12 @@ RVM_HEADERS = \
   debug_helper.h \
   tracked_ptr.h \
   tracked_ptr_registry.h \
+  \
+  load_value_barrier.h \
+  checkpoint_closure.h \
+  os_signal_handling.h \
+  parallel_gc_thread.h \
+  page.h \
   
 
 ifeq "$(PLATFORM)" "Intel"
@@ -437,7 +442,6 @@ endif
 #        UnixOSProcessPlugin.o 
 
 OBJS = \
-  abstract_mark_sweep_collector.opt \
   abstract_object_heap.opt \
   aio.opt \
   at_cache.opt \
@@ -523,6 +527,11 @@ OBJS = \
   abstract_os_interface.opt \
   logical_core.opt \
   debug_helper.opt \
+  \
+  load_value_barrier.opt \
+  os_signal_handling.opt \
+  parallel_gc_thread.opt \
+  gc_oop_stack.opt \
 
 
 ifeq "$(PLATFORM)" "Intel"
