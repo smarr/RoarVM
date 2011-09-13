@@ -62,12 +62,14 @@ extern "C" {
   void*  firstIndexableField(sqInt);
   double floatValueOf(sqInt oop);
   void   fullDisplayUpdate();
+  void  tenuringIncrementalGC();
   sqInt fullGC(void);
   sqInt getInterruptKeycode();
   sqInt getNextWakeupTick();
   sqInt ioWhicheverMSecs();
   sqInt getSavedWindowSize();
   sqInt getThisSessionID();
+  sqInt incrementalGC(void);
   sqInt instanceSizeOf(sqInt);
   sqInt instantiateClassindexableSize(sqInt, sqInt);
   sqInt  integerObjectOf(sqInt value);
@@ -277,6 +279,10 @@ sqInt ioWhicheverMSecs() { return The_Squeak_Interpreter()->ioWhicheverMSecs(); 
 sqInt getSavedWindowSize() { return The_Memory_System()->snapshot_window_size.savedWindowSize(); }
 
 sqInt getThisSessionID() { return The_Squeak_Interpreter()->globalSessionID; }
+
+sqInt incrementalGC(void) { The_Memory_System()->incrementalGC(); return 0; }
+void  tenuringIncrementalGC(void) { The_Memory_System()->incrementalGC(); }
+
 
 sqInt instantiateClassindexableSize(sqInt k, sqInt s) { return Oop::from_bits(k).as_object()->instantiateClass(s)->as_oop().bits(); }
 

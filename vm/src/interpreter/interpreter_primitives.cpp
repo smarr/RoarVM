@@ -1077,6 +1077,7 @@ void Squeak_Interpreter::primitiveImageName() {
     push(so->as_oop());
   }
 }
+
 void Squeak_Interpreter::primitiveIncrementalGC() {
   pop(1);
   The_Memory_System()->finalize_weak_arrays_since_we_dont_do_incrementalGC();
@@ -1432,14 +1433,15 @@ void Squeak_Interpreter::primitiveNewMethod() {
 void Squeak_Interpreter::primitiveNewWithArg() {
   u_int32 size = positive32BitValueOf(stackTop());
   Oop klass = stackValue(1);
-  success(int32(size) >= 0);
   Logical_Core* c = NULL;
+
+  success(int32(size) >= 0);
   if (successFlag) {
     c = coreWithSufficientSpaceToInstantiate(klass, size);
-    
     success(c != NULL);
     klass = stackValue(1); // GC
   }
+
   if (successFlag)
     popThenPush(2, klass.as_object()->instantiateClass(size, c)->as_oop());
 }
