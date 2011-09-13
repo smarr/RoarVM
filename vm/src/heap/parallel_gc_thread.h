@@ -1,10 +1,15 @@
-//
-//  parallel_gc_thread.h
-//  RoarVM
-//
-//  Created by Mattias De Wael on 27/07/11.
-//  Copyright 2011 VUB. All rights reserved.
-//
+/******************************************************************************
+ *  Copyright (c) 2008 - 2011 IBM Corporation and others.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ * 
+ *  Contributors:
+ *    Mattias De Wael, Vrije Universiteit Brussel - Parallel Garbage Collection
+ *    Wouter Amerijckx, Vrije Universiteit Brussel - Parallel Garbage Collection
+ ******************************************************************************/
+
 
 class GC_State{
 public:

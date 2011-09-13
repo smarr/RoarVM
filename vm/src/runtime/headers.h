@@ -202,7 +202,7 @@
 # include "dummy_object_table.h"
 
 # include "memory_system.h"
-# include "parallel_gc_thread.h" // MDW
+# include "parallel_gc_thread.h"
 
 
 # include "page.h"
@@ -224,7 +224,7 @@
 # include "squeak_interpreter.h"
 
 
-# include "LVB.h" // MDW
+# include "load_value_barrier.h"
 
 # include "squeak_image_reader.h"
 
