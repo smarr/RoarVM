@@ -36,7 +36,7 @@
 # include <signal.h>
 # include <errno.h>
 
-#include "OS_signal_handling.h" // MDW
+#include "os_signal_handling.h"
 
 # if On_Tilera
 #  include <tmc/mem.h>
@@ -153,8 +153,8 @@
 
 # include "logical_core.h"
 
-# include "checkpoint_closure.h" //MDW
-# include "gc_oop_stack.h" // MDW moved before squeak_interpreter.h and messages
+# include "checkpoint_closure.h"
+# include "gc_oop_stack.h"
 
 # include "interpreter_subset_for_control_transfer.h"
 # include "message_stats.h"
@@ -241,5 +241,4 @@
 # include "memory_system.inline.h"
 
 # include "debug_helper.h"
-
 

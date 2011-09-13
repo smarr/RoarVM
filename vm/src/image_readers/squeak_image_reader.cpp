@@ -95,7 +95,6 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
     perror("seek"), fatal();
 
   // "read in the image in bulk, then swap the bytes if necessary"
-
   xfread(memory, 1, dataSize, image_file);
 
   // "First, byte-swap every word in the image. This fixes objects headers."
