@@ -67,7 +67,7 @@ class Abstract_Object_Heap {
 
   Object* first_object_or_null();
   inline Object*  next_object(Object*);
-  Object*   end_objects() { return (Object*)_next; } // addr past objects
+  Object*   end_objects() const { return (Object*)_next; } // addr past objects
   Oop*     end_of_space() { return (Oop*)_end; }
 
   Object* first_object_without_preheader();
@@ -88,7 +88,7 @@ class Abstract_Object_Heap {
 
 
 
-  Oop* startOfMemory() { return _start; }
+  Oop* startOfMemory() const { return _start; }
 
   bool contains(void* p) { Oop* pp = (Oop*)p;  return _start <= pp  &&  pp < _next; }
 

@@ -419,6 +419,7 @@ Oop* Object::last_strong_pointer_addr_remembering_weak_roots(Abstract_Mark_Sweep
 void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
   if (isFreeObject())
     return;
+  
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
     if (do_checks)
       my_heap()->contains(oopp);
@@ -439,6 +440,7 @@ void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
 void Object::do_all_oops_of_object_for_reading_snapshot(Squeak_Image_Reader* r) {
   if (isFreeObject())
     return;
+  
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
     Oop x = *oopp;
     if (x.is_mem()) {
