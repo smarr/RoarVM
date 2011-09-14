@@ -26,7 +26,7 @@ class Chunk
 
 {
   # if Work_Around_Extra_Words_In_Classes
-  WORD_CONTAINING_OBJECT_TYPE_MEMBERS
+    # include "word_containing_object_type.h"
     # define chunk_header (*(oop_int_t*)this)
   # else
     oop_int_t chunk_header;

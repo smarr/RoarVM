@@ -54,7 +54,20 @@ ENFORCE_BACKPTR=0
 CONFIGURE_ARGS="$@"
 CONFIG_FLAGS="-m32 -Wextra -Wno-write-strings"
 PWD=`pwd`
-SRC_DIR=`dirname $PWD`/src
+
+# Not sure whether we need absolute file names, but will preserve it for now.
+# However, spaces do break things, so, try to use relative pathes
+# instead if there is a space in the path.
+case "$PWD" in
+    *\ * )
+        SRC_DIR=../src
+        ;;
+    *)
+        SRC_DIR=`dirname $PWD`/src
+        ;;
+esac
+
+
 #SYSCTL="/sbin/sysctl"
 #if [ ! -e $SYSCTL ] then SYSCTL="/usr$SYSCTL" fi
 #number_of_cores=`$SYSCTL `
@@ -170,13 +183,13 @@ if [ $USE_TILERA -eq 0 ]
 then
   case $OPERATING_SYSTEM in
     Darwin)
-        LDFLAGS="$LDFLAGS -lX11 -lXext -framework CoreFoundation -lGL -framework CoreServices -framework IOKit"
+        LDFLAGS="$LDFLAGS -lX11 -lXext -framework CoreFoundation -lGL -framework CoreServices -framework IOKit -Wl,-no_pie"
         X11_PATH="/Developer/SDKs/MacOSX10.6.sdk/usr/X11R6/lib"
         Xext_PATH="/Developer/SDKs/MacOSX10.6.sdk/usr/X11R6/lib"
 		if [ -z "$CXX" ]
 		then
-        	CC=gcc-4.2
-        	CXX=g++-4.2
+        	CC=gcc
+        	CXX=g++
 		fi
         CONFIG_FLAGS="$CONFIG_FLAGS -I/Developer/SDKs/MacOSX10.6.sdk/usr/X11/include/"
 

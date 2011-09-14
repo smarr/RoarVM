@@ -49,7 +49,7 @@
  This object memory achieves considerable compactness by using
  a variable header size (the one complexity of the design).
 
- 
+
  The format of the 0th header word is as follows:
 
 	3 bits	reserved for gc (mark, root, unused)
@@ -94,8 +94,8 @@ class Object
 # endif
 
  {
-   # if Work_Around_Extra_Words_In_Classes
-  WORD_CONTAINING_OBJECT_TYPE_MEMBERS
+  # if Work_Around_Extra_Words_In_Classes
+    # include "word_containing_object_type.h"
   # endif
 
 public:
@@ -153,12 +153,12 @@ public:
   
   void init_extra_preheader_word() { preheader()->init_extra_preheader_word(); }
 
-  void set_preheader(Oop x) { 
-    init_extra_preheader_word();
+   void set_preheader(Oop x) { 
+     init_extra_preheader_word();
     # if Enforce_Backpointer || Use_Object_Table
-      set_backpointer(x);
+     set_backpointer(x); 
     # endif
-  }
+   }
 
 # else // !Has_Preheader
   inline void set_preheader(Oop) const {}
@@ -177,26 +177,26 @@ public:
      set_backpointer_word(backpointer_from_oop(x));
    }
    
-   static Oop oop_from_backpointer(oop_int_t bp) {
-     return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
-   }
+  static Oop oop_from_backpointer(oop_int_t bp) {
+    return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
+  }
    
-   oop_int_t backpointer_from_oop(Oop x) {
-     return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
-   }
+  oop_int_t backpointer_from_oop(Oop x) {
+    return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
+  }
    
-   oop_int_t get_backpointer_word() { return *backpointer_word(); }
-   
-   inline void set_backpointer_word(oop_int_t w);
-   
-   oop_int_t* backpointer_word() {
-     return &preheader()->backpointer;
-   }
+  oop_int_t get_backpointer_word() { return *backpointer_word(); }
+
+  inline void set_backpointer_word(oop_int_t w);
+
+  oop_int_t* backpointer_word() {
+    return &preheader()->backpointer;
+  }
 # else
   inline void set_backpointer(Oop) const {}
    
 # endif
-
+  
 public:
 
   static const int SizeShift = Header_Type::Width + Header_Type::Shift; // but never used since size is in words, and we need it by bytes anyway
@@ -209,7 +209,7 @@ public:
   inline oop_int_t sizeBits();
   inline oop_int_t sizeBitsSafe();
   oop_int_t shortSizeBits() { return baseHeader & SizeMask; }
-  oop_int_t longSizeBits()  { return sizeHeader() & LongSizeMask; }
+  oop_int_t longSizeBits() { return sizeHeader() & LongSizeMask; }
   oop_int_t total_byte_size();
   oop_int_t total_byte_size_without_preheader();
 
