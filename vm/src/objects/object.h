@@ -65,8 +65,8 @@ class Object
 # endif
 
  {
-   # if Work_Around_Extra_Words_In_Classes
-  WORD_CONTAINING_OBJECT_TYPE_MEMBERS
+  # if Work_Around_Extra_Words_In_Classes
+    # include "word_containing_object_type.h"
   # endif
 
 public:
