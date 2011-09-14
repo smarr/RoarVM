@@ -1432,14 +1432,16 @@ void Squeak_Interpreter::primitiveNewMethod() {
 
 void Squeak_Interpreter::primitiveNewWithArg() {
   u_int32 size = positive32BitValueOf(stackTop());
-  Oop klass = stackValue(1);
-  success(int32(size) >= 0);
+  Oop klass    = stackValue(1);
   Logical_Core* c = NULL;
+
+  success(int32(size) >= 0);
   if (successFlag) {
     c = coreWithSufficientSpaceToInstantiate(klass, size);
     success(c != NULL);
     klass = stackValue(1); // GC
   }
+
   if (successFlag)
     popThenPush(2, klass.as_object()->instantiateClass(size, c)->as_oop());
 }
