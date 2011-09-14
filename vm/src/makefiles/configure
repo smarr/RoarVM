@@ -145,7 +145,7 @@ if [ $USE_TILERA -eq 0 ]
 then
   case $OPERATING_SYSTEM in
     Darwin)
-        LDFLAGS="$LDFLAGS -lX11 -lXext -framework CoreFoundation -lGL -framework CoreServices -framework IOKit"
+        LDFLAGS="$LDFLAGS -lX11 -lXext -framework CoreFoundation -lGL -framework CoreServices -framework IOKit -no_pie"
         X11_PATH="/Developer/SDKs/MacOSX10.6.sdk/usr/X11R6/lib"
         Xext_PATH="/Developer/SDKs/MacOSX10.6.sdk/usr/X11R6/lib"
 		if [ -z "$CXX" ]

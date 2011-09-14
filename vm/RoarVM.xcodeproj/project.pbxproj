@@ -1340,7 +1340,6 @@
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
-				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/runtime/rvm_config.h;
@@ -1365,9 +1364,10 @@
 					src/from_squeak/unix/vm,
 				);
 				INSTALL_PATH = /usr/local/bin;
-				OTHER_CFLAGS = "";
+				LD_NO_PIE = YES;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lX11",
 					"-lXext",
@@ -1389,7 +1389,7 @@
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
-				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/runtime/rvm_config.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1410,6 +1410,7 @@
 					src/from_squeak/unix/vm,
 				);
 				INSTALL_PATH = /usr/local/bin;
+				LD_NO_PIE = YES;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
@@ -1420,7 +1421,6 @@
 				PRODUCT_NAME = RoarVM;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
