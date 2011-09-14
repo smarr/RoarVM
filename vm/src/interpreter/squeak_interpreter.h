@@ -212,18 +212,18 @@ public:
   void assert_registers_unstored() { assert(!are_registers_stored); }
   void assert_stored_if_no_proc() { if (check_many_assertions) assert(get_running_process() != roots.nilObj || are_registers_stored); }
 # else
-  void registers_unstored() {}
-  void registers_stored() {}
-  void externalized() { }
-  void internalized() { }
-  void unexternalized() {}
-  void uninternalized() { }
+  void registers_unstored()        {}
+  void registers_stored()          {}
+  void externalized()              {}
+  void internalized()              {}
+  void unexternalized()            {}
+  void uninternalized()            {}
 
-  void assert_internal() {  }
-  void assert_external() { }
-  void assert_registers_stored() { }
-  void assert_registers_unstored() {  }
-  void assert_stored_if_no_proc() { }
+  void assert_internal()           {}
+  void assert_external()           {}
+  void assert_registers_stored()   {}
+  void assert_registers_unstored() {}
+  void assert_stored_if_no_proc()  {}
 # endif
 
 
