@@ -907,7 +907,7 @@ bool Squeak_Interpreter::balancedStackAfterPrimitive(int delta, int primIdx, int
   if (successFlag) {
     // must have nArgs popped off
     if  ( stackPointer() - activeContext_obj()->as_oop_p() + nArgs ==  delta ) return true;
-    lprintf("balancedStackAfterPrimitive failed: stackPointer 0x%x, activeContext_obj() 0x%x, nArgs %d, delta $d\n",
+    lprintf("balancedStackAfterPrimitive failed: stackPointer 0x%x, activeContext_obj() 0x%x, nArgs %d, delta %d\n",
             _stackPointer, (Object*)activeContext_obj(), nArgs, delta);
     return false;
   }
