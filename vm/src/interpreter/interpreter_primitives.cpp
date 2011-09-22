@@ -994,9 +994,10 @@ void Squeak_Interpreter::primitiveGetAttribute() {
   popThenPush(2, s->as_oop());
 }
 
+
 void Squeak_Interpreter::primitiveGetNextEvent() {
   assert_external();
-  const bool print = false;
+  const bool print = Print_Keys;
   int evtBuf[evtBuf_size];
   for (int i = 0;  i < evtBuf_size;  ++i)  evtBuf[i] = 0;
   bool got_one = The_Interactions.getNextEvent_on_main(evtBuf); // do this from here so we can GC if need be
@@ -1041,10 +1042,11 @@ void Squeak_Interpreter::primitiveGetNextEvent() {
   }
   if (!successFlag) return;
 
-  if (print && evtBuf[0] == 2)
-    lprintf("primitiveGetNextEvent key: %d, state %d\n", evtBuf[2], evtBuf[3]);
+  if (print && evtBuf[0] == 2 /* EventTypeKeyboard*/ )
+    lprintf("primitiveGetNextEvent key: %d, state %d '%c'\n", evtBuf[2], evtBuf[3], evtBuf[2]);
   pop(1);
 }
+
 
 void Squeak_Interpreter::primitiveGreaterOrEqual() {
   oop_int_t a = popInteger();
@@ -1215,9 +1217,20 @@ void Squeak_Interpreter::primitiveInvokeObjectAsMethod() {
   successFlag = true;
 }
 
+static void print_keystroke_word(int keystrokeWord) {
+  if (Print_Keys  &&  keystrokeWord >= 0) {
+    lprintf("%s %u 0x%x 0%o\n", 
+            "primitiveKbdPeek", 
+            keystrokeWord,
+            keystrokeWord,
+            keystrokeWord);
+  }
+}
+
 void Squeak_Interpreter::primitiveKbdNext() {
   pop(1);
   int keystrokeWord = ioGetKeystroke();
+  print_keystroke_word(keystrokeWord);
   if (keystrokeWord >= 0)  pushInteger(keystrokeWord);
   else                     push(roots.nilObj);
 
@@ -1230,6 +1243,7 @@ void Squeak_Interpreter::primitiveKbdPeek() {
 # else
   int keystrokeWord = ioPeekKeystroke();
 # endif
+  print_keystroke_word(keystrokeWord);
   if (keystrokeWord >= 0)  pushInteger(keystrokeWord);
   else                     push(roots.nilObj);
 }

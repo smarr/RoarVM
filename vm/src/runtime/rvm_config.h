@@ -119,7 +119,9 @@
   template(Hammer_Safepoints) /* for debugging */ \
   \
   template(Dump_Bytecode_Cycles) \
-  template(Dont_Dump_Primitive_Cycles)
+  template(Dont_Dump_Primitive_Cycles) \
+  \
+  template(Print_Keys)
 
 
 
@@ -206,6 +208,10 @@
 
 # ifndef PrintFetchedContextRegisters
 #  define PrintFetchedContextRegisters 0
+# endif
+
+# ifndef Print_Keys
+#  define Print_Keys 0
 # endif
 
 // Keeping a tally of the received messages seems to have an impact on performance.

@@ -1373,6 +1373,7 @@
 					"-lXext",
 				);
 				PRODUCT_NAME = RoarVM;
+				SDKROOT = macosx10.6;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
 			};
@@ -1395,7 +1396,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"Print_Scheduler=0",
 					"Extra_Preheader_Word_Experiment=1",
-					"check_assertions=1",
+					"check_assertions=0",
 					"check_many_assertions=0",
 					"Include_Debugging_Code=0",
 					"Trace_For_Debugging=0",
@@ -1419,6 +1420,7 @@
 					"-lXext",
 				);
 				PRODUCT_NAME = RoarVM;
+				SDKROOT = macosx10.6;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
 			};
