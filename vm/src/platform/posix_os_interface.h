@@ -173,28 +173,17 @@ public:
   static inline void  rvm_free_shared(void * mem) { free(mem); }
   
 private:
-  static inline void* memalign(int align, int sz) {
-    void* const mem = malloc(sz + align);
-    void* const aligned_mem = (void*) ( (int(mem) + align - 1) & ~(align-1) );
-    
-    // Wanted to store the original result there for free, but, since I do not
-    // know on free whether we got unaligned memory in the beginning,
-    // I am not sure whether I can actually look there for the answer
-    /*
-    if (mem != aligned_mem) {
-      assert((uintptr_t)aligned_mem > (uintptr_t)mem + sizeof(void*));
-      void** original_beginning_store = (void**)((uintptr_t)aligned_mem
-                                                        - sizeof(void*));
-      *original_beginning_store = mem;
-      return aligned_mem;
-    } */
-    return aligned_mem;
-  }
+
 public:
-  static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }
-  static inline void  rvm_free_aligned_shared(void * mem) {
-    # warning not yet implemented
+  static inline void* rvm_memalign(int al, int sz) {
+    void* result;
+    int err = posix_memalign(&result, al, sz);
+    if (err == 0) // SUCCESS
+      return result;
+    else
+      return NULL;
   }
+  static inline void  rvm_free_aligned_shared(void * mem) { free(mem); }
   
   static inline void* rvm_memalign(OS_Heap, int al, int sz) { return rvm_memalign(al, sz); }
   static inline void* malloc_in_mem(int /* alignment */, int size) { return malloc(size); }
