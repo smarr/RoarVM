@@ -935,7 +935,9 @@ Object_p Object::makeString(const char* str, int n) {
 
 
 void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
-# if Use_Object_Table
+  if (!Use_Object_Table)
+    fatal("Currently not supported without Object_Table.");
+
   if (The_Memory_System()->rank_for_address(this) == r
   &&  The_Memory_System()->mutability_for_address(this) == rw_or_rm)
     return;
@@ -980,9 +982,6 @@ void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
   ((Chunk*)src_chunk)->make_free_object(ehb + bnc, 2); // without this GC screws up
 
   if (do_sync) The_Squeak_Interpreter()->postGCAction_everywhere(false);
-# else
-  fatal("Currently not supported without Object_Table.");
-# endif
 }
 
 

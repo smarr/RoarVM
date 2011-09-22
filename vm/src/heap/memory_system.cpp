@@ -123,7 +123,11 @@ Oop Memory_System::get_stats(int what_to_sample) {
 
 
 void Memory_System::fullGC(const char* why) {
-# if Use_Object_Table
+  # if !Use_Object_Table
+    # warning STEFAN: The GC is currently disabled, since it is not adapted \
+                      to work without object table.
+  # endif
+    
   Squeak_Interpreter * const interp = The_Squeak_Interpreter();
   if (interp->am_receiving_objects_from_snapshot())
     fatal("cannot gc now");
@@ -146,10 +150,6 @@ void Memory_System::fullGC(const char* why) {
   global_GC_values->mutator_start_time = interp->ioWhicheverMSecs();
 
   level_out_heaps_if_needed();
-# else
-  # warning STEFAN: The GC is currently disabled, since it is not adapted to \
-                    work without object table.
-# endif
 }
 
 
@@ -207,7 +207,9 @@ void Memory_System::finalize_weak_arrays_since_we_dont_do_incrementalGC() {
 
 
 void Memory_System::swapOTEs(Oop* o1, Oop* o2, int len) {
-# if Use_Object_Table
+  if (!Use_Object_Table)
+    fatal("Currently not supported without an object_table.");
+    
   for (int i = 0;  i < len;  ++i) {
     Object_p obj1 = o1[i].as_object();
     Object_p obj2 = o2[i].as_object();
@@ -215,9 +217,6 @@ void Memory_System::swapOTEs(Oop* o1, Oop* o2, int len) {
     obj2->set_object_address_and_backpointer(o1[i]  COMMA_TRUE_OR_NOTHING);
     obj1->set_object_address_and_backpointer(o2[i]  COMMA_TRUE_OR_NOTHING);
   }
-# else
-  fatal("Currently not supported without an object_table.");
-# endif
 }
 
 

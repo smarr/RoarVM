@@ -171,7 +171,7 @@ public:
   inline void set_extra_preheader_word(oop_int_t w);
    
    
-# if Enforce_Backpointer || Use_Object_Table   
+
    Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
    
    void set_backpointer(Oop x) {
@@ -191,12 +191,8 @@ public:
   inline void set_backpointer_word(oop_int_t w);
 
   oop_int_t* backpointer_word() {
-    return &preheader()->backpointer;
+    return preheader()->backpointer_word();
   }
-# else
-  inline void set_backpointer(Oop) const {}
-   
-# endif
   
 public:
 
@@ -520,9 +516,7 @@ public:
   Object_p instantiateClass(oop_int_t sizeInBytes, Logical_Core* where = NULL);
   oop_int_t instanceSizeOfClass();
 
-# if Enforce_Backpointer || Use_Object_Table
   inline void set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB);
-# endif
 
   inline bool isCompiledMethod();
 

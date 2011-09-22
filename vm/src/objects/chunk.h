@@ -41,7 +41,7 @@ class Chunk
    */
   Object* object_from_chunk() {
     Word_Containing_Object_Type* const after_preheader =
-          (Word_Containing_Object_Type*)first_byte_after_preheader_from_chunk();
+                  (Word_Containing_Object_Type*)first_byte_after_preheader();
     
     
     return (Object*) & ((char*)after_preheader)[after_preheader->extra_header_bytes_without_preheader()];
@@ -60,7 +60,7 @@ class Chunk
     return (Object*) & ((char*)this)[extra_header_bytes_without_preheader()];
   }
   
-  inline void* first_byte_after_preheader_from_chunk() {
+  inline void* first_byte_after_preheader() {
     return (char*)this + preheader_byte_size;
   }
   

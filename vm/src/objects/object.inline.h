@@ -13,14 +13,13 @@
 
 
 
-# if Enforce_Backpointer || Use_Object_Table
 inline void Object::set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB) {
-  Safepoint_for_moving_objects::assert_held();
-  The_Memory_System()->object_table->set_object_for(x, (Object_p)this  COMMA_USE_ESB);
-  set_backpointer(x);
+  if (Enforce_Backpointer || Use_Object_Table) {
+    Safepoint_for_moving_objects::assert_held();
+    The_Memory_System()->object_table->set_object_for(x, (Object_p)this  COMMA_USE_ESB);
+    set_backpointer(x);
+  }
 }
-# endif
-
 
 
 inline void Object::set_class_oop(Oop x) {
@@ -29,6 +28,7 @@ inline void Object::set_class_oop(Oop x) {
                                               |  Header_Type::without_type(x.bits()),
                                               (Object_p)this);
 }
+
 
 inline void Object::set_class_oop_no_barrier(Oop x) {
   class_and_type_word() = Header_Type::extract_from(class_and_type_word())
@@ -39,12 +39,13 @@ inline void Object::  mark_without_store_barrier() { baseHeader |=  MarkBit; }
 inline void Object::unmark_without_store_barrier() { baseHeader &= ~MarkBit; }
 
 
-# if Enforce_Backpointer || Use_Object_Table
 inline void Object::set_backpointer_word(oop_int_t w) {
-  oop_int_t* dst = backpointer_word();
-  The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);
+  if (Enforce_Backpointer || Use_Object_Table) {
+    oop_int_t* dst = backpointer_word();
+    The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);
+  }
 }
-# endif // if Enforce_Backpointer || Use_Object_Table
+
 
 inline void Object::set_extra_preheader_word(oop_int_t w) {
   if (!Extra_Preheader_Word_Experiment)

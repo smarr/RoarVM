@@ -54,40 +54,38 @@ inline Oop Oop::from_object(Object* p) {
   if (check_many_assertions)
     assert_message(p != NULL,
                    "used to count on being able to do this, fix these uses");
-# if Use_Object_Table
-  return p->backpointer();
-# else
-  assert_eq((oop_int_t)p, (oop_int_t)p | Mem_Tag, "They should already be tagged.");
-  # warning STEFAN: check whether we actually need the OR here
-  return from_bits((oop_int_t)p | Mem_Tag);
-# endif
+  if (Use_Object_Table)
+    return p->backpointer();
+  else {
+    assert_eq((oop_int_t)p, (oop_int_t)p | Mem_Tag, "They should already be tagged.");
+    // In case the assertion above failes, we used to do the following: 
+    // old: return from_bits((oop_int_t)p | Mem_Tag);
+    return from_bits((oop_int_t)p);
+  }
 }
 
 
 // TODO: perhaps it should be moved to the point right after getting it out
 //       of the object table...
 inline Object_p Oop::as_object_unchecked() {
-# if Use_Object_Table
-  return (Object_p)The_Memory_System()->object_for_unchecked(*this);
-# else
-  return as_object();
-# endif
+  if (Use_Object_Table)
+    return (Object_p)The_Memory_System()->object_for_unchecked(*this);
+  else
+    return as_object();
 }
 
 inline Object* Oop::as_untracked_object_ptr() {
-# if Use_Object_Table
-  return The_Memory_System()->object_for(*this);
-# else
-  return as_object();
-# endif
+  if (Use_Object_Table)
+    return The_Memory_System()->object_for(*this);
+  else
+    return as_object();
 }
 
 inline Object_p Oop::as_object() {
-# if Use_Object_Table
-  return (Object_p)The_Memory_System()->object_for(*this);
-# else
-  return (Object_p)(Object*)bits();
-# endif
+  if (Use_Object_Table)
+    return (Object_p)The_Memory_System()->object_for(*this);
+  else
+    return (Object_p)(Object*)bits();
 }
 
 inline Object_p Oop::as_object_if_mem() {

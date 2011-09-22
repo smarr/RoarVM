@@ -51,7 +51,7 @@ inline Object_p Chunk::fill_in_after_allocate(oop_int_t byteSize,
   // since new allocs are in read_write heap, no need to mark this for moving to read_write
   assert(The_Memory_System()->contains(this));
   
-  oop_int_t* headerp = (oop_int_t*)first_byte_after_preheader_from_chunk();
+  oop_int_t* headerp = (oop_int_t*)first_byte_after_preheader();
   Object_p    newObj = (Object_p)(Object*)&headerp[hdrSize - 1];
   assert(The_Memory_System()->is_address_read_write(this)); // not going to bother with coherence
   
