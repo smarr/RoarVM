@@ -97,21 +97,3 @@ inline Object_p Multicore_Object_Heap::object_address_unchecked(Oop x) {
   return x.as_object_unchecked();
 }
 
-
-# if Use_Object_Table
-
-inline bool Multicore_Object_Table::Entry::is_used() {
-  Object* ow = word()->obj();
-  return The_Memory_System()->contains(ow);
-}
-
-inline bool Multicore_Object_Table::probably_contains(void* p) const {
-  if (The_Memory_System()->contains(p)) return false;
-  FOR_ALL_RANKS(r)
-    if (lowest_address[r] <= p  &&  p  < lowest_address_after_me[r])
-      return true;
-  return false;
-}
-
-# endif
-

@@ -28,5 +28,19 @@ inline Oop Multicore_Object_Table::allocate_oop_and_set_preheader(Object_p obj, 
   return allocate_oop_and_set_backpointer(obj, r  COMMA_USE_ESB); 
 }
 
+inline bool Multicore_Object_Table::Entry::is_used() {
+  Object* ow = word()->obj();
+  return The_Memory_System()->contains(ow);
+}
+
+inline bool Multicore_Object_Table::probably_contains(void* p) const {
+  if (The_Memory_System()->contains(p)) return false;
+  FOR_ALL_RANKS(r)
+  if (lowest_address[r] <= p  &&  p  < lowest_address_after_me[r])
+    return true;
+  return false;
+}
+
+
 # endif // if Use_Object_Table
 
