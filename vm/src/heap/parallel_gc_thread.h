@@ -15,7 +15,7 @@ class GC_Thread_Class {
 public:
   static int const LIVENESS_THRESHOLD = (Mega/3);
   
-  void addRoots( GC_Oop_Stack* aRootStack );
+  void addRoots(GC_Oop_Stack* aRootStack);
   void addToMarkStack(Oop* object);
   void setAsAwaitingFinishedGCCycle(int rank);
   bool isAlmostDead(int pageNbr);
@@ -23,33 +23,31 @@ public:
   bool isCompletelyDead(int pageNbr);
   
   /* Inspect current running GC-phase(s) */
-  bool is_mark_phase(){ return phase->is_mark_phase(); };
-  bool is_relocate_phase(){ return phase->is_relocate_phase(); };
-  bool is_remap_phase(){ return phase->is_remap_phase(); };
+  bool is_mark_phase()     { return phase->is_mark_phase(); };
+  bool is_relocate_phase() { return phase->is_relocate_phase(); };
+  bool is_remap_phase()    { return phase->is_remap_phase(); };
   
   GC_Thread_Class()
-  : m_stoprequested(false), m_running(false),m_rank(Logical_Core::num_cores+1),phase(new GC_State()),m_pageLiveness(NULL)
+  : m_stoprequested(false), 
+    m_running(false),
+    m_rank(Logical_Core::num_cores + 1),
+    phase(new GC_State()),
+    m_pageLiveness(NULL)
   {
     mark_stack_ = GC_Oop_Stack();
-    awaitingFinished = (bool*)(malloc(sizeof(bool)*Logical_Core::group_size));
-    for(int i=0; i<Logical_Core::group_size ; i++){
+    awaitingFinished = (bool*)malloc(sizeof(bool) * Logical_Core::group_size);
+    for (size_t i = 0; i < Logical_Core::group_size ; i++){
       awaitingFinished[i] = false;
     }
   }
   
-  ~GC_Thread_Class()
-  {
-  }
-  
-  void start()
-  {
+  void start() {
     assert(m_running == false);
     m_running = true;
-    pthread_create(&m_myThread, NULL, &GC_Thread_Class::start_gc_thread, this);
+    pthread_create(&m_myThread, NULL, GC_Thread_Class::start_gc_thread, this);
   }
   
-  void stop()
-  {
+  void stop() {
     assert(m_running == true);
     m_running = false;
     m_stoprequested = true;
@@ -57,7 +55,7 @@ public:
   }
   
   Oop lookUpNewLocation(Oop p);
-  void addNewTopContents(Contents* c){
+  void addNewTopContents(Contents* c) {
     mark_stack_.addNewTopContents( c );
   }
   
@@ -65,7 +63,7 @@ public:
   
   GC_State* phase;
   
-  void setInitialInterpreter(Squeak_Interpreter* initialInterpreter );
+  void setInitialInterpreter(Squeak_Interpreter* initialInterpreter);
   
 private:
   bool* awaitingFinished;
@@ -87,10 +85,9 @@ private:
   pthread_t m_myThread;
   
   
-  static void* start_gc_thread(void *obj)
-  {
+  static void* start_gc_thread(void *obj) {
     //All we do here is call the do_work() function
-    reinterpret_cast<GC_Thread_Class *>(obj)->do_work();
+    ((GC_Thread_Class*)obj)->do_work();
     return NULL;
   }
   
@@ -132,7 +129,7 @@ private:
   int  comp_pageof(Object*);
   
   inline void verbosePrint_checkpoint(const char* str);
-  void printLivenessArray( LPage* la );
+  void printLivenessArray(LPage* la);
   
   void doCheckpoint(checkpointMessage_class* m, Message_Statics::messages responseType);
   void checkpoint_simple();

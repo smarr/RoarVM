@@ -28,8 +28,7 @@
 int DEBUG_MARKCOUNT   = 0;
 int DEBUG_UNMARKCOUNT = 0;
 
-void GC_Thread_Class::do_work()
-{  
+void GC_Thread_Class::do_work() {  
   Thread_Memory_Semantics::initialize_corekey_for_GC();
   printf("GC_thread running (%d)...\n", Logical_Core::my_rank());
   The_Memory_System()->create_heap_for_GC();
@@ -40,11 +39,11 @@ void GC_Thread_Class::do_work()
   Memory_Semantics::initialize_local_interpreter_GC( m_initialInterpreter );
   
   
-  if(DO_ALLOCATION_IN_GC_HEAP_CHECK) {
+  if (DO_ALLOCATION_IN_GC_HEAP_CHECK) {
     The_Memory_System()->my_heap()->allocateChunk(123);
   }
   
-  if(DO_NMT_SETTING_CHECK) {
+  if (DO_NMT_SETTING_CHECK) {
     bool nmt = m_initialInterpreter->roots.nilObj.getNMT();
     
     assert_always(m_initialInterpreter->roots.nilObj.is_mem());
@@ -57,26 +56,26 @@ void GC_Thread_Class::do_work()
     assert_always(m_initialInterpreter->roots.nilObj.is_mem() && m_initialInterpreter->roots.nilObj.getNMT() == nmt);
   }
   
-  if(DO_SIMPLE_CHECKPOINT_CHECK){
+  if (DO_SIMPLE_CHECKPOINT_CHECK) {
     checkpoint_simple();
   }
   
-  if(DO_PROTECTED_PAGE_CHECK)
+  if (DO_PROTECTED_PAGE_CHECK)
     TEST_force_protectedPage_signal_trap();
     
   
-  if(DO_FIRST_OBJECT_OF_PAGE_TEST){
+  if (DO_FIRST_OBJECT_OF_PAGE_TEST) {
     Page* p = The_Memory_System()->allocate(1);
     p->firstObject();
     
-    FOR_EACH_PAGE(page){
+    FOR_EACH_PAGE(page) {
       int pageNbr = page->pageNumber();
       Object* o = page->firstObject();
       printf("page %d\t%p\n",pageNbr,o);
     }
   }
   
-  if( DO_RELOCATE_TEST ) {
+  if ( DO_RELOCATE_TEST ) {
     
   }
   
@@ -101,7 +100,7 @@ void GC_Thread_Class::do_work()
  *                         MARK                    *
  ***************************************************/
 
-void GC_Thread_Class::phase_mark(){
+void GC_Thread_Class::phase_mark() {
   phase->set_phase_mark();
   assert( is_mark_phase() );
   
@@ -124,34 +123,34 @@ void GC_Thread_Class::phase_mark(){
   printLivenessArray( m_pageLiveness );
   
   int oc = 0;
-  FOR_EACH_OBJECT(obj){
-    if( !obj->isFreeObject() ){
+  FOR_EACH_OBJECT(obj) {
+    if ( !obj->isFreeObject() ) {
       oc++;
     }
   }
   printf("non-free objects:(%d)\n",oc);
   
   
-  int markCount= 0;
-  int c1 =0;
-  int c2 =0;
-  int c3 =0;
+  int markCount = 0;
+  int c1 = 0;
+  int c2 = 0;
+  int c3 = 0;
   
   // This loop corresponds to the finishmark CP, and is needed to handle possibly added NTM-trapped refs.
   // Just before a mutator thread passes its checkpoint, it sends its NTM-trapped refs.
-  while( !mark_stack_.is_empty()){ 
+  while( !mark_stack_.is_empty()) { 
     
     // This loop corresponds to the receiving of intermediate added NTM-trapped refs.
     // Every bulk of 10k NMT trapped refs are send to to the GC-thread.
-    while( !mark_stack_.is_empty()){
+    while( !mark_stack_.is_empty()) {
       
       // This loop corresponds to the trivial emptying of the mark-stack.
-      while( !mark_stack_.is_empty()){
+      while( !mark_stack_.is_empty()) {
         // Pop one at the time and traverse.
         Object* object = mark_stack_.pop();
-        if(object != NULL && !object->is_marked() ) {
+        if (object != NULL && !object->is_marked() ) {
           
-          if(mark_traverse(object)){
+          if (mark_traverse(object)) {
             markCount++;
           }
         }
@@ -175,11 +174,11 @@ void GC_Thread_Class::phase_mark(){
   assert( !is_mark_phase() );
 }
 
-void GC_Thread_Class::initInternalDataStructuresForMark(){
+void GC_Thread_Class::initInternalDataStructuresForMark() {
   initMarkStack();
 }
 
-void GC_Thread_Class::checkpoint_startMark(){
+void GC_Thread_Class::checkpoint_startMark() {
   printf("Start new mark phase with %s as NMT value...\n",Logical_Core::my_NMT()?"T":"F");
   checkpoint_startMark_Message_class m( Logical_Core::my_NMT() );
   doCheckpoint(&m, Message_Statics::checkpoint_startMark_Response);
@@ -187,11 +186,11 @@ void GC_Thread_Class::checkpoint_startMark(){
   verbosePrint_checkpoint("Passed start-mark checkpoint...");
 }
 
-void GC_Thread_Class::addRoots( GC_Oop_Stack* aRootStack ){
+void GC_Thread_Class::addRoots( GC_Oop_Stack* aRootStack ) {
   mark_stack_.pushOtherStack( aRootStack );
 }
 
-void GC_Thread_Class::checkpoint_finishMark(){
+void GC_Thread_Class::checkpoint_finishMark() {
   verbosePrint_checkpoint("Start finish-mark checkpoint...");
   checkpoint_finishMark_Message_class m;
   doCheckpoint(&m, Message_Statics::checkpoint_finishMark_Response);
@@ -199,13 +198,13 @@ void GC_Thread_Class::checkpoint_finishMark(){
   verbosePrint_checkpoint("Passed finish-mark checkpoint...");
 }
 
-void GC_Thread_Class::finalizeInternalDataStructuresForMark(){
+void GC_Thread_Class::finalizeInternalDataStructuresForMark() {
   finalizeMarkStack();
 }
 
-inline bool GC_Thread_Class::updateNMTbitIfNeeded(Oop* p, Oop &oldValue){
-  if(!oldValue.is_mem()) fatal("Non-mem oop has no NMT bits");
-  if(oldValue.getNMT() != Logical_Core::my_NMT()){
+inline bool GC_Thread_Class::updateNMTbitIfNeeded(Oop* p, Oop &oldValue) {
+  if (!oldValue.is_mem()) fatal("Non-mem oop has no NMT bits");
+  if (oldValue.getNMT() != Logical_Core::my_NMT()) {
     Oop newValue = Oop::from_bits(oldValue.bits());
     newValue.setNMT( Logical_Core::my_NMT() );
     bool res = Oop::atomic_compare_and_swap(p, oldValue, newValue);
@@ -215,32 +214,32 @@ inline bool GC_Thread_Class::updateNMTbitIfNeeded(Oop* p, Oop &oldValue){
   return false;
 }
 
-void GC_Thread_Class::updateNMTbitIfNeededAndPushOnStack(Oop* p){
+void GC_Thread_Class::updateNMTbitIfNeededAndPushOnStack(Oop* p) {
   Oop oldValue = *p;
-  if( updateNMTbitIfNeeded(p, oldValue) ) {
+  if ( updateNMTbitIfNeeded(p, oldValue) ) {
   assert(oldValue.getNMT() == Logical_Core::my_NMT());
   mark_stack_.push(oldValue.as_object());
   }
 }
 
 /* Returns true if the traverse is completed. */
-bool GC_Thread_Class::mark_traverse(Object* object){
+bool GC_Thread_Class::mark_traverse(Object* object) {
   int page = comp_pageof(object);
   
   //Skip objects in pages alloacted after the start of the GC-cycle.
-  if( ! m_pageLiveness[page].isAllocated() ) {
+  if ( ! m_pageLiveness[page].isAllocated() ) {
     //printf("Found object in non-Allocated-page %d\n",page);
     return false;
   }
   
   assert( !object->is_marked());
-  if(object->isFreeObject()) fatal();
+  if (object->isFreeObject()) fatal();
   object->mark_without_store_barrier();
   
 
   // Mark the references it contains with the correct NMT value and add them to the worklist.
-  FOR_EACH_STRONG_OOP_IN_OBJECT_EXCEPT_CLASS_RECORDING_WEAK_ROOTS(object, oopp){
-    if( oopp->is_mem()){
+  FOR_EACH_STRONG_OOP_IN_OBJECT_EXCEPT_CLASS_RECORDING_WEAK_ROOTS(object, oopp) {
+    if ( oopp->is_mem()) {
       updateNMTbitIfNeededAndPushOnStack(oopp);
     }
   }
@@ -252,9 +251,9 @@ bool GC_Thread_Class::mark_traverse(Object* object){
     o->is_marked();
     mark_stack_.push( o );
   }
-  if (Extra_Preheader_Word_Experiment){
+  if (Extra_Preheader_Word_Experiment) {
     Oop* ephw_oop = (Oop*)(object->extra_preheader_word());
-    if( ephw_oop->is_mem() ) {
+    if ( ephw_oop->is_mem() ) {
       updateNMTbitIfNeededAndPushOnStack(ephw_oop);
     }
   }
@@ -267,13 +266,13 @@ bool GC_Thread_Class::mark_traverse(Object* object){
   int size = comp_sizeof(object);
 
   
-  if( size > page_size ){
+  if ( size > page_size ) {
     /*
      * Large object:
      * assume that pages are consecutive.
      * set all used-pages' liveness to page_size.
      */
-    while(size>0){
+    while(size>0) {
       m_pageLiveness[page].addLiveBytes(page_size);
       page++;
       size-=page_size;
@@ -285,7 +284,7 @@ bool GC_Thread_Class::mark_traverse(Object* object){
     int liveBytes = m_pageLiveness[page].liveBytes;
     m_pageLiveness[page].addLiveBytes(size);
     int newLiveBytes = m_pageLiveness[page].liveBytes;
-    if(newLiveBytes<  liveBytes+size){
+    if (newLiveBytes<  liveBytes+size) {
       assert(liveBytes == page_size);
       assert( newLiveBytes == page_size);
     }
@@ -300,7 +299,7 @@ bool GC_Thread_Class::mark_traverse(Object* object){
  *                       RELOCATE                  *
  ***************************************************/
 
-void GC_Thread_Class::phase_relocate(){
+void GC_Thread_Class::phase_relocate() {
   phase->set_phase_relocate();
   assert( is_relocate_phase() );
   
@@ -324,16 +323,16 @@ void GC_Thread_Class::phase_relocate(){
   assert( ! is_relocate_phase() );
 }
 
-void GC_Thread_Class::initInternalDataStructuresForRelocate(){
+void GC_Thread_Class::initInternalDataStructuresForRelocate() {
   // init forwarding table is not necessary since atm we store forward pointer in Objects. 
 }
 
-void protectPage(Page* page){
+void protectPage(Page* page) {
   //mprotect(page, page_size, PROT_NONE);
 }
 
-void GC_Thread_Class::freeAndProtectPages(){
-  FOR_EACH_PAGE(page){
+void GC_Thread_Class::freeAndProtectPages() {
+  FOR_EACH_PAGE(page) {
     if ( isCompletelyDead(page->pageNumber()) ) {
       // free the page && if it contained a page-spanning object, free all intermediate pages &&
       // encode a free object at the start of the last page of this object to make the remaining
@@ -354,14 +353,14 @@ void GC_Thread_Class::freeAndProtectPages(){
       } else
         freeFreePage(page);
       
-    } else if(isAlmostDead(page->pageNumber())) {
+    } else if (isAlmostDead(page->pageNumber())) {
       protectPage(page);
       
     }
   }
 }
 
-void GC_Thread_Class::checkpoint_startRelocate(){
+void GC_Thread_Class::checkpoint_startRelocate() {
   ScrubExistingStaleRefs_Oop_Closure oc;
   The_Squeak_Interpreter()->do_all_roots(&oc);
   
@@ -370,15 +369,15 @@ void GC_Thread_Class::checkpoint_startRelocate(){
   verbosePrint_checkpoint("Passed start-relocate checkpoint...");
 }
 
-void GC_Thread_Class::doRelocation(){
+void GC_Thread_Class::doRelocation() {
   /* traverse liveness array */
-  FOR_EACH_PAGE(page){
-    if( m_pageLiveness[page->pageNumber()].isAllocated() ){ /* in this cycle's domain */
-      if( isAlmostDead(page->pageNumber()) ) {
+  FOR_EACH_PAGE(page) {
+    if ( m_pageLiveness[page->pageNumber()].isAllocated() ) { /* in this cycle's domain */
+      if ( isAlmostDead(page->pageNumber()) ) {
         relocateLiveObjectsOfPage(page);
       } else {
-        FOR_EACH_OBJECT_IN_PAGE(page, object){
-          if(!object->isFreeObject() && object->is_marked())
+        FOR_EACH_OBJECT_IN_PAGE(page, object) {
+          if (!object->isFreeObject() && object->is_marked())
             object->unmark_without_store_barrier();
         }
       }
@@ -386,15 +385,15 @@ void GC_Thread_Class::doRelocation(){
   }
 }
 
-void GC_Thread_Class::relocateLiveObjectsOfPage(Page* page){
+void GC_Thread_Class::relocateLiveObjectsOfPage(Page* page) {
   int pageNbr = page->pageNumber();
   
   printf("relocateLiveObjectsOfPage %d, workload = %d bytes\n",pageNbr,m_pageLiveness[pageNbr].liveBytes );
   
   Page* unprotectedPage = (Page*)((char*)page + The_Memory_System()->unprotected_heap_offset);
   
-  FOR_EACH_OBJECT_IN_UNPROTECTED_PAGE(unprotectedPage, object){
-    if( !object->isFreeObject() && object->is_marked() ){
+  FOR_EACH_OBJECT_IN_UNPROTECTED_PAGE(unprotectedPage, object) {
+    if ( !object->isFreeObject() && object->is_marked() ) {
       Oop newOop = object->relocateIfNoForwardingPointer( The_Memory_System()->my_heap() );
       
       int size = comp_sizeof(newOop.as_object_noLVB());
@@ -403,7 +402,7 @@ void GC_Thread_Class::relocateLiveObjectsOfPage(Page* page){
       newOop.as_object_noLVB()->unmark_without_store_barrier();
 
       assert( m_pageLiveness[pageNbr].liveBytes >= 0 );
-      if( m_pageLiveness[pageNbr].liveBytes == 0 ){
+      if ( m_pageLiveness[pageNbr].liveBytes == 0 ) {
         break;
       }
     }/* else {
@@ -416,7 +415,7 @@ void GC_Thread_Class::relocateLiveObjectsOfPage(Page* page){
  *                        REMAP                    *
  ***************************************************/
 
-void GC_Thread_Class::phase_remap(){
+void GC_Thread_Class::phase_remap() {
   phase->set_phase_remap();
   assert( is_remap_phase() );
   
@@ -432,18 +431,18 @@ void GC_Thread_Class::phase_remap(){
   assert( ! is_remap_phase() );
 }
 
-void GC_Thread_Class::checkpoint_startRemap(){
+void GC_Thread_Class::checkpoint_startRemap() {
   verbosePrint_checkpoint("Start checkpoint_startRemap...");
   checkpoint_startRemap_Message_class m;
   doCheckpoint(&m,Message_Statics::checkpoint_startRemap_Response);
   verbosePrint_checkpoint("Passed checkpoint_startRemap...");
 }
 
-void GC_Thread_Class::remapAndMarkAllFromMarkStack(){
+void GC_Thread_Class::remapAndMarkAllFromMarkStack() {
   int popCount    = 0;
   int unmarkCount = 0;
   
-  while( !mark_stack_.is_empty()){
+  while( !mark_stack_.is_empty()) {
     
     Object* object = mark_stack_.pop(); popCount++;
     assert( !The_GC_Thread()->isCompletelyDead( object->my_pageNumber() )); // was not protected!
@@ -451,14 +450,14 @@ void GC_Thread_Class::remapAndMarkAllFromMarkStack(){
     
     if (object == NULL) fatal("Popped objects should never be NULL...");
     
-    if( !object->is_marked() ){
+    if ( !object->is_marked() ) {
       
-      if(object->isFreeObject()) fatal();
+      if (object->isFreeObject()) fatal();
       object->mark_without_store_barrier(); unmarkCount++;
       
       // Strong oops
       FOR_EACH_STRONG_OOP_IN_OBJECT_EXCEPT_CLASS_RECORDING_WEAK_ROOTS(object, oopp) {
-        if(oopp->is_mem()){
+        if (oopp->is_mem()) {
           Object* o = oopp->as_object();
           assert( !The_GC_Thread()->isCompletelyDead( o->my_pageNumber() ));
           mark_stack_.push( o );
@@ -472,9 +471,9 @@ void GC_Thread_Class::remapAndMarkAllFromMarkStack(){
       }
       
       // Extra preaheader
-      if (Extra_Preheader_Word_Experiment){
+      if (Extra_Preheader_Word_Experiment) {
         Oop* ephw_oop = (Oop*)(object->extra_preheader_word());
-        if( ephw_oop->is_mem() ) {
+        if ( ephw_oop->is_mem() ) {
           mark_stack_.push(ephw_oop->as_object());
         }
       }
@@ -487,23 +486,23 @@ void GC_Thread_Class::remapAndMarkAllFromMarkStack(){
   
 }
 
-void GC_Thread_Class::freeFreePages(){
+void GC_Thread_Class::freeFreePages() {
   /* traverse liveness array */
-  FOR_EACH_PAGE(page){
-    if(m_pageLiveness[page->pageNumber()].isAllocated() && 
+  FOR_EACH_PAGE(page) {
+    if (m_pageLiveness[page->pageNumber()].isAllocated() && 
        m_pageLiveness[page->pageNumber()].liveBytes < LIVENESS_THRESHOLD ) freeFreePage(page);
   }
 }
 
-void GC_Thread_Class::freeFreePage(Page* page){
+void GC_Thread_Class::freeFreePage(Page* page) {
   mprotect(page,page_size, PROT_READ | PROT_WRITE | PROT_EXEC);
   m_pageLiveness[page->pageNumber()].setAllocated(false);
   The_Memory_System()->free(page);
   printf("Freed page %d.\n", page->pageNumber());
 }
 
-void GC_Thread_Class::unmarkAllObjects(){
-  FOR_EACH_OBJECT_EFFICIENT(object_ptr, heap_past_used_end){
+void GC_Thread_Class::unmarkAllObjects() {
+  FOR_EACH_OBJECT_EFFICIENT(object_ptr, heap_past_used_end) {
     if (!object_ptr->isFreeObject() && object_ptr->is_marked()) { /* this might be racing w/  mutators */
       object_ptr->unmark_without_store_barrier();
     }
@@ -514,47 +513,47 @@ void GC_Thread_Class::unmarkAllObjects(){
  *                        OTHER                    *
  ***************************************************/
 
-void GC_Thread_Class::verbosePrint_checkpoint(const char* str){
-  if(VERBOSE_CHECKPOINTS)printf("%s\n",str);
+void GC_Thread_Class::verbosePrint_checkpoint(const char* str) {
+  if (VERBOSE_CHECKPOINTS)printf("%s\n",str);
 }
 
-void GC_Thread_Class::doCheckpoint(checkpointMessage_class* m, Message_Statics::messages responseType){
+void GC_Thread_Class::doCheckpoint(checkpointMessage_class* m, Message_Statics::messages responseType) {
   FOR_ALL_OTHER_RANKS(i) {
     m->send_to(i);
   }
   Message_Statics::receive_and_handle_all_checkpoint_responses_GC(responseType);
 }
 
-void GC_Thread_Class::checkpoint_simple(){
+void GC_Thread_Class::checkpoint_simple() {
   verbosePrint_checkpoint("Start simple checkpoint...");
   checkpointMessage_class m;
   doCheckpoint(&m, Message_Statics::checkpointResponse);
   verbosePrint_checkpoint("Passed simple checkpoint...");
 }
 
-int GC_Thread_Class::comp_sizeof(Object* object){ return object->total_byte_size(); }
+int GC_Thread_Class::comp_sizeof(Object* object) { return object->total_byte_size(); }
 
-int GC_Thread_Class::comp_pageof(Object* object){ return object->my_pageNumber(); }
+int GC_Thread_Class::comp_pageof(Object* object) { return object->my_pageNumber(); }
 
-void GC_Thread_Class::initMarkStack(){
+void GC_Thread_Class::initMarkStack() {
   printf("INIT MARK_STACK\n");
   mark_stack_ = GC_Oop_Stack();
   assert_always( mark_stack_.is_empty() );
 }
 
-void GC_Thread_Class::finalizeMarkStack(){
+void GC_Thread_Class::finalizeMarkStack() {
   printf("FINALIZE MARK_STACK\n");
   assert_always( mark_stack_.is_empty() );
 }
 
-void GC_Thread_Class::addToMarkStack(Oop* p){
+void GC_Thread_Class::addToMarkStack(Oop* p) {
   assert(Logical_Core::running_on_GC()); // Needs to be on GC_thread to be thread safe.
   mark_stack_.push(p->as_object());
 }
 
-Oop GC_Thread_Class::lookUpNewLocation(Oop p){
+Oop GC_Thread_Class::lookUpNewLocation(Oop p) {
   Object* o = p.as_object_in_unprotected_space();
-  if(o->isForwardingPointer()){
+  if (o->isForwardingPointer()) {
     return o->getForwardingPointer();
   } else {
     return Oop::from_bits(0);
@@ -562,22 +561,22 @@ Oop GC_Thread_Class::lookUpNewLocation(Oop p){
 }
 
 
-void GC_Thread_Class::setAsAwaitingFinishedGCCycle(int rank){
+void GC_Thread_Class::setAsAwaitingFinishedGCCycle(int rank) {
   awaitingFinished[rank] = true;
 }
 
-void GC_Thread_Class::printAwaitingArray(){
+void GC_Thread_Class::printAwaitingArray() {
   /*
    * Example:
    * 0    1   2   3
    * T    F   F   T
    */
   printf("GC-awaiting cores:\n");
-  for(int i=0; i<Logical_Core::group_size ; i++){
+  for(int i=0; i<Logical_Core::group_size ; i++) {
     printf("%d\t",i);
   }
   printf("\n");
-  for(int i=0; i<Logical_Core::group_size ; i++){
+  for(int i=0; i<Logical_Core::group_size ; i++) {
     printf("%s\t",awaitingFinished[i]?"T":"F");
   }
   printf("\n");
@@ -616,16 +615,16 @@ bool GC_Thread_Class::has_been_or_will_be_freed_by_this_ongoing_gc(Oop x) {
   &&  ( !The_Memory_System()->contains(x.as_object()) ||  !x.as_object()->is_marked());
 }
 
-void GC_Thread_Class::setInitialInterpreter( Squeak_Interpreter* initialInterpreter ){
+void GC_Thread_Class::setInitialInterpreter( Squeak_Interpreter* initialInterpreter ) {
   m_initialInterpreter = new Squeak_Interpreter();
   m_initialInterpreter->roots = initialInterpreter->roots;
 }
 
-void GC_Thread_Class::printLivenessArray( LPage* la ){
+void GC_Thread_Class::printLivenessArray( LPage* la ) {
   printf("printLivenessArray\n");
   printf("------------------\n");
-  for(int i=0 ; i < The_Memory_System()->calculate_total_pages( page_size ) ; i++){
-    if(la[i].isAllocated()){
+  for(int i=0 ; i < The_Memory_System()->calculate_total_pages( page_size ) ; i++) {
+    if (la[i].isAllocated()) {
       printf("Page%d\t%6d\t%.2f\n",i, la[i].liveBytes, (float)la[i].liveBytes/(float)page_size);
     }
   }
@@ -636,8 +635,8 @@ bool GC_Thread_Class::isCompletelyDead(int pageNbr) {
   return ( (m_pageLiveness[pageNbr].liveBytes == 0) ); 
 }
 
-bool GC_Thread_Class::isAlmostDead(int pageNbr){
-  if( ! (is_relocate_phase() || is_remap_phase())) {
+bool GC_Thread_Class::isAlmostDead(int pageNbr) {
+  if ( ! (is_relocate_phase() || is_remap_phase())) {
     printf("Illegal phase for isAlmostDead: %d\n", phase->phase);
   }
   //assert( is_relocate_phase() || is_remap_phase() );
@@ -645,7 +644,7 @@ bool GC_Thread_Class::isAlmostDead(int pageNbr){
 }
 
 bool GC_Thread_Class::isAllocated(int pageNbr) {
-  if(m_pageLiveness != NULL){
+  if (m_pageLiveness != NULL) {
     return m_pageLiveness[pageNbr].isAllocated(); 
   } else {
     return false;
