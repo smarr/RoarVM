@@ -11,40 +11,7 @@
  ******************************************************************************/
 
 
-class GC_State{
-public:
-  bool is_mark_phase(){ return is_phase(mark_phase_tag); };
-  bool is_relocate_phase(){ return is_phase(relocate_phase_tag); };
-  bool is_remap_phase(){ return is_phase(remap_phase_tag); };
-  
-  
-  void set_phase_mark()  { set_phase(mark_phase_tag);   };
-  void unset_phase_mark(){ unset_phase(mark_phase_tag); };
-  
-  void set_phase_relocate()  { set_phase(relocate_phase_tag);   };
-  void unset_phase_relocate(){ unset_phase(relocate_phase_tag); };
-  
-  void set_phase_remap()  { set_phase(remap_phase_tag);   };
-  void unset_phase_remap(){ unset_phase(remap_phase_tag); };
-  int phase;
-  
-private:
-  static const int mark_phase_tag     = 1;
-  static const int relocate_phase_tag = 2;
-  static const int remap_phase_tag    = 4;
-  
-  /* Inspect current running GC-phase(s) */
-  bool is_phase(int phase_tag){ return (phase & phase_tag); };
-  
-  
-  void set_phase(int phase_tag){ phase |= phase_tag; };
-  void unset_phase(int phase_tag){ phase &= ~phase_tag; };
-  
-  
-};
-
-class GC_Thread_Class
-{
+class GC_Thread_Class {
 public:
   static int const LIVENESS_THRESHOLD = (Mega/3);
   
@@ -180,76 +147,3 @@ private:
   bool has_been_or_will_be_freed_by_this_ongoing_gc(Oop x);
 };
 
-class SetNMTbitAndCollectRoots_Oop_Closure: public Oop_Closure {
-  
-private:
-public:
-  SetNMTbitAndCollectRoots_Oop_Closure(int NMT) : Oop_Closure() {
-    roots = new GC_Oop_Stack();
-    m_NMT = NMT;
-  }
-  int m_NMT;
-  GC_Oop_Stack* roots;
-  
-  
-  
-  void value(Oop* p, Object_p) {
-    bool succeeded = false;
-    if (!p->is_mem()) return;
-    do{
-      Oop newOop = Oop::from_bits(p->bits());
-      newOop.setNMT(m_NMT);
-      succeeded = Oop::atomic_compare_and_swap(p,*p,newOop); // Actually this should be already thread-safe (overkill?)
-    } while(!succeeded);
-    Object* theObject = p->as_object();
-    roots->push( theObject );
-  }
-  
-  virtual const char* class_name(char*) { return "SetNMTbitAndCollectRoots_Oop_Closure"; }
-  
-};
-
-class ScrubExistingStaleRefs_Oop_Closure: public Oop_Closure {
-  
-public:
-  ScrubExistingStaleRefs_Oop_Closure() : Oop_Closure() {
-  }
-  
-  void value(Oop* p, Object_p) { 
-    //Scrub by dereferencing.
-    if(p->is_mem()) {
-      p->as_object();
-      assert(p->raw_bits() != 2);
-    }
-    
-    else { /* do integers need to be moved while scrubbing */ }
-  }
-  
-  virtual const char* class_name(char*) { return "ScrubExistingStaleRefs_Oop_Closure"; }
-  
-  
-};
-
-class CollectRoots_Oop_Closure: public Oop_Closure {
-  
-private:
-public:
-  CollectRoots_Oop_Closure() : Oop_Closure() {
-    roots = new GC_Oop_Stack();
-  }
-  int m_NMT;
-  GC_Oop_Stack* roots;
-  
-  
-  
-  void value(Oop* p, Object_p) {
-    bool succeeded = false;
-    if (!p->is_mem()) return;
-    
-    Object* o = p->as_object();
-    roots->push( o );
-  }
-  
-  virtual const char* class_name(char*) { return "CollectRoots_Oop_Closure"; }
-  
-};

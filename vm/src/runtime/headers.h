@@ -201,8 +201,9 @@
 # include "dummy_object_table.h"
 
 # include "memory_system.h"
+# include "gc_state.h"
 # include "parallel_gc_thread.h"
-
+# include "gc_oop_closures.h"
 
 # include "page.h"
 
