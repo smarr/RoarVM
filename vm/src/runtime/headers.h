@@ -153,7 +153,6 @@
 
 # include "logical_core.h"
 
-# include "checkpoint_closure.h"
 # include "gc_oop_stack.h"
 
 # include "interpreter_subset_for_control_transfer.h"
