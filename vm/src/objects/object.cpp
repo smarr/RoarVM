@@ -36,20 +36,18 @@ bool Object::verify_address() {
 
 
 bool Object::verify_preheader() {
-  return verify_extra_preheader_word()
-# if Enforce_Backpointer || Use_Object_Table
-          && verify_backpointer()
-# endif
-  ;
+  return verify_extra_preheader_word() && verify_backpointer();
 }
 
-# if Enforce_Backpointer || Use_Object_Table
+
 bool Object::verify_backpointer() {
-  Oop x = backpointer();
-  assert_always_msg(x.as_object_unchecked() == this, "bad backpointer");
+  if (Enforce_Backpointer | Use_Object_Table) {
+    Oop x = backpointer();
+    assert_always_msg(x.as_object_unchecked() == this, "bad backpointer");
+  }
   return true;
 }
-# endif
+
 
 bool Object::verify_extra_preheader_word() {
   return  !Extra_Preheader_Word_Experiment || Oop::from_bits(get_extra_preheader_word()).verify_oop();

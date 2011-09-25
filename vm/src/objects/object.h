@@ -139,60 +139,56 @@ public:
   }
   void set_class_oop(Oop x);
   void set_class_oop_no_barrier(Oop);
+  Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
 
-# if Has_Preheader
-  Preheader* preheader() { 
-    return  (Preheader*)&as_oop_int_p()[-extra_header_oops()];
+  inline void set_backpointer(Oop x) {
+    if (Enforce_Backpointer | Use_Object_Table)
+      set_backpointer_word(backpointer_from_oop(x));
   }
-  
-  oop_int_t* extra_preheader_word() {
-    return preheader()->extra_preheader_word_address();
+  inline void set_preheader(Oop x) { 
+    init_extra_preheader_word();
+    set_backpointer(x);
   }
-  
-  oop_int_t get_extra_preheader_word() { return *extra_preheader_word(); }
-  
-  void init_extra_preheader_word() { preheader()->init_extra_preheader_word(); }
 
-   void set_preheader(Oop x) { 
-     init_extra_preheader_word();
-    # if Enforce_Backpointer || Use_Object_Table
-     set_backpointer(x); 
-    # endif
-   }
-
-# else // !Has_Preheader
-  inline void set_preheader(Oop)          const {}
-  inline void init_extra_preheader_word() const {}
-  oop_int_t* extra_preheader_word()       const { return NULL; }
-  oop_int_t  get_extra_preheader_word()   const { return -1; }
-   
-# endif // Has_Preheader
-   
-  inline void set_extra_preheader_word(oop_int_t w);
-   
-   
-
-   Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
-   
-   void set_backpointer(Oop x) {
-     set_backpointer_word(backpointer_from_oop(x));
-   }
-   
   static Oop oop_from_backpointer(oop_int_t bp) {
     return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
   }
-   
   oop_int_t backpointer_from_oop(Oop x) {
     return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
   }
-   
+
+  inline Preheader* preheader() {
+    if (Has_Preheader)
+      return  (Preheader*)&as_oop_int_p()[-extra_header_oops()];
+    else
+      return NULL;
+  }
+  
   oop_int_t get_backpointer_word() { return *backpointer_word(); }
-
+  
   inline void set_backpointer_word(oop_int_t w);
-
+  
   oop_int_t* backpointer_word() {
     return preheader()->backpointer_word();
   }
+
+  
+  inline oop_int_t* extra_preheader_word() {
+    return preheader()->extra_preheader_word_address();
+  }
+
+  oop_int_t get_extra_preheader_word() { 
+    if (Has_Preheader)
+      return *extra_preheader_word();
+    else
+      return -1; // STEFAN: magic value... find something better
+  }
+  
+  inline void set_extra_preheader_word(oop_int_t w);
+
+
+  inline void init_extra_preheader_word() { preheader()->init_extra_preheader_word(); }
+
   
 public:
 
@@ -518,6 +514,7 @@ public:
 
   inline void set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB);
 
+
   inline bool isCompiledMethod();
 
   void flushExternalPrimitive();
@@ -607,11 +604,7 @@ public:
   bool verify_address();
   bool verify_preheader();
   bool verify_extra_preheader_word();
-  
-# if Enforce_Backpointer || Use_Object_Table
   bool verify_backpointer();
-# endif
-  
   bool okayOop();
   bool hasOkayClass();
 
