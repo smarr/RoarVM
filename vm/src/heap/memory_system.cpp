@@ -127,7 +127,10 @@ void Memory_System::fullGC(const char* why) {
     # warning STEFAN: The GC is currently disabled, since it is not adapted \
                       to work without object table.
   # endif
-    
+
+  if (!Use_Object_Table)
+    return;
+  
   Squeak_Interpreter * const interp = The_Squeak_Interpreter();
   if (interp->am_receiving_objects_from_snapshot())
     fatal("cannot gc now");
@@ -209,7 +212,7 @@ void Memory_System::finalize_weak_arrays_since_we_dont_do_incrementalGC() {
 void Memory_System::swapOTEs(Oop* o1, Oop* o2, int len) {
   if (!Use_Object_Table)
     fatal("Currently not supported without an object_table.");
-    
+  
   for (int i = 0;  i < len;  ++i) {
     Object_p obj1 = o1[i].as_object();
     Object_p obj2 = o2[i].as_object();
