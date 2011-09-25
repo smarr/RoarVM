@@ -94,12 +94,7 @@ bool Memory_System::verify_if(bool condition) {
 
   verifyInterpreterAndHeapMessage_class().send_to_all_cores();
 
-  if (object_table != NULL)
-    return object_table->verify();
-  else {
-    assert(not Use_Object_Table);
-    return true;
-  }
+  return object_table->verify();
 }
 
 

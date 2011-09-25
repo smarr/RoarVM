@@ -117,6 +117,11 @@ bool Segmented_Object_Table::verify_entry_address(Entry* e) {
 
 
 bool Segmented_Object_Table::verify() {
+  if (this == NULL) {
+    assert(!Use_Object_Table);
+    return true;
+  }
+  
   return verify_all_free_lists()  &&  verify_all_segments(false);
 }
 
