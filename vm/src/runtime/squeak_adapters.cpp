@@ -164,11 +164,6 @@ extern "C" {
 
 const char* interpreterVersion = "Renaissance";
 
-# undef assert
-
-extern "C" {
-     void   assert(sqInt);
-}
 
 sqInt  argumentCountOf(sqInt methodPointer) {
   return Oop::from_bits(methodPointer).as_object()->argumentCount();
@@ -176,7 +171,6 @@ sqInt  argumentCountOf(sqInt methodPointer) {
 
 void*  arrayValueOf(sqInt oop) { return Oop::from_bits(oop).arrayValue(); }
 
-void assert(sqInt b) { if (!b) fatal(); }
 
 sqInt becomewith(sqInt /* array1 */, sqInt /* array2 */) {
   unimpExt(); return 0;

@@ -849,7 +849,7 @@ Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
       dittoing_stdout_printer->nl(); // xxx_dmu
       set_dnu_kvetch_count(dnu_kvetch_count() + 1);
       if (dnu_kvetch_count() >= enough_already) lprintf("Enough already! No more kvetching!");
-      breakpoint();
+      // breakpoint();
     }
     roots.dnuSelector = roots.messageSelector;
     if (check_assertions && !roots.messageSelector.isBytes()) {

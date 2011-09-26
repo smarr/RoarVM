@@ -46,3 +46,13 @@ void print_vm_info();
 }
 # endif
 
+# ifndef __cplusplus
+  # ifndef assert
+  # define assert(b) \
+      if (!b) { \
+        lprintf("assert in squeak_adapters: file ", __FILE__, " line %d\n", __LINE__); \
+        fatal("assert in squeak_adapters"); \
+      } \
+      else
+  # endif
+# endif
