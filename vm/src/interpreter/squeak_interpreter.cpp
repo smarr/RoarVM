@@ -1372,6 +1372,7 @@ void Squeak_Interpreter::resume__ACQ(Oop aProcess, const char* why) {
     /* this process is already scheduled somewhere
      * completely unsafe in a multicore environment, but no way
      * to synchronize */
+    assert(false);
     return;
   }
   
@@ -1381,7 +1382,7 @@ void Squeak_Interpreter::resume__ACQ(Oop aProcess, const char* why) {
   {
     Scheduler_Mutex sm("resume", interpreter);
     assert(aProcess_obj->my_list_of_process() == roots.nilObj);
-    aProcess_obj->add_process_to_scheduler_list();
+    aProcess_obj->add_process_to_scheduler_list(interpreter);
   }
   
   if (Print_Scheduler_Verbose) {
@@ -1433,7 +1434,7 @@ void Squeak_Interpreter::signalExternalSemaphores(const char* why) {
 }
 
 
-void Squeak_Interpreter::put_running_process_to_sleep__ACQ(const char* why, bool remove) {
+void Squeak_Interpreter::put_running_process_to_sleep__ACQ(const char* why, Put_Running_Process_To_Sleep_Options option) {
   Scheduler_Mutex sm("put_running_process_to_sleep", this); // am changing a process's state
   assert(Scheduler_Mutex::is_held_for_interpreter(this));
   Oop aProcess = get_running_process();
@@ -1455,9 +1456,11 @@ void Squeak_Interpreter::put_running_process_to_sleep__ACQ(const char* why, bool
   unset_running_process();
   
   assert(!aProcess.as_object()->is_process_running());
-  if (!remove)
-    scheduler.add_process_to_scheduler_list(aProcess.as_object());
-  
+  if (option == ADD_TO_PROCESS_LIST) {
+        scheduler.add_process_to_scheduler_list(aProcess.as_object());
+  } else {
+    aProcess.as_object()->storePointer(Object_Indices::MyListIndex, roots.nilObj);
+  }
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d, AFTER put_running_process_to_sleep: ", my_rank());
     aProcess.print_process_or_nil(debug_printer);
@@ -1479,7 +1482,7 @@ void Squeak_Interpreter::yield(const char* why) {
   }
   assert(get_running_process() == roots.nilObj  ||  activeContext() != roots.nilObj );
   
-  put_running_process_to_sleep__ACQ(why);
+  put_running_process_to_sleep__ACQ(why, ADD_TO_PROCESS_LIST);
   assert_registers_stored();
   transfer_to_highest_priority(why);
   if (Check_Prefetch && process_is_scheduled_and_executing()) assert_always(have_executed_currentBytecode);
@@ -2071,14 +2074,9 @@ void Squeak_Interpreter::snapshot(bool /* embedded */) {
       transferTo(activeProc, "snapshot prep");
 
     {
-      
-
       //Scheduler_Mutex sm("snapshot", The_Squeak_Interpreter());
       storeContextRegisters(activeContext_obj());
-      put_running_process_to_sleep__ACQ("snapshot", true);
-      scheduler.remove_process_from_list(activeProc, "snapshot");
-      
-      
+      put_running_process_to_sleep__ACQ("snapshot", DO_NOT_ADD_TO_PROCESS_LIST);
       schedulerPointer_obj()
               ->storePointer(Object_Indices::ActiveProcessIndex, activeProc);
       assert_active_process_not_nil();
@@ -3180,8 +3178,8 @@ void Squeak_Interpreter::postGCAction_here(bool fullGC) {
 
 Oop Squeak_Interpreter::remove_running_process_from_scheduler_lists_and_put_it_to_sleep(const char* why) {
   Oop activeProc = get_running_process();
-  put_running_process_to_sleep__ACQ(why, true);
-  //activeProc.as_object()->remove_process_from_scheduler_list(why);
+  put_running_process_to_sleep__ACQ(why, DO_NOT_ADD_TO_PROCESS_LIST);
+  assert(activeProc != roots.nilObj);
   return activeProc;
 }
 

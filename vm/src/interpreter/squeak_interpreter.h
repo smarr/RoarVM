@@ -1141,8 +1141,12 @@ public:
   Oop  get_running_process();
   void set_running_process(Oop, const char*);
 
-
-  void put_running_process_to_sleep__ACQ(const char*, bool remove = false);
+  enum Put_Running_Process_To_Sleep_Options {
+    ADD_TO_PROCESS_LIST,
+    DO_NOT_ADD_TO_PROCESS_LIST
+  };
+  
+  void put_running_process_to_sleep__ACQ(const char*, Put_Running_Process_To_Sleep_Options options = ADD_TO_PROCESS_LIST);
   Oop remove_running_process_from_scheduler_lists_and_put_it_to_sleep(const char*);
 
   void transferTo(Oop newProc, const char* why);

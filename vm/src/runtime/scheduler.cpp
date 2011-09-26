@@ -480,7 +480,8 @@ void Scheduler::transferTo(Oop newProc, const char* why){
   }
   if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
   assert(get_running_process() != newProc);
-  get_interpreter()->put_running_process_to_sleep__ACQ(why);
+  get_interpreter()
+    ->put_running_process_to_sleep__ACQ(why, Squeak_Interpreter::ADD_TO_PROCESS_LIST);
 
   if (check_many_assertions) assert(!newProc.as_object()->is_process_running());
   OS_Interface::mem_fence();

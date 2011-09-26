@@ -532,8 +532,8 @@ Object_p Object::process_list_for_priority_of_process() {
 }
 
 // Save on given list for priority
-void Object::add_process_to_scheduler_list() {
-  The_Squeak_Interpreter()->get_scheduler()->add_process_to_scheduler_list(this);
+void Object::add_process_to_scheduler_list(Squeak_Interpreter* interpreter) {
+  interpreter->get_scheduler()->add_process_to_scheduler_list(this);
 }
 
 

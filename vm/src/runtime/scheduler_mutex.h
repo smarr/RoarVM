@@ -98,8 +98,8 @@ public:
     }*/ 
     if (release_ID) trace_mutex_evt(100+release_ID, why);
     /* assert_always(mutex->local.recursion_count == 0); */ 
-    Scheduler_Mutex_Actions::release_action(interpreter, why); 
     mutex->release(); 
+    Scheduler_Mutex_Actions::release_action(interpreter, why); 
     
     mutex->add_rel_cycles(OS_Interface::get_cycle_count() - start); 
   } 

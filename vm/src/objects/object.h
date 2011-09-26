@@ -513,7 +513,7 @@ public:
   oop_int_t get_host_core_of_process();
   void store_host_core_of_process(int);
   void store_allowable_cores_of_process(u_int64 bitMask);
-  void add_process_to_scheduler_list();
+  void add_process_to_scheduler_list(Squeak_Interpreter* interpreter);
   void set_suspended_context_of_process(Oop ctx);
   Oop removeFirstLinkOfList();
   Oop removeLastLinkOfList(Object_p);
