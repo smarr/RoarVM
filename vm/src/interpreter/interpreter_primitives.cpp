@@ -2129,13 +2129,12 @@ void Squeak_Interpreter::primitiveSuspend() {
 }
 
 
-static void terminate_to(Oop aContext, Oop thisCntx) {
+static void terminate_to(Oop aContext, Oop thisCntx, Oop nilOop) {
   // Warning: only works if called for this very process
   Object_p aco = aContext.as_object();
   Object_p tco = thisCntx.as_object();
   
   if (tco->hasSender(aContext)) {
-    Oop nilOop = The_Squeak_Interpreter()->roots.nilObj;
     Object_p nextCntx;
     for (Object_p currentCntx = tco->fetchPointer(Object_Indices::SenderIndex).as_object();
          currentCntx != aco;
@@ -2159,7 +2158,7 @@ void Squeak_Interpreter::primitiveTerminateTo() {
     primitiveFail();
     return;
   }
-  terminate_to(aContext, thisCntx);
+  terminate_to(aContext, thisCntx, roots.nilObj);
   push(thisCntx);
 }
 
@@ -2345,7 +2344,7 @@ void Squeak_Interpreter::primitiveClosureValue() {
   if (!closureMethod_obj->isCompiledMethod()) { primitiveFail(); return; }
   
   activateNewClosureMethod(blockClosure_obj, (Object_p)NULL);
-  if ( !The_Squeak_Interpreter()->doing_primitiveClosureValueNoContextSwitch)
+  if (doing_primitiveClosureValueNoContextSwitch)
     quickCheckForInterrupts();
 }
 
@@ -2386,7 +2385,7 @@ void Squeak_Interpreter::primitiveClosureValue() {
 
 
 void Squeak_Interpreter::primitiveClosureValueNoContextSwitch() {
-  The_Squeak_Interpreter()->doing_primitiveClosureValueNoContextSwitch = true;
+  doing_primitiveClosureValueNoContextSwitch = true;
   primitiveClosureValue(); 
 }
 
