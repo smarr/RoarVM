@@ -18,31 +18,68 @@
 /* Scheduler Structure
  * ===================
  *
- * The older images have 1 global process list which is stored in the roots.
- * As this was a bottleneck we provide a scheduler/list for each interpreter.
+ * old images
+ * ----------
+ * The older images have a global process list which is stored in the roots.
+ * Modifying this list is done by acquiring a global mutex. As there are multiple
+ * interpreters running, and thus accessing this global list, this resulted in a bottleneck.
  *
- * Old images will restore the roots with just a list of processes:
- * We convert these here to a list of process lists, for the total of 
- * available interpreters.
- * 
- * This structure cannot be stored in the image either, 
- * as we cannot ensure that the number of cores
- * remains the same across startups. 
- * Our solution is to convert the list of lists to a single
- * list when saving an image (so to the old format).
- * 
- * We convert the process list on startup/shutdown time of the image in
- * SystemDictionary snapshot:andQuit:
- * This operation is not safe for multiple interpreters, hence we use the
- * functionality to suspend interpreters, ensuring we are running single
- * threaded. (See RVMOperations>>#suspendAllButMainInterpreter)
+ * The processlist is an array with a length of max_priority (should be 80), and each slot
+ * contains a linked list with processes for that priority.
  *
+ * current approach
+ * -----------------
+ * Each interpreter instance (one / core ) has its own process list and corresponding mutex.
+ * This means that an interpreter only has to lock its own mutex, removing the bottleneck
+ * of the global mutex.
+ *
+ * On startup we convert images from the old style to the new style. On the Smalltalk side
+ * the primitive is called on startup. Older images do not have this primitive, and will
+ * continue using the global list.
+ *
+ * On shutdown we convert the new style back to the old style. This allows us to treat new
+ * and old images in the same way. An additional reason is that saving the new style process
+ * lists is not feasible, as the number of cpu's (and thus interpreters) may change when
+ * the image is started again. By converting the image on startup/shutdown this problem is
+ * prevented
+ *
+ * The convertion between old/new style is not safe in a multicore environment. We added
+ * functionality to suspend every interpreter but the main interpreter, allowing us to 
+ * 'simulate' a single core environment. Before saving the image the correct primitive is
+ * called (RVMOperations>>#suspendAllButMainInterpreter), and on startup/after saving the
+ * other interpreters are awakened from their eternal slumber by prince charming.
+ * 
  * Scheduling Strategy
  * ===================
  *
- * We have very naive workstealing, in which a scheduler asks a random scheduler
- * for work in case he himself has none. This strategy is subjected to change
- * depending on the outcome of some of the benchmarks */
+ * On startup the main interpreter will have a process list containing all the processes.
+ * The other interpreters have an empty linked list.
+ *
+ * Newly created processes are added to a random interpreter which is allowed to execute the
+ * process.
+ *
+ * There is some naive workstealing implemented. A scheduler looks through its own 
+ * process list. In case no process is available it will ask another random interpreter 
+ * to give him a process instead. To ensure that high priority processes are executed more
+ * frequently the process list is cut into slices. If a certain slice does not contain
+ * any processes a random steal may occur. If that steal fails the next slice will be tried.
+ *
+ * A process that is being executed is removed from the process list, similar to what squeak
+ * does. Previous versions of RoarVM kept that process on the list, which was 
+ * counterintuitive (the list denotes the non-running processes). It also resulted in
+ * additional checks to see whether a process was actually running (and some of those checks
+ * do not work in the new scheduling approach).
+ *
+ * Classes
+ * =======
+ *
+ * Most of the scheduling / stealing functionality is implemented in scheduler.cpp
+ * Some of the functionality is still implemented in squeak_interpreter as refactoring
+ * that code was hard (or the end result ugly). Previous versions did not have a dedicated
+ * scheduling class, so there still are plenty of functions in the interpreter that just
+ * forward to the scheduler class.
+ *
+ * */
 
 
 bool Scheduler::scheduler_per_interpreter = false;

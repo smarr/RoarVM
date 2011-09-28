@@ -1726,7 +1726,7 @@ void Squeak_Interpreter::primitiveQuo() {
 // -- dmu 10/1/10
 void Squeak_Interpreter::primitiveRelinquishProcessor() {
   static Oop last_wayward_idle_process = Oop::from_bits(0);
-  Oop this_process = roots.running_process_or_nil;
+  Oop this_process = get_running_process();
   if (last_wayward_idle_process.bits() != this_process.bits())
       lprintf("Deactivating caller process of primitiveRelinquishProcessor; assuming it's the idle process\n");;
   last_wayward_idle_process = this_process;
