@@ -206,10 +206,10 @@ if [ -z "$X11_PATH" ]
 then
     if [ $USE_TILERA -eq 1 ]
     then
-        if [ -f /users/smarr/test/xc/lib/X11/libX11.a ]
+        if [ -f /users/smarr/Projects/X11-Tilera-libs/current/libX11.a ]
         then
-            X11_PATH="/users/smarr/test/xc/lib/X11"
-            Xext_PATH="/users/smarr/test/xc/lib/Xext"
+            X11_PATH="/users/smarr/Projects/X11-Tilera-libs/current/"
+            Xext_PATH="/users/smarr/Projects/X11-Tilera-libs/current/"
         else
             if [ -f /home/ungar/renaissance/xfree86/xc/lib/X11/libX11.a ]
             then
