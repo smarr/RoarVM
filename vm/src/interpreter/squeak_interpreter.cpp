@@ -258,7 +258,7 @@ void Squeak_Interpreter::interpret() {
   externalizeIPandSP(); // for assertions in let_one_through
 
   for (let_one_through();  ; ) {
-    check_for_multicore_interrupt();
+    //check_for_multicore_interrupt();
     if (Collect_Performance_Counters)
       u_int64 start = OS_Interface::get_cycle_count();
 
@@ -286,7 +286,7 @@ void Squeak_Interpreter::interpret() {
     }
     if (check_assertions || CountByteCodesAndStopAt)
       lastBCCount = bcCount;
-    if (CountByteCodesAndStopAt ) {
+    if (CountByteCodesAndStopAt) {
        if (bcCount == CountByteCodesAndStopAt)
          breakpoint();
       if (bcCount >= CountByteCodesAndStopAt ) {
@@ -1416,8 +1416,10 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
 
 
 void Squeak_Interpreter::yield(const char* why) {
-  if (process_is_scheduled_and_executing())
+  if (process_is_scheduled_and_executing()) {
     assert_external();
+    return;
+  }
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler on %d: pre yield because %s ", my_rank(), why);
     get_running_process().as_object()->print_process_or_nil(debug_printer);
