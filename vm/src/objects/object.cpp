@@ -86,6 +86,12 @@ void Object::print(Printer* p) {
   else if (class_name_obj->equals_string("Float") && !is_meta) {
     p->printf("%f(float)", fetchFloatAtinto());
   }
+  else if (class_name_obj->equals_string("LargePositiveInteger")) {
+    p->printf("%lld(LargePositiveInteger)", The_Squeak_Interpreter()->signed64BitValueOf(this->as_oop()));
+  }
+  else if (class_name_obj->equals_string("LargeNegativeInteger")) {
+    p->printf("%lld(LargeNegativeInteger)", The_Squeak_Interpreter()->signed64BitValueOf(this->as_oop()));
+  }
   else {
     p->printf("%s ", is_meta ? "class" :  is_vowel(class_name_obj->fetchByte(0)) ? "an" : "a" );
     class_name_obj->print_bytes(p);
