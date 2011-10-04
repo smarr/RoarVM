@@ -97,10 +97,10 @@ void Object::print(Printer* p) {
     class_name_obj->print_bytes(p);
     if (isBytes() && !isCompiledMethod()) {
        p->printf("  ");
-      if (klass == The_Squeak_Interpreter()->splObj((Special_Indices::ClassByteArray)))
+      /* if (klass == The_Squeak_Interpreter()->splObj((Special_Indices::ClassByteArray)))
         print_bytes_in_array(p);
       else
-        print_bytes(p);
+        print_bytes(p); */
     }
   }
 }
