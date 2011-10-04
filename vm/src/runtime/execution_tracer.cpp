@@ -48,13 +48,14 @@ void Execution_Tracer::do_all_roots(Oop_Closure* oc) {
 void Execution_Tracer::trace(Squeak_Interpreter* si) {
   int pc = si->localIP() - si->method_obj()->as_u_char_p();
   add_bc(si->method(), si->roots.receiver, pc, si->activeContext_obj()->is_this_context_a_block_context(), si->bcCount);
+  print();
 }
 
 
 void Execution_Tracer::print() {
-  lprintf( "printing history\n");
-  The_Squeak_Interpreter()->print_all_stack_traces(dittoing_stdout_printer);
-  lprintf( "\n\n\nprinting last bytecodes\n");
+  //lprintf( "printing history\n");
+  //The_Squeak_Interpreter()->print_all_stack_traces(dittoing_stdout_printer);
+  //lprintf( "\n\n\nprinting last bytecodes\n");
   Oop entries = get();
   check_it(entries);
 
@@ -69,8 +70,8 @@ Oop Execution_Tracer::get() {
 
 
 void Execution_Tracer::copy_elements(int src_offset, void* dst, int dst_offset, int num_elems, Object_p dst_obj) {
-  lprintf( "copy_elements src_offset %d, buffer 0x%x, dst 0x%x, dst_offset %d, num_elems %d, dst_obj 0x%x, next %d\n",
-          src_offset, buffer, dst, dst_offset, num_elems, (Object*)dst_obj, next);
+  /*lprintf( "copy_elements src_offset %d, buffer 0x%x, dst 0x%x, dst_offset %d, num_elems %d, dst_obj 0x%x, next %d\n",
+          src_offset, buffer, dst, dst_offset, num_elems, (Object*)dst_obj, next);*/
 
 
 
@@ -168,7 +169,11 @@ void Execution_Tracer::print_entries(Oop ents, Printer* p) {
 
   for (int i = 0;  i < n;  ++i) {
     int rank = eo->fetchPointer(x   =   i * e_N  +  e_rank).integerValue();
-    p->printf("%3d on %2d: ", i - n, rank);
+    if (n == 1)
+      p->printf("On %2d: ", rank);
+    else
+      p->printf("%3d on %2d: ", i - n, rank);
+
 
     switch (eo->fetchPointer(i * e_N  +  e_kind).integerValue()) {
         default: fatal(); break;
