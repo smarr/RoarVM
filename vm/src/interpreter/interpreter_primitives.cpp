@@ -26,8 +26,6 @@ void Squeak_Interpreter::primitiveArctan() {
   else unPop(1);
 }
 
-#warning STEFAN: I fear there is something broken in the overall implementation of primitives here, primitiveArrayBecome makes problems now, with optimization level > 1, I expect the others also to be volatile...
-__attribute__((optimize(1)))
 void Squeak_Interpreter::primitiveArrayBecome() {
   success(The_Memory_System()->become_with_twoWay_copyHash(stackValue(1), stackTop(), true, true));
   if (successFlag) pop(1);
@@ -2523,19 +2521,19 @@ void Squeak_Interpreter::primitiveFloatDivide(Oop r, Oop a) {
 bool Squeak_Interpreter::primitiveFloatLess(Oop r, Oop a) {
   double rd = loadFloatOrIntFrom(r);
   double ad = loadFloatOrIntFrom(a);
-  return  successFlag  ?  rd < ad  :  0.0;
+  return  successFlag  &&  rd < ad;
 }
 
 bool Squeak_Interpreter::primitiveFloatGreater(Oop r, Oop a) {
   double rd = loadFloatOrIntFrom(r);
   double ad = loadFloatOrIntFrom(a);
-  return  successFlag  ?  rd > ad  :  0.0;
+  return  successFlag  &&  rd > ad;
 }
 
 bool Squeak_Interpreter::primitiveFloatEqual(Oop r, Oop a) {
   double rd = loadFloatOrIntFrom(r);
   double ad = loadFloatOrIntFrom(a);
-  return  successFlag  ?  rd == ad  :  0.0;
+  return  successFlag  &&  rd == ad;
 }
 
 # if Include_Closure_Support
