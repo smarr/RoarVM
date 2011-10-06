@@ -316,12 +316,13 @@ void Squeak_Interpreter::bytecodePrimSubtract() {
 void Squeak_Interpreter::bytecodePrimMultiply() {
   Oop rcvr = internalStackValue(1);
   Oop arg  = internalStackValue(0);
+  
   if (areIntegers(rcvr, arg)) {
     oop_int_t ri = rcvr.integerValue();
     oop_int_t ai = arg.integerValue();
-    oop_int_t r  = ri * ai;
-    if (ai == 0  ||  (r / ai  ==  ri    &&    Oop::isIntegerValue(r))) {
-      internalPopThenPush(2, Oop::from_int(r));
+    long long result_with_overflow = (long long)ri * ai;
+    if (ai == 0  || Oop::isIntegerValue(result_with_overflow)) {
+      internalPopThenPush(2, Oop::from_int(result_with_overflow));
       fetchNextBytecode();
       return;
     }
@@ -343,6 +344,7 @@ void Squeak_Interpreter::bytecodePrimMultiply() {
   set_argumentCount(1);
   normalSend();
 }
+
 void Squeak_Interpreter::bytecodePrimDivide() {
   Oop rcvr = internalStackValue(1);
   Oop arg  = internalStackValue(0);
