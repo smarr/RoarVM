@@ -84,7 +84,7 @@ void Object::print(Printer* p) {
     print_bytes(p);
   }
   else if (class_name_obj->equals_string("Float") && !is_meta) {
-    p->printf("%f(float)", fetchFloatAtinto());
+    p->printf("%f(float) hex: 0x%8x%8x", fetchFloatAtinto(), long32_at(0), long32_at(1));
   }
   else if (class_name_obj->equals_string("LargePositiveInteger")) {
     p->printf("%lld(LargePositiveInteger)", The_Squeak_Interpreter()->signed64BitValueOf(this->as_oop()));
