@@ -339,7 +339,7 @@ void *ioLoadModule(const char *pluginName)
 	*out= '\0';
 	DPRINTF((stderr, "ioLoadModule plugins = %s\n                path = %s\n",
 		 squeakPlugins, path));
-	if ((handle= tryLoading("", path)))
+	if ((handle= tryLoading(path, "")))
 	  return handle;
 	if (!(out > path && *(out - 1) == '/')) {
 	*out++= '/';
