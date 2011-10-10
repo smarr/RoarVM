@@ -342,7 +342,7 @@ void Squeak_Interpreter::interpret() {
     PERF_CNT(this, add_interpret_cycles(OS_Interface::get_cycle_count() - start));
     
     // for debugging check that the stack is not growing to big
-    if (Include_Debugging_Code && (count_stack_depth() > 1000)) {
+    if (false && (count_stack_depth() > 1000)) {
       OS_Interface::breakpoint();
     }
     

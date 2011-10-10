@@ -13,10 +13,13 @@
 
 
 # if   On_Tilera
-
+  # if On_Tilera_With_GCC
+  class   TMC_OS_Interface;
+  typedef TMC_OS_Interface  OS_Interface;
+  # else
   class   ILib_OS_Interface;
   typedef ILib_OS_Interface  OS_Interface;
-
+  # endif
 # elif On_Apple
 
   class   OSX_OS_Interface;

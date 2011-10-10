@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-# if On_Tilera
+# if On_Tilera && !On_Tilera_With_GCC
 
 # include <atomic.h>
 
@@ -164,4 +164,4 @@ public:
 
 };
 
-# endif
+# endif  // if On_Tilera  && !On_Tilera_With_GCC

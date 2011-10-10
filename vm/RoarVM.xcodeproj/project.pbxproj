@@ -105,6 +105,7 @@
 		0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7C9B135CC86800D13E53 /* sqUnixSocket.c */; };
 		0A6A4834135ADF0A00933643 /* os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A4832135ADF0A00933643 /* os_interface.cpp */; };
 		0A6A4837135AE32D00933643 /* external_primitive_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A4835135AE32D00933643 /* external_primitive_table.cpp */; };
+		0A72A76514432D7C0008E8AC /* tmc_os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A72A76314432D7C0008E8AC /* tmc_os_interface.cpp */; };
 		0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A87AD891379573E00337878 /* performance_counters.cpp */; };
 		0A8C91C712DE62B6007DBAD9 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A8C91C612DE62B6007DBAD9 /* IOKit.framework */; };
 		0A97FB2E128FE9B1003A1C74 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A97FB2D128FE9B1003A1C74 /* gtest.framework */; };
@@ -378,6 +379,8 @@
 		0A5D7CA0135CC9D400D13E53 /* SoundPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundPlugin.h; sourceTree = "<group>"; };
 		0A6A4832135ADF0A00933643 /* os_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = os_interface.cpp; sourceTree = "<group>"; };
 		0A6A4835135AE32D00933643 /* external_primitive_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = external_primitive_table.cpp; sourceTree = "<group>"; };
+		0A72A76314432D7C0008E8AC /* tmc_os_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tmc_os_interface.cpp; sourceTree = "<group>"; };
+		0A72A76414432D7C0008E8AC /* tmc_os_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tmc_os_interface.h; sourceTree = "<group>"; };
 		0A87AD871378439000337878 /* performance_counters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = performance_counters.h; sourceTree = "<group>"; };
 		0A87AD891379573E00337878 /* performance_counters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = performance_counters.cpp; sourceTree = "<group>"; };
 		0A8C91BC12DE61BB007DBAD9 /* object_p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_p.h; sourceTree = "<group>"; };
@@ -908,6 +911,8 @@
 				0A2784C1128DBF7400336BDE /* ilib_message_queue.h */,
 				0A2784C2128DBF7400336BDE /* ilib_os_interface.cpp */,
 				0A2784C3128DBF7400336BDE /* ilib_os_interface.h */,
+				0A72A76314432D7C0008E8AC /* tmc_os_interface.cpp */,
+				0A72A76414432D7C0008E8AC /* tmc_os_interface.h */,
 				0A2784C4128DBF7400336BDE /* logical_core.cpp */,
 				0A2784C5128DBF7400336BDE /* logical_core.h */,
 				0A2784C6128DBF7400336BDE /* memory_semantics.h */,
@@ -1283,6 +1288,7 @@
 				0A5D7C99135CC84700D13E53 /* sqUnixSound.c in Sources */,
 				0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */,
 				0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */,
+				0A72A76514432D7C0008E8AC /* tmc_os_interface.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

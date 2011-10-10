@@ -38,9 +38,7 @@
 
 # if On_Tilera
 #  include <tmc/mem.h>
-#  include <asm/page.h>
 #  include <arch/sim.h>
-#  include <ilib.h>
 #  include <arch/cycle.h>
 #  include <arch/udn.h> 
 #  if Multiple_Tileras
@@ -49,6 +47,12 @@
 
 #  if Use_CMem
 #   include <tmc/cmem.h>
+#  endif
+#  if On_Tilera_With_GCC
+#   
+#  else /* Tilera MDE before 3.x */
+#    include <ilib.h>
+#    include <asm/page.h>
 #  endif
 # else
 #  include "synced_queue.h"
@@ -101,6 +105,7 @@
 
 # include "abstract_os_interface.h"
 # include "ilib_os_interface.h"
+# include "tmc_os_interface.h"
 # include "posix_os_interface.h"
 # include "osx_os_interface.h"
 

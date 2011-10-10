@@ -146,6 +146,8 @@
   # define On_Tilera (!On_Apple && !On_Intel_Linux)
 # endif
 
+# define On_Tilera_With_GCC (On_Tilera && !defined(__TILECC__))
+
 # ifndef Replicate_PThread_Memory_System
   # define Replicate_PThread_Memory_System 0
 # endif
