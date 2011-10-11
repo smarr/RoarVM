@@ -698,7 +698,7 @@ void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_
 
 
 bool Memory_System::ask_Linux_for_huge_pages(int desired_huge_pages) {
-  if (On_Apple || On_Intel_Linux || desired_huge_pages == 0)
+  if ((On_Apple | On_Intel_Linux) || desired_huge_pages == 0)
     return true;
 
   int initially_available_huge_pages = how_many_huge_pages();
