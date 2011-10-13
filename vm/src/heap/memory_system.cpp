@@ -669,31 +669,78 @@ void Memory_System::set_page_size_used_in_heap() {
 }
 
 
+/** Allocate heaps in two steps, to be able to set the flag for incoherent
+    memory */
+void Memory_System::map_heap_memory_separately(int pid,
+                                               size_t grand_total,
+                                               size_t inco_size,
+                                               size_t co_size) {
+  if (OS_mmaps_up) {
+    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size,
+                                                  read_mostly_memory_base,
+                                                  0, pid,
+                                                  MAP_SHARED | MAP_CACHE_INCOHERENT);
+    read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
+    
+    read_write_memory_base      = map_heap_memory(grand_total, co_size,
+                                                  read_mostly_memory_past_end,
+                                                  inco_size, pid,
+                                                  MAP_SHARED);
+    read_write_memory_past_end  = read_write_memory_base + co_size;
+  }
+  else {
+    read_write_memory_base      = map_heap_memory(grand_total, co_size,
+                                                  read_write_memory_base,
+                                                  0, pid,
+                                                  MAP_SHARED);
+    read_write_memory_past_end  = read_write_memory_base + co_size;
+    
+    read_mostly_memory_past_end = read_write_memory_base;
+    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size,
+                                                  read_mostly_memory_past_end - inco_size,
+                                                  co_size, pid,
+                                                  MAP_SHARED | MAP_CACHE_INCOHERENT);
+  }
+}
+
+
+/** The noinline attribute is necessary here to guarantee that LLVM-GCC,
+    and Clang do not optimize the consistency checks at the point where this
+    method is used.
+    LLVM-GCC and Clang make the assumption that allocations are never as large
+    as 2 GB and thus, convert the assertions to constant checks, which will
+    fail for a 2 GB heap */
+__attribute__((noinline))  // Important attribute for LLVM-GCC and Clang
+void Memory_System::map_heap_memory_in_one_request(int pid,
+                                                   size_t grand_total,
+                                                   size_t inco_size,
+                                                   size_t co_size) {
+  read_mostly_memory_base = map_heap_memory(grand_total, grand_total,
+                                            NULL, 0, pid, MAP_SHARED);
+  read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
+  
+  read_write_memory_base      = read_mostly_memory_past_end;
+  read_write_memory_past_end  = read_write_memory_base + co_size;
+}
+
 
 void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size, size_t total_read_mostly_memory_size) {
   size_t     co_size = total_read_write_memory_size;
   size_t   inco_size = total_read_mostly_memory_size;
   size_t grand_total = co_size + inco_size;
 
-  if (OS_mmaps_up) {
-    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size, read_mostly_memory_base,                      0, pid,  MAP_SHARED | MAP_CACHE_INCOHERENT);
-    read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
-
-    read_write_memory_base      = map_heap_memory(grand_total,   co_size, read_mostly_memory_past_end,  inco_size, pid,  MAP_SHARED);
-    read_write_memory_past_end  = read_write_memory_base  + co_size;
-  }
-  else {
-    read_write_memory_base      = map_heap_memory(grand_total,   co_size, read_write_memory_base, 0, pid, MAP_SHARED);
-    read_write_memory_past_end  = read_write_memory_base + co_size;
-
-    read_mostly_memory_past_end = read_write_memory_base;
-    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size, read_mostly_memory_past_end - inco_size, co_size, pid, MAP_SHARED | MAP_CACHE_INCOHERENT);
-  }
-
+  if (On_Tilera)
+    map_heap_memory_separately(pid, grand_total, inco_size, co_size);
+  else
+    map_heap_memory_in_one_request(pid, grand_total, inco_size, co_size);
+    
   assert(read_mostly_memory_base < read_mostly_memory_past_end);
   assert(read_mostly_memory_past_end <= read_write_memory_base);
   assert(read_write_memory_base < read_write_memory_past_end);
-  if (read_mostly_memory_base >= read_write_memory_past_end) fatal("contains will fail");
+  if (read_mostly_memory_base >= read_write_memory_past_end) {
+    unlink(mmap_filename);
+    fatal("contains will fail");
+  }
 }
 
 
