@@ -284,7 +284,7 @@ void Squeak_Interpreter::interpret() {
       }
       assert( internalStackTop().bits() );
     }
-    if (check_assertions || CountByteCodesAndStopAt)
+    if (check_assertions | CountByteCodesAndStopAt)
       lastBCCount = bcCount;
     if (CountByteCodesAndStopAt ) {
        if (bcCount == CountByteCodesAndStopAt)
@@ -2752,7 +2752,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   internalFetchContextRegisters(thisCntx, thisCntx_obj);
   fetchNextBytecode();
   internalPush(localVal);
-  if (Always_Check_Method_Is_Correct || check_assertions)  check_method_is_correct(false, "end of commonReturn");
+  if (Always_Check_Method_Is_Correct | check_assertions)  check_method_is_correct(false, "end of commonReturn");
 }
 
 void Squeak_Interpreter::internalCannotReturn(Oop resultObj, bool b1, bool b2, bool b3) {

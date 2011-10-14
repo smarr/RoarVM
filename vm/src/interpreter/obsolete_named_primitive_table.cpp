@@ -148,13 +148,13 @@ Obsolete_Named_Primitive_Table::entry Obsolete_Named_Primitive_Table::contents[]
 
 
   // Local versions of bitBlt primitives; don't use when blitting to the screen
-  {"primitiveDrawLoopLocally", "BitBltPlugin", "primitiveDrawLoop",           On_Intel_Linux || On_Apple || false},
-  {"primitiveWarpBitsLocally", "BitBltPlugin", "primitiveWarpBits",           On_Intel_Linux || On_Apple || false},
-  {"copyBitsLocally", "BitBltPlugin", "copyBits",                             On_Intel_Linux || On_Apple || false},
-  {"primitiveCopyBitsLocally", "BitBltPlugin", "primitiveCopyBits",           On_Intel_Linux || On_Apple || false},
-  {"copyBitsFromtoatLocally", "BitBltPlugin", "copyBitsFromtoat",             On_Intel_Linux || On_Apple || false},
-  {"loadBitBltFromLocally", "BitBltPlugin", "loadBitBltFrom",                 On_Intel_Linux || On_Apple || false},
-  {"primitiveDisplayStringLocally", "BitBltPlugin", "primitiveDisplayString", On_Intel_Linux || On_Apple || false},
+  {"primitiveDrawLoopLocally", "BitBltPlugin", "primitiveDrawLoop",           On_Intel_Linux | On_Apple},
+  {"primitiveWarpBitsLocally", "BitBltPlugin", "primitiveWarpBits",           On_Intel_Linux | On_Apple},
+  {"copyBitsLocally", "BitBltPlugin", "copyBits",                             On_Intel_Linux | On_Apple},
+  {"primitiveCopyBitsLocally", "BitBltPlugin", "primitiveCopyBits",           On_Intel_Linux | On_Apple},
+  {"copyBitsFromtoatLocally", "BitBltPlugin", "copyBitsFromtoat",             On_Intel_Linux | On_Apple},
+  {"loadBitBltFromLocally", "BitBltPlugin", "loadBitBltFrom",                 On_Intel_Linux | On_Apple},
+  {"primitiveDisplayStringLocally", "BitBltPlugin", "primitiveDisplayString", On_Intel_Linux | On_Apple},
 
 
 

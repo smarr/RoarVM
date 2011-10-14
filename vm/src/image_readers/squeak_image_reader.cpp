@@ -91,8 +91,10 @@ readImageFromFile: f HeapSize: desiredHeapSize StartingAt: imageOffset
 
   // "position file after the header"
   if (Verbose_Debug_Prints) fprintf(stdout, "reading objects in snapshot\n");
-  if (fseek(image_file, headerStart + headerSize, SEEK_SET))
-    perror("seek"), fatal();
+  if (fseek(image_file, headerStart + headerSize, SEEK_SET)) {
+    perror("seek");
+    fatal();
+  }
 
   // "read in the image in bulk, then swap the bytes if necessary"
   xfread(memory, 1, dataSize, image_file);

@@ -509,7 +509,7 @@ Oop Object::clone() {
   // fix base header: compute new hash and clear Mark and Root bits
   oop_int_t hash = h->newObjectHash(); // even though newChunk may be in global heap
   The_Memory_System()->store_enforcing_coherence(&newObj->baseHeader,
-                                              newObj->baseHeader & (Header_Type::Mask | SizeMask | CompactClassMask | FormatMask)
+                                              (newObj->baseHeader & (Header_Type::Mask | SizeMask | CompactClassMask | FormatMask))
                                               |   ((hash << HashShift) & HashMask),
                                               newObj);
 

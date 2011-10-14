@@ -92,7 +92,7 @@ void POSIX_OS_Interface::start_threads(void (*helper_core_main)(), char** /* arg
   Logical_Core::group_size = Logical_Core::num_cores;
   
   if (Logical_Core::group_size > 1)
-    if (Force_Direct_Squeak_Interpreter_Access || Force_Direct_Timeout_Timer_List_Head_Access || Omit_PThread_Locks)
+    if (Force_Direct_Squeak_Interpreter_Access | Force_Direct_Timeout_Timer_List_Head_Access | Omit_PThread_Locks)
       fatal("A flag is set for performance measurement that is incompatible with multiple pthreads");
   
   Logical_Core* me = Logical_Core::my_core();
