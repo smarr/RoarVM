@@ -141,11 +141,14 @@ void Squeak_Image_Reader::imageNamePut_on_all_cores(char* bytes, unsigned int le
   // Use a shared buffer to reduce the size of the message to optimize the
   // footprint of message buffer allocation -- dmu & sm
   char* shared_buffer = (char*)Memory_Semantics::shared_malloc(len);
+  
   bcopy(bytes, shared_buffer, len);
   imageNamePutMessage_class m(shared_buffer, len);
+  
   if (On_Tilera) m.send_to_all_cores();
   else           m.handle_me();
-  free(shared_buffer);
+  
+  Memory_Semantics::shared_free(shared_buffer);
 }
 
 
@@ -171,21 +174,21 @@ void Squeak_Image_Reader::read_header() {
 }
 
 void Squeak_Image_Reader::check_image_version() {
-  int32 first_version = get_long();
-  interpreter->image_version = first_version;
+    int32 first_version = get_long();
+    interpreter->image_version = first_version;
     
   if (readable_format(interpreter->image_version))
     return;
   
-  swap_bytes = true;
-  if (fseek(image_file, -sizeof(int32), SEEK_CUR) != 0) {
+    swap_bytes = true;
+    if (fseek(image_file, -sizeof(int32), SEEK_CUR) != 0) {
     perror("seek in image file failed"); fatal();
-  }
+    }
   
-  interpreter->image_version = get_long();
+    interpreter->image_version = get_long();
   if (readable_format(interpreter->image_version))
     return;
- 
+
   fatal("Given image file seems to be incompatible.");
 }
 

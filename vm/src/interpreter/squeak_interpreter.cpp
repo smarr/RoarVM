@@ -3264,7 +3264,7 @@ void Squeak_Interpreter::distribute_initial_interpreter() {
   distributeInitialInterpreterMessage_class m(interp_shared_copy);
   m.send_to_other_cores();
   
-  free(interp_shared_copy);
+  Memory_Semantics::shared_free(interp_shared_copy);
 }
 
 
