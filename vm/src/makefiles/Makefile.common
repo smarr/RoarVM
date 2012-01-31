@@ -517,6 +517,7 @@ ifeq "$(PLATFORM)" "Intel"
 OBJS += \
   synced_queue.opt \
   buffered_channel.opt \
+  buffered_channel_debug.opt \
   posix_os_interface.opt \
   posix_processes.opt \
   shared_memory_message_queue.opt \

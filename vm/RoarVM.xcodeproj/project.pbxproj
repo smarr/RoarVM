@@ -118,6 +118,7 @@
 		0ACF551912E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */; };
 		0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
+		0AFF9EEE14D825DE00E8473F /* buffered_channel_debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AFF9EED14D825DE00E8473F /* buffered_channel_debug.cpp */; };
 		34221D6B13D4CD5B0057DCBD /* interprocess_allocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34221D6A13D4CD5A0057DCBD /* interprocess_allocator.cpp */; };
 		34221D6D13D4D3C50057DCBD /* externals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2783F6128DBF7300336BDE /* externals.cpp */; };
 		34221D6E13D4D3D10057DCBD /* abstract_mark_sweep_collector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278444128DBF7300336BDE /* abstract_mark_sweep_collector.cpp */; };
@@ -481,6 +482,7 @@
 		0ADA271212EF66EC009404B0 /* cacheline_aligned.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cacheline_aligned.h; sourceTree = "<group>"; };
 		0AEC1184128DF02F00EFF6D1 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
+		0AFF9EED14D825DE00E8473F /* buffered_channel_debug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = buffered_channel_debug.cpp; sourceTree = "<group>"; };
 		34221D6A13D4CD5A0057DCBD /* interprocess_allocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = interprocess_allocator.cpp; sourceTree = "<group>"; };
 		34221DB213D4D4960057DCBD /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = "../../../../../Library/Developer/Xcode/DerivedData/RoarVM-eqprtgryahcdkoeakrnoddrvxrbf/Build/Products/Debug/gtest.framework"; sourceTree = "<group>"; };
 		3422BB3413D8312B0077EEC5 /* posix_processes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = posix_processes.cpp; sourceTree = "<group>"; };
@@ -846,6 +848,7 @@
 				0A27845C128DBF7300336BDE /* multiple_writer_ptr_queue.h */,
 				0A27845D128DBF7300336BDE /* synced_queue.cpp */,
 				0A27845E128DBF7300336BDE /* synced_queue.h */,
+				0AFF9EED14D825DE00E8473F /* buffered_channel_debug.cpp */,
 			);
 			name = message_buffers;
 			path = src/message_buffers;
@@ -1386,6 +1389,7 @@
 				0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */,
 				34CFFD1A13D474810053F752 /* process_memory_semantics.cpp in Sources */,
 				3422BB3613D8312B0077EEC5 /* posix_processes.cpp in Sources */,
+				0AFF9EEE14D825DE00E8473F /* buffered_channel_debug.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

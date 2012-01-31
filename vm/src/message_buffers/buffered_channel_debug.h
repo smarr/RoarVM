@@ -53,14 +53,7 @@ public:
     OS_Interface::mutex_destruct(&lock);
   }
 
-  void send(const void* data, size_t size) {
-    void* const buffer = OS_Interface::rvm_malloc_shared(size);
-    memcpy(buffer, data, size);
-  
-    OS_Interface::mutex_lock(&lock);
-    channel.push(buffer);
-    OS_Interface::mutex_unlock(&lock);
-  }
+  void send(const void* data, size_t size);
   
   void* receive(size_t&) {
     OS_Interface::mutex_lock(&lock);
@@ -71,10 +64,8 @@ public:
     return result;
   }
   
-  void releaseOldest(void* const buffer) const {
-    OS_Interface::rvm_free_shared(buffer);
-  }
-
+  void releaseOldest(void* const buffer) const;
+  
 // STEFAN: performance hack, not using the lock here is usually safe, depending on the queue implementation
 /* On OSX that it is safe, the queue is based on a deque which uses a 
    pointer compare, the object storing the pointers is allocated
