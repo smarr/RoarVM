@@ -132,10 +132,18 @@ public:
   }
   static inline void* shared_calloc(u_int32 num_members, u_int32 mem_size)  {
     if (Use_Custom_Allocator_When_Using_Threads) {
-      OS_Interface::rvm_calloc_shared(sz);
+      OS_Interface::rvm_calloc_shared(num_members, mem_size);
     }
     else {
       return calloc(num_members, mem_size);
+    }
+  }
+  static inline void  shared_free(void* ptr) {
+    if (Use_Custom_Allocator_When_Using_Threads) {
+      OS_Interface::rvm_free_shared(ptr);
+    }
+    else {
+      free(ptr);
     }
   }
       

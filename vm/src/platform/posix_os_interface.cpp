@@ -106,6 +106,7 @@ void POSIX_OS_Interface::start_threads(void (*helper_core_main)(), char** /* arg
   OS_Interface::pin_thread_to_core(0);
 }
 
+# if Using_Processes
 
 void POSIX_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]) {
   // go parallel; one core returns; others run helper_core_main fn
@@ -146,6 +147,8 @@ void POSIX_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[
     rvm_exit();
   }  
 }
+
+# endif // Using_Processes
 
 
 int POSIX_OS_Interface::abort_if_error(const char* msg, int err) {
