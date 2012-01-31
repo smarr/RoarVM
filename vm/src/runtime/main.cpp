@@ -146,7 +146,11 @@ static void print_version_info() {
     
   printf("Used compiler:\t\t");
 #if defined(__tile__)
+  #if defined(__TILECC__)
   printf("tile-cc version %d.%d.%d\n", __TILECC__, __TILECC_MINOR__, __TILECC_PATCHLEVEL__);
+  #else
+  printf("tile-c++ (GCC-based) version %s\n", __VERSION__);
+  #endif
 #else
   printf("%s\n", __VERSION__);
 #endif

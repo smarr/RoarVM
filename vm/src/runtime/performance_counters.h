@@ -94,7 +94,7 @@ public:
   # define DECLARE_ACCUMULATOR_METHODS(name, type, initial_value) \
     FORCE_INLINE void add_##name(type) const {} \
     \
-    static void add_##name##_static(type value) {}
+    static void add_##name##_static(type) {}
 
 # endif  
 

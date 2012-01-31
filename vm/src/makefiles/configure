@@ -42,7 +42,20 @@ PERF_COUNTERS=0
 CONFIGURE_ARGS="$@"
 CONFIG_FLAGS="-m32 -Wextra -Wno-write-strings"
 PWD=`pwd`
-SRC_DIR=`dirname $PWD`/src
+
+# Not sure whether we need absolute file names, but will preserve it for now.
+# However, spaces do break things, so, try to use relative pathes
+# instead if there is a space in the path.
+case "$PWD" in
+    *\ * )
+        SRC_DIR=../src
+        ;;
+    *)
+        SRC_DIR=`dirname $PWD`/src
+        ;;
+esac
+
+
 #SYSCTL="/sbin/sysctl"
 #if [ ! -e $SYSCTL ] then SYSCTL="/usr$SYSCTL" fi
 #number_of_cores=`$SYSCTL `
@@ -106,7 +119,7 @@ then
 	LOW_OPTIMIZE_LEVEL=-O3
 	HIGH_OPTIMIZE_LEVEL=-O3
 else
-	LOW_OPTIMIZE_LEVEL=-O1
+	LOW_OPTIMIZE_LEVEL=-O3
 	HIGH_OPTIMIZE_LEVEL=-O3
 	CONFIG_FLAGS="$CONFIG_FLAGS \\
 	    -DCHECK_FOR_PROBLEMATIC_COMPILER=0"
@@ -132,13 +145,13 @@ if [ $USE_TILERA -eq 0 ]
 then
   case $OPERATING_SYSTEM in
     Darwin)
-        LDFLAGS="$LDFLAGS -lX11 -lXext -framework CoreFoundation -lGL -framework CoreServices -framework IOKit"
+        LDFLAGS="$LDFLAGS -lX11 -lXext -framework CoreFoundation -lGL -framework CoreServices -framework IOKit -Wl,-no_pie"
         X11_PATH="/Developer/SDKs/MacOSX10.6.sdk/usr/X11R6/lib"
         Xext_PATH="/Developer/SDKs/MacOSX10.6.sdk/usr/X11R6/lib"
 		if [ -z "$CXX" ]
 		then
-        	CC=gcc-4.2
-        	CXX=g++-4.2
+        	CC=gcc
+        	CXX=g++
 		fi
         CONFIG_FLAGS="$CONFIG_FLAGS -I/Developer/SDKs/MacOSX10.6.sdk/usr/X11/include/"
 
@@ -193,10 +206,10 @@ if [ -z "$X11_PATH" ]
 then
     if [ $USE_TILERA -eq 1 ]
     then
-        if [ -f /users/smarr/test/xc/lib/X11/libX11.a ]
+        if [ -f /users/smarr/Projects/X11-Tilera-libs/current/libX11.a ]
         then
-            X11_PATH="/users/smarr/test/xc/lib/X11"
-            Xext_PATH="/users/smarr/test/xc/lib/Xext"
+            X11_PATH="/users/smarr/Projects/X11-Tilera-libs/current/"
+            Xext_PATH="/users/smarr/Projects/X11-Tilera-libs/current/"
         else
             if [ -f /home/ungar/renaissance/xfree86/xc/lib/X11/libX11.a ]
             then

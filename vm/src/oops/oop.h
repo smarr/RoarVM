@@ -58,14 +58,16 @@ private:
   Oop() { _bits = (Illegals::uninitialized & ~Tag_Mask)  |  Mem_Tag; } // illegal
 
 
-  inline oop_int_t bits() const { return _bits; }
-  oop_int_t bits_for_hash() { return u_oop_int_t(bits()) >> ShiftForWord;   } // for method cache
-  oop_int_t integerValue() { assert(is_int());  return _bits >> Tag_Size; }
-  static bool isIntegerValue(oop_int_t i) { return ((i << Tag_Size) >> Tag_Size) == i; }
-  static bool isIntegerValue(u_oop_int_t i) { return ((i << u_oop_int_t(Tag_Size)) >> u_oop_int_t(Tag_Size)) == i; }
-  static bool isIntegerValue(int64 i) { return int64(oop_int_t(i)) == i  &&  isIntegerValue(oop_int_t(i)); }
+  inline oop_int_t bits()   const { return _bits; }
+  oop_int_t bits_for_hash() const { return u_oop_int_t(bits()) >> ShiftForWord;   } // for method cache
+  oop_int_t integerValue()  const { assert(is_int());  return _bits >> Tag_Size; }
+
+  static bool isIntegerValue(oop_int_t i)   { return (i ^ (i << Tag_Size)) >= 0; }
+  static bool isIntegerValue(u_oop_int_t i) { return isIntegerValue((oop_int_t)i); }
+
+  static bool isIntegerValue(int64 i)   { return int64(oop_int_t(i))   == i  &&  isIntegerValue(oop_int_t(i)); }
   static bool isIntegerValue(u_int64 i) { return u_int64(oop_int_t(i)) == i  &&  isIntegerValue(u_oop_int_t(i)); }
-  inline oop_int_t mem_bits();
+  inline oop_int_t mem_bits() const;
 
 
   inline oop_int_t checkedIntegerValue();
@@ -73,8 +75,8 @@ private:
   bool operator == (Oop x) const {  return bits() == x.bits(); }
   bool operator != (Oop x) const {  return bits() != x.bits(); }
 
-  bool is_mem() { return (bits() & Tag_Mask) == Mem_Tag; }
-  bool is_int() { return (bits() & Tag_Mask) == Int_Tag; }
+  bool is_mem() const { return (bits() & Tag_Mask) == Mem_Tag; }
+  bool is_int() const { return (bits() & Tag_Mask) == Int_Tag; }
 
   inline Object_p as_object();
   inline Object_p as_object_unchecked();

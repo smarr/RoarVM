@@ -516,10 +516,10 @@ inline bool Object::isUnwindMarked() {
 
 inline double Object::fetchFloatAtinto() {
   // assumes arg is BaseHeaderSize, built into long32_at
-  double r;
-  ((int32*)&r)[0] = long32_at(1);
-  ((int32*)&r)[1] = long32_at(0);
-  return r;
+  int32 r[2];
+  r[0] = long32_at(1);
+  r[1] = long32_at(0);
+  return *((double*)&r);
 }
 
 inline double Object::fetchFloatofObject(oop_int_t fieldIndex) {

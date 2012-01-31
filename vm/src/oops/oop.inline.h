@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-inline void oopcpy_no_store_check(Oop* dst, const Oop* src, int n, Object_p dst_obj_to_be_evacuated) {
+inline void oopcpy_no_store_check(Oop* const dst, const Oop* src, int n, Object_p dst_obj_to_be_evacuated) {
   assert(The_Memory_System()->contains(dst));
 
   The_Memory_System()->enforce_coherence_before_store_into_object_by_interpreter(dst, n << ShiftForWord, dst_obj_to_be_evacuated);
@@ -21,12 +21,14 @@ inline void oopcpy_no_store_check(Oop* dst, const Oop* src, int n, Object_p dst_
   The_Memory_System()->enforce_coherence_after_store_into_object_by_interpreter(dst, n << ShiftForWord);
 }
 
-inline void oopset_no_store_check(Oop* dst, Oop src, int n) {
+inline void oopset_no_store_check(Oop* const dst, Oop src, int n) {
   assert(The_Memory_System()->contains(dst));
   The_Memory_System()->enforce_coherence_before_store(dst, n << ShiftForWord); // not into an object we need
   DEBUG_MULTISTORE_CHECK(dst, src, n);
+  
+  Oop* destination = dst;
   for (int i = 0;  i < n;  ++i)  {
-    *dst++ = src;
+    *destination++ = src;
   }
   The_Memory_System()->enforce_coherence_after_store(dst, n << ShiftForWord);
 }
@@ -77,7 +79,7 @@ inline Object_p Oop::as_object_if_mem() {
 
 
 inline Oop Oop::from_mem_bits(u_oop_int_t mem_bits) { return Oop((mem_bits << Header_Type::Width) | Mem_Tag); }
-inline oop_int_t Oop::mem_bits() { return u_oop_int_t(bits()) >> Header_Type::Width; }
+inline oop_int_t Oop::mem_bits() const { return u_oop_int_t(bits()) >> Header_Type::Width; }
 
 inline oop_int_t Oop::checkedIntegerValue() {
   return is_int() ? integerValue() : (The_Squeak_Interpreter()->primitiveFail(), 0);

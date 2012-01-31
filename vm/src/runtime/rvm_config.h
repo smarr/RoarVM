@@ -84,10 +84,10 @@
   template(StopOnSend) \
   template(NthSendForStopping) \
   template(PrintMethodDictionaryLookups) \
-  template(Multicore) \
   template(Print_Barriers) \
   template(Include_Debugging_Code) \
   template(Debugging) \
+  template(Verbose_Debug_Prints) \
   template(Track_OnStackPointer) \
   template(Omit_Duplicated_OT_Overhead) \
   template(Omit_Spare_Bit) \
@@ -124,7 +124,9 @@
   template(Hammer_Safepoints) /* for debugging */ \
   \
   template(Dump_Bytecode_Cycles) \
-  template(Dont_Dump_Primitive_Cycles)
+  template(Dont_Dump_Primitive_Cycles) \
+  \
+  template(Print_Keys)
 
 
 
@@ -147,6 +149,8 @@
 # ifndef On_Tilera
   # define On_Tilera (!On_Apple && !On_Intel_Linux)
 # endif
+
+# define On_Tilera_With_GCC (On_Tilera && !defined(__TILECC__))
 
 # ifndef Enforce_Threads
   # define Enforce_Threads !On_Tilera
@@ -191,11 +195,6 @@
 # endif
 
 
-# ifndef Multicore
-  # define Multicore 1
-# endif
-
-
 # ifndef Print_Barriers
 # define Print_Barriers 0
 # endif
@@ -203,6 +202,10 @@
 // Flag to include general debugging code
 # ifndef Include_Debugging_Code
 # define Include_Debugging_Code Debugging
+# endif
+
+# ifndef Verbose_Debug_Prints
+# define Verbose_Debug_Prints Include_Debugging_Code
 # endif
 
 # ifndef check_assertions
@@ -223,6 +226,10 @@
 
 # ifndef PrintFetchedContextRegisters
 #  define PrintFetchedContextRegisters 0
+# endif
+
+# ifndef Print_Keys
+#  define Print_Keys 0
 # endif
 
 // Keeping a tally of the received messages seems to have an impact on performance.

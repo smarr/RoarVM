@@ -26,8 +26,6 @@ void Squeak_Interpreter::primitiveArctan() {
   else unPop(1);
 }
 
-#warning STEFAN: I fear there is something broken in the overall implementation of primitives here, primitiveArrayBecome makes problems now, with optimization level > 1, I expect the others also to be volatile...
-__attribute__((optimize(1)))
 void Squeak_Interpreter::primitiveArrayBecome() {
   success(The_Memory_System()->become_with_twoWay_copyHash(stackValue(1), stackTop(), true, true));
   if (successFlag) pop(1);
@@ -994,9 +992,10 @@ void Squeak_Interpreter::primitiveGetAttribute() {
   popThenPush(2, s->as_oop());
 }
 
+
 void Squeak_Interpreter::primitiveGetNextEvent() {
   assert_external();
-  const bool print = false;
+  const bool print = Print_Keys;
   int evtBuf[evtBuf_size];
   for (int i = 0;  i < evtBuf_size;  ++i)  evtBuf[i] = 0;
   bool got_one = The_Interactions.getNextEvent_on_main(evtBuf); // do this from here so we can GC if need be
@@ -1041,10 +1040,11 @@ void Squeak_Interpreter::primitiveGetNextEvent() {
   }
   if (!successFlag) return;
 
-  if (print && evtBuf[0] == 2)
-    lprintf("primitiveGetNextEvent key: %d, state %d\n", evtBuf[2], evtBuf[3]);
+  if (print && evtBuf[0] == 2 /* EventTypeKeyboard*/ )
+    lprintf("primitiveGetNextEvent key: %d, state %d '%c'\n", evtBuf[2], evtBuf[3], evtBuf[2]);
   pop(1);
 }
+
 
 void Squeak_Interpreter::primitiveGreaterOrEqual() {
   oop_int_t a = popInteger();
@@ -1215,9 +1215,20 @@ void Squeak_Interpreter::primitiveInvokeObjectAsMethod() {
   successFlag = true;
 }
 
+static void print_keystroke_word(int keystrokeWord) {
+  if (Print_Keys  &&  keystrokeWord >= 0) {
+    lprintf("%s %u 0x%x 0%o\n", 
+            "primitiveKbdPeek", 
+            keystrokeWord,
+            keystrokeWord,
+            keystrokeWord);
+  }
+}
+
 void Squeak_Interpreter::primitiveKbdNext() {
   pop(1);
   int keystrokeWord = ioGetKeystroke();
+  print_keystroke_word(keystrokeWord);
   if (keystrokeWord >= 0)  pushInteger(keystrokeWord);
   else                     push(roots.nilObj);
 
@@ -1230,6 +1241,7 @@ void Squeak_Interpreter::primitiveKbdPeek() {
 # else
   int keystrokeWord = ioPeekKeystroke();
 # endif
+  print_keystroke_word(keystrokeWord);
   if (keystrokeWord >= 0)  pushInteger(keystrokeWord);
   else                     push(roots.nilObj);
 }
@@ -1432,14 +1444,16 @@ void Squeak_Interpreter::primitiveNewMethod() {
 
 void Squeak_Interpreter::primitiveNewWithArg() {
   u_int32 size = positive32BitValueOf(stackTop());
-  Oop klass = stackValue(1);
-  success(int32(size) >= 0);
+  Oop klass    = stackValue(1);
   Logical_Core* c = NULL;
+
+  success(int32(size) >= 0);
   if (successFlag) {
     c = coreWithSufficientSpaceToInstantiate(klass, size);
     success(c != NULL);
     klass = stackValue(1); // GC
   }
+
   if (successFlag)
     popThenPush(2, klass.as_object()->instantiateClass(size, c)->as_oop());
 }
@@ -2113,13 +2127,12 @@ void Squeak_Interpreter::primitiveSuspend() {
 }
 
 
-static void terminate_to(Oop aContext, Oop thisCntx) {
+static void terminate_to(Oop aContext, Oop thisCntx, Oop nilOop) {
   // Warning: only works if called for this very process
   Object_p aco = aContext.as_object();
   Object_p tco = thisCntx.as_object();
   
   if (tco->hasSender(aContext)) {
-    Oop nilOop = The_Squeak_Interpreter()->roots.nilObj;
     Object_p nextCntx;
     for (Object_p currentCntx = tco->fetchPointer(Object_Indices::SenderIndex).as_object();
          currentCntx != aco;
@@ -2143,7 +2156,7 @@ void Squeak_Interpreter::primitiveTerminateTo() {
     primitiveFail();
     return;
   }
-  terminate_to(aContext, thisCntx);
+  terminate_to(aContext, thisCntx, roots.nilObj);
   push(thisCntx);
 }
 
@@ -2329,7 +2342,7 @@ void Squeak_Interpreter::primitiveClosureValue() {
   if (!closureMethod_obj->isCompiledMethod()) { primitiveFail(); return; }
   
   activateNewClosureMethod(blockClosure_obj, (Object_p)NULL);
-  if ( !The_Squeak_Interpreter()->doing_primitiveClosureValueNoContextSwitch)
+  if (doing_primitiveClosureValueNoContextSwitch)
     quickCheckForInterrupts();
 }
 
@@ -2370,7 +2383,7 @@ void Squeak_Interpreter::primitiveClosureValue() {
 
 
 void Squeak_Interpreter::primitiveClosureValueNoContextSwitch() {
-  The_Squeak_Interpreter()->doing_primitiveClosureValueNoContextSwitch = true;
+  doing_primitiveClosureValueNoContextSwitch = true;
   primitiveClosureValue(); 
 }
 
@@ -2508,19 +2521,19 @@ void Squeak_Interpreter::primitiveFloatDivide(Oop r, Oop a) {
 bool Squeak_Interpreter::primitiveFloatLess(Oop r, Oop a) {
   double rd = loadFloatOrIntFrom(r);
   double ad = loadFloatOrIntFrom(a);
-  return  successFlag  ?  rd < ad  :  0.0;
+  return  successFlag  &&  rd < ad;
 }
 
 bool Squeak_Interpreter::primitiveFloatGreater(Oop r, Oop a) {
   double rd = loadFloatOrIntFrom(r);
   double ad = loadFloatOrIntFrom(a);
-  return  successFlag  ?  rd > ad  :  0.0;
+  return  successFlag  &&  rd > ad;
 }
 
 bool Squeak_Interpreter::primitiveFloatEqual(Oop r, Oop a) {
   double rd = loadFloatOrIntFrom(r);
   double ad = loadFloatOrIntFrom(a);
-  return  successFlag  ?  rd == ad  :  0.0;
+  return  successFlag  &&  rd == ad;
 }
 
 # if Include_Closure_Support

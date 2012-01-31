@@ -419,6 +419,7 @@ Oop* Object::last_strong_pointer_addr_remembering_weak_roots(Abstract_Mark_Sweep
 void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
   if (isFreeObject())
     return;
+  
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
     if (do_checks)
       my_heap()->contains(oopp);
@@ -439,6 +440,7 @@ void Object::do_all_oops_of_object(Oop_Closure* oc, bool do_checks) {
 void Object::do_all_oops_of_object_for_reading_snapshot(Squeak_Image_Reader* r) {
   if (isFreeObject())
     return;
+  
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
     Oop x = *oopp;
     if (x.is_mem()) {
@@ -507,7 +509,7 @@ Oop Object::clone() {
   // fix base header: compute new hash and clear Mark and Root bits
   oop_int_t hash = h->newObjectHash(); // even though newChunk may be in global heap
   The_Memory_System()->store_enforcing_coherence(&newObj->baseHeader,
-                                              newObj->baseHeader & (Header_Type::Mask | SizeMask | CompactClassMask | FormatMask)
+                                              (newObj->baseHeader & (Header_Type::Mask | SizeMask | CompactClassMask | FormatMask))
                                               |   ((hash << HashShift) & HashMask),
                                               newObj);
 
@@ -948,15 +950,20 @@ void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
   Chunk* dst_chunk = h->allocateChunk(ehb + bnc);
   oop = The_Squeak_Interpreter()->popRemappableOop();
   char* src_chunk = as_char_p() - ehb;
+  
   Object_p new_obj = (Object_p)(Object*) (((char*)dst_chunk) + ehb);
 
   h->enforce_coherence_before_store(dst_chunk, ehb + bnc);
   DEBUG_MULTIMOVE_CHECK(dst_chunk, src_chunk, (ehb + bnc) / bytes_per_oop );
   bcopy(src_chunk, dst_chunk, ehb + bnc);
-  // set backpointer is redundant but this routine does the safepoint
+  
+  // update the oop entry in the OT and set backpointer
+  // setting the backpointer is redundant but this routine does the safepoint
   new_obj->set_object_address_and_backpointer(oop  COMMA_TRUE_OR_NOTHING);
+  // this is also redundant, depending on the logic behind set_extra_preheader_word
   if (Extra_Preheader_Word_Experiment)
     new_obj->set_extra_preheader_word(get_extra_preheader_word());
+  
   h->enforce_coherence_after_store(dst_chunk, ehb + bnc);
 
   ((Chunk*)src_chunk)->make_free_object(ehb + bnc, 2); // without this GC screws up

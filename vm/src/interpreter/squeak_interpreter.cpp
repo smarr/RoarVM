@@ -284,7 +284,7 @@ void Squeak_Interpreter::interpret() {
       }
       assert( internalStackTop().bits() );
     }
-    if (check_assertions || CountByteCodesAndStopAt)
+    if (check_assertions | CountByteCodesAndStopAt)
       lastBCCount = bcCount;
     if (CountByteCodesAndStopAt ) {
        if (bcCount == CountByteCodesAndStopAt)
@@ -342,7 +342,7 @@ void Squeak_Interpreter::interpret() {
     PERF_CNT(this, add_interpret_cycles(OS_Interface::get_cycle_count() - start));
     
     // for debugging check that the stack is not growing to big
-    if (Include_Debugging_Code && (count_stack_depth() > 1000)) {
+    if (false && (count_stack_depth() > 1000)) {
       OS_Interface::breakpoint();
     }
     
@@ -849,7 +849,7 @@ Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
       dittoing_stdout_printer->nl(); // xxx_dmu
       set_dnu_kvetch_count(dnu_kvetch_count() + 1);
       if (dnu_kvetch_count() >= enough_already) lprintf("Enough already! No more kvetching!");
-      breakpoint();
+      // breakpoint();
     }
     roots.dnuSelector = roots.messageSelector;
     if (check_assertions && !roots.messageSelector.isBytes()) {
@@ -907,7 +907,7 @@ bool Squeak_Interpreter::balancedStackAfterPrimitive(int delta, int primIdx, int
   if (successFlag) {
     // must have nArgs popped off
     if  ( stackPointer() - activeContext_obj()->as_oop_p() + nArgs ==  delta ) return true;
-    lprintf("balancedStackAfterPrimitive failed: stackPointer 0x%x, activeContext_obj() 0x%x, nArgs %d, delta $d\n",
+    lprintf("balancedStackAfterPrimitive failed: stackPointer 0x%x, activeContext_obj() 0x%x, nArgs %d, delta %d\n",
             _stackPointer, (Object*)activeContext_obj(), nArgs, delta);
     return false;
   }
@@ -2032,7 +2032,7 @@ void Squeak_Interpreter::snapshot(bool /* embedded */) {
     The_Memory_System()->writeImageFile(The_Memory_System()->imageName());
     assert_active_process_not_nil();
     lprintf("snapshot: postGCAction_everywhere\n");
-    The_Squeak_Interpreter()->postGCAction_everywhere(false); // With object table, may have moved things
+    postGCAction_everywhere(false); // With object table, may have moved things
 
     {
       Scheduler_Mutex sm("snapshot recovery");
@@ -2448,7 +2448,7 @@ void Squeak_Interpreter::multicore_interrupt() {
     if (emergency_semaphore_signal_requested) {
       Safepoint_Ability sa(false);
 
-      if (roots.emergency_semaphore.fetchClass() == The_Squeak_Interpreter()->splObj(Special_Indices::ClassSemaphore))
+      if (roots.emergency_semaphore.fetchClass() == splObj(Special_Indices::ClassSemaphore))
         roots.emergency_semaphore.as_object()->synchronousSignal("emergency signal request");
       emergency_semaphore_signal_requested = false;
     }
@@ -2752,7 +2752,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   internalFetchContextRegisters(thisCntx, thisCntx_obj);
   fetchNextBytecode();
   internalPush(localVal);
-  if (Always_Check_Method_Is_Correct || check_assertions)  check_method_is_correct(false, "end of commonReturn");
+  if (Always_Check_Method_Is_Correct | check_assertions)  check_method_is_correct(false, "end of commonReturn");
 }
 
 void Squeak_Interpreter::internalCannotReturn(Oop resultObj, bool b1, bool b2, bool b3) {
@@ -3221,8 +3221,8 @@ void Squeak_Interpreter::signalFinalization(Oop) {
 
 
 void Squeak_Interpreter::set_run_mask_and_request_yield(u_int64 x) {
-  The_Squeak_Interpreter()->set_run_mask(x);
-  The_Squeak_Interpreter()->set_yield_requested(true);
+  set_run_mask(x);
+  set_yield_requested(true);
 }
 
 
@@ -3255,11 +3255,11 @@ void Squeak_Interpreter::distribute_initial_interpreter() {
   assert_always(Memory_Semantics::cores_are_initialized());
   assert_always(Logical_Core::running_on_main());
   // lprintf("main about to distribute interpreter\n");
-  if (check_assertions)  The_Squeak_Interpreter()->roots.specialObjectsOop.verify_object();
+  if (check_assertions)  roots.specialObjectsOop.verify_object();
   
   // Use a shared buffer to reduce the size of the message to optimize the footprint of message buffer allocation -- dmu & sm
   Squeak_Interpreter* interp_shared_copy = (Squeak_Interpreter*)Memory_Semantics::shared_malloc(sizeof(Squeak_Interpreter));  
-  memcpy(interp_shared_copy, The_Squeak_Interpreter(), sizeof(Squeak_Interpreter));
+  memcpy(interp_shared_copy, this, sizeof(Squeak_Interpreter));
   
   distributeInitialInterpreterMessage_class m(interp_shared_copy);
   m.send_to_other_cores();

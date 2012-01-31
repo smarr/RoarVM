@@ -489,7 +489,7 @@ struct VirtualMachine* sqGetInterpreterProxy(void)
 
 #if VM_PROXY_MINOR > 10 || defined(ROAR_VM)
 	VM->tenuringIncrementalGC = tenuringIncrementalGC;
-  VM->primitiveFailureCode = primitiveFailureCode;
+	VM->primitiveFailureCode = primitiveFailureCode;
 	VM->isKindOfClass = isKindOfClass;
  	VM->instanceSizeOf = instanceSizeOf;
 #endif

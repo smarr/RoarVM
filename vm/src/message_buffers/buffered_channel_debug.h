@@ -65,7 +65,7 @@ public:
   }
   
   void releaseOldest(void* const buffer) const;
-  
+
 // STEFAN: performance hack, not using the lock here is usually safe, depending on the queue implementation
 /* On OSX that it is safe, the queue is based on a deque which uses a 
    pointer compare, the object storing the pointers is allocated
@@ -79,13 +79,13 @@ public:
   __attribute__((noinline)) // seems to be necessary, otherwise the volatile hack does not work
 #endif
   bool hasData() {
-    if (not _SKIP_HAS_DATA_LOCKING) OS_Interface::mutex_lock(&lock);
+    if (!_SKIP_HAS_DATA_LOCKING) OS_Interface::mutex_lock(&lock);
     
     // assign to volatile bool to avoid to optimize that out of any loop
     // does on the tested GCC 4.5 only work if the function is not inlined
     volatile bool result = !channel.empty();  
 
-    if (not _SKIP_HAS_DATA_LOCKING) OS_Interface::mutex_unlock(&lock);
+    if (!_SKIP_HAS_DATA_LOCKING) OS_Interface::mutex_unlock(&lock);
 
     return result;
   }

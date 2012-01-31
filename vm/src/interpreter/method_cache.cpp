@@ -59,7 +59,7 @@ void Method_Cache::rewrite(Oop sel, Oop klass, int prim, fn_t primFunction, bool
       return;
     }
   }
-};
+}
 
 bool Method_Cache::verify() {
   for (int i = 0;  i < Entries;  ++i) {
