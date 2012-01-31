@@ -17,7 +17,7 @@
 
 void print_config() {
   fprintf(stdout, "Configuration flags:\n");
-  # define PRINT(name) fprintf(stdout, " %s%s", name ? " " : "!", #name);
+  # define PRINT(name) fprintf(stdout, "\t%s%s\n", name ? " " : "!", #name);
   DO_ALL_CONFIG_FLAGS(PRINT)
   fprintf(stdout, "\n");
   # undef PRINT
