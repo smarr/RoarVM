@@ -124,7 +124,7 @@ public:
   
   static inline void* shared_malloc(u_int32 sz) {
     if (Use_Custom_Allocator_When_Using_Threads) {
-      OS_Interface::rvm_malloc_shared(sz);
+      return OS_Interface::rvm_malloc_shared(sz);
     }
     else {
       return malloc(sz);
@@ -132,7 +132,7 @@ public:
   }
   static inline void* shared_calloc(u_int32 num_members, u_int32 mem_size)  {
     if (Use_Custom_Allocator_When_Using_Threads) {
-      OS_Interface::rvm_calloc_shared(num_members, mem_size);
+      return OS_Interface::rvm_calloc_shared(num_members, mem_size);
     }
     else {
       return calloc(num_members, mem_size);
