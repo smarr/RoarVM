@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0A278517128DBF7400336BDE /* compiler_check.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2783F4128DBF7300336BDE /* compiler_check.cpp */; };
 		0A278518128DBF7400336BDE /* externals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2783F6128DBF7300336BDE /* externals.cpp */; };
 		0A278519128DBF7400336BDE /* FilePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278400128DBF7300336BDE /* FilePlugin.c */; };
 		0A27851A128DBF7400336BDE /* sqFilePluginBasicPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278402128DBF7300336BDE /* sqFilePluginBasicPrims.c */; };
@@ -213,7 +212,6 @@
 
 /* Begin PBXFileReference section */
 		0A2783EB128DBF1000336BDE /* RoarVM */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RoarVM; sourceTree = BUILT_PRODUCTS_DIR; };
-		0A2783F4128DBF7300336BDE /* compiler_check.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = compiler_check.cpp; path = src/compiler_check.cpp; sourceTree = "<group>"; };
 		0A2783F6128DBF7300336BDE /* externals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = externals.cpp; sourceTree = "<group>"; };
 		0A2783F7128DBF7300336BDE /* externals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = externals.h; sourceTree = "<group>"; };
 		0A2783FC128DBF7300336BDE /* B3DAcceleratorPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = B3DAcceleratorPlugin.h; sourceTree = "<group>"; };
@@ -534,7 +532,6 @@
 		0A27829C128DBEBB00336BDE /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				0A2783F4128DBF7300336BDE /* compiler_check.cpp */,
 				0A2783F5128DBF7300336BDE /* externals */,
 				0A2783F8128DBF7300336BDE /* from_squeak */,
 				0A278443128DBF7300336BDE /* heap */,
@@ -1301,7 +1298,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A278517128DBF7400336BDE /* compiler_check.cpp in Sources */,
 				0A278518128DBF7400336BDE /* externals.cpp in Sources */,
 				0A278519128DBF7400336BDE /* FilePlugin.c in Sources */,
 				0A27851A128DBF7400336BDE /* sqFilePluginBasicPrims.c in Sources */,
