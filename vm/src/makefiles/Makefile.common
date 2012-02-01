@@ -279,7 +279,7 @@ RVM_HEADERS += \
 endif
 
 # default target
-all: compiler_check $(EXECUTABLE)
+all: $(EXECUTABLE)
 
 info:
 	@echo Platform: $(PLATFORM)
@@ -322,18 +322,14 @@ PRINT_COMPILATION_INFO=@echo $(DO_ESCAPING) "$(START_BOLD)Compiling $(notdir $<)
 	$(PRINT_COMPILATION_INFO)
 	$(AT)$(CXX) $(CFLAGS) $(CXXFLAGS) -E $< -o $@
 
-%.o : %.cpp $(RVM_HEADERS) Makefile compiler_check
+%.o : %.cpp $(RVM_HEADERS) Makefile 
 	$(PRINT_COMPILATION_INFO)
 	$(AT)$(CXX) $(CFLAGS) $(CXXFLAGS) $(LOW_OPTIMIZE_LEVEL)  -c $< -o $@
 
-%.opt : %.cpp $(RVM_HEADERS) Makefile compiler_check
+%.opt : %.cpp $(RVM_HEADERS) Makefile
 	$(PRINT_COMPILATION_INFO)
 	$(AT)$(CXX) $(CFLAGS) $(CXXFLAGS) $(HIGH_OPTIMIZE_LEVEL) -c $< -o $@
 
-
-compiler_check:
-	@echo Checking Compiler for know problems
-	$(AT)$(CXX) $(CONFIG_FLAGS) -c $(SRC_DIR)/compiler_check.cpp -o compiler_check
 
 vpath %.c $(SRC_DIR)/from_squeak
 vpath %.c $(SRC_DIR)/from_squeak/Cross
@@ -597,7 +593,7 @@ test: rvm-test
 	$(AT)./rvm-test
 
 clean:
-	rm -f *.o *.opt $(EXECUTABLE) compiler_check rvm-test libgtest.a $(TEST_OBJS)
+	rm -f *.o *.opt $(EXECUTABLE) rvm-test libgtest.a $(TEST_OBJS)
 
 install: $(EXECUTABLE)
 	install $(EXECUTABLE) /usr/local/bin
