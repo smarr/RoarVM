@@ -202,6 +202,35 @@ private:
 /** For Debugging */
 public:
   void debug_print_free_list() {}
+  void debug_print_full_heap() {
+    Item* current = (Item*)allocation_area;
+    
+    debug_printer->printf("\n\nInterprocess_Allocator Heap:\n");
+    size_t seen_free = 0;
+    size_t seen_used = 0;
+    while (current && ((uintptr_t)current < (uintptr_t)allocation_area + size)) {
+      debug_printer->printf("\t[%s] size: %d\n", current->is_actually_free_item() ? "FREE" : "used", current->get_size());
+      
+      if (current->is_actually_free_item()) {
+        seen_free += current->get_size();
+      }
+      else {
+        seen_used += current->get_size();
+      }      
+      current = current->next_in_memory();
+    }
+
+    debug_printer->printf("\nseen free: %lu\n", seen_free);
+    debug_printer->printf("seen used: %lu\n", seen_used);
+    
+    debug_printer->printf("size: %lu\n", size);
+    debug_printer->printf("free area: %lu\n", free_area);
+    debug_printer->printf("num allocations: %lu\n", num_allocations);
+    debug_printer->printf("sum allocations: %lu\n", sum_allocations);
+    debug_printer->printf("num frees: %lu\n", num_frees);
+    debug_printer->printf("num allocated chunks: %lu\n", num_allocated_chunks);
+
+  }
 
   volatile uint32_t num_allocations;
   volatile uint32_t sum_allocations;
