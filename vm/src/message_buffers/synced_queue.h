@@ -25,6 +25,7 @@
 
 
 #include <pthread.h>
+#include <stdint.h>
 
 #ifndef __SYNCED_QUEUE_H__
 #define __SYNCED_QUEUE_H__
