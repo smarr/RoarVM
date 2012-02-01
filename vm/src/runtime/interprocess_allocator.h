@@ -69,6 +69,10 @@ public:
     static inline size_t pad(size_t sz) {
       return sz + ((sizeof(void*) - (sz % sizeof(void*))) % sizeof(void*));
     }
+    
+    Item* next_in_memory() {
+      return (Item*)((intptr_t)this + get_size());
+    }
 
     Item* next;
     Item* prev;
@@ -147,7 +151,7 @@ public:
     freed_item->become_free();
     freed_item->prev = NULL;
     
-    Item* following_item = (Item*)((intptr_t)freed_item + freed_item->get_size());
+    Item* following_item = freed_item->next_in_memory();
     
     if (((uintptr_t)following_item < (uintptr_t)allocation_area + size)
         && following_item->is_actually_free_item()) {
@@ -269,7 +273,7 @@ private:
       
       result->set_size(managed_and_padded_size);
       
-      Item* remaining_chunk = (Item*)((intptr_t)current + managed_and_padded_size);
+      Item* remaining_chunk = result->next_in_memory();
       remaining_chunk->set_size(chunk_size - managed_and_padded_size);
       remaining_chunk->become_free();
       remaining_chunk->prev = prev;
