@@ -19,6 +19,7 @@
 
 #include <assert.h>
 
+#include "headers.h"
 #include "synced_queue.h"
 
 # ifndef __APPLE__
@@ -235,7 +236,7 @@ void syncedqueue_dequeue(p_syncedqueue sq, int32_t* const data, const size_t ite
 
       if (numTries > 32) {
         useconds_t sleep = 1 << (numTries - 32); // wait an expentially growing time span
-        usleep(std::min((useconds_t)500000, sleep));              // do not sleep longer than 0.5sec
+        usleep(min((useconds_t)500000, sleep));              // do not sleep longer than 0.5sec
       }
       else if (numTries > 16) {
         pthread_yield_np();
