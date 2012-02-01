@@ -142,6 +142,59 @@ TEST(Interprocess_Allocator, AllocationAndDeallocation) {
   free(mem);
 }
 
+/** This test uses the knowledge that we are able to merge the free items in
+    this case back together */
+TEST(Interprocess_Allocator, ReverseDeallocation) {
+  void* mem = malloc(512);
+  
+  Interprocess_Allocator ia(mem, 512);
+  
+  void* m1 = ia.allocate(4);
+  void* m2 = ia.allocate(4);
+  void* m3 = ia.allocate(4);
+  void* m4 = ia.allocate(4);
+  
+  ASSERT_EQ(4, ia.num_allocated_chunks);
+  
+  ia.free(m4);
+  ASSERT_EQ(3, ia.num_allocated_chunks);
+  ia.free(m3);
+  ASSERT_EQ(2, ia.num_allocated_chunks);
+  ia.free(m2);
+  ASSERT_EQ(1, ia.num_allocated_chunks);
+  ia.free(m1);
+  ASSERT_EQ(0, ia.num_allocated_chunks);
+
+  m1 = ia.allocate(500);
+  ASSERT_NE((void*)NULL, ia.allocate(4));  // we should get back the allocated pointer
+  
+  free(mem);
+}
+
+TEST(Interprocess_Allocator, UnorderedDeallocation) {
+  void* mem = malloc(512);
+  
+  Interprocess_Allocator ia(mem, 512);
+  
+  void* m1 = ia.allocate(4);
+  void* m2 = ia.allocate(4);
+  void* m3 = ia.allocate(4);
+  void* m4 = ia.allocate(4);
+  
+  ASSERT_EQ(4, ia.num_allocated_chunks);
+  
+  ia.free(m2);   ASSERT_EQ(3, ia.num_allocated_chunks);
+  ia.free(m3);   ASSERT_EQ(2, ia.num_allocated_chunks);
+  ia.free(m1);   ASSERT_EQ(1, ia.num_allocated_chunks);
+  ia.free(m4);   ASSERT_EQ(0, ia.num_allocated_chunks);
+  
+  m1 = ia.allocate(500);
+  ASSERT_NE((void*)NULL, ia.allocate(4));  // we should get back the allocated pointer
+  
+  free(mem);
+
+}
+
 
 TEST(Interprocess_Allocator, NonOverlapping) {
   void* mem = malloc(512);

@@ -18,7 +18,7 @@ class Interprocess_Allocator {
 private:
   void*  const allocation_area;
   size_t const size;
-  size_t free_area;
+  volatile size_t free_area;
 
 public:
   class Item {
@@ -76,7 +76,7 @@ public:
    
    
 private:
-  Item* free_list;
+  Item* volatile free_list;
 
   OS_Interface::Mutex mtx;
 
@@ -86,7 +86,9 @@ public:
     size(size),
     free_area(size),
     num_allocations(0),
-    sum_allocations(0) {
+    sum_allocations(0),
+    num_frees(0),
+    num_allocated_chunks(0) {
     
     if (Debugging)
       invalidate_memory();
@@ -109,6 +111,7 @@ public:
         
         if (result) {
           num_allocations += 1;
+          num_allocated_chunks += 1;
           sum_allocations += sz;
           
           free_area -= managed_and_padded;
@@ -146,42 +149,61 @@ public:
     
     Item* following_item = (Item*)((intptr_t)freed_item + freed_item->get_size());
     
-    if ((uintptr_t)following_item < (uintptr_t)allocation_area + size) {
-      if (following_item->is_actually_free_item()) {
-        freed_item->set_size(freed_item->get_size() + following_item->get_size());
-        freed_item->next = following_item->next;
-        freed_item->prev = following_item->prev;
-        
-        following_item->next = NULL;
-        following_item->prev = NULL;
-        following_item->set_size(0);
-        
-        if (freed_item->prev) {
-          freed_item->prev->next = freed_item;
-        }
-        else {
-          assert_eq(following_item, free_list,
-                    "In case there is no previous item, "
-                    "we should be at the head of the free list.");
-          free_list = freed_item->next;
-        }
-      }
+    if (((uintptr_t)following_item < (uintptr_t)allocation_area + size)
+        && following_item->is_actually_free_item()) {
+      merge_free_items(freed_item, following_item);
     }
-    
-    freed_item->next = free_list;
-    free_list = freed_item;
+    else {
+      /* just put it infront of the free list */
+      freed_item->next = free_list;
+      if (free_list) {
+        free_list->prev = freed_item;
+      }
+      
+      free_list = freed_item;
+    }
     
     free_area += additional_free_size;
     
+    num_frees += 1;
+    num_allocated_chunks -= 1;
+    
     OS_Interface::mutex_unlock(&mtx);
+  }
+  
+private:
+  void merge_free_items(Item* const freed_item, Item* const following_item) {
+    freed_item->set_size(freed_item->get_size() + following_item->get_size());
+    freed_item->next = following_item->next;
+    
+    Item* prev_item_in_list = following_item->prev;
+    freed_item->prev = prev_item_in_list;
+    
+    /* NULL out memory, is now in the middle of the resulting merged element */
+    following_item->next = NULL;
+    following_item->prev = NULL;
+    following_item->set_size(0);
+    
+    if (prev_item_in_list) {
+      prev_item_in_list->next = freed_item;
+    }      
+    else {
+      assert_eq(following_item, free_list,
+                "In case there is no previous item, "
+                "we should be at the head of the free list.");
+      free_list = freed_item;
+    }
   }
 
 /** For Debugging */
 public:
   void debug_print_free_list() {}
 
-  uint32_t num_allocations;
-  uint32_t sum_allocations;
+  volatile uint32_t num_allocations;
+  volatile uint32_t sum_allocations;
+  
+  volatile uint32_t num_frees;
+  volatile uint32_t num_allocated_chunks;
 
 /** Private Implementation */
 private:
