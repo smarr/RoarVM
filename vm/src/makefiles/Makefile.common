@@ -565,7 +565,7 @@ endif
 
 
 $(EXECUTABLE): $(OBJS) main.opt
-	$(CXX) $(LDFLAGS) $(OBJS) main.opt -lrt -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
+	$(CXX) $(LDFLAGS) $(OBJS) main.opt -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
 
 # Test Related targets, we use the googletest framework for unit tests
 
