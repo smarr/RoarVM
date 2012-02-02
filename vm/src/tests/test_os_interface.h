@@ -35,6 +35,17 @@ public:
     pthread_mutex_init(mutex, NULL);
   }
   
+  static inline void mutex_init_for_cross_process_use(Mutex* mutex) {
+    pthread_mutexattr_t process_shared_attr;
+    pthread_mutexattr_init(&process_shared_attr);
+    pthread_mutexattr_setpshared(&process_shared_attr, PTHREAD_PROCESS_SHARED);
+    
+    if (0 != pthread_mutex_init(mutex, &process_shared_attr)) {
+      // TODO: do it properly
+      perror("Creating a mutex for cross-process use failed.");
+    }
+  }
+  
   static inline void mutex_destruct(Mutex* mutex) {
     pthread_mutex_destroy(mutex);
   }
