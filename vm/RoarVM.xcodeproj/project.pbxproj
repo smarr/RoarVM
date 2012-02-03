@@ -212,6 +212,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0A1D5DFF14DC04800035C4E4 /* main_without_roarvm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main_without_roarvm.cpp; sourceTree = "<group>"; };
 		0A2783EB128DBF1000336BDE /* RoarVM */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RoarVM; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A2783F6128DBF7300336BDE /* externals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = externals.cpp; sourceTree = "<group>"; };
 		0A2783F7128DBF7300336BDE /* externals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = externals.h; sourceTree = "<group>"; };
@@ -1120,6 +1121,7 @@
 				0A3FB13514D99C7E0050F39C /* gtest-all.cc */,
 				0A27850F128DBF7400336BDE /* buffered_channel.cpp */,
 				0A278510128DBF7400336BDE /* main.cpp */,
+				0A1D5DFF14DC04800035C4E4 /* main_without_roarvm.cpp */,
 				34221D6A13D4CD5A0057DCBD /* interprocess_allocator.cpp */,
 				0A278511128DBF7400336BDE /* starter.cpp */,
 				0A278512128DBF7400336BDE /* starter.h */,

@@ -12,13 +12,13 @@
 
 # include <gtest/gtest.h>
 
-# ifdef Debugging
-# undef Debugging
-# endif
+# include <algorithm>
+using namespace std;
 
-# define Debugging 1
+# include "test_os_interface.h"
+typedef Test_OS_Interface OS_Interface;
 
-# include "headers.h"
+# include "interprocess_allocator.h"
 
 
 TEST(Interprocess_Allocator, FreeItem) {
