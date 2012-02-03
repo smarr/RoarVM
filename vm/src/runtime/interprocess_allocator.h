@@ -10,6 +10,19 @@
  ******************************************************************************/
 
 
+#ifndef __INTERPROCESS_ALLOCATOR_H__
+#define __INTERPROCESS_ALLOCATOR_H__
+
+#ifndef debug_printf
+#define debug_printf printf
+#endif
+
+#ifndef assert_eq
+#define assert_eq(a, b, msg) assert((a) == (b))
+#endif
+
+/* RoarVM code should define it as debug_printer->printf */
+
 /**
  * The Interprocess_Allocator is used to manage memory in a memory region
  * that can be shared between multiple process.
@@ -109,22 +122,24 @@ public:
     
     if (managed_and_padded <= free_area) {
       OS_Interface::mutex_lock(&mtx);
-      
+      check_internal_consistency();      
+
       if (managed_and_padded <= free_area) {
-        result = allocate_chunk(managed_and_padded);
-        
+        size_t allocated_size = 0;
+        result = allocate_chunk(managed_and_padded, allocated_size);
+
         if (result) {
           num_allocations += 1;
           num_allocated_chunks += 1;
           sum_allocations += sz;
           
-          free_area -= managed_and_padded;
+          free_area -= allocated_size;
         }
       }
       
+      check_internal_consistency();
       OS_Interface::mutex_unlock(&mtx);    
     }
-    
     return result;
   }
   
@@ -143,12 +158,12 @@ public:
            && ((uintptr_t)item < (uintptr_t)allocation_area + size));
     
     OS_Interface::mutex_lock(&mtx);
-    
+    check_internal_consistency();
+
     Item* freed_item = (Item*)Item::from_content(item);
     
     size_t additional_free_size = freed_item->get_size();
     
-    freed_item->become_free();
     freed_item->prev = NULL;
     
     Item* following_item = freed_item->next_in_memory();
@@ -160,18 +175,21 @@ public:
     else {
       /* just put it infront of the free list */
       freed_item->next = free_list;
+      
       if (free_list) {
         free_list->prev = freed_item;
       }
       
       free_list = freed_item;
     }
+    freed_item->become_free();
     
     free_area += additional_free_size;
     
     num_frees += 1;
     num_allocated_chunks -= 1;
-    
+
+    check_internal_consistency();
     OS_Interface::mutex_unlock(&mtx);
   }
   
@@ -197,6 +215,10 @@ private:
                 "we should be at the head of the free list.");
       free_list = freed_item;
     }
+    
+    if (freed_item->next) {
+      freed_item->next->prev = freed_item;
+    }
   }
 
 /** For Debugging */
@@ -205,11 +227,12 @@ public:
   void debug_print_full_heap() {
     Item* current = (Item*)allocation_area;
     
-    debug_printer->printf("\n\nInterprocess_Allocator Heap:\n");
+    debug_printf("\n\nInterprocess_Allocator Heap:\n");
+
     size_t seen_free = 0;
     size_t seen_used = 0;
     while (current && ((uintptr_t)current < (uintptr_t)allocation_area + size)) {
-      debug_printer->printf("\t[%s] size: %d\n", current->is_actually_free_item() ? "FREE" : "used", current->get_size());
+      debug_printf("\t[%s] size: %lu \tstart: %p\n", current->is_actually_free_item() ? "FREE" : "used", current->get_size(), current);
       
       if (current->is_actually_free_item()) {
         seen_free += current->get_size();
@@ -220,17 +243,59 @@ public:
       current = current->next_in_memory();
     }
 
-    debug_printer->printf("\nseen free: %lu\n", seen_free);
-    debug_printer->printf("seen used: %lu\n", seen_used);
+    debug_printf("\nseen free: %lu\n", seen_free);
+    debug_printf("seen used: %lu\n", seen_used);
     
-    debug_printer->printf("size: %lu\n", size);
-    debug_printer->printf("free area: %lu\n", free_area);
-    debug_printer->printf("num allocations: %lu\n", num_allocations);
-    debug_printer->printf("sum allocations: %lu\n", sum_allocations);
-    debug_printer->printf("num frees: %lu\n", num_frees);
-    debug_printer->printf("num allocated chunks: %lu\n", num_allocated_chunks);
-
+    debug_printf("size: %lu\n", size);
+    debug_printf("free area: %lu\n", free_area);
+    debug_printf("num allocations: %u\n", num_allocations);
+    debug_printf("sum allocations: %u\n", sum_allocations);
+    debug_printf("num frees: %u\n", num_frees);
+    debug_printf("num allocated chunks: %u\n", num_allocated_chunks);
   }
+  
+  void check_internal_consistency() {
+    if (!check_many_assertions)
+      return;
+    
+    size_t free_list_size = check_consistency_of_free_list_and_get_size();
+    size_t free_heap_size = check_free_size_in_heap();
+    assert(free_list_size == free_heap_size);
+    assert(free_area == free_list_size);
+  }
+  
+  size_t check_consistency_of_free_list_and_get_size() {
+    size_t free_size = 0;
+    Item* current = free_list;
+    Item* prev = NULL;
+    while (current) {
+      assert(current->is_actually_free_item());
+      assert(current->prev == prev); /* back point works */
+      free_size += current->get_size();
+      prev = current;
+      current = current->next;
+    }
+    return free_size;
+  }
+  
+  size_t check_free_size_in_heap() {
+    Item* current = (Item*)allocation_area;
+    
+    size_t seen_free = 0;
+    size_t seen_used = 0;
+    while (current && ((uintptr_t)current < (uintptr_t)allocation_area + size)) {     
+      if (current->is_actually_free_item()) {
+        seen_free += current->get_size();
+      }
+      else {
+        seen_used += current->get_size();
+      }      
+      current = current->next_in_memory();
+    }
+    
+    return seen_free;
+  }
+  
 
   volatile uint32_t num_allocations;
   volatile uint32_t sum_allocations;
@@ -254,7 +319,7 @@ private:
     free_list->prev = NULL;
   }
   
-  void* allocate_chunk(size_t managed_and_padded_size) {
+  void* allocate_chunk(size_t managed_and_padded_size, size_t& allocated_size) {
     Item* result = NULL;
     assert(free_area >= managed_and_padded_size);  // should have been checked already
     
@@ -273,7 +338,6 @@ private:
     result = current;
     
     // now two possible cases, either the found free_item is a perfect fit, or we split it up
-    
     if (managed_and_padded_size + (2 * sizeof(Item)) >= current->get_size()) {
       // the current chunk is perfect, almost perfect
       // now just use it
@@ -297,8 +361,8 @@ private:
       // Save the current content, might be overriden when allocation
       // requests are very small
       size_t chunk_size = current->get_size();
-      Item* next = current->next;
-      Item* prev = current->prev;
+      Item* const next = current->next;
+      Item* const prev = current->prev;
       
       result->set_size(managed_and_padded_size);
       
@@ -309,10 +373,15 @@ private:
       remaining_chunk->next = next;
       
       if (free_list == current) {
+        assert(prev == NULL);
         free_list = remaining_chunk;
       }
       else {
         prev->next = remaining_chunk;
+      }
+      
+      if (next) {
+        next->prev = remaining_chunk;
       }
     }
     
@@ -321,7 +390,10 @@ private:
               "on the size attribute, needs to be fixed.");
     
     result->become_used();
+    allocated_size = result->get_size();    
     return result->get_content();
   }
 
 };
+
+# endif // __INTERPROCESS_ALLOCATOR_H__
