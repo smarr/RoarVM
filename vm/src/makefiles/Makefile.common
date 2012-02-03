@@ -578,7 +578,8 @@ libgtest.a:
 
 # REM: this will build the object files inside the test folder
 #      this allows us to use the same names for tests and implementation files
-TEST_SRC  := $(wildcard $(SRC_DIR)/tests/*.cpp)
+TESTMAIN_WITHOUT_ROARVM := $(SRC_DIR)/tests/main_without_roarvm.cpp
+TEST_SRC  := $(filter-out $(TESTMAIN_WITHOUT_ROARVM),$(wildcard $(SRC_DIR)/tests/*.cpp))
 TEST_H    := $(wildcard $(SRC_DIR)/tests/*.h)
 TEST_OBJS := $(TEST_SRC:.cpp=.o) $(OBJS)
 
