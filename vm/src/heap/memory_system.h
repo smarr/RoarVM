@@ -49,18 +49,17 @@
  * A temporary file is used to ensure that all cores are working on the same
  * memory.
  */
-class Memory_System {
-
+class Basic_Memory_System {
 private:
   char* image_name;
+protected:
+  static const int max_num_mutabilities = Memory_System_Partitions;
+  static const int read_write = 0;
 
 public:
-  static const int max_num_mutabilities = 2;
-  static const int read_mostly = 0;
-  static const int read_write = 1;
   Multicore_Object_Heap* heaps[Max_Number_Of_Cores][max_num_mutabilities];
 
-private:
+protected:
   static const size_t normal_page_size =       PAGE_SIZE;
   static const size_t   huge_page_size = LARGE_PAGE_SIZE;
 
@@ -72,15 +71,17 @@ public:
   static bool replicate_methods;// threadsafe readonly
   static bool replicate_all;    // threadsafe readonly
   static bool OS_mmaps_up;      // threadsafe readonly
+  
+  char* get_memory_base() const {
+    return read_write_memory_base;
+  }
 
-private:
+protected:
   static u_int32 memory_per_read_write_heap; // threadsafe readonly, will always be power of two
-  static u_int32 memory_per_read_mostly_heap; // threadsafe readonly, will always be power of two
   static u_int32 log_memory_per_read_write_heap;  // threadsafe readonly
-  static u_int32 log_memory_per_read_mostly_heap; // threadsafe readonly
 
   char * read_write_memory_base,   * read_write_memory_past_end;
-  char * read_mostly_memory_base,  * read_mostly_memory_past_end;
+
 
   struct global_GC_values {
     int32 growHeadroom;
@@ -101,7 +102,7 @@ private:
 
 
 public:
-  Memory_System();
+  Basic_Memory_System();
 
   class Snapshot_Window_Size {
     int32 _fullScreenFlag;
@@ -119,14 +120,10 @@ public:
 
   struct init_buf {
     int32 snapshot_bytes, sws, fsf, lastHash;
-    char* read_mostly_memory_base;
     char* read_write_memory_base;
     u_int32 total_read_write_memory_size;
     u_int32 memory_per_read_write_heap;
     u_int32 log_memory_per_read_write_heap;
-    u_int32 total_read_mostly_memory_size;
-    u_int32 memory_per_read_mostly_heap;
-    u_int32 log_memory_per_read_mostly_heap;
     int32 page_size;
     int32 main_pid;
     Multicore_Object_Table* object_table;
@@ -155,31 +152,30 @@ public:
 
 private:
   void set_page_size_used_in_heap();
-  int calculate_total_read_write_pages(int);
-  int calculate_total_read_mostly_pages(int);
-  int calculate_bytes_per_read_mostly_heap(int);
-  bool ask_Linux_for_huge_pages(int);
   int how_many_huge_pages();
   void request_huge_pages(int);
 
-  void map_read_write_and_read_mostly_memory(int pid, size_t, size_t);
-  void map_heap_memory_separately(int pid, size_t grand_total,
-                                  size_t inco_size, size_t co_size);
-  void map_heap_memory_in_one_request(int pid, size_t grand_total,
-                                      size_t inco_size, size_t co_size);
+  void map_heap_memory_in_one_request(int pid, size_t total);
 
-
-  
   void set_second_chance_cores_for_allocation(int);
+  
+  void map_memory_on_helper(init_buf* ib);
 
-public:
+protected:
+  void initialize_main(void*);
 
-  void initialize_main(init_buf*);
-  void initialize_helper();
+  void map_heap_memory(int pid, size_t);
+  int calculate_total_read_write_pages(int);
+  bool ask_Linux_for_huge_pages(int);
 
+  void receive_heap(int i);
+  
   void create_my_heaps(init_buf*);
   void init_values_from_buffer(init_buf*);
-
+  void send_local_heap();
+  
+public:
+  void initialize_helper();
 
   void ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(Oop dst_oop, Object* src_obj_wo_preheader) {
     int rank = object_table->rank_for_adding_object_from_snapshot(dst_oop);
@@ -199,31 +195,59 @@ public:
 private:
 
   Multicore_Object_Heap* local_heap_for_snapshot_object(Object* src_obj_wo_preheader) {
-    return heaps[Logical_Core::my_rank()][src_obj_wo_preheader->mutability_for_snapshot_object()];
+    return heaps[Logical_Core::my_rank()][read_write];
   }
 
 public:
 
   int round_robin_rank();
   int assign_rank_for_snapshot_object();
+  
+  static inline int standard_partition() {
+    return read_write;
+  }
+  
+  void verify_local() {
+    heaps[Logical_Core::my_rank()][Memory_System:: read_write]->verify();
+  }
+  
+  void zap_unused_portion() {
+    heaps[Logical_Core::my_rank()][Memory_System::read_write]->zap_unused_portion();
+  }
+  
+  void print_bytes_used() {
+    FOR_ALL_RANKS(r)
+      lprintf("%d: %d\n",
+              r,
+              heaps[r][read_write]->bytesUsed());
+  }
 
  
   bool contains(void* p) const {
-    return read_mostly_memory_base <= (char*)p  &&  (char*)p < read_write_memory_past_end;
+    return read_write_memory_base <= (char*)p  &&  (char*)p < read_write_memory_past_end;
   }
   
   int mutability_for_address(void* p) const {
-    // compiler bug:
-    static const int c = read_write;
-    static const int i = read_mostly;
-    return is_address_read_write(p) ? c : i;
+    return read_write;
+  }
+  
+  inline static int mutability_for_oop(Oop* /* oop */) {
+    return read_write;
+  }
+  
+  static inline bool mutability_from_bool(bool) {
+    return read_write;
+  }
+  
+  inline Multicore_Object_Heap* get_heap(int rank) const {
+    return heaps[rank][Memory_System::read_write];
   }
   
   int rank_for_address(void* p) const {
-    bool is_rw = is_address_read_write(p);
-    u_int32 delta  = (char*)p - (is_rw ? read_write_memory_base : read_mostly_memory_base);
-    u_int32 result = delta >> (is_rw ? log_memory_per_read_write_heap : log_memory_per_read_mostly_heap);
-    assert(result ==  delta / (is_rw ? memory_per_read_write_heap : memory_per_read_mostly_heap));
+    u_int32 delta  = (char*)p - read_write_memory_base;
+    u_int32 result = delta >> log_memory_per_read_write_heap;
+    assert(result ==  delta / memory_per_read_write_heap);
+
     assert(result < (u_int32)Logical_Core::group_size);
     return (int)result;
   }
@@ -249,7 +273,7 @@ public:
 
 
 
-  Logical_Core* coreWithSufficientSpaceToAllocate(oop_int_t bytes, int);
+  Logical_Core* coreWithSufficientSpaceToAllocate(oop_int_t bytes);
   bool sufficientSpaceAfterGC(oop_int_t, int);
 
   void scan_compact_or_make_free_objects_everywhere(bool compacting, Abstract_Mark_Sweep_Collector*);
@@ -316,10 +340,11 @@ private:
   Multicore_Object_Heap* biggest_heap();
   int32 smallest_heap(int mutability);
 public:
-  bool moveAllToRead_MostlyHeaps();
+  bool moveAllToRead_MostlyHeaps() { /* Not supported, indicate failure. */ return false; }
 
 
   Oop get_stats(int);
+  void push_heap_stats();
 
   bool verify_if(bool);
   bool verify() { return verify_if(true); }
@@ -327,6 +352,7 @@ public:
   void save_to_checkpoint(FILE*);
   void restore_from_checkpoint(FILE*, int dataSize, int lastHash, int savedWindowSize, int fullScreenFlag);
 
+  
   // Cannot accept GC requests, defers to next BC boundary
   void enforce_coherence_before_store_into_object_by_interpreter(void* p, int nbytes, Object_p dst_obj_to_be_evacuated);
 
@@ -342,6 +368,8 @@ public:
     assert(contains(p));
     if (is_address_read_mostly(p)) post_cohere(p, nbytes);
   }
+
+
 
   void store_enforcing_coherence(Oop* p, Oop x, Object_p dst_obj_to_be_evacuated_or_null) {
     assert(contains(p));
@@ -376,26 +404,30 @@ public:
   void post_cohere(void*, int);
 
   void enforce_coherence_before_this_core_stores_into_all_heaps();
-  void enforce_coherence_after_this_core_has_stored_into_all_heaps();
+  void enforce_coherence_after_this_core_has_stored_into_all_heaps() {}
+  void enforce_coherence_in_whole_heap_after_store() {}
 
   void enforce_coherence_before_each_core_stores_into_its_own_heap();
-  void enforce_coherence_after_each_core_has_stored_into_its_own_heap();
-  void invalidate_heaps_and_fence(bool);
+  void enforce_coherence_after_each_core_has_stored_into_its_own_heap() {}
+  void invalidate_heaps_and_fence(bool) {
+    OS_Interface::mem_fence();
+  }
 
 
   void print_heaps();
   void print();
 
   inline bool is_address_read_mostly(void* p) const {
-    // don't use read_mostly_heap->contains(p) because that is slower, as it tests the bottom before the top
-    // in the common case, p is in the read_write heap, which is above the read_mostly one.
-    return (char*)p < read_mostly_memory_past_end;
+    return false;
   }
-  inline bool is_address_read_write(void* p) const { return !is_address_read_mostly(p); }
+  
+  inline bool is_address_read_write(void* p) const { 
+    return true;
+  }
 
   void do_all_oops_including_roots_here(Oop_Closure* oc, bool sync_with_roots);
   
-private:
+protected:
   static char  mmap_filename[BUFSIZ];
   static char* map_heap_memory(size_t total_size, size_t bytes_to_map,
                                void* where, off_t offset,

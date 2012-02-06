@@ -12,15 +12,13 @@
  ******************************************************************************/
 
 
-#include "headers.h"
+# include "headers.h"
 
 bool     Memory_System::use_huge_pages = On_Tilera;
 bool     Memory_System::replicate_methods = false; // if true methods are put on read-mostly heap
 bool     Memory_System::replicate_all = true; // if true, all (non-contexts) are allowed in read-mostly heap
 bool     Memory_System::OS_mmaps_up = On_Apple;
 u_int32  Memory_System::memory_per_read_write_heap = 0;
-u_int32  Memory_System::log_memory_per_read_mostly_heap = 0;
-u_int32  Memory_System::memory_per_read_mostly_heap = 0;
 u_int32  Memory_System::log_memory_per_read_write_heap = 0;
   int    Memory_System::round_robin_period = 1;
   size_t Memory_System::min_heap_MB =  On_iOS ? 32 : On_Tilera ? 256 : 1024; // Fewer GCs on Mac
@@ -30,7 +28,7 @@ u_int32  Memory_System::log_memory_per_read_write_heap = 0;
     for (int mutability = 0;  mutability < max_num_mutabilities;  ++mutability)  \
 
 
-Memory_System::Memory_System() {
+Basic_Memory_System::Basic_Memory_System() {
   image_name = new char[1]; *image_name = '\0';
 
   global_GC_values = (struct global_GC_values*)Memory_Semantics::shared_malloc(sizeof(struct global_GC_values));
@@ -61,14 +59,6 @@ void Memory_System::finished_adding_objects_from_snapshot() {
   unlink(mmap_filename);
 }
 
-void Memory_System::enforce_coherence_after_each_core_has_stored_into_its_own_heap() {
-  if (!replicate_methods &&  !replicate_all) return;  // should not need this statement, but there was a bug without it, and anyway it's faster with it
-  OS_Interface::mem_fence(); // ensure all cores see same heap _next's
-  
-  enforceCoherenceAfterEachCoreHasStoredIntoItsOwnHeapMessage_class().send_to_other_cores();
-  
-  heaps[Logical_Core::my_rank()][read_mostly]->enforce_coherence_in_whole_heap_after_store();
-}
 
 void Memory_System::enforce_coherence_before_each_core_stores_into_its_own_heap() {
   if (!replicate_methods &&  !replicate_all) return; // should not need this statement, but there was a bug without it, and anyway it's faster with it
@@ -97,6 +87,16 @@ bool Memory_System::verify_if(bool condition) {
   return object_table->verify();
 }
 
+void Basic_Memory_System::push_heap_stats() {
+  Oop readWriteHeapStats = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write]->get_stats();
+  PUSH_WITH_STRING_FOR_MAKE_ARRAY(readWriteHeapStats);
+  
+  /* STEFAN: I give here the read-write stats again, to avoid the
+             need for adapting the image.
+             That's the lazy solution, sorry. */
+  Oop readMostlyHeapStats = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write]->get_stats();
+  PUSH_WITH_STRING_FOR_MAKE_ARRAY(readMostlyHeapStats);
+}
 
 Oop Memory_System::get_stats(int what_to_sample) {
   int s = The_Squeak_Interpreter()->makeArrayStart();
@@ -106,11 +106,9 @@ Oop Memory_System::get_stats(int what_to_sample) {
     PUSH_POSITIVE_64_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(global_GC_values->gcCycles);
     global_GC_values->gcCycles = global_GC_values->gcCount = global_GC_values->gcMilliseconds = 0;
   }
+  
   if (what_to_sample & (1 << SampleValues::heapStats)) {
-    Oop readWriteHeapStats = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write]->get_stats();
-    PUSH_WITH_STRING_FOR_MAKE_ARRAY(readWriteHeapStats);
-    Oop readMostlyHeapStats = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_mostly]->get_stats();
-    PUSH_WITH_STRING_FOR_MAKE_ARRAY(readMostlyHeapStats);
+    push_heap_stats();
   }
 
   return The_Squeak_Interpreter()->makeArray(s);
@@ -325,7 +323,8 @@ bool Memory_System::become_with_twoWay_copyHash(Oop array1, Oop array2, bool two
 
 
 
-Logical_Core* Memory_System::coreWithSufficientSpaceToAllocate(oop_int_t bytes, int mutability) {
+Logical_Core* Memory_System::coreWithSufficientSpaceToAllocate(oop_int_t bytes) {
+  const int mutability = Memory_System::read_write;
   Multicore_Object_Heap* h = heaps[Logical_Core::my_rank()][mutability];
   int minFree = bytes + 10000 + h->lowSpaceThreshold; // may not be necessary
   if  ( h->sufficientSpaceToAllocate(minFree) )
@@ -515,7 +514,7 @@ void Memory_System::write_snapshot_header(FILE* f, u_int32* heap_offsets) {
   putLong(headerSize, f);
   putLong(bytesUsed() - preheader_byte_size /* Squeak 64-bit VM bug workaround */, f);
   // For explanation of preheader_byte_size above and below, see long comment about Squeak compatibility in write_image_file -- dmu 6/10
-  putLong((int32)read_mostly_memory_base + preheader_byte_size/* Squeak 64-bit VM bug workaround */, f); // start of memory;
+  putLong((int32)get_memory_base() + preheader_byte_size/* Squeak 64-bit VM bug workaround */, f); // start of memory;
   putLong(adjust_for_snapshot(The_Squeak_Interpreter()->roots.specialObjectsOop.as_object(), heap_offsets), f);
   putLong(max_lastHash(), f);
   int screenSize, fullScreenFlag;
@@ -600,53 +599,35 @@ int Memory_System::calculate_total_read_write_pages(int page_size) {
 }
 
 
-int Memory_System::calculate_bytes_per_read_mostly_heap(int /* page_size */) {
-  int min_bytes_per_core = divide_and_round_up(min_heap_MB * Mega,  Logical_Core::group_size);
-  return round_up_to_power_of_two(min_bytes_per_core);
-}
-
-
-int Memory_System::calculate_total_read_mostly_pages(int page_size) {
-  return divide_and_round_up(calculate_bytes_per_read_mostly_heap(page_size) * Logical_Core::group_size, page_size);
-}
-
-void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, int32 fsf, int32 lastHash) {
+void Basic_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, int32 fsf, int32 lastHash) {
   set_page_size_used_in_heap();
 
   int rw_pages = calculate_total_read_write_pages (page_size_used_in_heap);
-  int rm_pages = calculate_total_read_mostly_pages(page_size_used_in_heap);
   // lprintf("rw_pages %d, rm_pages %d\n", rw_pages, rm_pages);
 
 
   snapshot_window_size.initialize(sws, fsf);
 
 
-  u_int32 total_read_write_memory_size     =  rw_pages *  page_size_used_in_heap;
-  u_int32 total_read_mostly_memory_size    =  rm_pages *  page_size_used_in_heap;
+  u_int32 total_read_write_memory_size =  rw_pages *  page_size_used_in_heap;
 
-  read_mostly_memory_base = read_write_memory_base = NULL;
+  read_write_memory_base = NULL;
 
-  map_read_write_and_read_mostly_memory(getpid(), total_read_write_memory_size, total_read_mostly_memory_size);
+  map_heap_memory_in_one_request(getpid(), total_read_write_memory_size);
 
   memory_per_read_write_heap  = total_read_write_memory_size   / Logical_Core::group_size;
-  memory_per_read_mostly_heap = calculate_bytes_per_read_mostly_heap(page_size_used_in_heap);
   
   assert(memory_per_read_write_heap                             <=  total_read_write_memory_size);
   assert(memory_per_read_write_heap * Logical_Core::group_size  <=  total_read_write_memory_size);
 
-  assert(memory_per_read_mostly_heap                            <=  total_read_mostly_memory_size);
-  assert(memory_per_read_mostly_heap * Logical_Core::group_size <=  total_read_mostly_memory_size);
-  
   
   log_memory_per_read_write_heap = log_of_power_of_two(memory_per_read_write_heap);
-  log_memory_per_read_mostly_heap = log_of_power_of_two(memory_per_read_mostly_heap);
   object_table = new Multicore_Object_Table();
 
   init_buf ib = {
     snapshot_bytes, sws, fsf, lastHash,
-    read_mostly_memory_base, read_write_memory_base,
+    read_write_memory_base,
     total_read_write_memory_size, memory_per_read_write_heap, log_memory_per_read_write_heap,
-    total_read_mostly_memory_size, memory_per_read_mostly_heap, log_memory_per_read_mostly_heap,
     page_size_used_in_heap, getpid(),
     object_table,
     global_GC_values
@@ -656,51 +637,15 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
 }
 
 
-void Memory_System::set_page_size_used_in_heap() {
+void Basic_Memory_System::set_page_size_used_in_heap() {
   if (use_huge_pages) {
     int   co_pages = calculate_total_read_write_pages(huge_page_size);
-    int inco_pages = calculate_total_read_mostly_pages(huge_page_size);
-    if (!ask_Linux_for_huge_pages(co_pages + inco_pages))
+    if (!ask_Linux_for_huge_pages(co_pages))
       use_huge_pages = false;
   }
   lprintf("Using %s pages.\n", use_huge_pages ? "huge" : "normal");
   int hps = huge_page_size,  nps = normal_page_size; // compiler bug, need to alias these
   page_size_used_in_heap = use_huge_pages ? hps : nps;
-}
-
-
-/** Allocate heaps in two steps, to be able to set the flag for incoherent
-    memory */
-void Memory_System::map_heap_memory_separately(int pid,
-                                               size_t grand_total,
-                                               size_t inco_size,
-                                               size_t co_size) {
-  if (OS_mmaps_up) {
-    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size,
-                                                  read_mostly_memory_base,
-                                                  0, pid,
-                                                  MAP_SHARED | MAP_CACHE_INCOHERENT);
-    read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
-    
-    read_write_memory_base      = map_heap_memory(grand_total, co_size,
-                                                  read_mostly_memory_past_end,
-                                                  inco_size, pid,
-                                                  MAP_SHARED);
-    read_write_memory_past_end  = read_write_memory_base + co_size;
-  }
-  else {
-    read_write_memory_base      = map_heap_memory(grand_total, co_size,
-                                                  read_write_memory_base,
-                                                  0, pid,
-                                                  MAP_SHARED);
-    read_write_memory_past_end  = read_write_memory_base + co_size;
-    
-    read_mostly_memory_past_end = read_write_memory_base;
-    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size,
-                                                  read_mostly_memory_past_end - inco_size,
-                                                  co_size, pid,
-                                                  MAP_SHARED | MAP_CACHE_INCOHERENT);
-  }
 }
 
 
@@ -711,36 +656,11 @@ void Memory_System::map_heap_memory_separately(int pid,
     as 2 GB and thus, convert the assertions to constant checks, which will
     fail for a 2 GB heap */
 __attribute__((noinline))  // Important attribute for LLVM-GCC and Clang
-void Memory_System::map_heap_memory_in_one_request(int pid,
-                                                   size_t grand_total,
-                                                   size_t inco_size,
-                                                   size_t co_size) {
-  read_mostly_memory_base = map_heap_memory(grand_total, grand_total,
+void Memory_System::map_heap_memory_in_one_request(int pid, size_t total) {
+  read_write_memory_base = map_heap_memory(total, total,
                                             NULL, 0, pid, MAP_SHARED);
-  read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
-  
-  read_write_memory_base      = read_mostly_memory_past_end;
-  read_write_memory_past_end  = read_write_memory_base + co_size;
-}
-
-
-void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size, size_t total_read_mostly_memory_size) {
-  size_t     co_size = total_read_write_memory_size;
-  size_t   inco_size = total_read_mostly_memory_size;
-  size_t grand_total = co_size + inco_size;
-
-  if (On_Tilera)
-    map_heap_memory_separately(pid, grand_total, inco_size, co_size);
-  else
-    map_heap_memory_in_one_request(pid, grand_total, inco_size, co_size);
-    
-  assert(read_mostly_memory_base < read_mostly_memory_past_end);
-  assert(read_mostly_memory_past_end <= read_write_memory_base);
+  read_write_memory_past_end = read_write_memory_base + total;
   assert(read_write_memory_base < read_write_memory_past_end);
-  if (read_mostly_memory_base >= read_write_memory_past_end) {
-    unlink(mmap_filename);
-    fatal("contains will fail");
-  }
 }
 
 
@@ -786,7 +706,17 @@ void Memory_System::request_huge_pages(int desired_huge_pages) {
 }
 
 
-void Memory_System::initialize_main(init_buf* ib) {
+void Basic_Memory_System::receive_heap(int i) {
+  Logical_Core* sender;
+  Multicore_Object_Heap** heaps_buf =
+      (Multicore_Object_Heap**)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
+  heaps[i][read_write ] = *heaps_buf;
+  sender->message_queue.release_oldest_buffer(heaps_buf);
+}
+
+void Basic_Memory_System::initialize_main(void* buffer) {
+  Memory_System::init_buf* ib; /* We do this trick to avoid compilation problems with different Memory_Systems */
+  
   // Each core homes its own shared Multicore_Object_Heap object
   // Each core has its own private Memory_System object
   // The actual memory for the heap is one contiguous address space, but each core homes a piece of it,
@@ -801,15 +731,8 @@ void Memory_System::initialize_main(init_buf* ib) {
       logical_cores[i].message_queue.buffered_send_buffer(ib, sizeof(*ib));  // ensure that helper is delayed till now, even if Force_Direct_Memory_Access
       if (check_many_assertions)
         lprintf("finished sending init buffer\n");
-      
-      Logical_Core* sender;
-      Multicore_Object_Heap** heaps_buf = (Multicore_Object_Heap**)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
-      heaps[i][read_mostly] = *heaps_buf;
-      sender->message_queue.release_oldest_buffer(heaps_buf);
-      
-      heaps_buf = (Multicore_Object_Heap**)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
-      heaps[i][read_write ] = *heaps_buf;
-      sender->message_queue.release_oldest_buffer(heaps_buf);
+
+      receive_heap(i);
     }
   // don't need to ilib_mem_invalidate(p, nbytes) other read_mostly heaps because we haven't written anything to them yet
 
@@ -831,6 +754,15 @@ void Memory_System::initialize_main(init_buf* ib) {
   object_table->pre_store_whole_enchillada();
 }
 
+void Basic_Memory_System::map_memory_on_helper(init_buf* ib) {
+  map_heap_memory_in_one_request(ib->main_pid, ib->total_read_write_memory_size);
+}
+
+void Basic_Memory_System::send_local_heap() {
+  Logical_Core::main_core()->message_queue.buffered_send_buffer(&heaps[Logical_Core::my_rank()][read_write ], sizeof(Multicore_Object_Heap*));
+  
+  if (check_many_assertions) lprintf("finished sending my heaps\n");
+}
 
 // TODO: the implementation of this function breaks abstraction. It should use messages instead using directly the low-level functions
 void Memory_System::initialize_helper() {
@@ -841,16 +773,13 @@ void Memory_System::initialize_helper() {
     init_values_from_buffer(ib); // not needed with common structure
 
   if (On_Tilera)
-    map_read_write_and_read_mostly_memory(ib->main_pid, ib->total_read_write_memory_size, ib->total_read_mostly_memory_size);
+    map_memory_on_helper(ib);
   
   create_my_heaps(ib);
-  
   sender->message_queue.release_oldest_buffer(ib);
   
-  Logical_Core::main_core()->message_queue.buffered_send_buffer(&heaps[Logical_Core::my_rank()][read_mostly], sizeof(Multicore_Object_Heap*));
-  Logical_Core::main_core()->message_queue.buffered_send_buffer(&heaps[Logical_Core::my_rank()][read_write ], sizeof(Multicore_Object_Heap*));
-  if (check_many_assertions) lprintf("finished sending my heaps\n");
-
+  send_local_heap();
+  
   if (!Replicate_PThread_Memory_System && !On_Tilera)
     return;
   
@@ -866,16 +795,14 @@ void Memory_System::initialize_helper() {
 
 
 
-void Memory_System::init_values_from_buffer(init_buf* ib) {
-  memory_per_read_write_heap = ib->memory_per_read_write_heap;
+void Basic_Memory_System::init_values_from_buffer(init_buf* ib) {
+  memory_per_read_write_heap     = ib->memory_per_read_write_heap;
   log_memory_per_read_write_heap = ib->log_memory_per_read_write_heap;
-  memory_per_read_mostly_heap = ib->memory_per_read_mostly_heap;
-  log_memory_per_read_mostly_heap = ib->log_memory_per_read_mostly_heap;
-
+  
   page_size_used_in_heap = ib->page_size;
   
   read_write_memory_base = ib->read_write_memory_base;
-  read_mostly_memory_base = ib->read_mostly_memory_base;
+
   object_table = ib->object_table;
 
   snapshot_window_size.initialize(ib->sws, ib->fsf);
@@ -886,7 +813,7 @@ void Memory_System::init_values_from_buffer(init_buf* ib) {
 
 // memory system is private; but heaps is shared
 
-void Memory_System::create_my_heaps(init_buf* ib) {
+void Basic_Memory_System::create_my_heaps(init_buf* ib) {
   const int my_rank = Logical_Core::my_rank();
 
   Multicore_Object_Heap* h = new Multicore_Object_Heap();
@@ -896,14 +823,6 @@ void Memory_System::create_my_heaps(init_buf* ib) {
                  page_size_used_in_heap,
                  On_Tilera );
   heaps[my_rank][read_write] = h;
-
-  h = new Multicore_Object_Heap();
-  h->initialize_multicore(ib->lastHash  +  Logical_Core::group_size + my_rank,
-                          &read_mostly_memory_base[memory_per_read_mostly_heap * my_rank],
-                          memory_per_read_mostly_heap,
-                          page_size_used_in_heap,
-                          false );
-  heaps[my_rank][read_mostly] = h;
 }
 
 
@@ -922,9 +841,8 @@ void Memory_System::scan_compact_or_make_free_objects_everywhere(bool compacting
 }
 
 
-void Memory_System::scan_compact_or_make_free_objects_here(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
+void Basic_Memory_System::scan_compact_or_make_free_objects_here(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
   heaps[Logical_Core::my_rank()][read_write ]->scan_compact_or_make_free_objects(compacting, gc_or_null);
-  heaps[Logical_Core::my_rank()][read_mostly]->scan_compact_or_make_free_objects(compacting, gc_or_null);
 }
 
 
@@ -984,7 +902,13 @@ bool Memory_System::shuffle_or_spread(int first, int last,
   The_Squeak_Interpreter()->postGCAction_everywhere(false);
   if (spread) {
     FOR_ALL_RANKS(r)
-      fprintf(stderr, "%d post spread: %d, %d\n", r, heaps[r][read_write]->bytesUsed(), heaps[r][read_mostly]->bytesUsed());
+      fprintf(stderr, "%d post spread: %d, %d\n", r, heaps[r][read_write]->bytesUsed(), 
+# if Use_ReadMostly_Heap
+              heaps[r][read_mostly]->bytesUsed()
+# else
+              0
+# endif
+              );
   }
   return true;
 }
@@ -1019,10 +943,15 @@ bool Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
       break;
     else if (obj->isFreeObject())
       continue;
-    int dst_mutability = !obj->is_suitable_for_replication()  ? read_write  :
+    int dst_mutability = 
+# if Use_ReadMostly_Heap
+    !obj->is_suitable_for_replication()  ? read_write  :
     move_read_write_to_read_mostly       ? read_mostly :
     move_read_mostly_to_read_write       ? read_write  :
     obj->mutability();
+# else
+    read_write;
+# endif
     int dst_rank = spread ?  smallest_heap(dst_mutability)  :   j++ % num_cores  +  first;
     if (u_int32(obj->sizeBits() + 2500)  >  heaps[dst_rank][dst_mutability]->bytesLeft(false)) {
       return false;
@@ -1037,59 +966,6 @@ bool Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
 # warning DMU: reset end of heap here if didnt extend the heap
   return global_GC_values->gcCount == old_gcCount;
 }
-
-
-
-
-bool Memory_System::moveAllToRead_MostlyHeaps() {
-  Safepoint_for_moving_objects sm("moveAllToRead_MostlyHeaps");
-  Safepoint_Ability sa(false);
-
-  flushFreeContextsMessage_class().send_to_all_cores();
-
-  fullGC("moveAllToRead_MostlyHeaps");
-  The_Squeak_Interpreter()->preGCAction_everywhere(false);  // false because caches are oop-based, and we just move objs
-  u_int32 old_gcCount = global_GC_values->gcCount; // cannot tolerate GCs, ends gets messed up
-
-  Timeout_Deferral td;
-
-  FOR_ALL_RANKS(i) {
-    Multicore_Object_Heap* h = heaps[i][read_write];
-    for ( Object* obj = h->first_object_or_null(), *next = NULL;
-         obj != NULL;
-         obj = next ) {
-      next = h->next_object(obj);
-      if (obj->isFreeObject()  ||  !obj->is_suitable_for_replication())
-        continue;
-
-      for (int dst_rank = i, n = 0;
-           n < Logical_Core::group_size;
-           ++n, ++dst_rank, dst_rank %= Logical_Core::group_size)  {
-
-        if (n == Logical_Core::group_size) {
-          lprintf("moveAllToRead_MostlyHeaps failing; out of space\n", i);
-          return false;
-        }
-
-        if (u_int32(obj->sizeBits() + 32 + heaps[dst_rank][read_mostly]->lowSpaceThreshold)  >  heaps[dst_rank][read_mostly]->bytesLeft(false))
-          continue;
-
-        obj->move_to_heap(dst_rank, read_mostly, false);
-        if (global_GC_values->gcCount != old_gcCount) {
-          The_Squeak_Interpreter()->postGCAction_everywhere(false);
-          lprintf("moveAllToRead_MostlyHeaps failing for core %d; GCed\n", i);
-          return false;
-        }
-        break;
-      }
-    }
-    fprintf(stderr, "finished rank %d\n", i);
-  }
-  The_Squeak_Interpreter()->postGCAction_everywhere(false);
-  return true;
-}
-
-
 
 
 static const char check_mark[4] = "sqi";
@@ -1163,13 +1039,6 @@ void Memory_System::restore_from_checkpoint(FILE* /* f */, int /* dataSize */, i
 }
 
 
-void Memory_System::invalidate_heaps_and_fence(bool mine_too) {
-  FOR_ALL_RANKS(i)
-    if (mine_too  ||  i != Logical_Core::my_rank())
-      heaps[i][read_mostly]->invalidate_whole_heap();
-  OS_Interface::mem_fence();
-}
-
 void Memory_System::enforce_coherence_before_store_into_object_by_interpreter(void* p, int /* nbytes */, Object_p dst_obj_to_be_evacuated) {
   // to avoid deadlock caused by asking other cores to invalidate lines in the middle of interpreter and not being able to gc when another core asks me,
   // just move this object to read-write heap afterwards. Don't do enforce_coherence_before_store stuff.
@@ -1204,12 +1073,6 @@ void Memory_System::post_cohere(void* start, int nbytes) {
 }
 
 
-void Memory_System::enforce_coherence_after_this_core_has_stored_into_all_heaps() {
-  FOR_ALL_RANKS(i)
-    heaps[i][read_mostly]->enforce_coherence_in_whole_heap_after_store();
-}
-
-
 void Memory_System::do_all_oops_including_roots_here(Oop_Closure* oc, bool sync_with_roots)  {
   The_Interactions.do_all_roots_here(oc);
   for (int mutability = 0;  mutability < max_num_mutabilities;  ++mutability)
@@ -1221,17 +1084,18 @@ void Memory_System::do_all_oops_including_roots_here(Oop_Closure* oc, bool sync_
 
 
 
-void Memory_System::print() {
-  lprintf("Memory_System:n");
-  lprintf("use_huge_pages: %d, min_heap_MB %d, replicate_methods %d, replicate_all %d, memory_per_read_write_heap 0x%x, log_memory_per_read_write_heap %d, , memory_per_read_mostly_heap 0x%x, log_memory_per_read_mostly_heap %d\n"
-                  "read_write_memory_base 0x%x, read_write_memory_past_end 0x%x, read_mostly_memory_base 0x%x, read_mostly_memory_past_end 0x%x, "
-                  "page_size_used_in_heap %d, round_robin_period %d, second_chance_cores_for_allocation[read_write] %d, second_chance_cores_for_allocation[read_mostly] %d,\n"
+void Basic_Memory_System::print() {
+  lprintf("Memory_System:\n");
+  lprintf("use_huge_pages: %d, min_heap_MB %d, replicate_methods %d, replicate_all %d, memory_per_read_write_heap 0x%x, log_memory_per_read_write_heap %d,\n"
+                  "read_write_memory_base 0x%x, read_write_memory_past_end 0x%x, "
+                  "page_size_used_in_heap %d, round_robin_period %d, second_chance_cores_for_allocation[read_write] %d,\n"
                   "gcCount %d, gcMilliseconds %d, gcCycles %lld\n",
-                  use_huge_pages, min_heap_MB, replicate_methods, replicate_all, memory_per_read_write_heap, log_memory_per_read_write_heap, memory_per_read_mostly_heap, log_memory_per_read_mostly_heap,
-                  read_write_memory_base, read_write_memory_past_end, read_mostly_memory_base, read_mostly_memory_past_end,
-                  page_size_used_in_heap, round_robin_period, second_chance_cores_for_allocation[read_write], second_chance_cores_for_allocation[read_mostly],
+                  use_huge_pages, min_heap_MB, replicate_methods, replicate_all, memory_per_read_write_heap, log_memory_per_read_write_heap,
+                  read_write_memory_base, read_write_memory_past_end,
+                  page_size_used_in_heap, round_robin_period, 
+                  second_chance_cores_for_allocation[read_write], 
                   global_GC_values->gcCount, global_GC_values->gcMilliseconds, global_GC_values->gcCycles);
-  if ( object_table != NULL)
+  if ( object_table != NULL )
     object_table->print();
 
   print_heaps();

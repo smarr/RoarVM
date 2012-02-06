@@ -135,7 +135,7 @@ public:
 #pragma mark -
 #pragma mark Global Accessor Functions
 
-class Memory_System;
+
 # if  !Replicate_PThread_Memory_System
   extern Memory_System _memory_system;
 

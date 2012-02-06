@@ -108,6 +108,7 @@
 		0A72A76514432D7C0008E8AC /* tmc_os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A72A76314432D7C0008E8AC /* tmc_os_interface.cpp */; };
 		0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A87AD891379573E00337878 /* performance_counters.cpp */; };
 		0A8C91C712DE62B6007DBAD9 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A8C91C612DE62B6007DBAD9 /* IOKit.framework */; };
+		0A927EB414DC97CE00FB8591 /* read_mostly_memory_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A927EB314DC97CE00FB8591 /* read_mostly_memory_system.cpp */; };
 		0A97FB2E128FE9B1003A1C74 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A97FB2D128FE9B1003A1C74 /* gtest.framework */; };
 		0A97FB35128FEA77003A1C74 /* buffered_channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A27850F128DBF7400336BDE /* buffered_channel.cpp */; };
 		0A97FB36128FEA77003A1C74 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278510128DBF7400336BDE /* main.cpp */; };
@@ -385,6 +386,9 @@
 		0A87AD891379573E00337878 /* performance_counters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = performance_counters.cpp; sourceTree = "<group>"; };
 		0A8C91BC12DE61BB007DBAD9 /* object_p.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = object_p.h; sourceTree = "<group>"; };
 		0A8C91C612DE62B6007DBAD9 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
+		0A927EB314DC97CE00FB8591 /* read_mostly_memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = read_mostly_memory_system.cpp; sourceTree = "<group>"; };
+		0A927EB614DC97E300FB8591 /* read_mostly_memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = read_mostly_memory_system.h; sourceTree = "<group>"; };
+		0A927EB714DC9A3E00FB8591 /* memory_system_typdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memory_system_typdef.h; sourceTree = "<group>"; };
 		0A97FB26128FE95A003A1C74 /* UnitTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTests; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A97FB2D128FE9B1003A1C74 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = googletest/xcode/build/Debug/gtest.framework; sourceTree = "<group>"; };
 		0A97FBAE12900336003A1C74 /* tracked_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracked_ptr.h; sourceTree = "<group>"; };
@@ -738,6 +742,9 @@
 				0A278454128DBF7300336BDE /* multicore_object_table.h */,
 				0A278455128DBF7300336BDE /* multicore_object_table.inline.h */,
 				0A278456128DBF7300336BDE /* oop_closure.h */,
+				0A927EB314DC97CE00FB8591 /* read_mostly_memory_system.cpp */,
+				0A927EB614DC97E300FB8591 /* read_mostly_memory_system.h */,
+				0A927EB714DC9A3E00FB8591 /* memory_system_typdef.h */,
 			);
 			name = heap;
 			path = src/heap;
@@ -1289,6 +1296,7 @@
 				0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */,
 				0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */,
 				0A72A76514432D7C0008E8AC /* tmc_os_interface.cpp in Sources */,
+				0A927EB414DC97CE00FB8591 /* read_mostly_memory_system.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

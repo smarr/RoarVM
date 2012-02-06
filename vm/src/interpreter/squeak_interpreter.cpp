@@ -2557,15 +2557,15 @@ void Squeak_Interpreter::move_mutated_read_mostly_objects() {
   numberOfMovedMutatedRead_MostlyObjects += mutated_read_mostly_objects_count;
 
   for (int i = 0;  i < mutated_read_mostly_objects_count;  ++i) {
-    if (print_moves_to_read_write() ) {
+    if (print_moves_to_read_write()) {
       mutated_read_mostly_objects[i].as_object()->print(debug_printer);  debug_printer->printf(", ");
     }
     // xxxxxx my_rank() below may not be best--what if heap fills up? -- dmu 4/09
-    mutated_read_mostly_objects[i].as_object()->move_to_heap(my_rank(), Memory_System::read_write, true);
+    mutated_read_mostly_objects[i].as_object()->move_to_heap(my_rank(), Memory_System::standard_partition(), true);
     if (mutated_read_mostly_object_tracer() != NULL)
       mutated_read_mostly_object_tracer()->add(mutated_read_mostly_objects[i]);
   }
-  if (print_moves_to_read_write() ) debug_printer->nl();
+  if ( print_moves_to_read_write() ) debug_printer->nl();
   sync_with_roots(); // don't need full pre/postGCAction_everywhere because we don't move contexts, and caches are oop-based
   mutated_read_mostly_objects_count = 0;
   cyclesMovingMutatedRead_MostlyObjects += OS_Interface::get_cycle_count();
@@ -2924,8 +2924,7 @@ Logical_Core* Squeak_Interpreter::coreWithSufficientSpaceToInstantiate(Oop klass
   if (indexableSize != 0  &&  Object::Format::has_only_fixed_fields(fmt)) // non-indexable
     return NULL;
   int atomSize = !Object::Format::has_bytes(fmt)  ?  sizeof(oop_int_t)  :  1;
-  return The_Memory_System()->coreWithSufficientSpaceToAllocate(2500 +  indexableSize * atomSize,
-                                                                Memory_System::read_write);
+  return The_Memory_System()->coreWithSufficientSpaceToAllocate(2500 +  indexableSize * atomSize);
 }
 
 
