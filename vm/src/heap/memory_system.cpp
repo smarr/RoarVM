@@ -767,17 +767,17 @@ void Basic_Memory_System::send_local_heap() {
 }
 
 // TODO: the implementation of this function breaks abstraction. It should use messages instead using directly the low-level functions
-void Memory_System::initialize_helper() {
+void Basic_Memory_System::initialize_helper() {
   Logical_Core* sender;
   Memory_System::init_buf* ib = (Memory_System::init_buf*)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
   
   if (Replicate_PThread_Memory_System  ||  On_Tilera)
-    init_values_from_buffer(ib); // not needed with common structure
+    ((Memory_System*)this)->init_values_from_buffer(ib); // not needed with common structure
 
   if (On_Tilera)
-    map_memory_on_helper(ib);
+    ((Memory_System*)this)->map_memory_on_helper(ib);
   
-  create_my_heaps(ib);
+  ((Memory_System*)this)->create_my_heaps(ib);
   sender->message_queue.release_oldest_buffer(ib);
   
   send_local_heap();
