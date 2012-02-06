@@ -633,7 +633,7 @@ void Basic_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 s
     global_GC_values
   };
 
-  ((Memory_System*)this)->initialize_main(&ib);
+  initialize_main(&ib);
 }
 
 
@@ -714,9 +714,11 @@ void Basic_Memory_System::receive_heap(int i) {
   sender->message_queue.release_oldest_buffer(heaps_buf);
 }
 
-void Memory_System::initialize_main(void* buffer) {
-  Memory_System::init_buf* ib; /* We do this trick to avoid compilation problems with different Memory_Systems */
-  
+void Basic_Memory_System::initialize_main(init_buf* ib) {
+  initialize_main_from_buffer(ib, sizeof(*ib));
+}
+
+void Basic_Memory_System::initialize_main_from_buffer(void* buffer, size_t buffer_size) {
   // Each core homes its own shared Multicore_Object_Heap object
   // Each core has its own private Memory_System object
   // The actual memory for the heap is one contiguous address space, but each core homes a piece of it,
@@ -726,9 +728,9 @@ void Memory_System::initialize_main(void* buffer) {
   // Create the Multicore_Object_Heap object on each core for homing.
   FOR_ALL_RANKS(i)
     if (i == Logical_Core::my_rank())
-      create_my_heaps(ib);
+      ((Memory_System*)this)->create_my_heaps((Memory_System::init_buf*)buffer);
     else {
-      logical_cores[i].message_queue.buffered_send_buffer(ib, sizeof(*ib));  // ensure that helper is delayed till now, even if Force_Direct_Memory_Access
+      logical_cores[i].message_queue.buffered_send_buffer(buffer, buffer_size);  // ensure that helper is delayed till now, even if Force_Direct_Memory_Access
       if (check_many_assertions)
         lprintf("finished sending init buffer\n");
 

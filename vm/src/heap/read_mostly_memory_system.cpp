@@ -59,6 +59,10 @@ void Read_Mostly_Memory_System::receive_heap(int i) {
   Basic_Memory_System::receive_heap(i);
 }
 
+void Read_Mostly_Memory_System::initialize_main(init_buf* ib) {
+  initialize_main_from_buffer((void*)ib, sizeof(*ib));
+}
+
 void Read_Mostly_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, int32 fsf, int32 lastHash) {
   set_page_size_used_in_heap();
   
@@ -102,7 +106,7 @@ void Read_Mostly_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, i
     total_read_mostly_memory_size, memory_per_read_mostly_heap, log_memory_per_read_mostly_heap,
   };
   
-  Memory_System::initialize_main(&ib);
+  initialize_main(&ib);
 }
 
 /** The noinline attribute is necessary here to guarantee that LLVM-GCC,

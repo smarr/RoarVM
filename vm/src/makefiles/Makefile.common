@@ -449,6 +449,7 @@ OBJS = \
   Matrix2x3Plugin.opt \
   measurements.opt \
   memory_system.o \
+  read_mostly_memory_system.opt \
   method_cache.opt \
   MiscPrimitivePlugin.opt \
   multicore_object_heap.opt \

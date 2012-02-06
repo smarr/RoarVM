@@ -160,7 +160,8 @@ private:
   void map_memory_on_helper(init_buf* ib);
 
 protected:
-  void initialize_main(void*);
+  void initialize_main_from_buffer(void* buffer, size_t buffer_size);
+  void initialize_main(init_buf* buffer);
 
   void map_heap_memory(int pid, size_t);
   int calculate_total_read_write_pages(int);

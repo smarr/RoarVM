@@ -157,9 +157,7 @@ public:
   bool moveAllToRead_MostlyHeaps();
   
   void initialize_helper();
-  void initialize_main(void* buffer);
   
-private:
   struct init_buf {
     Basic_Memory_System::init_buf base_buf;
     char*   read_mostly_memory_base;
@@ -169,8 +167,12 @@ private:
   };
 
   void create_my_heaps(init_buf*);
+  
+private:
+  
   void init_values_from_buffer(init_buf*);
   void map_memory_on_helper(init_buf* ib);
+  void initialize_main(init_buf*);
   
   void push_heap_stats();
 };
