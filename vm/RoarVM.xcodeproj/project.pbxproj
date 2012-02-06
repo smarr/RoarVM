@@ -388,7 +388,7 @@
 		0A8C91C612DE62B6007DBAD9 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		0A927EB314DC97CE00FB8591 /* read_mostly_memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = read_mostly_memory_system.cpp; sourceTree = "<group>"; };
 		0A927EB614DC97E300FB8591 /* read_mostly_memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = read_mostly_memory_system.h; sourceTree = "<group>"; };
-		0A927EB714DC9A3E00FB8591 /* memory_system_typdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memory_system_typdef.h; sourceTree = "<group>"; };
+		0A927EB714DC9A3E00FB8591 /* memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; path = memory_system.h; sourceTree = "<group>"; };
 		0A97FB26128FE95A003A1C74 /* UnitTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTests; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A97FB2D128FE9B1003A1C74 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = googletest/xcode/build/Debug/gtest.framework; sourceTree = "<group>"; };
 		0A97FBAE12900336003A1C74 /* tracked_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracked_ptr.h; sourceTree = "<group>"; };
@@ -744,7 +744,7 @@
 				0A278456128DBF7300336BDE /* oop_closure.h */,
 				0A927EB314DC97CE00FB8591 /* read_mostly_memory_system.cpp */,
 				0A927EB614DC97E300FB8591 /* read_mostly_memory_system.h */,
-				0A927EB714DC9A3E00FB8591 /* memory_system_typdef.h */,
+				0A927EB714DC9A3E00FB8591 /* memory_system.h */,
 			);
 			name = heap;
 			path = src/heap;

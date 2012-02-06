@@ -203,6 +203,7 @@ RVM_HEADERS = \
   RVMPlugin.h \
   multicore_object_heap.h \
   multicore_object_table.h \
+  memory_system.h \
   basic_memory_system.h \
   core_tracer.h \
   abstract_tracer.h \

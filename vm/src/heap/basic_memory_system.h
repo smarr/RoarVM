@@ -16,29 +16,25 @@
  * The Memory_System manages the heap structure that is used for Smalltalk
  * objects.
  *
- * The heap is allocated per core and the memory of each core is divided
- * into a read-mostly and a read-write part.
+ * The heap is uses one segment per core.
  *
  * 
  * Conceptual Structure
  * --------------------
- *   TODO: add something about the object table
  *   A typical structure in memory could look like this:
  *
- *     +-----------------+-----------------+
- *     |   read-mostly   |   read-write    |
- *     +----+----+----+--+----+----+----+--+
- *     | c1 | c2 | c3 |..| c1 | c2 | c3 |..|
- *     +----+----+----+--+----+----+----+--+
- *     0                n/2                n
+ *     +-----------------+
+ *     |   read-write    |
+ *     +----+----+----+--+
+ *     | c1 | c2 | c3 |..|
+ *     +----+----+----+--+
+ *     0                 n
  *
  * Implementation Structure
  * ------------------------
  *
- * The heap is allocated with mmap in two parts but at consecutive addesses.
- * The first region is allocated for the read-mostly heap, and
- * the second region is allocated for the read-write heap.
- * See Memory_System::map_read_write_and_read_mostly_memory.
+ * The heap is allocated with mmap.
+ * See map_heap_memory(..)
  *
  * The memory allocation is done on the main core and all other cores
  * receive the base address via a message to map the same memory regions

@@ -147,7 +147,7 @@
 # include "shared_memory_message_queue_per_sender.h"
 # include "ilib_message_queue.h"
 
-# include "memory_system_typdef.h"
+# include "memory_system.h"
 
 # include "memory_semantics.h"
 # include "abstract_memory_semantics.h"

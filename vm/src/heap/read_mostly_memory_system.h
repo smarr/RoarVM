@@ -12,12 +12,49 @@
  ******************************************************************************/
 
 
+
 /**
+ * The Memory_System manages the heap structure that is used for Smalltalk
+ * objects.
+ *
+ * The heap is allocated per core and the memory of each core is divided
+ * into a read-mostly and a read-write part.
+ *
  * On NUMA architectures, we want to be able to manage cache coherency
  * ourselves in certain situations.
  * Currently, we use an extra heap region to manage objects that are
  * mostly read, but seldomly updated. This region uses only software-based
  * coherency to improve the performance properties.
+ *
+ * 
+ * Conceptual Structure
+ * --------------------
+ *
+ *   A typical structure in memory could look like this:
+ *
+ *     +-----------------+-----------------+
+ *     |   read-mostly   |   read-write    |
+ *     +----+----+----+--+----+----+----+--+
+ *     | c1 | c2 | c3 |..| c1 | c2 | c3 |..|
+ *     +----+----+----+--+----+----+----+--+
+ *     0                n/2                n
+ *
+ * Implementation Structure
+ * ------------------------
+ *
+ * The heap is allocated with mmap in two parts but at consecutive addesses.
+ * The first region is allocated for the read-mostly heap, and
+ * the second region is allocated for the read-write heap.
+ * See map_read_write_and_read_mostly_memory(..)
+ *
+ * The memory allocation is done on the main core and all other cores
+ * receive the base address via a message to map the same memory regions
+ * into the same addresses.
+ * For thread-based systems, this is only done on the main core, and the other
+ * cores do not need to map in any memory.
+ *
+ * A temporary file is used to ensure that all cores are working on the same
+ * memory.
  */
 class Read_Mostly_Memory_System : public Basic_Memory_System {
 private:
