@@ -25,7 +25,7 @@
 		0A278533128DBF7400336BDE /* sqUnixSoundNull.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278442128DBF7300336BDE /* sqUnixSoundNull.c */; };
 		0A278534128DBF7400336BDE /* abstract_mark_sweep_collector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278444128DBF7300336BDE /* abstract_mark_sweep_collector.cpp */; };
 		0A278535128DBF7400336BDE /* abstract_object_heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278446128DBF7300336BDE /* abstract_object_heap.cpp */; };
-		0A278536128DBF7400336BDE /* memory_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A27844D128DBF7300336BDE /* memory_system.cpp */; };
+		0A278536128DBF7400336BDE /* basic_memory_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A27844D128DBF7300336BDE /* basic_memory_system.cpp */; };
 		0A278537128DBF7400336BDE /* multicore_object_heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278450128DBF7300336BDE /* multicore_object_heap.cpp */; };
 		0A278538128DBF7400336BDE /* multicore_object_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278453128DBF7300336BDE /* multicore_object_table.cpp */; };
 		0A278539128DBF7400336BDE /* buffered_channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278458128DBF7300336BDE /* buffered_channel.cpp */; };
@@ -173,8 +173,8 @@
 		0A27844A128DBF7300336BDE /* gc_oop_stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gc_oop_stack.h; sourceTree = "<group>"; };
 		0A27844B128DBF7300336BDE /* indirect_oop_mark_sweep_collector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = indirect_oop_mark_sweep_collector.h; sourceTree = "<group>"; };
 		0A27844C128DBF7300336BDE /* mark_sweep_collector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mark_sweep_collector.h; sourceTree = "<group>"; };
-		0A27844D128DBF7300336BDE /* memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memory_system.cpp; sourceTree = "<group>"; };
-		0A27844E128DBF7300336BDE /* memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memory_system.h; sourceTree = "<group>"; };
+		0A27844D128DBF7300336BDE /* basic_memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = basic_memory_system.cpp; sourceTree = "<group>"; };
+		0A27844E128DBF7300336BDE /* basic_memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; path = basic_memory_system.h; sourceTree = "<group>"; };
 		0A27844F128DBF7300336BDE /* basic_memory_system.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; path = basic_memory_system.inline.h; sourceTree = "<group>"; };
 		0A278450128DBF7300336BDE /* multicore_object_heap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = multicore_object_heap.cpp; sourceTree = "<group>"; };
 		0A278451128DBF7300336BDE /* multicore_object_heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multicore_object_heap.h; sourceTree = "<group>"; };
@@ -732,8 +732,8 @@
 				0A27844A128DBF7300336BDE /* gc_oop_stack.h */,
 				0A27844B128DBF7300336BDE /* indirect_oop_mark_sweep_collector.h */,
 				0A27844C128DBF7300336BDE /* mark_sweep_collector.h */,
-				0A27844D128DBF7300336BDE /* memory_system.cpp */,
-				0A27844E128DBF7300336BDE /* memory_system.h */,
+				0A27844D128DBF7300336BDE /* basic_memory_system.cpp */,
+				0A27844E128DBF7300336BDE /* basic_memory_system.h */,
 				0A27844F128DBF7300336BDE /* basic_memory_system.inline.h */,
 				0A278450128DBF7300336BDE /* multicore_object_heap.cpp */,
 				0A278451128DBF7300336BDE /* multicore_object_heap.h */,
@@ -1222,7 +1222,7 @@
 				0A278533128DBF7400336BDE /* sqUnixSoundNull.c in Sources */,
 				0A278534128DBF7400336BDE /* abstract_mark_sweep_collector.cpp in Sources */,
 				0A278535128DBF7400336BDE /* abstract_object_heap.cpp in Sources */,
-				0A278536128DBF7400336BDE /* memory_system.cpp in Sources */,
+				0A278536128DBF7400336BDE /* basic_memory_system.cpp in Sources */,
 				0A278537128DBF7400336BDE /* multicore_object_heap.cpp in Sources */,
 				0A278538128DBF7400336BDE /* multicore_object_table.cpp in Sources */,
 				0A278539128DBF7400336BDE /* buffered_channel.cpp in Sources */,

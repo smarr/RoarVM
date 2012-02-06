@@ -197,7 +197,7 @@
 # include "abstract_object_table.h"
 # include "multicore_object_table.h"
 
-# include "memory_system.h"
+# include "basic_memory_system.h"
 # include "read_mostly_memory_system.h"
 
 # include "runtime_tester.h"
