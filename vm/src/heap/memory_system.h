@@ -156,8 +156,6 @@ private:
   void request_huge_pages(int);
 
   void map_heap_memory_in_one_request(int pid, size_t total);
-
-  void set_second_chance_cores_for_allocation(int);
   
   void map_memory_on_helper(init_buf* ib);
 
@@ -173,6 +171,8 @@ protected:
   void create_my_heaps(init_buf*);
   void init_values_from_buffer(init_buf*);
   void send_local_heap();
+  
+  void set_second_chance_cores_for_allocation(int);
   
 public:
   void initialize_helper();
@@ -208,11 +208,11 @@ public:
   }
   
   void verify_local() {
-    heaps[Logical_Core::my_rank()][Memory_System:: read_write]->verify();
+    heaps[Logical_Core::my_rank()][read_write]->verify();
   }
   
   void zap_unused_portion() {
-    heaps[Logical_Core::my_rank()][Memory_System::read_write]->zap_unused_portion();
+    heaps[Logical_Core::my_rank()][read_write]->zap_unused_portion();
   }
   
   void print_bytes_used() {
@@ -239,8 +239,12 @@ public:
     return read_write;
   }
   
+  static inline int mutability_for_posibile_replication(Object*) {
+    return read_write;
+  }
+  
   inline Multicore_Object_Heap* get_heap(int rank) const {
-    return heaps[rank][Memory_System::read_write];
+    return heaps[rank][read_write];
   }
   
   int rank_for_address(void* p) const {

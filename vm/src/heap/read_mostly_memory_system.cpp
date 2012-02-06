@@ -102,7 +102,7 @@ void Read_Mostly_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, i
     total_read_mostly_memory_size, memory_per_read_mostly_heap, log_memory_per_read_mostly_heap,
   };
   
-  initialize_main(&ib);
+  Memory_System::initialize_main(&ib);
 }
 
 /** The noinline attribute is necessary here to guarantee that LLVM-GCC,

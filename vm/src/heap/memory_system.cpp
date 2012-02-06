@@ -14,14 +14,14 @@
 
 # include "headers.h"
 
-bool     Memory_System::use_huge_pages = On_Tilera;
-bool     Memory_System::replicate_methods = false; // if true methods are put on read-mostly heap
-bool     Memory_System::replicate_all = true; // if true, all (non-contexts) are allowed in read-mostly heap
-bool     Memory_System::OS_mmaps_up = On_Apple;
-u_int32  Memory_System::memory_per_read_write_heap = 0;
-u_int32  Memory_System::log_memory_per_read_write_heap = 0;
-  int    Memory_System::round_robin_period = 1;
-  size_t Memory_System::min_heap_MB =  On_iOS ? 32 : On_Tilera ? 256 : 1024; // Fewer GCs on Mac
+bool     Basic_Memory_System::use_huge_pages = On_Tilera;
+bool     Basic_Memory_System::replicate_methods = false; // if true methods are put on read-mostly heap
+bool     Basic_Memory_System::replicate_all = true; // if true, all (non-contexts) are allowed in read-mostly heap
+bool     Basic_Memory_System::OS_mmaps_up = On_Apple;
+u_int32  Basic_Memory_System::memory_per_read_write_heap = 0;
+u_int32  Basic_Memory_System::log_memory_per_read_write_heap = 0;
+  int    Basic_Memory_System::round_robin_period = 1;
+  size_t Basic_Memory_System::min_heap_MB =  On_iOS ? 32 : On_Tilera ? 256 : 1024; // Fewer GCs on Mac
 
 # define FOR_ALL_HEAPS(rank, mutability) \
   FOR_ALL_RANKS(rank) \
@@ -49,7 +49,7 @@ Basic_Memory_System::Basic_Memory_System() {
 }
 
 
-void Memory_System::finished_adding_objects_from_snapshot() {
+void Basic_Memory_System::finished_adding_objects_from_snapshot() {
   object_table->post_store_whole_enchillada();
   The_Squeak_Interpreter()->set_am_receiving_objects_from_snapshot(false);
   enforce_coherence_after_each_core_has_stored_into_its_own_heap();
@@ -60,14 +60,14 @@ void Memory_System::finished_adding_objects_from_snapshot() {
 }
 
 
-void Memory_System::enforce_coherence_before_each_core_stores_into_its_own_heap() {
+void Basic_Memory_System::enforce_coherence_before_each_core_stores_into_its_own_heap() {
   if (!replicate_methods &&  !replicate_all) return; // should not need this statement, but there was a bug without it, and anyway it's faster with it
   enforceCoherenceBeforeEachCoreStoresIntoItsOwnHeapMessage_class().send_to_other_cores();
   invalidate_heaps_and_fence(false);
 }
 
 
-void Memory_System::enforce_coherence_before_this_core_stores_into_all_heaps() {
+void Basic_Memory_System::enforce_coherence_before_this_core_stores_into_all_heaps() {
   if (!replicate_methods &&  !replicate_all) return; // should not need this statement, but there was a bug without it, and anyway it's faster with it
   OS_Interface::mem_fence(); // ensure all cores see same heap _next's
   enforceCoherenceBeforeSenderStoresIntoAllHeapsMessage_class().send_to_other_cores();
@@ -75,7 +75,7 @@ void Memory_System::enforce_coherence_before_this_core_stores_into_all_heaps() {
 
 
 
-bool Memory_System::verify_if(bool condition) {
+bool Basic_Memory_System::verify_if(bool condition) {
   if (!condition)
     return true;
 
@@ -98,7 +98,7 @@ void Basic_Memory_System::push_heap_stats() {
   PUSH_WITH_STRING_FOR_MAKE_ARRAY(readMostlyHeapStats);
 }
 
-Oop Memory_System::get_stats(int what_to_sample) {
+Oop Basic_Memory_System::get_stats(int what_to_sample) {
   int s = The_Squeak_Interpreter()->makeArrayStart();
   if (what_to_sample & (1 << SampleValues::gcStats)) {
     PUSH_POSITIVE_32_BIT_INT_WITH_STRING_FOR_MAKE_ARRAY(global_GC_values->gcCount);
@@ -115,7 +115,7 @@ Oop Memory_System::get_stats(int what_to_sample) {
 }
 
 
-void Memory_System::fullGC(const char* why) {
+void Basic_Memory_System::fullGC(const char* why) {
   Squeak_Interpreter * const interp = The_Squeak_Interpreter();
   if (interp->am_receiving_objects_from_snapshot())
     fatal("cannot gc now");
@@ -141,7 +141,7 @@ void Memory_System::fullGC(const char* why) {
 }
 
 
-void Memory_System::level_out_heaps_if_needed() {
+void Basic_Memory_System::level_out_heaps_if_needed() {
   if (global_GC_values->inter_gc_ms  <  global_GC_values->last_gc_ms) {
     lprintf("inter_gc_ms is %d, last_gc_ms is %d; may level out\n",
             global_GC_values->inter_gc_ms, global_GC_values->last_gc_ms);
@@ -178,7 +178,7 @@ void Memory_System::level_out_heaps_if_needed() {
 }
 
 
-Multicore_Object_Heap* Memory_System::biggest_heap() {
+Multicore_Object_Heap* Basic_Memory_System::biggest_heap() {
   Multicore_Object_Heap* biggest = NULL;
   FOR_ALL_HEAPS(rank, mutability) {
     Multicore_Object_Heap* h = heaps[rank][mutability];
@@ -189,12 +189,12 @@ Multicore_Object_Heap* Memory_System::biggest_heap() {
 }
 
 
-void Memory_System::finalize_weak_arrays_since_we_dont_do_incrementalGC() {
+void Basic_Memory_System::finalize_weak_arrays_since_we_dont_do_incrementalGC() {
   fullGC("finalize_weak_arrays_since_we_dont_do_incrementalGC");
 }
 
 
-void Memory_System::swapOTEs(Oop* o1, Oop* o2, int len) {
+void Basic_Memory_System::swapOTEs(Oop* o1, Oop* o2, int len) {
   for (int i = 0;  i < len;  ++i) {
     Object_p obj1 = o1[i].as_object();
     Object_p obj2 = o2[i].as_object();
@@ -285,7 +285,7 @@ public:
 
 
 
-bool Memory_System::become_with_twoWay_copyHash(Oop array1, Oop array2, bool twoWayFlag, bool copyHashFlag) {
+bool Basic_Memory_System::become_with_twoWay_copyHash(Oop array1, Oop array2, bool twoWayFlag, bool copyHashFlag) {
   Safepoint_for_moving_objects sf("become");
   Safepoint_Ability sa(false);
 
@@ -323,7 +323,7 @@ bool Memory_System::become_with_twoWay_copyHash(Oop array1, Oop array2, bool two
 
 
 
-Logical_Core* Memory_System::coreWithSufficientSpaceToAllocate(oop_int_t bytes) {
+Logical_Core* Basic_Memory_System::coreWithSufficientSpaceToAllocate(oop_int_t bytes) {
   const int mutability = Memory_System::read_write;
   Multicore_Object_Heap* h = heaps[Logical_Core::my_rank()][mutability];
   int minFree = bytes + 10000 + h->lowSpaceThreshold; // may not be necessary
@@ -346,7 +346,7 @@ Logical_Core* Memory_System::coreWithSufficientSpaceToAllocate(oop_int_t bytes) 
 }
 
 
-bool Memory_System::sufficientSpaceAfterGC(oop_int_t minFree, int mutability) {
+bool Basic_Memory_System::sufficientSpaceAfterGC(oop_int_t minFree, int mutability) {
   The_Memory_System()->incrementalGC();
   set_second_chance_cores_for_allocation(mutability);
 
@@ -369,7 +369,7 @@ bool Memory_System::sufficientSpaceAfterGC(oop_int_t minFree, int mutability) {
 
 
 
-u_int32 Memory_System::maxContiguousBytesLeft() {
+u_int32 Basic_Memory_System::maxContiguousBytesLeft() {
   u_int32 r = 0;
   FOR_ALL_RANKS(i)
     if (heaps[i][read_write]->bytesLeft() > r)  r = heaps[i][read_write]->bytesLeft();
@@ -378,7 +378,7 @@ u_int32 Memory_System::maxContiguousBytesLeft() {
 
 
 
-void Memory_System::imageNamePut_on_this_core(const char* n, int len) {
+void Basic_Memory_System::imageNamePut_on_this_core(const char* n, int len) {
   delete[] image_name;
   image_name = new char[len + 1];
   bcopy(n, image_name, len);
@@ -386,7 +386,7 @@ void Memory_System::imageNamePut_on_this_core(const char* n, int len) {
 }
 
 
-void Memory_System::imageNameGet(Object_p dst, int len) {
+void Basic_Memory_System::imageNameGet(Object_p dst, int len) {
   char* n = dst->as_char_p() + Object::BaseHeaderSize;
   assert(The_Memory_System()->contains(n));
 
@@ -394,24 +394,24 @@ void Memory_System::imageNameGet(Object_p dst, int len) {
   strncpy(n, image_name, len);
   enforce_coherence_after_store_into_object_by_interpreter(n, len);
 }
-int Memory_System::imageNameSize() { return strlen(image_name); }
+int Basic_Memory_System::imageNameSize() { return strlen(image_name); }
 
-char* Memory_System::imageName() { return image_name; }
+char* Basic_Memory_System::imageName() { return image_name; }
 
-void Memory_System::flushExternalPrimitives() {
+void Basic_Memory_System::flushExternalPrimitives() {
   FOR_ALL_HEAPS(rank, mutability) {
     heaps[rank][mutability]->flushExternalPrimitives();
   }
 }
 
-void Memory_System::handle_low_space_signals() {
+void Basic_Memory_System::handle_low_space_signals() {
   FOR_ALL_HEAPS(rank, mutability) {
     heaps[rank][mutability]->handle_low_space_signal();
   }
 }
 
 
-Oop Memory_System::initialInstanceOf(Oop x) {
+Oop Basic_Memory_System::initialInstanceOf(Oop x) {
   Oop r;
   FOR_ALL_HEAPS(rank, mutability) {
     if ((r = heaps[rank][mutability]->initialInstanceOf(x)) != The_Squeak_Interpreter()->roots.nilObj)
@@ -421,7 +421,7 @@ Oop Memory_System::initialInstanceOf(Oop x) {
 }
 
 
-Oop Memory_System::nextInstanceAfter(Oop x) {
+Oop Basic_Memory_System::nextInstanceAfter(Oop x) {
   if (!x.is_mem()) return The_Squeak_Interpreter()->roots.nilObj;
   Oop klass = x.fetchClass();
   int start_rank = x.rank_of_object();
@@ -441,13 +441,13 @@ Oop Memory_System::nextInstanceAfter(Oop x) {
 }
 
 
-void Memory_System::snapshotCleanUp() {
+void Basic_Memory_System::snapshotCleanUp() {
   FOR_ALL_HEAPS(rank, mutability)
     heaps[rank][mutability]->snapshotCleanUp();
 }
 
 
-u_int32 Memory_System::bytesLeft(bool includeSwap) {
+u_int32 Basic_Memory_System::bytesLeft(bool includeSwap) {
   u_int32 sum = 0;
   FOR_ALL_RANKS(i)
     sum += heaps[i][read_write]->bytesLeft(includeSwap);
@@ -455,7 +455,7 @@ u_int32 Memory_System::bytesLeft(bool includeSwap) {
 }
 
 
-void Memory_System::writeImageFile(char* image_name) {
+void Basic_Memory_System::writeImageFile(char* image_name) {
   writeImageFileIO(image_name);
   fn_t setMacType = The_Interactions.load_function_from_plugin(Logical_Core::main_rank, "setMacFileTypeAndCreator", "FilePlugin");
   if (setMacType != NULL)  (*setMacType)(The_Memory_System()->imageName(), "STim", "FAST");
@@ -464,7 +464,7 @@ void Memory_System::writeImageFile(char* image_name) {
 
 
 
-int32 Memory_System::max_lastHash() {
+int32 Basic_Memory_System::max_lastHash() {
   int r = 0;
   FOR_ALL_HEAPS(rank, mutability) {
     r = max(r, heaps[rank][mutability]->get_lastHash());
@@ -478,7 +478,7 @@ static const int32 headerSize = 64;
 
 
 
-void Memory_System::writeImageFileIO(char* image_name) {
+void Basic_Memory_System::writeImageFileIO(char* image_name) {
   // int32 headerStart = 0;
   FILE* f = fopen(image_name, "wb");
   if (f == NULL) {
@@ -509,7 +509,7 @@ void Memory_System::writeImageFileIO(char* image_name) {
   return;
 }
 
-void Memory_System::write_snapshot_header(FILE* f, u_int32* heap_offsets) {
+void Basic_Memory_System::write_snapshot_header(FILE* f, u_int32* heap_offsets) {
   putLong(The_Squeak_Interpreter()->image_version, f);
   putLong(headerSize, f);
   putLong(bytesUsed() - preheader_byte_size /* Squeak 64-bit VM bug workaround */, f);
@@ -529,7 +529,7 @@ void Memory_System::write_snapshot_header(FILE* f, u_int32* heap_offsets) {
 
 
 
-void Memory_System::compute_snapshot_offsets(u_int32* offsets) {
+void Basic_Memory_System::compute_snapshot_offsets(u_int32* offsets) {
   int last_offset = 0;
   Multicore_Object_Heap* last_heap = NULL;
   FOR_ALL_HEAPS(rank, mutability) {
@@ -544,7 +544,7 @@ void Memory_System::compute_snapshot_offsets(u_int32* offsets) {
 }
 
 
-Oop Memory_System::firstAccessibleObject() {
+Oop Basic_Memory_System::firstAccessibleObject() {
   FOR_ALL_HEAPS(rank, mutability)  {
     Object* obj = heaps[rank][mutability]->firstAccessibleObject();
     if (obj != NULL)
@@ -554,7 +554,7 @@ Oop Memory_System::firstAccessibleObject() {
 }
 
 
-Oop Memory_System::nextObject(Oop x) {
+Oop Basic_Memory_System::nextObject(Oop x) {
   Object_p obj = x.as_object();
   int start_rank = obj->rank();
   int start_mutability = obj->mutability();
@@ -576,19 +576,19 @@ Oop Memory_System::nextObject(Oop x) {
 }
 
 
-void  Memory_System::set_lowSpaceThreshold(int32 x)  {
+void  Basic_Memory_System::set_lowSpaceThreshold(int32 x)  {
   FOR_ALL_HEAPS(rank, mutability)
     heaps[rank][mutability]->set_lowSpaceThreshold(x);
 }
 
-int Memory_System::round_robin_rank() {
+int Basic_Memory_System::round_robin_rank() {
   assert(Logical_Core::running_on_main());
   static int i = 0; // threadsafe? think its ok, there is no need for 100% monotony, Stefan, 2009-09-05
   return i++ % Logical_Core::group_size;
 }
 
 
-int Memory_System::calculate_total_read_write_pages(int page_size) {
+int Basic_Memory_System::calculate_total_read_write_pages(int page_size) {
   int min_heap_bytes_for_all_cores = min_heap_MB * Mega;
   int min_heap_bytes_per_core = divide_and_round_up(min_heap_bytes_for_all_cores, Logical_Core::group_size);
   int min_pages_per_core = divide_and_round_up(min_heap_bytes_per_core, page_size);
@@ -633,7 +633,7 @@ void Basic_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 s
     global_GC_values
   };
 
-  initialize_main(&ib);
+  ((Memory_System*)this)->initialize_main(&ib);
 }
 
 
@@ -656,7 +656,7 @@ void Basic_Memory_System::set_page_size_used_in_heap() {
     as 2 GB and thus, convert the assertions to constant checks, which will
     fail for a 2 GB heap */
 __attribute__((noinline))  // Important attribute for LLVM-GCC and Clang
-void Memory_System::map_heap_memory_in_one_request(int pid, size_t total) {
+void Basic_Memory_System::map_heap_memory_in_one_request(int pid, size_t total) {
   read_write_memory_base = map_heap_memory(total, total,
                                             NULL, 0, pid, MAP_SHARED);
   read_write_memory_past_end = read_write_memory_base + total;
@@ -664,7 +664,7 @@ void Memory_System::map_heap_memory_in_one_request(int pid, size_t total) {
 }
 
 
-bool Memory_System::ask_Linux_for_huge_pages(int desired_huge_pages) {
+bool Basic_Memory_System::ask_Linux_for_huge_pages(int desired_huge_pages) {
   if ((On_Apple | On_Intel_Linux) || desired_huge_pages == 0)
     return true;
 
@@ -688,7 +688,7 @@ bool Memory_System::ask_Linux_for_huge_pages(int desired_huge_pages) {
 
 static const char* hugepages_control_file = "/proc/sys/vm/nr_hugepages";
 
-int Memory_System::how_many_huge_pages() {
+int Basic_Memory_System::how_many_huge_pages() {
   FILE* hpf = fopen(hugepages_control_file, "r");
   if (hpf == NULL) { perror("could not open nr_hugepages"); OS_Interface::die("nr_hugepages"); }
   int available_huge_pages = -1;
@@ -698,7 +698,7 @@ int Memory_System::how_many_huge_pages() {
 }
 
 
-void Memory_System::request_huge_pages(int desired_huge_pages) {
+void Basic_Memory_System::request_huge_pages(int desired_huge_pages) {
   FILE* hpf = fopen(hugepages_control_file, "w");
   if (hpf == NULL) { perror("could not open nr_hugepages"); OS_Interface::die("nr_hugepages"); }
   fprintf(hpf, "%d\n", desired_huge_pages);
@@ -714,7 +714,7 @@ void Basic_Memory_System::receive_heap(int i) {
   sender->message_queue.release_oldest_buffer(heaps_buf);
 }
 
-void Basic_Memory_System::initialize_main(void* buffer) {
+void Memory_System::initialize_main(void* buffer) {
   Memory_System::init_buf* ib; /* We do this trick to avoid compilation problems with different Memory_Systems */
   
   // Each core homes its own shared Multicore_Object_Heap object
@@ -767,7 +767,7 @@ void Basic_Memory_System::send_local_heap() {
 // TODO: the implementation of this function breaks abstraction. It should use messages instead using directly the low-level functions
 void Memory_System::initialize_helper() {
   Logical_Core* sender;
-  init_buf* ib = (init_buf*)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
+  Memory_System::init_buf* ib = (Memory_System::init_buf*)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
   
   if (Replicate_PThread_Memory_System  ||  On_Tilera)
     init_values_from_buffer(ib); // not needed with common structure
@@ -832,7 +832,7 @@ void Basic_Memory_System::create_my_heaps(init_buf* ib) {
 // went back to serial, because of intercore cache-line invalidation message deadlock worries.
 // xxxxxx I bet we could go back to parallel. -- dmu 4/09
 
-void Memory_System::scan_compact_or_make_free_objects_everywhere(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
+void Basic_Memory_System::scan_compact_or_make_free_objects_everywhere(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
   
   enforce_coherence_before_each_core_stores_into_its_own_heap();
   scanCompactOrMakeFreeObjectsMessage_class m(compacting, gc_or_null);
@@ -848,7 +848,7 @@ void Basic_Memory_System::scan_compact_or_make_free_objects_here(bool compacting
 
 
 
-u_int32 Memory_System::bytesUsed() {
+u_int32 Basic_Memory_System::bytesUsed() {
   u_int32 sum = 0;
   FOR_ALL_HEAPS(rank, mutability)
     sum += heaps[rank][mutability]->bytesUsed();
@@ -856,7 +856,7 @@ u_int32 Memory_System::bytesUsed() {
 }
 
 
-void Memory_System::set_second_chance_cores_for_allocation(int mutability) {
+void Basic_Memory_System::set_second_chance_cores_for_allocation(int mutability) {
   second_chance_cores_for_allocation[mutability] = -1;
   int max_bytesLeft = 0;
   FOR_ALL_RANKS(i) {
@@ -871,7 +871,7 @@ void Memory_System::set_second_chance_cores_for_allocation(int mutability) {
 
 
 
-bool Memory_System::shuffle_or_spread(int first, int last,
+bool Basic_Memory_System::shuffle_or_spread(int first, int last,
                                       bool move_read_write_to_read_mostly,
                                       bool move_read_mostly_to_read_write,
                                       bool spread) {
@@ -901,20 +901,14 @@ bool Memory_System::shuffle_or_spread(int first, int last,
   }
   The_Squeak_Interpreter()->postGCAction_everywhere(false);
   if (spread) {
-    FOR_ALL_RANKS(r)
-      fprintf(stderr, "%d post spread: %d, %d\n", r, heaps[r][read_write]->bytesUsed(), 
-# if Use_ReadMostly_Heap
-              heaps[r][read_mostly]->bytesUsed()
-# else
-              0
-# endif
-              );
+    fprintf(stderr, "post spread bytes used:\n");
+    print_bytes_used();
   }
   return true;
 }
 
 
-int32 Memory_System::smallest_heap(int mutability) {
+int32 Basic_Memory_System::smallest_heap(int mutability) {
   int result = 0;
   FOR_ALL_RANKS(rank)
     if ( heaps[result][mutability]->bytesUsed()  >  heaps[rank][mutability]->bytesUsed() )
@@ -924,7 +918,7 @@ int32 Memory_System::smallest_heap(int mutability) {
 
 
 
-bool Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
+bool Basic_Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
                                                                    int first, int last,
                                                                    bool move_read_write_to_read_mostly,
                                                                    bool move_read_mostly_to_read_write,
@@ -943,15 +937,11 @@ bool Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
       break;
     else if (obj->isFreeObject())
       continue;
-    int dst_mutability = 
-# if Use_ReadMostly_Heap
-    !obj->is_suitable_for_replication()  ? read_write  :
-    move_read_write_to_read_mostly       ? read_mostly :
-    move_read_mostly_to_read_write       ? read_write  :
-    obj->mutability();
-# else
-    read_write;
-# endif
+    int dst_mutability =
+            move_read_write_to_read_mostly       ? Memory_System::mutability_for_posibile_replication(obj) :
+            move_read_mostly_to_read_write       ? read_write  :
+            obj->mutability();
+
     int dst_rank = spread ?  smallest_heap(dst_mutability)  :   j++ % num_cores  +  first;
     if (u_int32(obj->sizeBits() + 2500)  >  heaps[dst_rank][dst_mutability]->bytesLeft(false)) {
       return false;
@@ -971,7 +961,7 @@ bool Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
 static const char check_mark[4] = "sqi";
 
 
-void Memory_System::save_to_checkpoint(FILE* f) {
+void Basic_Memory_System::save_to_checkpoint(FILE* f) {
   write_mark(f, check_mark);
 
   int32 len = strlen(image_name);
@@ -989,7 +979,7 @@ void Memory_System::save_to_checkpoint(FILE* f) {
 }
 
 
-void Memory_System::restore_from_checkpoint(FILE* /* f */, int /* dataSize */, int /* lastHash */, int /* savedWindowSize */, int /* fullScreenFlag */) {
+void Basic_Memory_System::restore_from_checkpoint(FILE* /* f */, int /* dataSize */, int /* lastHash */, int /* savedWindowSize */, int /* fullScreenFlag */) {
 # if true
   assert_always_msg(false, "deactivated checkpointing until threadsafe memory_system is ready for Tilera");
 # else
@@ -1008,7 +998,7 @@ void Memory_System::restore_from_checkpoint(FILE* /* f */, int /* dataSize */, i
   xfread(&gs, sizeof(gs), 1, f);
   if (gs != Logical_Core::group_size) fatal("group_size mismatch");
 
-  initialize_from_snapshot(dataSize, savedWindowSize, fullScreenFlag, lastHash);
+  Memory_System::initialize_from_snapshot(dataSize, savedWindowSize, fullScreenFlag, lastHash);
 
   Memory_System local_ms;
 
@@ -1039,7 +1029,7 @@ void Memory_System::restore_from_checkpoint(FILE* /* f */, int /* dataSize */, i
 }
 
 
-void Memory_System::enforce_coherence_before_store_into_object_by_interpreter(void* p, int /* nbytes */, Object_p dst_obj_to_be_evacuated) {
+void Basic_Memory_System::enforce_coherence_before_store_into_object_by_interpreter(void* p, int /* nbytes */, Object_p dst_obj_to_be_evacuated) {
   // to avoid deadlock caused by asking other cores to invalidate lines in the middle of interpreter and not being able to gc when another core asks me,
   // just move this object to read-write heap afterwards. Don't do enforce_coherence_before_store stuff.
   assert(contains(p));
@@ -1048,7 +1038,7 @@ void Memory_System::enforce_coherence_before_store_into_object_by_interpreter(vo
 }
 
 
-void Memory_System::pre_cohere(void* start, int nbytes) {
+void Basic_Memory_System::pre_cohere(void* start, int nbytes) {
   if (nbytes == 0)  return;
   if (The_Squeak_Interpreter()->am_receiving_objects_from_snapshot()) return; // will be done at higher level
   // lprintf("pre_cohere start 0x%x %d\n", start, nbytes);
@@ -1063,7 +1053,7 @@ void Memory_System::pre_cohere(void* start, int nbytes) {
 }
 
 
-void Memory_System::post_cohere(void* start, int nbytes) {
+void Basic_Memory_System::post_cohere(void* start, int nbytes) {
   if (nbytes == 0)  return;
   if (The_Squeak_Interpreter()->am_receiving_objects_from_snapshot()) return; // will be done at higher level
   // lprintf(post_cohere start 0x%x %d\n", start, nbytes);
@@ -1073,7 +1063,7 @@ void Memory_System::post_cohere(void* start, int nbytes) {
 }
 
 
-void Memory_System::do_all_oops_including_roots_here(Oop_Closure* oc, bool sync_with_roots)  {
+void Basic_Memory_System::do_all_oops_including_roots_here(Oop_Closure* oc, bool sync_with_roots)  {
   The_Interactions.do_all_roots_here(oc);
   for (int mutability = 0;  mutability < max_num_mutabilities;  ++mutability)
     FOR_ALL_RANKS(r)
@@ -1102,7 +1092,7 @@ void Basic_Memory_System::print() {
 }
 
 
-void Memory_System::print_heaps() {
+void Basic_Memory_System::print_heaps() {
   FOR_ALL_HEAPS(rank,mutability) {
     lprintf("heap %d, %d:\n", rank, mutability);
     heaps[rank][mutability]->print(stdout);
@@ -1111,7 +1101,7 @@ void Memory_System::print_heaps() {
 
 
 # define DEF_SEC(T) \
-void Memory_System::store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_evacuated_or_null) { \
+void Basic_Memory_System::store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_evacuated_or_null) { \
   if (sizeof(T) == bytes_per_oop) { DEBUG_STORE_CHECK((oop_int_t*)(p), (oop_int_t)(x)); } \
   assert(contains(p)); \
   if (is_address_read_write(p)) { *p = x; return; } \
@@ -1128,7 +1118,7 @@ void Memory_System::store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_
 FOR_ALL_STORE_ENFORCING_COHERENCE_FUNCTIONS(DEF_SEC)
 
 
-void Memory_System::store_bytes_enforcing_coherence(void* dst, const void* src, int nbytes,   Object_p dst_obj_to_be_evacuated_or_null) {
+void Basic_Memory_System::store_bytes_enforcing_coherence(void* dst, const void* src, int nbytes,   Object_p dst_obj_to_be_evacuated_or_null) {
   assert(contains(dst));
   
   DEBUG_MULTIMOVE_CHECK(dst, src, nbytes / bytes_per_oop);
@@ -1146,7 +1136,7 @@ void Memory_System::store_bytes_enforcing_coherence(void* dst, const void* src, 
 }
 
 
-void Memory_System::store_2_enforcing_coherence(int32* p1, int32 i1, int32 i2,  Object_p dst_obj_to_be_evacuated_or_null) {
+void Basic_Memory_System::store_2_enforcing_coherence(int32* p1, int32 i1, int32 i2,  Object_p dst_obj_to_be_evacuated_or_null) {
   assert(contains(p1));
   DEBUG_STORE_CHECK(p1, i1);
   DEBUG_STORE_CHECK(&p1[1], i2);
@@ -1163,17 +1153,17 @@ void Memory_System::store_2_enforcing_coherence(int32* p1, int32 i1, int32 i2,  
     The_Squeak_Interpreter()->remember_to_move_mutated_read_mostly_object(dst_obj_to_be_evacuated_or_null->as_oop());
 }
 
-int Memory_System::assign_rank_for_snapshot_object() {
+int Basic_Memory_System::assign_rank_for_snapshot_object() {
   return round_robin_rank();
 }
 
 
-char  Memory_System::mmap_filename[BUFSIZ] = { 0 };
+char  Basic_Memory_System::mmap_filename[BUFSIZ] = { 0 };
 
 
 # if On_iOS
 
-char* Memory_System::map_heap_memory(size_t total_size,
+char* Basic_Memory_System::map_heap_memory(size_t total_size,
                                      size_t bytes_to_map,
                                      void*  where,
                                      off_t  offset,
@@ -1186,7 +1176,7 @@ char* Memory_System::map_heap_memory(size_t total_size,
 
 # else
 
-char* Memory_System::map_heap_memory(size_t total_size,
+char* Basic_Memory_System::map_heap_memory(size_t total_size,
                                      size_t bytes_to_map,
                                      void*  where,
                                      off_t  offset,

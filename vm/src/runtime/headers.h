@@ -230,7 +230,7 @@
 # include "abstract_object_heap.inline.h"
 # include "multicore_object_heap.inline.h"
 # include "multicore_object_table.inline.h"
-# include "memory_system.inline.h"
+# include "basic_memory_system.inline.h"
 
 # include "debug_helper.h"
 

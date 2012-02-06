@@ -83,6 +83,12 @@ public:
             : read_mostly;
   }
 
+  static inline int mutability_for_posibile_replication(Object* obj) {
+    return !obj->is_suitable_for_replication()
+                    ? read_write
+                    : read_mostly;
+  }
+
 
   int rank_for_address(void* p) const {
     bool is_rw = is_address_read_write(p);
@@ -149,6 +155,9 @@ public:
   }
   
   bool moveAllToRead_MostlyHeaps();
+  
+  void initialize_helper();
+  void initialize_main(void* buffer);
   
 private:
   struct init_buf {
