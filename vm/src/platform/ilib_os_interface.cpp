@@ -18,7 +18,7 @@
 
 static ILib_OS_Interface::OS_Heap us_heap;
 static bool created = false;
-static const char* ILib_OS_Interface::hugepages_control_file = "/proc/sys/vm/nr_hugepages";
+const char* ILib_OS_Interface::hugepages_control_file = "/proc/sys/vm/nr_hugepages";
 
 void* ILib_OS_Interface::malloc_in_mem(int alignment, int size) {
   if (alignment == 0)
