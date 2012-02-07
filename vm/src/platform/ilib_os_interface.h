@@ -186,7 +186,7 @@ public:
   }
   
 private:
-  static const char* hugepages_control_file = "/proc/sys/vm/nr_hugepages";
+  static const char* hugepages_control_file;
   
   static int how_many_huge_pages() {
     FILE* hpf = fopen(hugepages_control_file, "r");
