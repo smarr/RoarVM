@@ -120,6 +120,7 @@
 		0A97FB3F128FEAF2003A1C74 /* synced_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A27845D128DBF7300336BDE /* synced_queue.cpp */; };
 		0A97FB40128FEAF7003A1C74 /* buffered_channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278458128DBF7300336BDE /* buffered_channel.cpp */; };
 		0A97FBB512900371003A1C74 /* tracked_ptr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A97FBB412900371003A1C74 /* tracked_ptr.cpp */; };
+		0AB1980A14E1C9150045EACB /* memory_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB1980914E1C9150045EACB /* memory_system.cpp */; };
 		0ACF551912E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */; };
 		0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
@@ -177,7 +178,7 @@
 		0A27844C128DBF7300336BDE /* mark_sweep_collector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mark_sweep_collector.h; sourceTree = "<group>"; };
 		0A27844D128DBF7300336BDE /* basic_memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = basic_memory_system.cpp; sourceTree = "<group>"; };
 		0A27844E128DBF7300336BDE /* basic_memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basic_memory_system.h; sourceTree = "<group>"; };
-		0A27844F128DBF7300336BDE /* memory_system.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; path = memory_system.inline.h; sourceTree = "<group>"; };
+		0A27844F128DBF7300336BDE /* memory_system.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memory_system.inline.h; sourceTree = "<group>"; };
 		0A278450128DBF7300336BDE /* multicore_object_heap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = multicore_object_heap.cpp; sourceTree = "<group>"; };
 		0A278451128DBF7300336BDE /* multicore_object_heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multicore_object_heap.h; sourceTree = "<group>"; };
 		0A278452128DBF7300336BDE /* multicore_object_heap.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multicore_object_heap.inline.h; sourceTree = "<group>"; };
@@ -400,6 +401,7 @@
 		0A97FBB412900371003A1C74 /* tracked_ptr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracked_ptr.cpp; sourceTree = "<group>"; };
 		0A97FEE412909C92003A1C74 /* test_os_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_os_interface.h; sourceTree = "<group>"; };
 		0A97FEF112909D58003A1C74 /* tracked_ptr_registry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracked_ptr_registry.h; sourceTree = "<group>"; };
+		0AB1980914E1C9150045EACB /* memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memory_system.cpp; sourceTree = "<group>"; };
 		0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shared_memory_message_queue_per_sender.cpp; sourceTree = "<group>"; };
 		0ACF551812E07E7F0010386A /* shared_memory_message_queue_per_sender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shared_memory_message_queue_per_sender.h; sourceTree = "<group>"; };
 		0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cacheline_alignment.cpp; sourceTree = "<group>"; };
@@ -1044,6 +1046,7 @@
 				0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */,
 				0A6A4832135ADF0A00933643 /* os_interface.cpp */,
 				0A6A4835135AE32D00933643 /* external_primitive_table.cpp */,
+				0AB1980914E1C9150045EACB /* memory_system.cpp */,
 			);
 			name = tests;
 			path = src/tests;
@@ -1331,6 +1334,7 @@
 				0A4D8256135C523B00CD74D8 /* sqUnixExternalPrims.c in Sources */,
 				0A4D8258135C523B00CD74D8 /* sqUnixMain.c in Sources */,
 				0A4D825B135C526100CD74D8 /* sqUnixX11.c in Sources */,
+				0AB1980A14E1C9150045EACB /* memory_system.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

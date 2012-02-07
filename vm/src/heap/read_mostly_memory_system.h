@@ -221,6 +221,9 @@ public:
   void create_my_heaps(init_buf*);
   void init_values_from_buffer(init_buf*);
   void map_memory_on_helper(init_buf* ib);
+  
+  static int calculate_bytes_per_read_mostly_heap();  
+  static int calculate_total_read_mostly_pages(int page_size);
 
 private:
   void initialize_main(init_buf*);

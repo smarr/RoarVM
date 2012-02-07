@@ -32,7 +32,7 @@ void Read_Mostly_Memory_System::enforce_coherence_after_each_core_has_stored_int
 void Read_Mostly_Memory_System::set_page_size_used_in_heap() {
   if (use_huge_pages) {
     int   co_pages = calculate_pages_for_segmented_heap(huge_page_size);
-    int inco_pages = calculate_pages_for_segmented_heap(huge_page_size);
+    int inco_pages = calculate_total_read_mostly_pages (huge_page_size);
     if (!OS_Interface::ask_for_huge_pages(co_pages + inco_pages))
       use_huge_pages = false;
   }
@@ -59,11 +59,22 @@ void Read_Mostly_Memory_System::initialize_main(init_buf* ib) {
   ((Memory_System*)this)->initialize_main_from_buffer((void*)ib, sizeof(*ib));
 }
 
+int Read_Mostly_Memory_System::calculate_bytes_per_read_mostly_heap() {
+  int min_bytes_per_core = divide_and_round_up(min_heap_MB * Mega,  Logical_Core::group_size);
+  return round_up_to_power_of_two(min_bytes_per_core);
+}
+
+
+int Read_Mostly_Memory_System::calculate_total_read_mostly_pages(int page_size) {
+  return divide_and_round_up(calculate_bytes_per_read_mostly_heap() * Logical_Core::group_size, page_size);
+}
+
+
 void Read_Mostly_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, int32 fsf, int32 lastHash) {
   set_page_size_used_in_heap();
   
-  int rw_pages = calculate_pages_for_segmented_heap (page_size_used_in_heap);
-  int rm_pages = calculate_pages_for_segmented_heap(page_size_used_in_heap);
+  int rw_pages = calculate_pages_for_segmented_heap(page_size_used_in_heap);
+  int rm_pages = calculate_total_read_mostly_pages (page_size_used_in_heap);
   // lprintf("rw_pages %d, rm_pages %d\n", rw_pages, rm_pages);
   
   
@@ -79,7 +90,7 @@ void Read_Mostly_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, i
   map_read_write_and_read_mostly_memory(getpid(), total_read_write_memory_size, total_read_mostly_memory_size);
   
   memory_per_read_write_heap  = total_read_write_memory_size   / Logical_Core::group_size;
-  memory_per_read_mostly_heap = total_read_mostly_memory_size  / Logical_Core::group_size;
+  memory_per_read_mostly_heap = calculate_bytes_per_read_mostly_heap();
   
   assert(memory_per_read_write_heap                             <=  total_read_write_memory_size);
   assert(memory_per_read_write_heap * Logical_Core::group_size  <=  total_read_write_memory_size);

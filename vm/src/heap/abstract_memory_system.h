@@ -97,9 +97,6 @@ protected:
   
   static int round_robin_period;
   
-  
-  int calculate_pages_for_segmented_heap(int page_size);
-  
   void swapOTEs(Oop* o1, Oop* o2, int len);
 
   
@@ -114,6 +111,7 @@ public:
   
   static void set_round_robin_period(int x) { round_robin_period = x; }
 
+  static int calculate_pages_for_segmented_heap(int page_size);
     
 };
 
