@@ -71,7 +71,7 @@ public:
     int32 page_size;
     int32 main_pid;
     Multicore_Object_Table* object_table;
-    struct global_GC_values* global_GC_values;
+    struct Global_GC_Values* global_GC_values;
   };
 
 

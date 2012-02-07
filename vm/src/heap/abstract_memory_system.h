@@ -84,14 +84,14 @@ protected:
   char * read_write_memory_base,   * read_write_memory_past_end;
   
   
-  struct global_GC_values {
+  struct Global_GC_Values {
     int32 growHeadroom;
     int32 shrinkThreshold;
     u_int32 gcCount, gcMilliseconds;
     u_int64 gcCycles;
     u_int32 mutator_start_time, last_gc_ms, inter_gc_ms;
   };
-  struct global_GC_values* global_GC_values;
+  struct Global_GC_Values* global_GC_values;
   
   size_t page_size_used_in_heap;
   

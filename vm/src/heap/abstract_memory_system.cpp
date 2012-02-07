@@ -26,7 +26,7 @@ size_t   Abstract_Memory_System::min_heap_MB =  On_iOS ? 32 : On_Tilera ? 256 : 
 Abstract_Memory_System::Abstract_Memory_System() {
   image_name = new char[1]; *image_name = '\0';
   
-  global_GC_values = (struct global_GC_values*)Memory_Semantics::shared_malloc(sizeof(struct global_GC_values));
+  global_GC_values = (struct Global_GC_Values*)Memory_Semantics::shared_malloc(sizeof(struct Global_GC_Values));
   global_GC_values->growHeadroom = 4 * Mega;
   global_GC_values->shrinkThreshold = 8 * Mega;
   global_GC_values->gcCycles = 0;
