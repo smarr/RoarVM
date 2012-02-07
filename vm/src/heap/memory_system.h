@@ -14,15 +14,16 @@
 
 # if Use_ReadMostly_Heap
   typedef Read_Mostly_Memory_System Base_Memory_System;
-  /* We define the number of partions here to avoid cyclic dependencies.
-     For the read-mostly heap, it is used for the different mutabilities. */
-  # define Memory_System_Partitions 2
 # else
-  typedef Basic_Memory_System Base_Memory_System;
-  /* Defined here to avoid cyclic dependencies. */
-  # define Memory_System_Partitions 1
+  typedef Basic_Memory_System       Base_Memory_System;
 # endif
 
+/**
+ * The Memory_System is the configured instance that is used in the VM.
+ * The typedef above changes the base class according to the configuration.
+ * The class itself contains all code shared between the currently two
+ * different options (with and without read-mostly heap).
+ */
 class Memory_System : public Base_Memory_System {
 public:
 

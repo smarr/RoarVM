@@ -12,6 +12,11 @@
  ******************************************************************************/
 
 
+/**
+ * Represents the most common aspects of the memory system.
+ * This includes the object table, a few related operations, the image related
+ * code, and statistics on the GC.
+ */
 class Abstract_Memory_System {
 protected:
   static const size_t normal_page_size =       PAGE_SIZE;
