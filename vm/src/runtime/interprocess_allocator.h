@@ -26,6 +26,8 @@
 /**
  * The Interprocess_Allocator is used to manage memory in a memory region
  * that can be shared between multiple process.
+ * 
+ * The free list is a simple circular doubly-linked list in the style of Ungar.
  */
 class Interprocess_Allocator {
 private:
@@ -94,7 +96,8 @@ public:
    
 private:
   Item* volatile free_list;
-
+  Item  free_item; /* The terminator element in the circular free list */
+  
   OS_Interface::Mutex mtx;
 
 public:
@@ -164,8 +167,6 @@ public:
     
     size_t additional_free_size = freed_item->get_size();
     
-    freed_item->prev = NULL;
-    
     Item* following_item = freed_item->next_in_memory();
     
     if (((uintptr_t)following_item < (uintptr_t)allocation_area + size)
@@ -175,10 +176,11 @@ public:
     else {
       /* just put it infront of the free list */
       freed_item->next = free_list;
+      freed_item->prev = free_list->prev;
       
-      if (free_list) {
-        free_list->prev = freed_item;
-      }
+      free_list->prev->next = freed_item;
+      free_list->prev = freed_item;
+
       
       free_list = freed_item;
     }
@@ -206,19 +208,13 @@ private:
     following_item->prev = NULL;
     following_item->set_size(0);
     
-    if (prev_item_in_list) {
-      prev_item_in_list->next = freed_item;
-    }      
-    else {
-      assert_eq(following_item, free_list,
-                "In case there is no previous item, "
-                "we should be at the head of the free list.");
+    prev_item_in_list->next = freed_item;
+    
+    if (following_item == free_list) {
       free_list = freed_item;
     }
     
-    if (freed_item->next) {
-      freed_item->next->prev = freed_item;
-    }
+    freed_item->next->prev = freed_item;
   }
 
 /** For Debugging */
@@ -267,8 +263,9 @@ public:
   size_t check_consistency_of_free_list_and_get_size() {
     size_t free_size = 0;
     Item* current = free_list;
-    Item* prev = NULL;
-    while (current) {
+    Item* prev = &free_item;
+    
+    while (current != &free_item) {
       assert(current->is_actually_free_item());
       assert(current->prev == prev); /* back point works */
       free_size += current->get_size();
@@ -312,48 +309,46 @@ private:
   void initalize_allocator() {
     OS_Interface::mutex_init_for_cross_process_use(&mtx);
     
+    free_item.set_size(0);
+    free_item.become_free();
+    
     free_list = (Item*)allocation_area;
     free_list->set_size(size);
     free_list->become_free();
-    free_list->next = NULL;
-    free_list->prev = NULL;
+
+    free_list->next = &free_item;
+    free_list->prev = &free_item;
+    
+    free_item.next = free_list;
+    free_item.prev = free_list;
   }
   
   void* allocate_chunk(size_t managed_and_padded_size, size_t& allocated_size) {
-    Item* result = NULL;
     assert(free_area >= managed_and_padded_size);  // should have been checked already
     
     Item* current = free_list;
     
     // first fit: find the first free spot that is big enough
-    while (current != NULL && current->get_size() < managed_and_padded_size) {
+    while (current != &free_item && current->get_size() < managed_and_padded_size) {
       current = current->next;
     }
     
     // Looks like the heap is to fragmented
-    if (current == NULL)
+    if (current->get_size() < managed_and_padded_size)
       return NULL;
     
     assert(current->get_size() >= managed_and_padded_size);
-    result = current;
+    Item* result = current;
     
     // now two possible cases, either the found free_item is a perfect fit, or we split it up
     if (managed_and_padded_size + (2 * sizeof(Item)) >= current->get_size()) {
       // the current chunk is perfect, almost perfect
       // now just use it
       if (free_list == current) {
-        // at the head of the list, not much to do
         free_list = current->next;
-        if (free_list)
-          free_list->prev = NULL;
       }
-      else {
-        // otherwise, we take the element out and relink the free list
-        assert(current->prev);
-        current->prev->next = current->next;
-        if (current->next)
-          current->next->prev = current->prev;
-      }
+      current->prev->next = current->next;
+      current->next->prev = current->prev;
     }
     else {
       // the current chunk is large enough to split it before using
@@ -373,16 +368,11 @@ private:
       remaining_chunk->next = next;
       
       if (free_list == current) {
-        assert(prev == NULL);
         free_list = remaining_chunk;
       }
-      else {
-        prev->next = remaining_chunk;
-      }
       
-      if (next) {
-        next->prev = remaining_chunk;
-      }
+      prev->next = remaining_chunk;
+      next->prev = remaining_chunk;
     }
     
     assert_eq(current->get_size(), result->get_size(),
