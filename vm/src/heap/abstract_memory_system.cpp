@@ -14,6 +14,8 @@
 
 # include "headers.h"
 
+# define THIS ((Memory_System*)this)
+
 bool     Abstract_Memory_System::use_huge_pages = On_Tilera;
 bool     Abstract_Memory_System::replicate_methods = false; // if true methods are put on read-mostly heap
 bool     Abstract_Memory_System::replicate_all = true; // if true, all (non-contexts) are allowed in read-mostly heap
@@ -68,4 +70,23 @@ int Abstract_Memory_System::round_robin_rank() {
 int Abstract_Memory_System::assign_rank_for_snapshot_object() {
   return round_robin_rank();
 }
+
+
+void Abstract_Memory_System::swapOTEs(Oop* o1, Oop* o2, int len) {
+  for (int i = 0;  i < len;  ++i) {
+    Object_p obj1 = o1[i].as_object();
+    Object_p obj2 = o2[i].as_object();
+    
+    obj2->set_object_address_and_backpointer(o1[i]  COMMA_TRUE_OR_NOTHING);
+    obj1->set_object_address_and_backpointer(o2[i]  COMMA_TRUE_OR_NOTHING);
+  }
+}
+
+void Abstract_Memory_System::writeImageFile(char* image_name) {
+  THIS->writeImageFileIO(image_name);
+  fn_t setMacType = The_Interactions.load_function_from_plugin(Logical_Core::main_rank, "setMacFileTypeAndCreator", "FilePlugin");
+  if (setMacType != NULL)  (*setMacType)(The_Memory_System()->imageName(), "STim", "FAST");
+}
+
+
 
