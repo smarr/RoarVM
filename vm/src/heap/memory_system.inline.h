@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-inline void Basic_Memory_System::putLong(int32 x, FILE* f) {
+inline void Abstract_Memory_System::putLong(int32 x, FILE* f) {
   if (The_Squeak_Interpreter()->successFlag) {
     if (fwrite(&x, sizeof(x), 1, f) != 1) {
       perror("write: ");
@@ -22,9 +22,14 @@ inline void Basic_Memory_System::putLong(int32 x, FILE* f) {
 }
 
 
-inline Object* Basic_Memory_System::allocate_chunk_on_this_core_for_object_in_snapshot(Multicore_Object_Heap* h, Object* src_obj_wo_preheader) {
+inline Object* Memory_System::allocate_chunk_on_this_core_for_object_in_snapshot(Multicore_Object_Heap* h, Object* src_obj_wo_preheader) {
   Chunk* c = h->allocateChunk(src_obj_wo_preheader->total_byte_size());
   Object* obj = (Object*)&((char*)c)[src_obj_wo_preheader->extra_header_bytes()];
   return obj;
 }
 
+inline int Read_Mostly_Memory_System::mutability_for_oop(Oop* oop) {
+  return oop->is_int()
+  ? read_mostly
+  : The_Memory_System()->mutability_for_address(oop->as_object());
+}

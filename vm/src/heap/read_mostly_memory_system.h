@@ -56,9 +56,19 @@
  * A temporary file is used to ensure that all cores are working on the same
  * memory.
  */
-class Read_Mostly_Memory_System : public Basic_Memory_System {
+class Read_Mostly_Memory_System : public Abstract_Memory_System {
+protected:
+  static const int max_num_mutabilities = 2;
+  static const int read_mostly = 0;
+  static const int read_write  = 1;
+
+  int second_chance_cores_for_allocation[max_num_mutabilities];  // made threadsafe to increase the reliability of the value
+
+public:
+  Multicore_Object_Heap* heaps[Max_Number_Of_Cores][max_num_mutabilities];
+
 private:
-  static const int read_mostly = 1;
+
   
   char * read_mostly_memory_base,  * read_mostly_memory_past_end;
   
@@ -69,7 +79,9 @@ private:
   
   static u_int32 memory_per_read_mostly_heap; // threadsafe readonly, will always be power of two
   static u_int32 log_memory_per_read_mostly_heap; // threadsafe readonly
+  
 
+protected:
 
   Multicore_Object_Heap* local_heap_for_snapshot_object(Object* src_obj_wo_preheader) {
     // Used to be is_suitable_for_replication() before multithreading, but now
@@ -84,17 +96,20 @@ private:
       return heaps[Logical_Core::my_rank()][read_write];
   }
 
-  int calculate_total_read_mostly_pages(int);
-  int calculate_bytes_per_read_mostly_heap(int);
   void set_page_size_used_in_heap();
   
   void map_heap_memory_in_one_request(int pid, size_t grand_total,
                                       size_t inco_size, size_t co_size);
-  
+protected:
   void receive_heap(int i);
   void send_local_heap();
 
 public:
+  Read_Mostly_Memory_System() : Abstract_Memory_System() {
+    for (int rank = 0;  rank < Max_Number_Of_Cores;  ++rank)
+      for (int mutability = 0;  mutability < max_num_mutabilities;  ++mutability)
+        heaps[rank][mutability] = NULL;
+  }
   
   char* get_memory_base() const {
     return read_mostly_memory_base;
@@ -108,11 +123,7 @@ public:
     return is_address_read_write(p) ? read_write : read_mostly;
   }
   
-  inline static int mutability_for_oop(Oop* oop) {
-    return oop->is_int()
-            ? read_mostly
-            : The_Memory_System()->mutability_for_address(oop->as_object());
-  }
+  inline static int mutability_for_oop(Oop* oop);
   
   static inline bool mutability_from_bool(bool value) {
     return value
@@ -126,6 +137,13 @@ public:
                     : read_mostly;
   }
 
+  inline Multicore_Object_Heap* get_heap(int rank) const {
+    return heaps[rank][read_write];
+  }
+  
+  Multicore_Object_Heap* heap_containing(void* obj) {
+    return heaps[rank_for_address(obj)][mutability_for_address(obj)];
+  }
 
   int rank_for_address(void* p) const {
     bool is_rw = is_address_read_write(p);
@@ -147,14 +165,13 @@ public:
     return !is_address_read_mostly(p);
   }
 
-  
   void verify_local() {
     heaps[Logical_Core::my_rank()][read_mostly]->verify();
-    Basic_Memory_System::verify();
+    heaps[Logical_Core::my_rank()][read_write ]->verify();
   }
   
   void zap_unused_portion() {
-    Basic_Memory_System::zap_unused_portion();
+    heaps[Logical_Core::my_rank()][read_write ]->zap_unused_portion();
     heaps[Logical_Core::my_rank()][read_mostly]->zap_unused_portion();
   }
   
@@ -188,7 +205,7 @@ public:
       if (mine_too  ||  i != Logical_Core::my_rank())
         heaps[i][read_mostly]->invalidate_whole_heap();
 
-    Basic_Memory_System::invalidate_heaps_and_fence(mine_too);
+    OS_Interface::mem_fence();
   }
   
   bool moveAllToRead_MostlyHeaps();
@@ -207,6 +224,7 @@ public:
 
 private:
   void initialize_main(init_buf*);
-  
+
+protected:
   void push_heap_stats();
 };

@@ -101,6 +101,8 @@
 		0A4D825A135C526100CD74D8 /* sqUnixX11.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8259135C526100CD74D8 /* sqUnixX11.c */; };
 		0A4D825B135C526100CD74D8 /* sqUnixX11.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D8259135C526100CD74D8 /* sqUnixX11.c */; };
 		0A4D825D135C526F00CD74D8 /* sqUnixSoundMacOSX.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */; };
+		0A567E6F14E09C01008CE266 /* abstract_memory_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A567E6E14E09C01008CE266 /* abstract_memory_system.cpp */; };
+		0A567E7314E12F37008CE266 /* memory_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A567E7214E12F37008CE266 /* memory_system.cpp */; };
 		0A5D7C99135CC84700D13E53 /* sqUnixSound.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7C98135CC84700D13E53 /* sqUnixSound.c */; };
 		0A5D7C9C135CC86800D13E53 /* sqUnixSocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7C9B135CC86800D13E53 /* sqUnixSocket.c */; };
 		0A6A4834135ADF0A00933643 /* os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A6A4832135ADF0A00933643 /* os_interface.cpp */; };
@@ -174,8 +176,8 @@
 		0A27844B128DBF7300336BDE /* indirect_oop_mark_sweep_collector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = indirect_oop_mark_sweep_collector.h; sourceTree = "<group>"; };
 		0A27844C128DBF7300336BDE /* mark_sweep_collector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mark_sweep_collector.h; sourceTree = "<group>"; };
 		0A27844D128DBF7300336BDE /* basic_memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = basic_memory_system.cpp; sourceTree = "<group>"; };
-		0A27844E128DBF7300336BDE /* basic_memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; path = basic_memory_system.h; sourceTree = "<group>"; };
-		0A27844F128DBF7300336BDE /* basic_memory_system.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; path = basic_memory_system.inline.h; sourceTree = "<group>"; };
+		0A27844E128DBF7300336BDE /* basic_memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basic_memory_system.h; sourceTree = "<group>"; };
+		0A27844F128DBF7300336BDE /* memory_system.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; path = memory_system.inline.h; sourceTree = "<group>"; };
 		0A278450128DBF7300336BDE /* multicore_object_heap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = multicore_object_heap.cpp; sourceTree = "<group>"; };
 		0A278451128DBF7300336BDE /* multicore_object_heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multicore_object_heap.h; sourceTree = "<group>"; };
 		0A278452128DBF7300336BDE /* multicore_object_heap.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multicore_object_heap.inline.h; sourceTree = "<group>"; };
@@ -371,6 +373,9 @@
 		0A4D8259135C526100CD74D8 /* sqUnixX11.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixX11.c; sourceTree = "<group>"; };
 		0A4D825C135C526F00CD74D8 /* sqUnixSoundMacOSX.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixSoundMacOSX.c; sourceTree = "<group>"; };
 		0A5124F61372077B001008AC /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = config.h; path = iOS/vm/iPhone/config.h; sourceTree = "<group>"; };
+		0A567E6E14E09C01008CE266 /* abstract_memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = abstract_memory_system.cpp; sourceTree = "<group>"; };
+		0A567E7114E09C16008CE266 /* abstract_memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abstract_memory_system.h; sourceTree = "<group>"; };
+		0A567E7214E12F37008CE266 /* memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memory_system.cpp; sourceTree = "<group>"; };
 		0A5D7C87135C905800D13E53 /* sq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sq.h; sourceTree = "<group>"; };
 		0A5D7C88135C90BC00D13E53 /* sqMemoryAccess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqMemoryAccess.h; sourceTree = "<group>"; };
 		0A5D7C94135CA28500D13E53 /* rvm_squeak_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rvm_squeak_config.h; sourceTree = "<group>"; };
@@ -388,7 +393,7 @@
 		0A8C91C612DE62B6007DBAD9 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		0A927EB314DC97CE00FB8591 /* read_mostly_memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = read_mostly_memory_system.cpp; sourceTree = "<group>"; };
 		0A927EB614DC97E300FB8591 /* read_mostly_memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = read_mostly_memory_system.h; sourceTree = "<group>"; };
-		0A927EB714DC9A3E00FB8591 /* memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; path = memory_system.h; sourceTree = "<group>"; };
+		0A927EB714DC9A3E00FB8591 /* memory_system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memory_system.h; sourceTree = "<group>"; };
 		0A97FB26128FE95A003A1C74 /* UnitTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnitTests; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A97FB2D128FE9B1003A1C74 /* gtest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = gtest.framework; path = googletest/xcode/build/Debug/gtest.framework; sourceTree = "<group>"; };
 		0A97FBAE12900336003A1C74 /* tracked_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracked_ptr.h; sourceTree = "<group>"; };
@@ -734,7 +739,7 @@
 				0A27844C128DBF7300336BDE /* mark_sweep_collector.h */,
 				0A27844D128DBF7300336BDE /* basic_memory_system.cpp */,
 				0A27844E128DBF7300336BDE /* basic_memory_system.h */,
-				0A27844F128DBF7300336BDE /* basic_memory_system.inline.h */,
+				0A27844F128DBF7300336BDE /* memory_system.inline.h */,
 				0A278450128DBF7300336BDE /* multicore_object_heap.cpp */,
 				0A278451128DBF7300336BDE /* multicore_object_heap.h */,
 				0A278452128DBF7300336BDE /* multicore_object_heap.inline.h */,
@@ -745,6 +750,9 @@
 				0A927EB314DC97CE00FB8591 /* read_mostly_memory_system.cpp */,
 				0A927EB614DC97E300FB8591 /* read_mostly_memory_system.h */,
 				0A927EB714DC9A3E00FB8591 /* memory_system.h */,
+				0A567E7214E12F37008CE266 /* memory_system.cpp */,
+				0A567E6E14E09C01008CE266 /* abstract_memory_system.cpp */,
+				0A567E7114E09C16008CE266 /* abstract_memory_system.h */,
 			);
 			name = heap;
 			path = src/heap;
@@ -1297,6 +1305,8 @@
 				0A87AD8A1379573F00337878 /* performance_counters.cpp in Sources */,
 				0A72A76514432D7C0008E8AC /* tmc_os_interface.cpp in Sources */,
 				0A927EB414DC97CE00FB8591 /* read_mostly_memory_system.cpp in Sources */,
+				0A567E6F14E09C01008CE266 /* abstract_memory_system.cpp in Sources */,
+				0A567E7314E12F37008CE266 /* memory_system.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

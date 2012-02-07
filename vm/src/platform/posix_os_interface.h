@@ -195,7 +195,16 @@ private:
   static pthread_key_t rank_key;
   static pthread_t     threads[Max_Number_Of_Cores];
   static void create_threads(const size_t num_of_threads, void (*helper_core_main)());
+
   
+public:
+  
+  static bool ask_for_huge_pages(int desired_huge_pages) {
+    if ((On_Apple | On_Intel_Linux) || desired_huge_pages == 0)
+      return true;
+    return false;
+  }
+
 };
 
 # endif // !On_Tilera

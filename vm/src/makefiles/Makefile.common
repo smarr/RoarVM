@@ -449,6 +449,8 @@ OBJS = \
   LargeIntegers.opt \
   Matrix2x3Plugin.opt \
   measurements.opt \
+  memory_system.opt \
+  abstract_memory_system.opt \
   basic_memory_system.opt \
   read_mostly_memory_system.opt \
   method_cache.opt \

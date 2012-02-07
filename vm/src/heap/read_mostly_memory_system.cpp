@@ -14,6 +14,8 @@
 
 # include "headers.h"
 
+# define THIS ((Memory_System*)this)
+
 u_int32  Read_Mostly_Memory_System::memory_per_read_mostly_heap = 0;
 u_int32  Read_Mostly_Memory_System::log_memory_per_read_mostly_heap = 0;
 
@@ -27,21 +29,11 @@ void Read_Mostly_Memory_System::enforce_coherence_after_each_core_has_stored_int
   heaps[Logical_Core::my_rank()][read_mostly]->enforce_coherence_in_whole_heap_after_store();
 }
 
-int Read_Mostly_Memory_System::calculate_total_read_mostly_pages(int page_size) {
-  return divide_and_round_up(calculate_bytes_per_read_mostly_heap(page_size) * Logical_Core::group_size, page_size);
-}
-
-
-int Read_Mostly_Memory_System::calculate_bytes_per_read_mostly_heap(int /* page_size */) {
-  int min_bytes_per_core = divide_and_round_up(min_heap_MB * Mega,  Logical_Core::group_size);
-  return round_up_to_power_of_two(min_bytes_per_core);
-}
-
 void Read_Mostly_Memory_System::set_page_size_used_in_heap() {
   if (use_huge_pages) {
-    int   co_pages = calculate_total_read_write_pages(huge_page_size);
-    int inco_pages = calculate_total_read_mostly_pages(huge_page_size);
-    if (!ask_Linux_for_huge_pages(co_pages + inco_pages))
+    int   co_pages = calculate_pages_for_segmented_heap(huge_page_size);
+    int inco_pages = calculate_pages_for_segmented_heap(huge_page_size);
+    if (!OS_Interface::ask_for_huge_pages(co_pages + inco_pages))
       use_huge_pages = false;
   }
   lprintf("Using %s pages.\n", use_huge_pages ? "huge" : "normal");
@@ -56,18 +48,22 @@ void Read_Mostly_Memory_System::receive_heap(int i) {
       (Multicore_Object_Heap**)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
   heaps[i][read_mostly] = *heaps_buf;
   sender->message_queue.release_oldest_buffer(heaps_buf);
-  Basic_Memory_System::receive_heap(i);
+
+  heaps_buf =
+      (Multicore_Object_Heap**)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
+  heaps[i][read_write ] = *heaps_buf;
+  sender->message_queue.release_oldest_buffer(heaps_buf);
 }
 
 void Read_Mostly_Memory_System::initialize_main(init_buf* ib) {
-  initialize_main_from_buffer((void*)ib, sizeof(*ib));
+  ((Memory_System*)this)->initialize_main_from_buffer((void*)ib, sizeof(*ib));
 }
 
 void Read_Mostly_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, int32 fsf, int32 lastHash) {
   set_page_size_used_in_heap();
   
-  int rw_pages = calculate_total_read_write_pages (page_size_used_in_heap);
-  int rm_pages = calculate_total_read_mostly_pages(page_size_used_in_heap);
+  int rw_pages = calculate_pages_for_segmented_heap (page_size_used_in_heap);
+  int rm_pages = calculate_pages_for_segmented_heap(page_size_used_in_heap);
   // lprintf("rw_pages %d, rm_pages %d\n", rw_pages, rm_pages);
   
   
@@ -83,7 +79,7 @@ void Read_Mostly_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, i
   map_read_write_and_read_mostly_memory(getpid(), total_read_write_memory_size, total_read_mostly_memory_size);
   
   memory_per_read_write_heap  = total_read_write_memory_size   / Logical_Core::group_size;
-  memory_per_read_mostly_heap = calculate_bytes_per_read_mostly_heap(page_size_used_in_heap);
+  memory_per_read_mostly_heap = total_read_mostly_memory_size  / Logical_Core::group_size;
   
   assert(memory_per_read_write_heap                             <=  total_read_write_memory_size);
   assert(memory_per_read_write_heap * Logical_Core::group_size  <=  total_read_write_memory_size);
@@ -120,8 +116,8 @@ void Read_Mostly_Memory_System::map_heap_memory_in_one_request(int pid,
                                                    size_t grand_total,
                                                    size_t inco_size,
                                                    size_t co_size) {
-  read_mostly_memory_base = map_heap_memory(grand_total, grand_total,
-                                            NULL, 0, pid, MAP_SHARED);
+  read_mostly_memory_base = OS_Interface::map_heap_memory(grand_total, grand_total,
+                                                          NULL, 0, pid, MAP_SHARED);
   read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
   
   read_write_memory_base      = read_mostly_memory_past_end;
@@ -135,30 +131,30 @@ void Read_Mostly_Memory_System::map_heap_memory_separately(int pid,
                                                size_t inco_size,
                                                size_t co_size) {
   if (OS_mmaps_up) {
-    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size,
-                                                  read_mostly_memory_base,
-                                                  0, pid,
-                                                  MAP_SHARED | MAP_CACHE_INCOHERENT);
+    read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
+                                                                read_mostly_memory_base,
+                                                                0, pid,
+                                                                MAP_SHARED | MAP_CACHE_INCOHERENT);
     read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
     
-    read_write_memory_base      = map_heap_memory(grand_total, co_size,
-                                                  read_mostly_memory_past_end,
-                                                  inco_size, pid,
-                                                  MAP_SHARED);
+    read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
+                                                                read_mostly_memory_past_end,
+                                                                inco_size, pid,
+                                                                MAP_SHARED);
     read_write_memory_past_end  = read_write_memory_base + co_size;
   }
   else {
-    read_write_memory_base      = map_heap_memory(grand_total, co_size,
-                                                  read_write_memory_base,
-                                                  0, pid,
-                                                  MAP_SHARED);
+    read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
+                                                                read_write_memory_base,
+                                                                0, pid,
+                                                                MAP_SHARED);
     read_write_memory_past_end  = read_write_memory_base + co_size;
     
     read_mostly_memory_past_end = read_write_memory_base;
-    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size,
-                                                  read_mostly_memory_past_end - inco_size,
-                                                  co_size, pid,
-                                                  MAP_SHARED | MAP_CACHE_INCOHERENT);
+    read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
+                                                                read_mostly_memory_past_end - inco_size,
+                                                                co_size, pid,
+                                                                MAP_SHARED | MAP_CACHE_INCOHERENT);
   }
 }
 
@@ -178,7 +174,7 @@ void Read_Mostly_Memory_System::map_read_write_and_read_mostly_memory(int pid, s
   assert(read_mostly_memory_past_end <= read_write_memory_base);
   
   if (read_mostly_memory_base >= read_write_memory_past_end) {
-    unlink(mmap_filename);
+    OS_Interface::unlink_heap_file();
     fatal("contains will fail");
   }
 }
@@ -186,7 +182,9 @@ void Read_Mostly_Memory_System::map_read_write_and_read_mostly_memory(int pid, s
 void Read_Mostly_Memory_System::send_local_heap() {
   Logical_Core::main_core()->message_queue.buffered_send_buffer(&heaps[Logical_Core::my_rank()][read_mostly], sizeof(Multicore_Object_Heap*));
   
-  Basic_Memory_System::send_local_heap();
+  Logical_Core::main_core()->message_queue.buffered_send_buffer(&heaps[Logical_Core::my_rank()][read_write ], sizeof(Multicore_Object_Heap*));
+  
+  if (check_many_assertions) lprintf("finished sending my heaps\n");
 }
 
 void Read_Mostly_Memory_System::map_memory_on_helper(init_buf* ib) {
@@ -201,14 +199,32 @@ void Read_Mostly_Memory_System::init_values_from_buffer(init_buf* ib) {
   log_memory_per_read_mostly_heap = ib->log_memory_per_read_mostly_heap;  
   read_mostly_memory_base         = ib->read_mostly_memory_base;
 
-  Basic_Memory_System::init_values_from_buffer(&ib->base_buf);
+  memory_per_read_write_heap      = ib->base_buf.memory_per_read_write_heap;
+  log_memory_per_read_write_heap  = ib->base_buf.log_memory_per_read_write_heap;
+  
+  page_size_used_in_heap = ib->base_buf.page_size;
+  read_write_memory_base = ib->base_buf.read_write_memory_base;
+  
+  object_table = ib->base_buf.object_table;
+  
+  snapshot_window_size.initialize(ib->base_buf.sws, ib->base_buf.fsf);
+  
+  global_GC_values = ib->base_buf.global_GC_values;
 }
 
 void Read_Mostly_Memory_System::create_my_heaps(init_buf* ib) {
   const int my_rank = Logical_Core::my_rank();
-  Basic_Memory_System::create_my_heaps(&ib->base_buf);
   
   Multicore_Object_Heap* h = new Multicore_Object_Heap();
+  h->initialize_multicore(ib->base_buf.lastHash + my_rank,
+                          &read_write_memory_base[memory_per_read_write_heap * my_rank],
+                          memory_per_read_write_heap,
+                          page_size_used_in_heap,
+                          On_Tilera );
+  heaps[my_rank][read_write] = h;
+
+  
+  h = new Multicore_Object_Heap();
   h->initialize_multicore(ib->base_buf.lastHash  +  Logical_Core::group_size + my_rank,
                           &read_mostly_memory_base[memory_per_read_mostly_heap * my_rank],
                           memory_per_read_mostly_heap,
@@ -218,8 +234,7 @@ void Read_Mostly_Memory_System::create_my_heaps(init_buf* ib) {
 }
 
 void Read_Mostly_Memory_System::scan_compact_or_make_free_objects_here(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null) {
-  Basic_Memory_System::scan_compact_or_make_free_objects_here(compacting, gc_or_null);
-  
+  heaps[Logical_Core::my_rank()][read_write ]->scan_compact_or_make_free_objects(compacting, gc_or_null);
   heaps[Logical_Core::my_rank()][read_mostly]->scan_compact_or_make_free_objects(compacting, gc_or_null);
 }
 
@@ -232,7 +247,20 @@ void Read_Mostly_Memory_System::print() {
           read_mostly_memory_base, read_mostly_memory_past_end,
           second_chance_cores_for_allocation[read_mostly]);
 
-  Basic_Memory_System::print();
+  lprintf("Memory_System:\n");
+  lprintf("use_huge_pages: %d, min_heap_MB %d, replicate_methods %d, replicate_all %d, memory_per_read_write_heap 0x%x, log_memory_per_read_write_heap %d,\n"
+          "read_write_memory_base 0x%x, read_write_memory_past_end 0x%x, "
+          "page_size_used_in_heap %d, round_robin_period %d, second_chance_cores_for_allocation[read_write] %d,\n"
+          "gcCount %d, gcMilliseconds %d, gcCycles %lld\n",
+          use_huge_pages, min_heap_MB, replicate_methods, replicate_all, memory_per_read_write_heap, log_memory_per_read_write_heap,
+          read_write_memory_base, read_write_memory_past_end,
+          page_size_used_in_heap, round_robin_period, 
+          second_chance_cores_for_allocation[read_write], 
+          global_GC_values->gcCount, global_GC_values->gcMilliseconds, global_GC_values->gcCycles);
+  if ( object_table != NULL )
+    object_table->print();
+  
+  THIS->print_heaps();
 }
 
 bool Read_Mostly_Memory_System::moveAllToRead_MostlyHeaps() {
@@ -241,7 +269,7 @@ bool Read_Mostly_Memory_System::moveAllToRead_MostlyHeaps() {
   
   flushFreeContextsMessage_class().send_to_all_cores();
   
-  fullGC("moveAllToRead_MostlyHeaps");
+  THIS->fullGC("moveAllToRead_MostlyHeaps");
   The_Squeak_Interpreter()->preGCAction_everywhere(false);  // false because caches are oop-based, and we just move objs
   u_int32 old_gcCount = global_GC_values->gcCount; // cannot tolerate GCs, ends gets messed up
   
