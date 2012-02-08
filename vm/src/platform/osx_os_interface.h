@@ -100,6 +100,17 @@ public:
   
 # endif
   
+# if On_iOS
+# warning STEFAN: we might want to reconsider this hack
+  char* map_heap_memory(size_t total_size,
+                        size_t /* bytes_to_map */,
+                        void*  /* where */,      off_t  /* offset */,
+                        int    /* main_pid */,   int    /* flags */) {
+    return (char*)malloc(total_size);
+  }
+# endif
+
+  
 };
 
 # endif // On_Apple

@@ -90,4 +90,20 @@ public:
   
   static inline void yield_or_spin_a_bit() { fatal(); }
   
+  
+protected:
+  static char  mmap_filename[BUFSIZ];
+
+public:  
+  static bool ask_for_huge_pages(int desired_huge_pages) { fatal(); }
+  static char* map_heap_memory(size_t total_size, size_t bytes_to_map,
+                               void* where, off_t offset,
+                               int main_pid, int flags);  
+  static void unlink_heap_file() {
+    if (mmap_filename[0]) {
+      unlink(mmap_filename);
+      mmap_filename[0] = 0;
+    }
+  }
+
 };

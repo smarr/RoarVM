@@ -169,6 +169,48 @@ public:
     for (int i = 0;  i < 50;  i++)  a += i;
   }
 
+public:
+  
+  static bool ask_for_huge_pages(int desired_huge_pages) {
+    if ((On_Apple | On_Intel_Linux) || desired_huge_pages == 0)
+      return true;
+    
+    int initially_available_huge_pages = how_many_huge_pages();
+    if (initially_available_huge_pages >= desired_huge_pages) {
+      lprintf("Linux has enough huges pages: %d >= %d\n", initially_available_huge_pages, desired_huge_pages);
+      return true;
+    }
+    request_huge_pages(desired_huge_pages);
+    int available_huge_pages = how_many_huge_pages();
+    if ( available_huge_pages >= desired_huge_pages ) {
+      lprintf("Started with %d huge pages, needed %d, acquired %d. Will use huge pages.\n",
+              initially_available_huge_pages, desired_huge_pages, available_huge_pages);
+      return true;
+    }
+    lprintf("Unable to procure huge_pages, started with %d, wanted %d, got %d; consider --huge_pages %d when starting tile-monitor. Reverting to normal pages. This will slow things down.\n",
+            initially_available_huge_pages, desired_huge_pages, available_huge_pages, desired_huge_pages);
+    return false;
+  }
+  
+private:
+  static const char* hugepages_control_file;
+  
+  static int how_many_huge_pages() {
+    FILE* hpf = fopen(hugepages_control_file, "r");
+    if (hpf == NULL) { perror("could not open nr_hugepages"); die("nr_hugepages"); }
+    int available_huge_pages = -1;
+    fscanf(hpf, "%d%%", &available_huge_pages);
+    fclose(hpf);
+    return available_huge_pages;
+  }
+  
+  
+  static void request_huge_pages(int desired_huge_pages) {
+    FILE* hpf = fopen(hugepages_control_file, "w");
+    if (hpf == NULL) { perror("could not open nr_hugepages"); die("nr_hugepages"); }
+    fprintf(hpf, "%d\n", desired_huge_pages);
+    fclose(hpf);
+  }
 };
 
 # endif  // if On_Tilera  && !On_Tilera_With_GCC

@@ -58,7 +58,6 @@ public:
   static inline bool is_using_threads() { return false; }
 };
 
-class  Memory_System;
 extern Memory_System _memory_system;
 
 //#define The_Memory_System() (&_memory_system)

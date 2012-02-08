@@ -66,6 +66,7 @@
   template(Enforce_Threads) \
   template(Using_Threads) \
   template(Using_Processes) \
+  template(Use_ReadMostly_Heap) \
   template(Replicate_PThread_Memory_System) /* true makes system on pthreads like Tilera, but slower */ \
   template(Max_Number_Of_Cores) \
   template(Number_Of_Channel_Buffers) \
@@ -158,6 +159,10 @@
 
 # define Using_Threads    Enforce_Threads
 # define Using_Processes !Enforce_Threads
+
+# ifndef Use_ReadMostly_Heap
+  # define Use_ReadMostly_Heap On_Tilera
+# endif
 
 # ifndef Replicate_PThread_Memory_System
   # define Replicate_PThread_Memory_System 0

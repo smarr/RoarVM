@@ -327,7 +327,7 @@ void Squeak_Interpreter::primitiveClipboardText() {
   }
   else {
     oop_int_t sz = clipboardSize();
-    if (The_Memory_System()->coreWithSufficientSpaceToAllocate(sz, Memory_System::read_write) == NULL) {
+    if (The_Memory_System()->coreWithSufficientSpaceToAllocate(sz) == NULL) {
       primitiveFail();  return;
     }
     Oop s = classString()->instantiateClass(sz)->as_oop();

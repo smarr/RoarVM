@@ -115,7 +115,7 @@ void newValueForOopMessage_class::handle_me() {
 
 
 void enforceCoherenceAfterEachCoreHasStoredIntoItsOwnHeapMessage_class::handle_me() {
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_mostly]->enforce_coherence_in_whole_heap_after_store();
+  The_Memory_System()->enforce_coherence_in_whole_heap_after_store();
 }
 
 void enforceCoherenceBeforeEachCoreStoresIntoItsOwnHeapMessage_class::handle_me() {
@@ -343,16 +343,14 @@ void distributeInitialInterpreterMessage_class::handle_me() {
 
 void verifyInterpreterAndHeapMessage_class::handle_me() {
   The_Squeak_Interpreter()->verify();
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_mostly]->verify();
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System:: read_write]->verify();
+  The_Memory_System()->verify_local();
 }
 
 
 
 
 void zapUnusedPortionOfHeapMessage_class::handle_me() {
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System:: read_write]->zap_unused_portion();
-  The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_mostly]->zap_unused_portion();
+  The_Memory_System()->zap_unused_portion();
 }
 
 
