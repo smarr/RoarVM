@@ -614,8 +614,8 @@ partial-cov: $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/main_wit
 	genhtml --output-directory rvm-cov rvm-gcov.info
 
 clean:
-	-rm -f *.o *.opt $(EXECUTABLE) rvm-test libgtest.a $(TEST_OBJS)
-	-rm *.gcno *.gcda *.gcov rvm-gcov.info $(SRC_DIR)/tests/*.gcno $(SRC_DIR)/tests/*.gcda $(SRC_DIR)/tests/*.gcov
+	rm -f *.o *.opt $(EXECUTABLE) rvm-test libgtest.a $(TEST_OBJS)
+	rm -f *.gcno *.gcda *.gcov rvm-gcov.info $(SRC_DIR)/tests/*.gcno $(SRC_DIR)/tests/*.gcda $(SRC_DIR)/tests/*.gcov
 
 install: $(EXECUTABLE)
 	install $(EXECUTABLE) /usr/local/bin
