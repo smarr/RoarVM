@@ -32,10 +32,10 @@ TEST(Interprocess_Allocator, FreeItem) {
   
   free_item.become_free();
   ASSERT_TRUE (free_item.is_actually_free_item());
-  ASSERT_EQ(4, free_item.get_size());
+  ASSERT_EQ(4U, free_item.get_size());
   
   free_item.become_used();
-  ASSERT_EQ(4, free_item.get_size());
+  ASSERT_EQ(4U, free_item.get_size());
   ASSERT_FALSE(free_item.is_actually_free_item());
 }
 
@@ -54,22 +54,22 @@ TEST(Interprocess_Allocator, UsedItemContent) {
 TEST(Interprocess_Allocator, PadForWordAlignment) {
   // We need to guarantee some additionally free space for the management of the free items
   // since this is done inplace.
-  ASSERT_EQ(12,  Interprocess_Allocator::Item::manage_and_pad(0));
-  ASSERT_EQ(12,  Interprocess_Allocator::Item::manage_and_pad(3));
+  ASSERT_EQ(12U,  Interprocess_Allocator::Item::manage_and_pad(0));
+  ASSERT_EQ(12U,  Interprocess_Allocator::Item::manage_and_pad(3));
   
-  ASSERT_EQ(12,  Interprocess_Allocator::Item::manage_and_pad(7));
-  ASSERT_EQ(12,  Interprocess_Allocator::Item::manage_and_pad(8));
-  ASSERT_EQ(16,  Interprocess_Allocator::Item::manage_and_pad(9));
+  ASSERT_EQ(12U,  Interprocess_Allocator::Item::manage_and_pad(7));
+  ASSERT_EQ(12U,  Interprocess_Allocator::Item::manage_and_pad(8));
+  ASSERT_EQ(16U,  Interprocess_Allocator::Item::manage_and_pad(9));
   
-  ASSERT_EQ(16,  Interprocess_Allocator::Item::manage_and_pad(12));
-  ASSERT_EQ(20,  Interprocess_Allocator::Item::manage_and_pad(13));
+  ASSERT_EQ(16U,  Interprocess_Allocator::Item::manage_and_pad(12));
+  ASSERT_EQ(20U,  Interprocess_Allocator::Item::manage_and_pad(13));
   
-  ASSERT_EQ(20,  Interprocess_Allocator::Item::manage_and_pad(16));
-  ASSERT_EQ(24,  Interprocess_Allocator::Item::manage_and_pad(17));
+  ASSERT_EQ(20U,  Interprocess_Allocator::Item::manage_and_pad(16));
+  ASSERT_EQ(24U,  Interprocess_Allocator::Item::manage_and_pad(17));
   
-  ASSERT_EQ(256, Interprocess_Allocator::Item::manage_and_pad(251));
-  ASSERT_EQ(256, Interprocess_Allocator::Item::manage_and_pad(252));
-  ASSERT_EQ(260, Interprocess_Allocator::Item::manage_and_pad(253));
+  ASSERT_EQ(256U, Interprocess_Allocator::Item::manage_and_pad(251));
+  ASSERT_EQ(256U, Interprocess_Allocator::Item::manage_and_pad(252));
+  ASSERT_EQ(260U, Interprocess_Allocator::Item::manage_and_pad(253));
 }
 
 
@@ -166,16 +166,16 @@ TEST(Interprocess_Allocator, ReverseDeallocation) {
   void* m3 = ia.allocate(4);
   void* m4 = ia.allocate(4);
   
-  ASSERT_EQ(4, ia.num_allocated_chunks);
+  ASSERT_EQ(4U, ia.num_allocated_chunks);
   
   ia.free(m4);
-  ASSERT_EQ(3, ia.num_allocated_chunks);
+  ASSERT_EQ(3U, ia.num_allocated_chunks);
   ia.free(m3);
-  ASSERT_EQ(2, ia.num_allocated_chunks);
+  ASSERT_EQ(2U, ia.num_allocated_chunks);
   ia.free(m2);
-  ASSERT_EQ(1, ia.num_allocated_chunks);
+  ASSERT_EQ(1U, ia.num_allocated_chunks);
   ia.free(m1);
-  ASSERT_EQ(0, ia.num_allocated_chunks);
+  ASSERT_EQ(0U, ia.num_allocated_chunks);
 
   ASSERT_NE((void*)NULL, ia.allocate(500));  // we should get back the allocated pointer
   
@@ -192,12 +192,12 @@ TEST(Interprocess_Allocator, UnorderedDeallocation) {
   void* m3 = ia.allocate(4);
   void* m4 = ia.allocate(4);
   
-  ASSERT_EQ(4, ia.num_allocated_chunks);
+  ASSERT_EQ(4U, ia.num_allocated_chunks);
   
-  ia.free(m2);   ASSERT_EQ(3, ia.num_allocated_chunks);
-  ia.free(m3);   ASSERT_EQ(2, ia.num_allocated_chunks);
-  ia.free(m1);   ASSERT_EQ(1, ia.num_allocated_chunks);
-  ia.free(m4);   ASSERT_EQ(0, ia.num_allocated_chunks);
+  ia.free(m2);   ASSERT_EQ(3U, ia.num_allocated_chunks);
+  ia.free(m3);   ASSERT_EQ(2U, ia.num_allocated_chunks);
+  ia.free(m1);   ASSERT_EQ(1U, ia.num_allocated_chunks);
+  ia.free(m4);   ASSERT_EQ(0U, ia.num_allocated_chunks);
   
   m1 = ia.allocate(500);
   ASSERT_NE((void*)NULL, ia.allocate(4));  // we should get back the allocated pointer
@@ -214,10 +214,10 @@ TEST(Interprocess_Allocator, PairWiseAllocDealloc) {
   void* p1 = ia.allocate(4);  ASSERT_NE((void*)NULL, p1);
   void* p2 = ia.allocate(4);  ASSERT_NE((void*)NULL, p2);
 
-  ASSERT_EQ(3, ia.num_allocated_chunks);
+  ASSERT_EQ(3U, ia.num_allocated_chunks);
   
-  ia.free(p2);   ASSERT_EQ(2, ia.num_allocated_chunks);
-  ia.free(p1);   ASSERT_EQ(1, ia.num_allocated_chunks);
+  ia.free(p2);   ASSERT_EQ(2U, ia.num_allocated_chunks);
+  ia.free(p1);   ASSERT_EQ(1U, ia.num_allocated_chunks);
 
   void* m2 = ia.allocate(450); ASSERT_NE((void*)NULL, m2);
   ia.free(m2);
@@ -225,8 +225,8 @@ TEST(Interprocess_Allocator, PairWiseAllocDealloc) {
   p1 = ia.allocate(4);  ASSERT_NE((void*)NULL, p1);
   p2 = ia.allocate(4);  ASSERT_NE((void*)NULL, p2);
   
-  ia.free(p2);   ASSERT_EQ(2, ia.num_allocated_chunks);
-  ia.free(p1);   ASSERT_EQ(1, ia.num_allocated_chunks);
+  ia.free(p2);   ASSERT_EQ(2U, ia.num_allocated_chunks);
+  ia.free(p1);   ASSERT_EQ(1U, ia.num_allocated_chunks);
   
   m2 = ia.allocate(450); ASSERT_NE((void*)NULL, m2);
   ia.free(m2);
@@ -245,9 +245,9 @@ TEST(Interprocess_Allocator, SplittingBlocksInMiddleOfFreeList) {
   void* p2 = ia.allocate(4);    ASSERT_NE((void*)NULL, p2);
   
   
-  ia.free(p1);   ASSERT_EQ(2, ia.num_allocated_chunks);
-  ia.free(m);    ASSERT_EQ(1, ia.num_allocated_chunks);
-  ia.free(p2);   ASSERT_EQ(0, ia.num_allocated_chunks);
+  ia.free(p1);   ASSERT_EQ(2U, ia.num_allocated_chunks);
+  ia.free(m);    ASSERT_EQ(1U, ia.num_allocated_chunks);
+  ia.free(p2);   ASSERT_EQ(0U, ia.num_allocated_chunks);
   
   m  = ia.allocate(20); ASSERT_NE((void*)NULL, m);
   p1 = ia.allocate(4);  ASSERT_NE((void*)NULL, p1);
@@ -272,9 +272,9 @@ TEST(Interprocess_Allocator, ReuseFreeItemInMiddleOfList) {
   void* p5 = ia.allocate(4);    ASSERT_NE((void*)NULL, p5);
   
   
-  ia.free(p3);   ASSERT_EQ(4, ia.num_allocated_chunks);
-  ia.free(p5);   ASSERT_EQ(3, ia.num_allocated_chunks);
-  ia.free(p1);   ASSERT_EQ(2, ia.num_allocated_chunks);
+  ia.free(p3);   ASSERT_EQ(4U, ia.num_allocated_chunks);
+  ia.free(p5);   ASSERT_EQ(3U, ia.num_allocated_chunks);
+  ia.free(p1);   ASSERT_EQ(2U, ia.num_allocated_chunks);
   
   p3 = ia.allocate(20);          ASSERT_NE((void*)NULL, p3);
   void* end = ia.allocate(400);  ASSERT_NE((void*)NULL, end);
@@ -285,12 +285,12 @@ TEST(Interprocess_Allocator, ReuseFreeItemInMiddleOfList) {
 
 TEST(Interprocess_Allocator, NonOverlapping) {
   void* mem = malloc(512);
-  int* allocated_elements[41];
+  size_t* allocated_elements[41];
   
   Interprocess_Allocator ia(mem, 512);
   
   for (size_t i = 0; i < 41; i++) {         // not 64 elements in total because we do not split very small elements
-    allocated_elements[i] = (int*)ia.allocate(sizeof(int));
+    allocated_elements[i] = (size_t*)ia.allocate(sizeof(size_t));
     ASSERT_NE((void*)NULL, allocated_elements[i]);
     *allocated_elements[i] = i;
   }
