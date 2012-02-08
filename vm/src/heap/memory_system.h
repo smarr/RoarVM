@@ -152,12 +152,13 @@ public:
     return (int32)addr - address_offsets[&heaps[rank_for_address(addr)][mutability_for_address(addr)] - &heaps[0][0]];
   }
 
+public:
+  static int calculate_total_read_write_pages(int);
+  static int calculate_total_read_mostly_pages(int);
 
 private:
   void set_page_size_used_in_heap();
-  int calculate_total_read_write_pages(int);
-  int calculate_total_read_mostly_pages(int);
-  int calculate_bytes_per_read_mostly_heap(int);
+  static int calculate_bytes_per_read_mostly_heap(int);
   bool ask_Linux_for_huge_pages(int);
   int how_many_huge_pages();
   void request_huge_pages(int);
