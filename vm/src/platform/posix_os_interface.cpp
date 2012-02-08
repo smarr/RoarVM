@@ -160,9 +160,10 @@ int POSIX_OS_Interface::abort_if_error(const char* msg, int err) {
 
 Interprocess_Allocator* POSIX_OS_Interface::shared_memory_allocator() {
   static Interprocess_Allocator* allocator = NULL;
+  size_t pool_size = 5 * 1024 * 1024;
   if (!allocator) {
-    void* mem = malloc(5 * 1024 * 1024);
-    allocator = new Interprocess_Allocator(mem, 5 * 1024 * 1024);
+    void* mem = malloc(pool_size);
+    allocator = new Interprocess_Allocator(mem, pool_size);
   }
   return allocator;
 }
