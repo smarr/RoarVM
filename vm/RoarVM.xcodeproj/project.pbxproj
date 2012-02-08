@@ -117,6 +117,7 @@
 		0A97FB3F128FEAF2003A1C74 /* synced_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A27845D128DBF7300336BDE /* synced_queue.cpp */; };
 		0A97FB40128FEAF7003A1C74 /* buffered_channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278458128DBF7300336BDE /* buffered_channel.cpp */; };
 		0A97FBB512900371003A1C74 /* tracked_ptr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A97FBB412900371003A1C74 /* tracked_ptr.cpp */; };
+		0AB1980214E1AA130045EACB /* memory_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AB1980114E1AA130045EACB /* memory_system.cpp */; };
 		0ACF551912E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */; };
 		0ADA26E612EF642C009404B0 /* cacheline_alignment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
@@ -480,6 +481,7 @@
 		0A97FBB412900371003A1C74 /* tracked_ptr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tracked_ptr.cpp; sourceTree = "<group>"; };
 		0A97FEE412909C92003A1C74 /* test_os_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_os_interface.h; sourceTree = "<group>"; };
 		0A97FEF112909D58003A1C74 /* tracked_ptr_registry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tracked_ptr_registry.h; sourceTree = "<group>"; };
+		0AB1980114E1AA130045EACB /* memory_system.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memory_system.cpp; sourceTree = "<group>"; };
 		0ACF551712E07E7F0010386A /* shared_memory_message_queue_per_sender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = shared_memory_message_queue_per_sender.cpp; sourceTree = "<group>"; };
 		0ACF551812E07E7F0010386A /* shared_memory_message_queue_per_sender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shared_memory_message_queue_per_sender.h; sourceTree = "<group>"; };
 		0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cacheline_alignment.cpp; sourceTree = "<group>"; };
@@ -1132,6 +1134,7 @@
 				0ADA26B912EF5C00009404B0 /* cacheline_alignment.cpp */,
 				0A6A4832135ADF0A00933643 /* os_interface.cpp */,
 				0A6A4835135AE32D00933643 /* external_primitive_table.cpp */,
+				0AB1980114E1AA130045EACB /* memory_system.cpp */,
 			);
 			name = tests;
 			path = src/tests;
@@ -1503,6 +1506,7 @@
 				34221DC613D4D9F10057DCBD /* sqUnixSoundNull.c in Sources */,
 				0A3FB13414D997C70050F39C /* buffered_channel_debug.cpp in Sources */,
 				0A3FB13614D99C7E0050F39C /* gtest-all.cc in Sources */,
+				0AB1980214E1AA130045EACB /* memory_system.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1634,6 +1638,8 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREFIX_HEADER = src/runtime/rvm_config.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"check_many_assertions=1",
+					"check_assertions=1",
 					ROAR_VM,
 					LSB_FIRST,
 				);
@@ -1666,6 +1672,8 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PREFIX_HEADER = src/runtime/rvm_config.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"check_many_assertions=1",
+					"check_assertions=1",
 					ROAR_VM,
 					LSB_FIRST,
 				);
