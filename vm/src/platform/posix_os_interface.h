@@ -199,6 +199,7 @@ private:
   static inline void* memalign(int align, int sz) { return (void*) ( (int(malloc(sz + align)) + align - 1) & ~(align-1) ); }
   
   static Interprocess_Allocator* shared_memory_allocator();
+  friend void print_interprocess_allocator_heap(); /* Open up for the debugging tools */
   
 public:
   static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }

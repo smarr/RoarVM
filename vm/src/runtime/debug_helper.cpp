@@ -42,3 +42,9 @@ void pat() {
   The_Squeak_Interpreter()->print_all_stack_traces(dittoing_stdout_printer);
 }
 int printAllStacks() { pat(); return 0; }
+
+
+void print_interprocess_allocator_heap() {
+  OS_Interface::shared_memory_allocator()->debug_print_full_heap();
+}
+
