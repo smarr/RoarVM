@@ -590,6 +590,7 @@ rvm-test : INCLUDES+=$(GTEST_INCLUDES)
 rvm-test: libgtest.a $(TEST_OBJS) $(TEST_H)
 	$(CXX) $(LDFLAGS) $(TEST_OBJS) gtest-all.o -lm -lpthread  $(TILERA_LIBS) -L. $(LIBS_LINKING) -o $@
 
+test : CONFIG_FLAGS+=-g3 -DDebugging=1 -Dcheck_assertions=1 -Dcheck_many_assertions=1
 test: rvm-test
 	$(AT)./rvm-test
 
@@ -605,6 +606,7 @@ partial-cov : CONFIG_FLAGS+=-fprofile-arcs -ftest-coverage
 partial-cov : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
 partial-cov : INCLUDES+=$(GTEST_INCLUDES)
 partial-cov: $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/main_without_roarvm.o libgtest.a
+	$(AT)echo Coverage generation is currently only supported by GNU GCC not LLVM GCC
 	$(CXX) $(LDFLAGS) $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/main_without_roarvm.o gtest-all.o -lm -lpthread  $(TILERA_LIBS) -L. $(LIBS_LINKING) -o ./$@
 	$(AT)./$@
 	gcov -o $(SRC_DIR)/tests/ interprocess_allocator.cpp interprocess_allocator.h
