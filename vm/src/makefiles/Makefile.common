@@ -616,6 +616,7 @@ partial-cov: $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/main_wit
 clean:
 	rm -f *.o *.opt $(EXECUTABLE) rvm-test libgtest.a $(TEST_OBJS)
 	rm -f *.gcno *.gcda *.gcov rvm-gcov.info $(SRC_DIR)/tests/*.gcno $(SRC_DIR)/tests/*.gcda $(SRC_DIR)/tests/*.gcov
+	rm -Rf partial-cov rvm-cov
 
 install: $(EXECUTABLE)
 	install $(EXECUTABLE) /usr/local/bin
