@@ -55,6 +55,10 @@ public:
     return OS_Interface::rvm_calloc_shared(num_members, mem_size);
   }
   
+  static inline void* shared_allocation_pool(size_t sz) {
+    return POSIX_Processes::request_globally_mmapped_region(0, sz);
+  }
+  
   static inline bool is_using_threads() { return false; }
 };
 

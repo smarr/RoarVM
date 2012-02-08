@@ -13,9 +13,9 @@
 # include "headers.h"
 
 const char* POSIX_Processes::Global_Shared_Mem_Name = "/POSIX_Processes_cpp-001";
+const char* Shared_Region_Name = "/POSIX_Processes-SR-%lu";
 
 POSIX_Processes::Globals* POSIX_Processes::globals = NULL;
-POSIX_Processes::Locals   POSIX_Processes::locals;
 
 int POSIX_Processes::initialize() {
   bool initialize_globally = false;
@@ -75,8 +75,8 @@ int POSIX_Processes::initialize() {
     initialize_processes_globals();
   }
   
-  if (   globals->owning_process != locals.parent
-      && globals->owning_process != locals.pid) {
+  if (   globals->owning_process != locals().parent
+      && globals->owning_process != locals().pid) {
     warnx("There is some confusion with global data, which is shared system"
           " wide. Currently there is no support for more then one instance "
           " of a program using this library!");
@@ -85,6 +85,9 @@ int POSIX_Processes::initialize() {
   }
   
   register_process_and_determine_rank();
+  
+  if (locals().rank != 0)
+    map_shared_regions();
   
 # warning TODO: add pinning for processes to cores here!!! STEFAN
   
@@ -110,12 +113,12 @@ void POSIX_Processes::initialize_processes_globals() {
 void POSIX_Processes::register_process_and_determine_rank() {
   OS_Interface::mutex_lock(&globals->mtx_rank_running);
   
-  if (locals.pid == globals->owning_process) {
-    locals.rank = 0;
+  if (locals().pid == globals->owning_process) {
+    locals().rank = 0;
   }
   else {
     globals->last_rank++;
-    locals.rank = globals->last_rank;
+    locals().rank = globals->last_rank;
     
     globals->running_processes++;
   }
@@ -141,6 +144,14 @@ void POSIX_Processes::unregister_and_clean_up() {
   
   if (last_process) {
     shm_unlink(Global_Shared_Mem_Name);
+    
+    for (size_t i = 0; i < num_of_shared_mmap_regions; i++) {
+      if (globals->shared_mmap_regions[i].base_address) {
+        char region_name[BUFSIZ] = { 0 };
+        snprintf(region_name, sizeof(region_name), Shared_Region_Name, i);
+        shm_unlink(region_name);
+      }
+    }
   }
 }
 
@@ -173,3 +184,81 @@ int POSIX_Processes::start_group(size_t num_processes, char** argv) {
   execv(argv[0], argv);
   return -1;
 }
+
+void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
+  assert_always(id < num_of_shared_mmap_regions);
+  
+  if (globals->shared_mmap_regions[id].base_address) {
+    assert_message(globals->shared_mmap_regions[id].len == len,
+                   "The requested region was already allocated, but the size did not match.");
+    return globals->shared_mmap_regions[id].base_address;
+  }
+  
+  char region_name[BUFSIZ] = { 0 };
+  snprintf(region_name, sizeof(region_name), Shared_Region_Name, id);
+  shm_unlink(region_name);
+  int shared_fd = shm_open(region_name, O_RDWR  | O_CREAT, S_IRUSR | S_IWUSR);
+  
+  if (shared_fd < 0) {
+    // TODO: do it properly
+    perror("Could not create shared memory object for a mmapped memory region.");
+    return NULL;
+  }
+  
+  if (-1 == ftruncate(shared_fd, len)) {
+    // TODO: do it properly
+    perror("The shared memory object (mmapped region) could"
+           " not be set to the requested size");
+    return NULL;
+  }
+
+  assert(shared_fd >= 0);
+  
+  int mmap_prot  = PROT_READ | PROT_WRITE;
+  int mmap_flags = MAP_SHARED; // STEFAN: do we need a special flag to enable semaphores in this memory? MAP_HASSEMAPHORE?
+  int mmap_offset= 0;
+  
+  void* result = mmap(NULL, len, mmap_prot, mmap_flags, shared_fd, mmap_offset);
+  if (MAP_FAILED == result) {
+    // TODO: do it properly
+    perror("Could not establish memory mapping for the globally shared"
+           " memory object.");
+    return NULL;
+  }
+
+  globals->shared_mmap_regions[id].set(result, len, mmap_prot, mmap_flags, mmap_offset);
+  return result;
+}
+
+void POSIX_Processes::map_shared_regions() {
+  for (size_t i = 0; i < num_of_shared_mmap_regions; i++) {
+    if (!globals->shared_mmap_regions[i].base_address)
+      continue;
+    
+    char region_name[BUFSIZ] = { 0 };
+    snprintf(region_name, sizeof(region_name), Shared_Region_Name, i);
+    int shared_fd = shm_open(region_name, O_RDWR, S_IRUSR | S_IWUSR);
+    
+    if (shared_fd < 0) {
+      // TODO: do it properly
+      perror("Could not create shared memory object for a mmapped memory region.");
+      return;
+    }
+    assert(shared_fd >= 0);
+    
+    void* result = mmap(globals->shared_mmap_regions[i].base_address,
+                        globals->shared_mmap_regions[i].len,
+                        globals->shared_mmap_regions[i].prot,
+                        globals->shared_mmap_regions[i].flags,
+                        shared_fd,
+                        globals->shared_mmap_regions[i].offset);
+    
+    if (MAP_FAILED == result) {
+      // TODO: do it properly
+      perror("Could not establish memory mapping for the globally shared"
+             " memory object.");
+      return;
+    }
+  }
+}
+

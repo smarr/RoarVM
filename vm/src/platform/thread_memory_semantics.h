@@ -140,6 +140,8 @@ public:
     else
       free(ptr);
   }
+  
+  static inline void* shared_allocation_pool(size_t sz) { return malloc(sz); }
       
   static inline bool is_using_threads() { return true; }
 };

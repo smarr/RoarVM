@@ -42,6 +42,8 @@ public:
   static inline void* shared_calloc(u_int32 /* num_members */, u_int32 /* mem_size */) { fatal(); return NULL; }
   static inline void  shared_free(void*) { fatal(); }
   
+  static inline void* shared_allocation_pool(size_t /* sz */) { fatal(); return NULL; }
+  
   static inline bool is_using_threads() { fatal(); return 0; }
   
 };

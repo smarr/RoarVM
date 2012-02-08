@@ -162,7 +162,8 @@ Interprocess_Allocator* POSIX_OS_Interface::shared_memory_allocator() {
   static Interprocess_Allocator* allocator = NULL;
   size_t pool_size = 5 * 1024 * 1024;
   if (!allocator) {
-    void* mem = malloc(pool_size);
+    initialize(); // Do implicit initialization of the whole module
+    void* mem = Memory_Semantics::shared_allocation_pool(pool_size);
     allocator = new Interprocess_Allocator(mem, pool_size);
   }
   return allocator;

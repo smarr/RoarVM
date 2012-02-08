@@ -49,7 +49,7 @@ public:
    * Returns the rank in the process group or -1 when not yet initialized.
    */
   static int process_rank() {
-    return locals.rank;
+    return locals().rank;
   }
   
   /**
@@ -65,9 +65,38 @@ public:
     
     return globals->running_processes;
   }
-
+  
 private:
   static const char* Global_Shared_Mem_Name;
+  static const size_t num_of_shared_mmap_regions = 16;
+  
+  class Shared_MMAP_Region {
+  public:
+    Shared_MMAP_Region()
+      : base_address(NULL), len(0), prot(0),
+        flags(0), offset(0) {}
+    
+    void*  base_address;
+    size_t len;
+    int    prot;
+    int    flags;
+    off_t  offset;
+    
+    void set(void*  base_address, size_t len, int prot, int flags, off_t offset) {
+      this->base_address = base_address;
+      this->len    = len;
+      this->prot   = prot;
+      this->flags  = flags;
+      this->offset = offset;
+    }
+
+    void reset() {
+      base_address = NULL;
+      len    = 0;
+      prot   = flags = 0;
+      offset = 0;
+    }
+  };
   
   // TODO: to support multiple RoarVM instances, this data structure
   //       needs to be a list of things instead of plain data
@@ -82,6 +111,7 @@ private:
     int   last_rank;
     int   running_processes;
     int   group_size;
+    Shared_MMAP_Region shared_mmap_regions[num_of_shared_mmap_regions];
   };
   
   /**
@@ -100,9 +130,32 @@ private:
     int rank;
   };
   
-  static Locals locals;
+  static Locals& locals() {
+    static Locals _locals = Locals();
+    return _locals;
+  }
   
   static void register_process_and_determine_rank();
   
   static void unregister_and_clean_up();
+  static void map_shared_regions();
+
+public:
+
+  /**
+   * Request mmapped memory that is globally available for all processes.
+   * Each process is mapping the memory to the same address, using the same
+   * memory protection flags, etc. This allows to use the memory as in any
+   * other shared memory setup with 'portable' pointers.
+   */
+  static void* request_globally_mmapped_region(size_t id, size_t len);
+  
+  /**
+   * Get the pointer to an already allocated memory region.
+   */
+  static void* get_globally_mmapped_region_by_id(size_t id) {
+    assert_always(id < num_of_shared_mmap_regions);
+    return globals->shared_mmap_regions[id].base_address;
+  }
+
 };

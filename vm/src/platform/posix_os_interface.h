@@ -45,7 +45,11 @@ public:
   }
   
   static inline void initialize() {
-    POSIX_Processes::initialize();
+    static bool initialized = false;
+    if (!initialized) {
+      POSIX_Processes::initialize();
+      initialized = true;
+    }
   }
   
   static void ensure_Time_Machine_backs_up_run_directory() {}
