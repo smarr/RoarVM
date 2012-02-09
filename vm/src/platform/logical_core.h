@@ -84,7 +84,8 @@ public:
   for (int r = 0;  r < Logical_Core::group_size;  ++r)
 
 # define FOR_ALL_OTHER_RANKS(r) \
-  FOR_ALL_RANKS(r) if (r != Logical_Core::my_rank())
+  int __my_rank = Logical_Core::my_rank(); \
+  FOR_ALL_RANKS(r) if (r != __my_rank)
 
 # define FOR_ALL_RANKS_IN_REVERSE_ORDER(r) \
   for (int r = Logical_Core::group_size - 1;  r >= 0;  --r)
