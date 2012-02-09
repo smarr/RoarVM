@@ -371,7 +371,7 @@
 # endif
 
 # ifndef Use_Spin_Locks
-# define Use_Spin_Locks 0
+# define Use_Spin_Locks (On_Apple | Using_Processes)
 # endif
 
 # ifndef Dump_Bytecode_Cycles
