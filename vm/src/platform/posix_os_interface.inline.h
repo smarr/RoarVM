@@ -22,3 +22,14 @@ void POSIX_OS_Interface::rvm_free_shared(void* mem) {
   shared_memory_allocator()->free(mem);
 }
 
+inline void POSIX_OS_Interface::initialize() {
+  static bool initialized = false;
+  if (Using_Processes && !initialized) {
+    POSIX_Processes::initialize();
+    initialized = true;
+  }
+}
+
+inline int POSIX_OS_Interface::get_process_rank() { 
+  return POSIX_Processes::process_rank();
+}

@@ -106,7 +106,7 @@ private:
     
     /** The mutex is protecting the following fields and needs to be aquired
         to savely read/write them. */
-    pthread_mutex_t mtx_rank_running;
+    OS_Interface::Mutex mtx_rank_running;
     
     int   last_rank;
     int   running_processes;

@@ -75,8 +75,13 @@ public:
   static void pin_thread_to_core(int32_t rank);
   
   
-# if Use_Spin_Locks
+# if Use_Spin_Locks | Using_Processes
   typedef OSSpinLock Mutex;
+  
+  /** Initializes a mutex which explicitly supports cross-process usage. */
+  static inline void mutex_init_for_cross_process_use(Mutex* mutex) {
+    mutex_init(mutex);
+  }
   
   static inline void mutex_init(Mutex* mutex) {
     *mutex = 0;

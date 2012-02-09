@@ -44,14 +44,7 @@ public:
     }
   }
   
-  static inline void initialize() {
-    static bool initialized = false;
-    if (Using_Processes && !initialized) {
-      POSIX_Processes::initialize();
-      initialized = true;
-    }
-  }
-  
+  static inline void initialize();  
   static void ensure_Time_Machine_backs_up_run_directory() {}
 
   static inline void profiler_enable()  {}

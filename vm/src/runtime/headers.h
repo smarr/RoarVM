@@ -102,13 +102,13 @@
 # include "message_queue.h"
 # include "cpu_coordinate.h"
 
-# include "posix_processes.h"
-
 # include "abstract_os_interface.h"
 # include "ilib_os_interface.h"
 # include "tmc_os_interface.h"
 # include "posix_os_interface.h"
 # include "osx_os_interface.h"
+
+# include "posix_processes.h"
 
 # include "interprocess_allocator.h"
 # include "posix_os_interface.inline.h"

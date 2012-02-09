@@ -80,7 +80,7 @@ int POSIX_Processes::initialize() {
     warnx("There is some confusion with global data, which is shared system"
           " wide. Currently there is no support for more then one instance "
           " of a program using this library!");
-    pthread_mutex_destroy(&globals->mtx_rank_running);
+    OS_Interface::mutex_destruct(&globals->mtx_rank_running);
     initialize_processes_globals();
   }
   
