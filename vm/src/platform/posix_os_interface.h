@@ -200,7 +200,7 @@ private:
   
 public:
   static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }
-  static inline void* rvm_memalign(OS_Heap, int al, int sz) { return rvm_memalign(al, sz); }
+  static inline void* rvm_memalign(OS_Heap, int align, int sz) { return (void*) ( (int(rvm_malloc_shared(sz + align)) + align - 1) & ~(align-1) ); }
   static inline void* malloc_in_mem(int /* alignment */, int size) { return malloc(size); }
   static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool /* replicate */) { heap = NULL; /* unused on POSIX */ return 0; }
   
