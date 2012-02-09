@@ -127,7 +127,7 @@ void POSIX_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[
     
     int err = POSIX_Processes::start_group(Logical_Core::num_cores, argv);
     abort_if_error("exec", err);
-    die("impossible to reach this point. start_group does only return on failure.");
+    Logical_Core::group_size = Logical_Core::num_cores;
   }
   
   Logical_Core::initialize_all_cores();

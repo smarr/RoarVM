@@ -175,14 +175,15 @@ int POSIX_Processes::start_group(size_t num_processes, char** argv) {
       // error
       // TODO: do it properly
       perror("Failure on forking child processes.");
+      return -1;
     }
   }
 
-  // All child processes initialized, lets start over
-  // this process, too.
-  // Mostly for consistency with other platforms and libraries.
-  execv(argv[0], argv);
-  return -1;
+  // With the iLib, the main process would also get replaced and start over
+  // but that caused more problems with debugging, and currently it does not 
+  // seem to have obvious drawbacks. So, no execv here.
+  // execv(argv[0], argv);
+  return 0;
 }
 
 void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
