@@ -86,9 +86,9 @@ TEST(Interprocess_Allocator, EmptyAllocation) {
 
 
 TEST(Interprocess_Allocator, BasicAllocation) {
-  void* mem = malloc(512);
-  
-  Interprocess_Allocator ia(mem, 512);
+  size_t area_size = Interprocess_Allocator::pad_request_size_for_allocation_area(512);
+  void* mem = malloc(area_size);
+  Interprocess_Allocator ia(mem, area_size);
   
   for (size_t i = 0; i < 40; i++) {        // not 64 elements in total because we do not split very small elements
     ASSERT_NE(ia.allocate(4), (void*)NULL);
@@ -101,8 +101,9 @@ TEST(Interprocess_Allocator, BasicAllocation) {
 }
 
 TEST(Interprocess_Allocator, UniqueAllocationResultsInMemRegion) {
-  void* mem = malloc(512);
-  Interprocess_Allocator ia(mem, 512);
+  size_t area_size = Interprocess_Allocator::pad_request_size_for_allocation_area(512);
+  void* mem = malloc(area_size);
+  Interprocess_Allocator ia(mem, area_size);
   
   void* prev = NULL;
   for (size_t i = 0; i < 41; i++) {     // not 64 elements in total because we do not split very small elements
@@ -112,7 +113,7 @@ TEST(Interprocess_Allocator, UniqueAllocationResultsInMemRegion) {
     ASSERT_NE(result, prev);
     
     ASSERT_TRUE(result >= mem);
-    ASSERT_TRUE(((intptr_t)result + 4) <= ((intptr_t)mem + 512));
+    ASSERT_TRUE(((intptr_t)result + 4) <= ((intptr_t)mem + area_size));
     
     prev = result;
   }
@@ -121,9 +122,9 @@ TEST(Interprocess_Allocator, UniqueAllocationResultsInMemRegion) {
 }
 
 TEST(Interprocess_Allocator, AllocationAndDeallocation) {
-  void* mem = malloc(512);
-  
-  Interprocess_Allocator ia(mem, 512);
+  size_t area_size = Interprocess_Allocator::pad_request_size_for_allocation_area(512);
+  void* mem = malloc(area_size);
+  Interprocess_Allocator ia(mem, area_size);
   
   void* m1 = ia.allocate(4);
   void* m2 = ia.allocate(4);
@@ -157,25 +158,25 @@ TEST(Interprocess_Allocator, AllocationAndDeallocation) {
 /** This test uses the knowledge that we are able to merge the free items in
     this case back together */
 TEST(Interprocess_Allocator, ReverseDeallocation) {
-  void* mem = malloc(512);
-  
-  Interprocess_Allocator ia(mem, 512);
+  size_t area_size = Interprocess_Allocator::pad_request_size_for_allocation_area(512);
+  void* mem = malloc(area_size);
+  Interprocess_Allocator ia(mem, area_size);
   
   void* m1 = ia.allocate(4);
   void* m2 = ia.allocate(4);
   void* m3 = ia.allocate(4);
   void* m4 = ia.allocate(4);
   
-  ASSERT_EQ(4U, ia.num_allocated_chunks);
+  ASSERT_EQ(4U, ia.num_allocated_chunks());
   
   ia.free(m4);
-  ASSERT_EQ(3U, ia.num_allocated_chunks);
+  ASSERT_EQ(3U, ia.num_allocated_chunks());
   ia.free(m3);
-  ASSERT_EQ(2U, ia.num_allocated_chunks);
+  ASSERT_EQ(2U, ia.num_allocated_chunks());
   ia.free(m2);
-  ASSERT_EQ(1U, ia.num_allocated_chunks);
+  ASSERT_EQ(1U, ia.num_allocated_chunks());
   ia.free(m1);
-  ASSERT_EQ(0U, ia.num_allocated_chunks);
+  ASSERT_EQ(0U, ia.num_allocated_chunks());
 
   ASSERT_NE((void*)NULL, ia.allocate(500));  // we should get back the allocated pointer
   
@@ -183,21 +184,21 @@ TEST(Interprocess_Allocator, ReverseDeallocation) {
 }
 
 TEST(Interprocess_Allocator, UnorderedDeallocation) {
-  void* mem = malloc(512);
-  
-  Interprocess_Allocator ia(mem, 512);
-  
+  size_t area_size = Interprocess_Allocator::pad_request_size_for_allocation_area(512);
+  void* mem = malloc(area_size);
+  Interprocess_Allocator ia(mem, area_size);
+
   void* m1 = ia.allocate(4);
   void* m2 = ia.allocate(4);
   void* m3 = ia.allocate(4);
   void* m4 = ia.allocate(4);
   
-  ASSERT_EQ(4U, ia.num_allocated_chunks);
+  ASSERT_EQ(4U, ia.num_allocated_chunks());
   
-  ia.free(m2);   ASSERT_EQ(3U, ia.num_allocated_chunks);
-  ia.free(m3);   ASSERT_EQ(2U, ia.num_allocated_chunks);
-  ia.free(m1);   ASSERT_EQ(1U, ia.num_allocated_chunks);
-  ia.free(m4);   ASSERT_EQ(0U, ia.num_allocated_chunks);
+  ia.free(m2);   ASSERT_EQ(3U, ia.num_allocated_chunks());
+  ia.free(m3);   ASSERT_EQ(2U, ia.num_allocated_chunks());
+  ia.free(m1);   ASSERT_EQ(1U, ia.num_allocated_chunks());
+  ia.free(m4);   ASSERT_EQ(0U, ia.num_allocated_chunks());
   
   m1 = ia.allocate(500);
   ASSERT_NE((void*)NULL, ia.allocate(4));  // we should get back the allocated pointer
@@ -206,18 +207,18 @@ TEST(Interprocess_Allocator, UnorderedDeallocation) {
 }
 
 TEST(Interprocess_Allocator, PairWiseAllocDealloc) {
-  void* mem = malloc(512);
-  
-  Interprocess_Allocator ia(mem, 512);
-  
+  size_t area_size = Interprocess_Allocator::pad_request_size_for_allocation_area(512);
+  void* mem = malloc(area_size);
+  Interprocess_Allocator ia(mem, area_size);
+
   void* m  = ia.allocate(4);
   void* p1 = ia.allocate(4);  ASSERT_NE((void*)NULL, p1);
   void* p2 = ia.allocate(4);  ASSERT_NE((void*)NULL, p2);
 
-  ASSERT_EQ(3U, ia.num_allocated_chunks);
+  ASSERT_EQ(3U, ia.num_allocated_chunks());
   
-  ia.free(p2);   ASSERT_EQ(2U, ia.num_allocated_chunks);
-  ia.free(p1);   ASSERT_EQ(1U, ia.num_allocated_chunks);
+  ia.free(p2);   ASSERT_EQ(2U, ia.num_allocated_chunks());
+  ia.free(p1);   ASSERT_EQ(1U, ia.num_allocated_chunks());
 
   void* m2 = ia.allocate(450); ASSERT_NE((void*)NULL, m2);
   ia.free(m2);
@@ -225,8 +226,8 @@ TEST(Interprocess_Allocator, PairWiseAllocDealloc) {
   p1 = ia.allocate(4);  ASSERT_NE((void*)NULL, p1);
   p2 = ia.allocate(4);  ASSERT_NE((void*)NULL, p2);
   
-  ia.free(p2);   ASSERT_EQ(2U, ia.num_allocated_chunks);
-  ia.free(p1);   ASSERT_EQ(1U, ia.num_allocated_chunks);
+  ia.free(p2);   ASSERT_EQ(2U, ia.num_allocated_chunks());
+  ia.free(p1);   ASSERT_EQ(1U, ia.num_allocated_chunks());
   
   m2 = ia.allocate(450); ASSERT_NE((void*)NULL, m2);
   ia.free(m2);
@@ -236,18 +237,18 @@ TEST(Interprocess_Allocator, PairWiseAllocDealloc) {
 }
 
 TEST(Interprocess_Allocator, SplittingBlocksInMiddleOfFreeList) {
-  void* mem = malloc(512);
-  
-  Interprocess_Allocator ia(mem, 512);
-  
+  size_t area_size = Interprocess_Allocator::pad_request_size_for_allocation_area(512);
+  void* mem = malloc(area_size);
+  Interprocess_Allocator ia(mem, area_size);
+
   void* m  = ia.allocate(100);  ASSERT_NE((void*)NULL, m);
   void* p1 = ia.allocate(4);    ASSERT_NE((void*)NULL, p1);
   void* p2 = ia.allocate(4);    ASSERT_NE((void*)NULL, p2);
   
   
-  ia.free(p1);   ASSERT_EQ(2U, ia.num_allocated_chunks);
-  ia.free(m);    ASSERT_EQ(1U, ia.num_allocated_chunks);
-  ia.free(p2);   ASSERT_EQ(0U, ia.num_allocated_chunks);
+  ia.free(p1);   ASSERT_EQ(2U, ia.num_allocated_chunks());
+  ia.free(m);    ASSERT_EQ(1U, ia.num_allocated_chunks());
+  ia.free(p2);   ASSERT_EQ(0U, ia.num_allocated_chunks());
   
   m  = ia.allocate(20); ASSERT_NE((void*)NULL, m);
   p1 = ia.allocate(4);  ASSERT_NE((void*)NULL, p1);
@@ -261,10 +262,10 @@ TEST(Interprocess_Allocator, SplittingBlocksInMiddleOfFreeList) {
 }
 
 TEST(Interprocess_Allocator, ReuseFreeItemInMiddleOfList) {
-  void* mem = malloc(512);
-  
-  Interprocess_Allocator ia(mem, 512);
-  
+  size_t area_size = Interprocess_Allocator::pad_request_size_for_allocation_area(512);
+  void* mem = malloc(area_size);
+  Interprocess_Allocator ia(mem, area_size);
+
   void* p1 = ia.allocate(4);    ASSERT_NE((void*)NULL, p1);
   void* p2 = ia.allocate(4);    ASSERT_NE((void*)NULL, p2);
   void* p3 = ia.allocate(20);   ASSERT_NE((void*)NULL, p3);
@@ -272,9 +273,9 @@ TEST(Interprocess_Allocator, ReuseFreeItemInMiddleOfList) {
   void* p5 = ia.allocate(4);    ASSERT_NE((void*)NULL, p5);
   
   
-  ia.free(p3);   ASSERT_EQ(4U, ia.num_allocated_chunks);
-  ia.free(p5);   ASSERT_EQ(3U, ia.num_allocated_chunks);
-  ia.free(p1);   ASSERT_EQ(2U, ia.num_allocated_chunks);
+  ia.free(p3);   ASSERT_EQ(4U, ia.num_allocated_chunks());
+  ia.free(p5);   ASSERT_EQ(3U, ia.num_allocated_chunks());
+  ia.free(p1);   ASSERT_EQ(2U, ia.num_allocated_chunks());
   
   p3 = ia.allocate(20);          ASSERT_NE((void*)NULL, p3);
   void* end = ia.allocate(400);  ASSERT_NE((void*)NULL, end);
@@ -284,10 +285,11 @@ TEST(Interprocess_Allocator, ReuseFreeItemInMiddleOfList) {
 
 
 TEST(Interprocess_Allocator, NonOverlapping) {
-  void* mem = malloc(512);
+  size_t area_size = Interprocess_Allocator::pad_request_size_for_allocation_area(512);
+  void* mem = malloc(area_size);
+  Interprocess_Allocator ia(mem, area_size);
+
   size_t* allocated_elements[41];
-  
-  Interprocess_Allocator ia(mem, 512);
   
   for (size_t i = 0; i < 41; i++) {         // not 64 elements in total because we do not split very small elements
     allocated_elements[i] = (size_t*)ia.allocate(sizeof(size_t));
