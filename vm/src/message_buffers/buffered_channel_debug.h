@@ -19,16 +19,23 @@
 
 
 #include <stdint.h>
+#include <vector>
 
 using namespace std;
 
 class BufferedChannelDebug {
 private:
-  queue<void*> channel;
+  Circular_Buffer<void*> channel;
   OS_Interface::Mutex lock;
 
 public:
-  BufferedChannelDebug() {
+  void* operator new(size_t /* sz */ ) { 
+    fatal("Make sure new is not called, "
+          "and the objects resides in the expected memory");
+  }
+  
+  BufferedChannelDebug(void* channel_buffer, size_t channel_size)
+  : channel(Circular_Buffer<void*>(channel_buffer, channel_size)) { //vector<void*, shared_malloc_allocator<void*> >(10, NULL, shared_malloc_allocator<void*>())
     if (Using_Processes)
       OS_Interface::mutex_init_for_cross_process_use(&lock);
     else
@@ -43,9 +50,8 @@ public:
   ~BufferedChannelDebug() {
     OS_Interface::mutex_lock(&lock);
     
-    while (!channel.empty()) {
-      free(channel.front());
-      channel.pop();
+    while (!channel.is_empty()) {
+      free(channel.dequeue());
     }
     
     OS_Interface::mutex_unlock(&lock);
@@ -57,8 +63,7 @@ public:
   
   void* receive(size_t&) {
     OS_Interface::mutex_lock(&lock);
-    void* const result = channel.front();
-    channel.pop();
+    void* const result = channel.dequeue();
     OS_Interface::mutex_unlock(&lock);
     
     return result;
@@ -66,28 +71,8 @@ public:
   
   void releaseOldest(void* const buffer) const;
 
-// STEFAN: performance hack, not using the lock here is usually safe, depending on the queue implementation
-/* On OSX that it is safe, the queue is based on a deque which uses a 
-   pointer compare, the object storing the pointers is allocated
-   on initalization,
-   so there is a race, but there is no problem with corrupted memory.
-   the result might be wrong (ignoring avilable data), but it will not crash,
-   and it is a lot faster */
-#define _SKIP_HAS_DATA_LOCKING 1
-  
-#if _SKIP_HAS_DATA_LOCKING
-  __attribute__((noinline)) // seems to be necessary, otherwise the volatile hack does not work
-#endif
   bool hasData() {
-    if (!_SKIP_HAS_DATA_LOCKING) OS_Interface::mutex_lock(&lock);
-    
-    // assign to volatile bool to avoid to optimize that out of any loop
-    // does on the tested GCC 4.5 only work if the function is not inlined
-    volatile bool result = !channel.empty();  
-
-    if (!_SKIP_HAS_DATA_LOCKING) OS_Interface::mutex_unlock(&lock);
-
-    return result;
+    return !channel.is_empty();
   }
 
 };

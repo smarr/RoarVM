@@ -14,12 +14,11 @@ template<typename T>
 class Circular_Buffer {
 private:
   size_t const size;
-  T* const buffer;
+  T*     const buffer;
   
-  size_t head;
-  size_t tail;
-  
-  bool full;
+  volatile size_t head;
+  volatile size_t tail;
+  volatile bool   full;
   
 public:
   Circular_Buffer(void* const buffer, size_t const num_items)

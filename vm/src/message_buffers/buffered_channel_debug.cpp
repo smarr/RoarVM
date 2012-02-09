@@ -18,7 +18,7 @@ void BufferedChannelDebug::send(const void* data, size_t size) {
   memcpy(buffer, data, size);
   
   OS_Interface::mutex_lock(&lock);
-  channel.push(buffer);
+  channel.enqueue(buffer);
   OS_Interface::mutex_unlock(&lock);
 }
 

@@ -18,6 +18,8 @@ class Shared_Memory_Message_Queue : public Abstract_Message_Queue {
 protected:
   #if Use_BufferedChannelDebug
     BufferedChannelDebug buffered_channel;
+    # define CHANNEL_BUFFER_SIZE 10
+    void* buffer_for_channel[CHANNEL_BUFFER_SIZE];
   #else
     BufferedChannel      buffered_channel;
   #endif
@@ -27,7 +29,7 @@ public:
   
   Shared_Memory_Message_Queue() :
     #if Use_BufferedChannelDebug
-      buffered_channel(BufferedChannelDebug()) {}
+      buffered_channel(BufferedChannelDebug(&buffer_for_channel, CHANNEL_BUFFER_SIZE)) {}
     #else
       buffered_channel(BufferedChannel(Number_Of_Channel_Buffers, Message_Statics::max_message_size())) {}
     #endif
