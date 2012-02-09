@@ -85,9 +85,9 @@ void Basic_Memory_System::set_page_size_used_in_heap() {
     as 2 GB and thus, convert the assertions to constant checks, which will
     fail for a 2 GB heap */
 __attribute__((noinline))  // Important attribute for LLVM-GCC and Clang
-void Basic_Memory_System::map_heap_memory_in_one_request(int pid, size_t total) {
+void Basic_Memory_System::map_heap_memory_in_one_request(int pid, size_t total, void* start_address) {
   read_write_memory_base = OS_Interface::map_heap_memory(total, total,
-                                                         NULL, 0, pid, MAP_SHARED);
+                                                         start_address, 0, pid, MAP_SHARED);
   read_write_memory_past_end = read_write_memory_base + total;
   assert(read_write_memory_base < read_write_memory_past_end);
 }
@@ -106,7 +106,9 @@ void Basic_Memory_System::initialize_main(init_buf* ib) {
 
 
 void Basic_Memory_System::map_memory_on_helper(init_buf* ib) {
-  map_heap_memory_in_one_request(ib->main_pid, ib->total_read_write_memory_size);
+  map_heap_memory_in_one_request(ib->main_pid,
+                                 ib->total_read_write_memory_size,
+                                 ib->read_write_memory_base);
 }
 
 void Basic_Memory_System::send_local_heap() {
