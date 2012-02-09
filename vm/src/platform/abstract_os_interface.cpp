@@ -30,7 +30,7 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
   assert_always(Max_Number_Of_Cores >= Logical_Core::group_size);
   
   assert( Memory_Semantics::cores_are_initialized() );
-  assert( On_Tilera || Logical_Core::running_on_main() );
+  assert( Using_Processes || Logical_Core::running_on_main() );
   
   
   const bool print = false;
