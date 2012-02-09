@@ -328,6 +328,12 @@ int main(int argc, char *argv[]) {
   }
   // set_sim_tracing(SIM_TRACE_NONE);
   
+  // Wait for the debugger for child processes, to make sure we can debug this.
+  if (Using_Processes && Include_Debugging_Code)
+    while (!OS_Interface::AmIBeingDebugged())
+      sleep(1);
+  
+  
   initialize_basic_subsystems();
   
   char** orig_argv = new char*[argc + 1];
