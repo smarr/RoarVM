@@ -114,6 +114,7 @@
 # include "posix_os_interface.inline.h"
 
 # if !On_Tilera
+  # include "circular_buffer.h"
   # include "synced_queue.h"
   # include "buffered_channel.h"
   # include "buffered_channel_debug.h"
