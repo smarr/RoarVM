@@ -46,7 +46,7 @@ public:
   
   static inline void initialize() {
     static bool initialized = false;
-    if (!initialized) {
+    if (Using_Processes && !initialized) {
       POSIX_Processes::initialize();
       initialized = true;
     }
