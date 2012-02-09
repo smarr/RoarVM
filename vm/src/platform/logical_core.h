@@ -27,6 +27,7 @@ public:
     _rank = rank;
     _rank_mask = 1LL << u_int64(rank);
     coordinate.initialize(rank);
+    message_queue.initialize(rank);
   }
   
   inline int      rank()      const { assert(this != NULL); return _rank; }

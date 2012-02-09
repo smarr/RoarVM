@@ -15,6 +15,9 @@
 # if Using_Processes
 
 class Process_Memory_Semantics : public Abstract_Memory_Semantics {
+private:
+  static const size_t MMAP_REGION_ALLOC_POOL      = 0;
+  static const size_t MMAP_REGION_MESSAGE_BUFFERS = 1;
 public:
   static Logical_Core* _my_core;
   static int           _my_rank;
@@ -55,8 +58,16 @@ public:
     return OS_Interface::rvm_calloc_shared(num_members, mem_size);
   }
   
+  static inline void shared_free(void* ptr) {
+    OS_Interface::rvm_free_shared(ptr);
+  }
+  
   static inline void* shared_allocation_pool(size_t sz) {
-    return POSIX_Processes::request_globally_mmapped_region(0, sz);
+    return POSIX_Processes::request_globally_mmapped_region(MMAP_REGION_ALLOC_POOL, sz);
+  }
+  
+  static inline void* shared_messaging_memory(size_t sz) {
+    return POSIX_Processes::request_globally_mmapped_region(MMAP_REGION_MESSAGE_BUFFERS, sz);
   }
   
   static inline bool is_using_threads() { return false; }

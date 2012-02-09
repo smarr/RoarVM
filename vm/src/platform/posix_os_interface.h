@@ -208,7 +208,7 @@ public:
   static void start_processes(void (*helper_core_main)(), char* argv[]);
   
   static inline int get_thread_rank()  { return (int)pthread_getspecific(rank_key); }
-  static inline int get_process_rank() { return POSIX_Processes::process_rank();    }
+  static inline int get_process_rank();
   
   static int abort_if_error(const char*, int); 
   

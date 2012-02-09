@@ -17,6 +17,27 @@
 # if Use_PerSender_Message_Queue
 
 
+Shared_Memory_Message_Queue_Per_Sender::Padded_Channel* Shared_Memory_Message_Queue_Per_Sender::get_shared_channels(int rank) {
+  size_t all_channels_size  =   Logical_Core::num_cores 
+                              * Logical_Core::num_cores
+                              * sizeof(Padded_Channel);
+  Padded_Channel* channels = (Padded_Channel*)Memory_Semantics::shared_messaging_memory(all_channels_size);
+  return &channels[rank * Logical_Core::num_cores];
+}
+
+void Shared_Memory_Message_Queue_Per_Sender::setup_channels() {
+  // how much memory do we need?
+  // We want one buffer per every incoming channel, per core.
+  // And to make it easy, we will not skip the 'current core'.
+  
+  size_t all_channels_size = Logical_Core::num_cores * Logical_Core::num_cores * sizeof(Padded_Channel);
+  Padded_Channel* mem = (Padded_Channel*)Memory_Semantics::shared_messaging_memory(all_channels_size);
+  
+  for (size_t i = 0; i < Logical_Core::num_cores; i++)
+    for (size_t j = 0; j < Logical_Core::num_cores; j++)
+      new (&mem[i * Logical_Core::num_cores + j]) Padded_Channel;
+}
+
 void* Shared_Memory_Message_Queue_Per_Sender::operator new(size_t sz) {
   return Memory_Semantics::shared_malloc(sz);
 }

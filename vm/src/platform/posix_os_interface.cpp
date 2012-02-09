@@ -82,6 +82,7 @@ void POSIX_OS_Interface::start_threads(void (*helper_core_main)(), char** /* arg
   pthread_key_create(&rank_key, NULL);
   pthread_setspecific(rank_key, (const void*)0);
   
+  Message_Queue::setup_channels();
   Logical_Core::initialize_all_cores();
   
   Memory_Semantics::initialize_logical_cores();
@@ -120,6 +121,8 @@ void POSIX_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[
   Memory_Semantics::_my_rank_mask = 1LL << u_int64(Memory_Semantics::_my_rank);
   
   if (Logical_Core::group_size == 1  &&  Logical_Core::group_size < Logical_Core::num_cores) {
+    Message_Queue::setup_channels();
+    
     lprintf("Will ask for num_proc: %d\n", Logical_Core::num_cores);
     
     int err = POSIX_Processes::start_group(Logical_Core::num_cores, argv);

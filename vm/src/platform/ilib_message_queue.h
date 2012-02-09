@@ -30,6 +30,8 @@ public:
   static void setup_channels();
   static void setup_buffered_channels();
   static void setup_sink();
+  
+  void initialize(int) {}
 
   void send_message(abstractMessage_class*);
   

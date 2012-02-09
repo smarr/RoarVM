@@ -17,15 +17,20 @@
 class Shared_Memory_Message_Queue_Per_Sender : public Abstract_Message_Queue {
 protected:
   #if Use_BufferedChannelDebug
-  struct {
-    BufferedChannelDebug channel;
-    // TODO: STEFAN: this is ad-hoc but does the job for the moment, should be changed
-    # define INTEL_CACHELINE_SIZE 64
-    # define SIZE_TO_FIT_IN_CHANNEL (INTEL_CACHELINE_SIZE * 2)
-    char cacheline_alignment[SIZE_TO_FIT_IN_CHANNEL - sizeof(BufferedChannelDebug)];
-  } buffered_channels[Max_Number_Of_Cores];
+    class Padded_Channel {
+    public:
+      static const size_t channel_buffer_size = 128;
+      void* buffer_for_channel[channel_buffer_size];
+      BufferedChannelDebug channel;
+      // TODO: STEFAN: this is ad-hoc but does the job for the moment, should be changed
+      // # define INTEL_CACHELINE_SIZE 64
+      // # define SIZE_TO_FIT_IN_CHANNEL (INTEL_CACHELINE_SIZE * 2)
+      // char cacheline_alignment[(SIZE_TO_FIT_IN_CHANNEL - sizeof(BufferedChannelDebug)) - (sizeof(void*) * channel_buffer_size)];
+      Padded_Channel() : channel(&buffer_for_channel, channel_buffer_size) {}
+    };
+    Padded_Channel* buffered_channels;
   #else
-    BufferedChannel      buffered_channel;
+    BufferedChannel  buffered_channel;
   #endif
 
 public:
@@ -33,11 +38,14 @@ public:
   
   Shared_Memory_Message_Queue_Per_Sender()
     #if Use_BufferedChannelDebug
-      {}
+      : buffered_channels(NULL) {}
     #else
       : buffered_channel(BufferedChannel(Number_Of_Channel_Buffers, Message_Statics::max_message_size())) {}
     #endif
   
+  void initialize(int rank) {
+    buffered_channels = get_shared_channels(rank);
+  }
   
   void send_message(abstractMessage_class*);
   
@@ -54,6 +62,8 @@ public:
     return false; //buffered_channel.hasData();
   }
   
+  static Padded_Channel* get_shared_channels(int rank);
+  static void setup_channels();
 };
 
 # endif
