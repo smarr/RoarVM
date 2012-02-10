@@ -163,7 +163,7 @@ int POSIX_OS_Interface::abort_if_error(const char* msg, int err) {
 
 Interprocess_Allocator* POSIX_OS_Interface::shared_memory_allocator() {
   static Interprocess_Allocator* allocator = NULL;
-  size_t pool_size = 5 * 1024 * 1024;
+  size_t pool_size = 200 * 1024 * 1024;
   if (!allocator) {
     initialize(); // Do implicit initialization of the whole module
     void* mem = Memory_Semantics::shared_allocation_pool(pool_size);
