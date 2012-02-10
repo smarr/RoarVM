@@ -1721,6 +1721,10 @@ void Squeak_Interpreter::primitiveQuit() {
   OS_Interface::sim_end_tracing();
   OS_Interface::profiler_disable();
   The_Measurements.print();
+  
+  if (Using_Processes && !On_Tilera)
+    selfQuitMessage_class("primitiveQuit").send_to_other_cores();
+  
   ioExit();
  }
 
