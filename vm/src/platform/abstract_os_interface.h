@@ -65,9 +65,9 @@ public:
   
   static inline void* rvm_malloc_shared(uint32_t /* sz */)                                    { fatal(); return NULL; }
   static inline void* rvm_calloc_shared(uint32_t /* num_members */, uint32_t /* mem_size */)  { fatal(); return NULL; }
-  static inline void* rvm_memalign(OS_Heap, int /* al */, int /* sz */)                       { fatal(); return NULL; }
+  static inline void* rvm_memalign_shared(OS_Heap, int /* al */, int /* sz */)                { fatal(); return NULL; }
   static inline void* rvm_memalign(int /* al */, int /* sz */)                                { fatal(); return NULL; }
-  static inline void* malloc_in_mem(int /* alignment */, int /* size */)                      { fatal(); return NULL; }
+  static inline void* malloc_uncacheable_shared(int /* alignment */, int /* size */)          { fatal(); return NULL; }
   static inline void  invalidate_mem(void*, size_t)                                           {}
   static inline void  mem_flush(void* /* ptr */, size_t /* size */)                           {}
   static inline void  mem_fence()                                                             { fatal(); }

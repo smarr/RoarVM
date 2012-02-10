@@ -45,7 +45,7 @@ public:
     logical_core_global.os_mutex = (OS_Interface::Mutex*)Memory_Semantics::shared_malloc(sizeof(OS_Interface::Mutex));
     OS_Interface::mutex_init(logical_core_global.os_mutex);
 
-    logical_core_global.holder = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
+    logical_core_global.holder = (int*)OS_Interface::malloc_uncacheable_shared(sizeof(int), sizeof(int));
     *logical_core_global.holder = -1;
   }
 
