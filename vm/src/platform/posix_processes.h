@@ -138,6 +138,7 @@ private:
   static void register_process_and_determine_rank();
   
   static void unregister_and_clean_up();
+  static bool unregister_in_global_memory();
   static void map_shared_regions();
 
 public:

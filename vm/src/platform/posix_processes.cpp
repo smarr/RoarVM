@@ -128,7 +128,7 @@ void POSIX_Processes::register_process_and_determine_rank() {
   atexit(unregister_and_clean_up);
 }
 
-void POSIX_Processes::unregister_and_clean_up() {
+bool POSIX_Processes::unregister_in_global_memory() {
   OS_Interface::mutex_lock(&globals->mtx_rank_running);
   
   globals->running_processes--;
@@ -136,23 +136,36 @@ void POSIX_Processes::unregister_and_clean_up() {
   
   OS_Interface::mutex_unlock(&globals->mtx_rank_running);
   
-  if (last_process) {
-    OS_Interface::mutex_destruct(&globals->mtx_rank_running);
-  }
+  if (last_process)
+    OS_Interface::mutex_destruct(&globals->mtx_rank_running);    
+
+  return last_process;
+}
+
+void POSIX_Processes::unregister_and_clean_up() {
+  Globals globals_copy = *globals;
+  const bool last_process = unregister_in_global_memory();
   
-  munmap(globals, sizeof(Globals));
   
-  if (last_process) {
-    shm_unlink(Global_Shared_Mem_Name);
-    
-    for (size_t i = 0; i < num_of_shared_mmap_regions; i++) {
-      if (globals->shared_mmap_regions[i].base_address) {
+  for (size_t i = 0; i < num_of_shared_mmap_regions; i++) {
+    if (globals_copy.shared_mmap_regions[i].base_address) {
+      /* first unmap */
+      munmap(globals_copy.shared_mmap_regions[i].base_address,
+             globals_copy.shared_mmap_regions[i].len);
+      
+      /* then remove the shm object */
+      if (last_process) {
         char region_name[BUFSIZ] = { 0 };
         snprintf(region_name, sizeof(region_name), Shared_Region_Name, i);
         shm_unlink(region_name);
       }
     }
   }
+  
+  munmap(globals, sizeof(Globals));
+  
+  if (last_process)
+    shm_unlink(Global_Shared_Mem_Name);
 }
 
 int POSIX_Processes::start_group(size_t num_processes, char** argv) {
