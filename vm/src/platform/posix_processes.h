@@ -158,5 +158,11 @@ public:
     assert_always(id < num_of_shared_mmap_regions);
     return globals->shared_mmap_regions[id].base_address;
   }
+  
+  static bool is_owner_process() {
+    if (globals == NULL)
+      return false; // don't know
+    return globals->owning_process == locals().pid;
+  }
 
 };
