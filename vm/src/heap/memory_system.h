@@ -67,7 +67,7 @@ public:
   void set_second_chance_cores_for_allocation(int);
   
   u_int32 maxContiguousBytesLeft();
-  u_int32 bytesLeft(bool);
+  u_int32 bytesLeft();
   
   void  set_lowSpaceThreshold(int32);
   int32 get_lowSpaceThreshold()  {

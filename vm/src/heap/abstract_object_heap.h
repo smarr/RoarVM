@@ -74,7 +74,7 @@ class Abstract_Object_Heap {
   Object* next_object_without_preheader(Object*);
   Object*  end_objects_without_preheader() { return (Object*)_next; } // addr past objects
 
-  u_int32 bytesLeft(bool includeSwapSpace = false) { return (char*)_end - (char*)_next; }
+  u_int32 bytesLeft() { return (char*)_end - (char*)_next; }
   int bytesUsed() { return (char*)_next - (char*)_start; }
 
   void     set_end_objects(Oop* x) {

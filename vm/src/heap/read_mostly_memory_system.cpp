@@ -304,7 +304,7 @@ bool Read_Mostly_Memory_System::moveAllToRead_MostlyHeaps() {
           return false;
         }
         
-        if (u_int32(obj->sizeBits() + 32 + heaps[dst_rank][read_mostly]->lowSpaceThreshold)  >  heaps[dst_rank][read_mostly]->bytesLeft(false))
+        if (u_int32(obj->sizeBits() + 32 + heaps[dst_rank][read_mostly]->lowSpaceThreshold)  >  heaps[dst_rank][read_mostly]->bytesLeft())
           continue;
         
         obj->move_to_heap(dst_rank, read_mostly, false);

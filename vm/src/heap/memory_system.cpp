@@ -300,7 +300,7 @@ bool Memory_System::sufficientSpaceAfterGC(oop_int_t minFree, int mutability) {
     return true;
   
   fatal("growObjectMemory");
-  // oop_int_t growSize = minFree - bytesLeft(false) + The_Memory_System()->get_growHeadroom();
+  // oop_int_t growSize = minFree - bytesLeft() + The_Memory_System()->get_growHeadroom();
   //growObjectMemory(growSize);
   return heaps[second_chance_cores_for_allocation[mutability]][mutability]->sufficientSpaceToAllocate(minFree + extra);
 }
@@ -375,10 +375,10 @@ void Memory_System::snapshotCleanUp() {
 }
 
 
-u_int32 Memory_System::bytesLeft(bool includeSwap) {
+u_int32 Memory_System::bytesLeft() {
   u_int32 sum = 0;
   FOR_ALL_RANKS(i)
-    sum += heaps[i][read_write]->bytesLeft(includeSwap);
+    sum += heaps[i][read_write]->bytesLeft();
   return sum;
 }
 
@@ -677,7 +677,7 @@ bool Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
     obj->mutability();
     
     int dst_rank = spread ?  smallest_heap(dst_mutability)  :   j++ % num_cores  +  first;
-    if (u_int32(obj->sizeBits() + 2500)  >  heaps[dst_rank][dst_mutability]->bytesLeft(false)) {
+    if (u_int32(obj->sizeBits() + 2500)  >  heaps[dst_rank][dst_mutability]->bytesLeft()) {
       return false;
     }
     else {
