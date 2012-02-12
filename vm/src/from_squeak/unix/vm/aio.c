@@ -172,6 +172,7 @@ void aioFini(void)
   while (maxFd && !FD_ISSET(maxFd - 1, &fdMask))
     --maxFd;
   signal(SIGPIPE, SIG_DFL);
+  signal(SIGIO,   SIG_DFL);
 }
 
 

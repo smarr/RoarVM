@@ -1725,6 +1725,8 @@ void Squeak_Interpreter::primitiveQuit() {
   if (Using_Processes && !On_Tilera)
     selfQuitMessage_class("primitiveQuit").send_to_other_cores();
   
+  shared_memory_fields = NULL;
+  
   ioExit();
  }
 

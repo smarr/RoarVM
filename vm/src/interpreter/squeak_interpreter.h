@@ -957,7 +957,9 @@ public:
 
   void forceInterruptCheck() {
     interruptCheckCounter = interruptCheckCounter_force_value;
-    set_nextPollTick(0);
+
+    if (shared_memory_fields)
+      set_nextPollTick(0);
   }
 
   void createActualMessageTo(Oop);
