@@ -10,6 +10,8 @@
  ******************************************************************************/
 
 
+# if !On_Tilera
+
 void* POSIX_OS_Interface::rvm_malloc_shared(size_t sz) {
   return shared_memory_allocator()->allocate(sz);
 }
@@ -33,3 +35,5 @@ inline void POSIX_OS_Interface::initialize() {
 inline int POSIX_OS_Interface::get_process_rank() { 
   return POSIX_Processes::process_rank();
 }
+
+# endif

@@ -45,6 +45,8 @@ int printAllStacks() { pat(); return 0; }
 
 
 void print_interprocess_allocator_heap() {
+# if !On_Tilera
   OS_Interface::shared_memory_allocator()->debug_print_full_heap();
+# endif
 }
 

@@ -32,22 +32,25 @@ void ILib_Message_Queue::setup_buffered_channels() {
     }
   int buf_size =  ilib_bufchan_calc_buffer_size(Number_Of_Channel_Buffers,
                                                 Message_Statics::max_message_size());
+  
   ilibRequest send_requests[Max_Number_Of_Cores];
-  FOR_ALL_OTHER_RANKS(other_end) {
+  {FOR_ALL_OTHER_RANKS(other_end) {
     Logical_Core *other = &logical_cores[other_end];
     OS_Interface::abort_if_error("open buffered sender",
                    ilib_bufchan_start_open_sender( other_end, &other->message_queue.buffered_send_port, &send_requests[other_end]));
-  }
-  FOR_ALL_OTHER_RANKS(other_end) {
+  }}
+  
+  {FOR_ALL_OTHER_RANKS(other_end) {
     Logical_Core *other = &logical_cores[other_end];
     char* buffer = (char*)malloc(buf_size);
     OS_Interface::abort_if_error("open buffered receiver",
                    ilib_bufchan_open_receiver(other_end, buffer, buf_size, &other->message_queue.buffered_receive_port));
-  }
-  FOR_ALL_OTHER_RANKS(other_end) {
+  }}
+  
+  {FOR_ALL_OTHER_RANKS(other_end) {
     ilibStatus status;
     OS_Interface::abort_if_error("wait for buffered open", ilib_wait( &send_requests[other_end], &status));
-  }
+  }}
 }
 
 

@@ -124,6 +124,9 @@ public:
     rvm_malloc_shared_init(); // called by static ctor, so need to do it here, sigh
     return tmc_cmem_calloc(num_members, mem_size);
   }
+  static inline void rvm_free_shared(void* mem) {
+    free(mem);
+  }
 private:
   static inline void rvm_malloc_shared_init() {  
     abort_if_error("tmc_cmem_init failed", tmc_cmem_init(0)); 
@@ -136,6 +139,10 @@ public:
   static inline void* rvm_calloc_shared(size_t num_members, size_t mem_size)  {
     return calloc_shared(num_members, mem_size);
   }
+  static inline void  rvm_free_shared(void* mem) {
+    free(mem);
+  }
+  
 private:
   static inline void* rvm_malloc_shared_init() {}
 # endif
