@@ -86,7 +86,7 @@ Abstract_OS_Interface::Power_Source OSX_OS_Interface::get_power_source() { retur
 # endif
 
 
-void OSX_OS_Interface::pin_thread_to_core(int32_t rank) {
+void OSX_OS_Interface::pin_thread_to_core(int32_t /* rank */) {
   // Mac OS X does not support setting explicit affinity to a PU
   // It only supports expressing cache affinity
   // and this is only for one process i.e. threads in a process

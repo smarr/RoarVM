@@ -84,10 +84,10 @@ public:
   }
   
   static inline void mutex_init(Mutex* mutex) {
-    *mutex = 0;
+    *mutex = OS_SPINLOCK_INIT;
   }
   
-  static inline void mutex_destruct(Mutex* mutex) {}
+  static inline void mutex_destruct(Mutex*) {}
   
   static inline int mutex_lock(Mutex* mutex) {
     OSSpinLockLock(mutex);

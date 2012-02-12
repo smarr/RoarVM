@@ -606,7 +606,7 @@ test-cov: test
 	genhtml --output-directory rvm-cov rvm-gcov.info
 
 partial-cov : LDFLAGS+=-lgcov -coverage
-partial-cov : CONFIG_FLAGS+=-fprofile-arcs -ftest-coverage 
+partial-cov : CONFIG_FLAGS:=-fprofile-arcs -ftest-coverage -DWITHOUT_ROAR_VM $(filter-out -DROAR_VM,$(CONFIG_FLAGS))
 partial-cov : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
 partial-cov : INCLUDES+=$(GTEST_INCLUDES)
 partial-cov: $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/circular_buffer.o $(SRC_DIR)/tests/main_without_roarvm.o libgtest.a

@@ -26,6 +26,9 @@
 /** STEFAN: Not used anymore. We are now using the OS_Interface implementation 
             directly. (2011-04-17) */
 
+# ifndef ROAR_VM
+# warning Compiled with Test_OS_Interface
+
 class Test_OS_Interface {
 public:
   
@@ -82,4 +85,6 @@ inline int round_up_to_power_of_two(int v) {
 
 # ifndef fatal
 # define fatal(msg) assert(false)
+# endif
+
 # endif

@@ -15,11 +15,14 @@
 # include <algorithm>
 using namespace std;
 
-# include "test_os_interface.h"
-typedef Test_OS_Interface OS_Interface;
+# ifdef ROAR_VM
+  # include "headers.h"
+# else
+  # include "test_os_interface.h"
+  typedef Test_OS_Interface OS_Interface;
 
-# include "interprocess_allocator.h"
-
+  # include "interprocess_allocator.h"
+# endif
 
 TEST(Interprocess_Allocator, FreeItem) {
   Interprocess_Allocator::Item free_item;
