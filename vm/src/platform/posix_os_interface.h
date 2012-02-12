@@ -20,6 +20,7 @@
 # define MAP_CACHE_INCOHERENT 0
 
 # if On_Intel_Linux
+  # include <pthread.h>
   # include <sys/gmon.h>
   # define pthread_yield_np pthread_yield
 # endif
@@ -67,6 +68,8 @@ public:
     else
       return 0;
   }
+  
+  static bool AmIBeingDebugged() { return false; }
   
   
   

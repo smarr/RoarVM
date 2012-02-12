@@ -90,6 +90,7 @@ public:
   
   static inline void yield_or_spin_a_bit() { fatal(); }
   
+  static bool AmIBeingDebugged() { fatal(); return false; }
   
 protected:
   static char  mmap_filename[BUFSIZ];

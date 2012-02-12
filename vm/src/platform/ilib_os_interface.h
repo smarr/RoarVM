@@ -157,7 +157,9 @@ public:
   
   static void start_processes(void (*helper_core_main)(), char* argv[]);
   
-  static int abort_if_error(const char*, int); 
+  static int abort_if_error(const char*, int);
+
+  static bool AmIBeingDebugged() { return false; }
 
   /**
   * this is a local spin, it avoids putting any memory presure
