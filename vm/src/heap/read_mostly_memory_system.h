@@ -83,7 +83,7 @@ private:
 
 protected:
 
-  Multicore_Object_Heap* local_heap_for_snapshot_object(Object* src_obj_wo_preheader) {
+  Multicore_Object_Heap* local_heap_for_snapshot_object(Object* /* src_obj_wo_preheader */) {
     // Used to be is_suitable_for_replication() before multithreading, but now
     // need to exclude certainly classes that we don't know till AFTER reading the snapshot -- dmu 3/30/09
     // So, put everything in read_write, and let image move objects to read_mostly later. -- dmu 5/25/10

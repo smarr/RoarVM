@@ -101,7 +101,7 @@ protected:
   
 protected:
 
-  Multicore_Object_Heap* local_heap_for_snapshot_object(Object* src_obj_wo_preheader) {
+  Multicore_Object_Heap* local_heap_for_snapshot_object(Object* /* src_obj_wo_preheader */) {
     return heaps[Logical_Core::my_rank()][read_write];
   }
 
@@ -127,7 +127,7 @@ public:
     return read_write_memory_base <= (char*)p  &&  (char*)p < read_write_memory_past_end;
   }
   
-  int mutability_for_address(void* p) const {
+  int mutability_for_address(void*) const {
     return read_write;
   }
   
@@ -179,11 +179,11 @@ public:
 
   void print();
 
-  inline bool is_address_read_mostly(void* p) const {
+  inline bool is_address_read_mostly(void*) const {
     return false;
   }
   
-  inline bool is_address_read_write(void* p) const { 
+  inline bool is_address_read_write(void*) const { 
     return true;
   }
 };

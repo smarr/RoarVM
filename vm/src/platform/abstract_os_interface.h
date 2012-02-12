@@ -95,7 +95,7 @@ protected:
   static char  mmap_filename[BUFSIZ];
 
 public:  
-  static bool ask_for_huge_pages(int desired_huge_pages) { fatal(); }
+  static bool ask_for_huge_pages(int /* desired_huge_pages */) { fatal(); }
   static char* map_heap_memory(size_t total_size, size_t bytes_to_map,
                                void* where, off_t offset,
                                int main_pid, int flags);  
