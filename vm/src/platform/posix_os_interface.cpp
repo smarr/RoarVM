@@ -165,7 +165,12 @@ Interprocess_Allocator* POSIX_OS_Interface::shared_memory_allocator() {
   if (!allocator) {
     initialize(); // Do implicit initialization of the whole module
     void* mem = Memory_Semantics::shared_allocation_pool(pool_size);
-    allocator = new Interprocess_Allocator(mem, pool_size);
+    
+    // Logical core is typically not yet initialized
+    if (Logical_Core::running_on_main() || POSIX_Processes::is_owner_process())
+      allocator = new Interprocess_Allocator(mem, pool_size);
+    else
+      allocator = new Interprocess_Allocator(mem);
   }
   return allocator;
 }
