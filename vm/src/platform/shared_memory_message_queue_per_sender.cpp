@@ -86,6 +86,7 @@ void Shared_Memory_Message_Queue_Per_Sender::send_message(abstractMessage_class*
     case Message_Statics::addObjectFromSnapshotResponse:
     case Message_Statics::broadcastInterpreterDatumMessage:
       verbose = false;
+    default: break;
   }
   
   if (verbose) lprintf( "send_message about to send header %d, three words: 0x%x, 0x%x, 0x%x\n",

@@ -52,7 +52,7 @@ public:
       size = size | 1 ;
     }
 
-    bool become_used() {
+    void become_used() {
       size = (size & 0xFFFFFFFE);
     }
 
@@ -330,6 +330,7 @@ public:
     Item* prev = &shared->free_item;
     
     while (current != &shared->free_item) {
+      assert(current);
       assert(current->is_actually_free_item());
       assert(current->prev == prev); /* back point works */
       free_size += current->get_size();

@@ -13,7 +13,9 @@
 
 
 inline Oop Multicore_Object_Table::allocate_oop(int rank COMMA_DCL_ESB)  {
-  if (check_many_assertions  &&  The_Squeak_Interpreter()->is_initialized()) verify_free_list(rank);
+  if (check_many_assertions  &&  The_Squeak_Interpreter()->is_initialized())
+    verify_free_list(rank);
+  
   Entry*& first_free = first_free_entry[rank];
   Entry* e = first_free;
   if (e == NULL) {

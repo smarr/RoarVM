@@ -21,7 +21,7 @@ void* Multicore_Object_Heap::operator new(size_t size) {
 
 
 void Multicore_Object_Heap::initialize_multicore(int hash, char* mem, int size, int page_size, bool do_homing) {
-  Abstract_Object_Heap::initialize(mem,size);
+  Abstract_Object_Heap::initialize(mem, size);
   lastHash = hash;
   if (do_homing  &&  Logical_Core::group_size > 1)
     home_to_this_tile(page_size);
@@ -75,7 +75,7 @@ bool Multicore_Object_Heap::verify_homing(int page_size) {
 
 void Multicore_Object_Heap::add_object_from_snapshot(Oop dst_oop, Object* dst_obj, Object* src_obj_wo_preheader) {
   int extra_header_oops_wo_preheader = src_obj_wo_preheader->extra_header_oops_without_preheader();
-  Oop* dst_chunk_wo_preheader = &dst_obj         ->as_oop_p()[-extra_header_oops_wo_preheader];
+  Oop* dst_chunk_wo_preheader = &dst_obj             ->as_oop_p()[-extra_header_oops_wo_preheader];
   Oop* src_chunk_wo_preheader = &src_obj_wo_preheader->as_oop_p()[-extra_header_oops_wo_preheader];
 
   int total_src_bytes = src_obj_wo_preheader->total_byte_size_without_preheader();

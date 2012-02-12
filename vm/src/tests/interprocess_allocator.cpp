@@ -113,7 +113,7 @@ TEST(Interprocess_Allocator, UniqueAllocationResultsInMemRegion) {
     ASSERT_NE(result, prev);
     
     ASSERT_TRUE(result >= mem);
-    ASSERT_TRUE(((intptr_t)result + 4) <= ((intptr_t)mem + area_size));
+    ASSERT_TRUE(((uintptr_t)result + 4) <= ((uintptr_t)mem + area_size));
     
     prev = result;
   }

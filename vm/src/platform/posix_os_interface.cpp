@@ -135,9 +135,7 @@ void POSIX_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[
   
   Memory_Semantics::initialize_interpreter();
   Memory_Semantics::initialize_local_interpreter();
-  
-# warning Do We need to setup channels here?
-  
+    
   if (Logical_Core::running_on_main()) {
     fprintf(stdout, "spawned %d helpers\n", Logical_Core::group_size - 1);
     return;
