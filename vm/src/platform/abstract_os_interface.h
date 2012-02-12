@@ -106,5 +106,9 @@ public:
       mmap_filename[0] = 0;
     }
   }
+  
+  static void* map_memory(size_t bytes_to_map, int    mmap_fd,
+                          int    flags, void*  start_address,
+                          const char* const usage);
 
 };

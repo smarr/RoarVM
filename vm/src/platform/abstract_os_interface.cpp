@@ -57,13 +57,8 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
   
   
   // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
-  void* mmap_result = mmap(where, bytes_to_map, PROT_READ | PROT_WRITE,  flags, mmap_fd, offset);
-  if (check_many_assertions)
-    lprintf("mmapp: address requested 0x%x, result 0x%x, bytes 0x%x, flags 0x%x, offset in file 0x%x\n",
-            where, mmap_result, bytes_to_map, flags, offset);
-  if (print)
-    lprintf("mmap(<requested address> 0x%x, <byte count to map> 0x%x, PROT_READ | PROT_WRITE, <flags> 0x%x, open(%s, 0x%x, 0600), <offset> 0x%x) returned 0x%x\n",
-            where, bytes_to_map, flags, mmap_filename, open_flags, offset, mmap_result);
+  void* mmap_result = map_memory(bytes_to_map, mmap_fd, flags, where, (where == NULL) ? "1st heap part" : "2nd heap part");
+  
   if (mmap_result == MAP_FAILED) {
     char buf[BUFSIZ];
     snprintf(buf, sizeof(buf),
@@ -75,15 +70,45 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
     unlink(mmap_filename);
     fatal("mmap");
   }
-  if (where != NULL  &&  where != (void*)mmap_result) {
-    lprintf("mmap asked for memory at 0x%x, but got it at 0x%x\n",
-            where, mmap_result);
-    fatal("mmap was uncooperative");
-  }
+
   char* mem = (char*)mmap_result;
   close(mmap_fd);
   
+  if (print)
+    lprintf("mmap(<requested address> 0x%x, <byte count to map> 0x%x, PROT_READ | PROT_WRITE, <flags> 0x%x, open(%s, 0x%x, 0600), <offset> 0x%x) returned 0x%x\n",
+            where, bytes_to_map, flags, mmap_filename, open_flags, offset, mmap_result);
+ 
   assert_always( mem != NULL );
   return mem;
+}
+
+void* Abstract_OS_Interface::map_memory(size_t bytes_to_map,
+                                        int    mmap_fd,
+                                        int    flags,
+                                        void*  start_address,
+                                        const char* const usage) {
+  if (Debugging)
+    lprintf("mmap: About to mmap memory for %s\n", usage);
+  
+  void* mmap_result = mmap(start_address, bytes_to_map, 
+                           PROT_READ | PROT_WRITE,
+                           flags, mmap_fd, 0);
+  
+  if (mmap_result == MAP_FAILED)
+    return MAP_FAILED;
+
+  if (Debugging) {
+    lprintf("mmap: address requested 0x%x, result 0x%x, bytes 0x%x, flags 0x%x, offset in file 0x%x\n",
+            start_address, mmap_result, bytes_to_map, flags, 0);
+    lprintf("mmap: address range %p - %p\n", mmap_result, (uintptr_t)mmap_result + bytes_to_map);
+  }
+
+  if (start_address != NULL  &&  start_address != (void*)mmap_result) {
+    lprintf("mmap asked for memory at 0x%x, but got it at 0x%x\n",
+            start_address, mmap_result);
+    return MAP_FAILED;
+  }
+
+  return mmap_result;
 }
 

@@ -60,10 +60,8 @@ int POSIX_Processes::initialize() {
   
   assert(shared_fd >= 0);
   
-  globals = (Globals*)mmap(NULL, sizeof(Globals),
-                          PROT_READ | PROT_WRITE,
-                          MAP_SHARED,
-                          shared_fd, 0);
+  globals = (Globals*)OS_Interface::map_memory(sizeof(*globals), shared_fd, MAP_SHARED, NULL, "POSIX_Process Globals");
+  
   if (MAP_FAILED == globals) {
     // TODO: do it properly
     perror("Could not establish memory mapping for the globally shared"
@@ -232,7 +230,8 @@ void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
   int mmap_flags = MAP_SHARED; // STEFAN: do we need a special flag to enable semaphores in this memory? MAP_HASSEMAPHORE?
   int mmap_offset= 0;
   
-  void* result = mmap(NULL, len, mmap_prot, mmap_flags, shared_fd, mmap_offset);
+  void* result = OS_Interface::map_memory(len, shared_fd, mmap_flags, NULL, "POSIX_Processes: Request a globally mapped region");
+  
   if (MAP_FAILED == result) {
     // TODO: do it properly
     perror("Could not establish memory mapping for the globally shared"
@@ -246,7 +245,8 @@ void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
 
 void POSIX_Processes::map_shared_regions() {
   for (size_t i = 0; i < num_of_shared_mmap_regions; i++) {
-    if (!globals->shared_mmap_regions[i].base_address)
+    Shared_MMAP_Region region = globals->shared_mmap_regions[i];
+    if (!region.base_address)
       continue;
     
     char region_name[BUFSIZ] = { 0 };
@@ -260,12 +260,8 @@ void POSIX_Processes::map_shared_regions() {
     }
     assert(shared_fd >= 0);
     
-    void* result = mmap(globals->shared_mmap_regions[i].base_address,
-                        globals->shared_mmap_regions[i].len,
-                        globals->shared_mmap_regions[i].prot,
-                        globals->shared_mmap_regions[i].flags,
-                        shared_fd,
-                        globals->shared_mmap_regions[i].offset);
+    
+    void* result = OS_Interface::map_memory(region.len, shared_fd, region.flags, region.base_address, "POSIX_Processes: reestablish mapping of a globally shared region.");
     
     if (MAP_FAILED == result) {
       // TODO: do it properly
