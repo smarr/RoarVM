@@ -156,7 +156,8 @@
 # define On_Tilera_With_GCC (On_Tilera && !defined(__TILECC__))
 
 # ifndef Enforce_Threads
-  # define Enforce_Threads !On_Tilera
+  // used to be !On_Tilera, but now, we do not want to use threads on any platform anymore
+  # define Enforce_Threads 0
 # endif
 
 # define Using_Threads    Enforce_Threads
