@@ -65,8 +65,9 @@ extern "C" void lprintf(const char* msg, ...) {
 
 void vlprintf(const char* msg, va_list ap) {
   FILE* f = stderr;
+  Squeak_Interpreter* const interp = The_Squeak_Interpreter();
   fprintf(f, "%d on %d (%d): ",
-          The_Squeak_Interpreter()->increment_print_sequence_number(),
+          (interp) ? interp->increment_print_sequence_number() : -1,
           Logical_Core::my_rank(),
           getpid());
   vfprintf(f, msg, ap);

@@ -327,7 +327,7 @@ public:
    int get_global_sequence_number() { return *global_sequence_number; }
    int increment_global_sequence_number() { return ++*global_sequence_number; }
    int get_print_sequence_number() { return *print_sequence_number; }
-   int increment_print_sequence_number() { return ++*print_sequence_number; }
+   int increment_print_sequence_number() { return (print_sequence_number) ? ++*print_sequence_number : -1; }
 
   bool get_debug_flag() { return *debug_flag; }
    void set_debug_flag(bool b) { *debug_flag = b; }
