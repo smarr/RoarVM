@@ -296,6 +296,9 @@ static void sig_child(int signo) {
 }
 
 void POSIX_Processes::initialize_termination_handler() {
+  // This is confusing the GTEST framework, thus, do not do it when we are
+  // compiling for unit testing.
+#ifndef UNIT_TESTING
   struct sigaction action;
   
   action.sa_handler = sig_child;
@@ -307,5 +310,6 @@ void POSIX_Processes::initialize_termination_handler() {
   if (sigaction(SIGCHLD, &action, NULL) < 0) {
     perror("sigaction failed: ");
   }
+# endif
 }
 

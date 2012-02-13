@@ -583,19 +583,19 @@ rvm-test : INCLUDES+=$(GTEST_INCLUDES)
 rvm-test: libgtest.a $(TEST_OBJS) $(TEST_H)
 	$(CXX) $(LDFLAGS) $(TEST_OBJS) gtest-all.o -lm -lpthread  $(TILERA_LIBS) -L. $(LIBS_LINKING) -o $@
 
-test : CONFIG_FLAGS+=-g3 -DDebugging=1 -Dcheck_assertions=1 -Dcheck_many_assertions=1
+test : CONFIG_FLAGS+=-g3 -DDebugging=1 -Dcheck_assertions=1 -Dcheck_many_assertions=1 -DUNIT_TESTING
 test: rvm-test
 	$(AT)./rvm-test
 
 test-cov : LDFLAGS+=-lgcov -coverage
-test-cov : CONFIG_FLAGS+=-fprofile-arcs -ftest-coverage 
+test-cov : CONFIG_FLAGS+=-fprofile-arcs -ftest-coverage
 test-cov: test
 	gcov $(TEST_SRC) $(RVM_HEADERS) $(OBJS:.opt=.cpp)
 	lcov --directory . --capture --output-file rvm-gcov.info
 	genhtml --output-directory rvm-cov rvm-gcov.info
 
 partial-cov : LDFLAGS+=-lgcov -coverage
-partial-cov : CONFIG_FLAGS:=-fprofile-arcs -ftest-coverage -DWITHOUT_ROAR_VM $(filter-out -DROAR_VM,$(CONFIG_FLAGS))
+partial-cov : CONFIG_FLAGS:=-fprofile-arcs -ftest-coverage -DWITHOUT_ROAR_VM -DUNIT_TESTING $(filter-out -DROAR_VM,$(CONFIG_FLAGS))
 partial-cov : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
 partial-cov : INCLUDES+=$(GTEST_INCLUDES)
 partial-cov: $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/circular_buffer.o $(SRC_DIR)/tests/main_without_roarvm.o libgtest.a
