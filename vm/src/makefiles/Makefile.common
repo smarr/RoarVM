@@ -75,14 +75,8 @@ INCLUDES = \
     -I$(SRC_DIR)/objects \
     -I$(SRC_DIR)/primitives \
     -I$(SRC_DIR)/messages \
+    -I$(SRC_DIR)/message_buffers \
     -I$(SRC_DIR)/multichip
-
-	
-ifeq "$(PLATFORM)" "Intel"
-INCLUDES += \
-	-I$(SRC_DIR)/message_buffers \
-	-I$(SRC_DIR)/ibm
-endif
 
 
 CONFIG_FLAGS += -DExtra_Preheader_Word_Experiment=1 -DLSB_FIRST=1 -DROAR_VM
@@ -400,6 +394,7 @@ vpath %.cpp $(SRC_DIR)/testers
 vpath %.cpp $(SRC_DIR)/types
 vpath %.cpp $(SRC_DIR)/primitives
 vpath %.cpp $(SRC_DIR)/messages
+vpath %.cpp $(SRC_DIR)/message_buffers
 vpath %.cpp $(SRC_DIR)/multichip
 
 
@@ -416,15 +411,9 @@ vpath %.h $(SRC_DIR)/testers
 vpath %.h $(SRC_DIR)/types
 vpath %.h $(SRC_DIR)/primitives
 vpath %.h $(SRC_DIR)/messages
+vpath %.h $(SRC_DIR)/message_buffers
 vpath %.h $(SRC_DIR)/multichip
 
-ifeq "$(PLATFORM)" "Intel"
-vpath %.cpp $(SRC_DIR)/message_buffers
-vpath %.cpp $(SRC_DIR)/ibm
-
-vpath %.h $(SRC_DIR)/message_buffers
-vpath %.h $(SRC_DIR)/ibm
-endif
 
 #        UnixOSProcessPlugin.o 
 
