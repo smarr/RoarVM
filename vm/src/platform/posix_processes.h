@@ -112,6 +112,9 @@ private:
     int   running_processes;
     int   group_size;
     Shared_MMAP_Region shared_mmap_regions[num_of_shared_mmap_regions];
+    
+    /** Record all involved process ids */
+    pid_t processes[Max_Number_Of_Cores];
   };
   
   /**
@@ -140,6 +143,8 @@ private:
   static void unregister_and_clean_up();
   static bool unregister_in_global_memory();
   static void map_shared_regions();
+  
+  static void initialize_termination_handler();
 
 public:
 

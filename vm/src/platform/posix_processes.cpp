@@ -84,7 +84,9 @@ int POSIX_Processes::initialize() {
   
   register_process_and_determine_rank();
   
-  if (locals().rank != 0)
+  if (is_owner_process())
+    initialize_termination_handler();
+  else
     map_shared_regions();
   
 # warning TODO: add pinning for processes to cores here!!! STEFAN
@@ -120,6 +122,8 @@ void POSIX_Processes::register_process_and_determine_rank() {
     
     globals->running_processes++;
   }
+  
+  globals->processes[locals().rank] = locals().pid;
   
   OS_Interface::mutex_unlock(&globals->mtx_rank_running);
   
@@ -274,6 +278,34 @@ void POSIX_Processes::map_shared_regions() {
       perror("Could not establish memory mapping for the globally shared memory object.");
       fatal("Could not establish memory mapping for the globally shared memory object.");
     }    
+  }
+}
+
+# include <signal.h>
+
+static void sig_child(int signo) {
+  /** We assume the VM to be bug free *giggle* and expect this to be a
+      very rare case. */
+  lprintf("A subprocess seems to have terminated. Will shutdown now.\n");
+  selfQuitMessage_class("Child Terminated").send_to_other_cores();
+  
+  // hmmmm
+  // The_Squeak_Interpreter()->shared_memory_fields = NULL;
+  
+  ioExit();
+}
+
+void POSIX_Processes::initialize_termination_handler() {
+  struct sigaction action;
+  
+  action.sa_handler = sig_child;
+  
+  sigemptyset(&action.sa_mask);
+  
+  action.sa_flags = SA_NOCLDSTOP;
+  
+  if (sigaction(SIGCHLD, &action, NULL) < 0) {
+    perror("sigaction failed: ");
   }
 }
 
