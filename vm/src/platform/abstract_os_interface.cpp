@@ -90,6 +90,9 @@ void* Abstract_OS_Interface::map_memory(size_t bytes_to_map,
   if (Debugging)
     lprintf("mmap: About to mmap memory for %s\n", usage);
   
+  if (start_address != NULL)
+    flags |= MAP_FIXED;
+  
   void* mmap_result = mmap(start_address, bytes_to_map, 
                            PROT_READ | PROT_WRITE,
                            flags, mmap_fd, 0);
