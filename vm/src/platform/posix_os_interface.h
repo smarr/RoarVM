@@ -88,7 +88,11 @@ public:
   typedef pthread_spinlock_t Mutex;
   
   static inline void mutex_init(Mutex* mutex, const void* _ = NULL) {
-    pthread_spin_init(mutex, 0);
+    pthread_spin_init(mutex, PTHREAD_PROCESS_PRIVATE);
+  }
+  
+  static inline void mutex_init_for_cross_process_use(Mutex* mutex) {
+    pthread_spin_init(mutex, PTHREAD_PROCESS_SHARED);
   }
   
   static inline void mutex_destruct(Mutex* mutex) {
@@ -132,8 +136,6 @@ public:
     return pthread_mutex_unlock(mutex);
   }
   
-# endif // Omit_PThread_Locks elif Use_Spin_Locks
-  
   /** Initializes a mutex which explicitly supports cross-process usage. */
   static inline void mutex_init_for_cross_process_use(Mutex* mutex) {
     pthread_mutexattr_t process_shared_attr;
@@ -146,6 +148,8 @@ public:
     }
   }
 
+# endif // Omit_PThread_Locks elif Use_Spin_Locks
+  
   static inline int atomic_fetch_and_add(int* mem, int increment) {
     return __sync_fetch_and_add(mem, increment);
   }
