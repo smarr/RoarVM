@@ -201,6 +201,8 @@ void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
   assert_always(id < num_of_shared_mmap_regions);
   
   if (globals->shared_mmap_regions[id].base_address) {
+    if (Debugging)
+      lprintf("Reuse already allocated shared memory region id: %d base: %p\n", id, globals->shared_mmap_regions[id].base_address);
     assert_message(globals->shared_mmap_regions[id].len == len,
                    "The requested region was already allocated, but the size did not match.");
     return globals->shared_mmap_regions[id].base_address;
@@ -240,6 +242,10 @@ void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
   }
 
   globals->shared_mmap_regions[id].set(result, len, mmap_prot, mmap_flags, mmap_offset);
+
+  if (Debugging)
+    lprintf("Allocated new shared memory region id: %d base: %p\n", id, globals->shared_mmap_regions[id].base_address);
+  
   return result;
 }
 
@@ -265,10 +271,9 @@ void POSIX_Processes::map_shared_regions() {
     
     if (MAP_FAILED == result) {
       // TODO: do it properly
-      perror("Could not establish memory mapping for the globally shared"
-             " memory object.");
-      return;
-    }
+      perror("Could not establish memory mapping for the globally shared memory object.");
+      fatal("Could not establish memory mapping for the globally shared memory object.");
+    }    
   }
 }
 
