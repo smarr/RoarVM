@@ -1590,6 +1590,7 @@
 					"Collect_Performance_Counters=0",
 					LSB_FIRST,
 					ROAR_VM,
+					"XCODE_DEBUGGING=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					src/runtime,

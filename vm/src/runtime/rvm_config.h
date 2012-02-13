@@ -209,7 +209,10 @@
 
 // Flag to include general debugging code
 # ifndef Include_Debugging_Code
-# define Include_Debugging_Code Debugging
+  # ifndef XCODE_DEBUGGING
+  # define XCODE_DEBUGGING 0
+  # endif
+# define Include_Debugging_Code (Debugging & XCODE_DEBUGGING)
 # endif
 
 # ifndef Verbose_Debug_Prints
