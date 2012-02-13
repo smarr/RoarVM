@@ -578,12 +578,12 @@ TEST_OBJS := $(TEST_SRC:.cpp=.o) $(OBJS)
 
 $(TEST_OBJS) : $(TEST_H)
 
+rvm-test : CONFIG_FLAGS+=-g3 -DDebugging=1 -Dcheck_assertions=1 -Dcheck_many_assertions=1 -DUNIT_TESTING
 rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
 rvm-test : INCLUDES+=$(GTEST_INCLUDES)
 rvm-test: libgtest.a $(TEST_OBJS) $(TEST_H)
 	$(CXX) $(LDFLAGS) $(TEST_OBJS) gtest-all.o -lm -lpthread  $(TILERA_LIBS) -L. $(LIBS_LINKING) -o $@
 
-test : CONFIG_FLAGS+=-g3 -DDebugging=1 -Dcheck_assertions=1 -Dcheck_many_assertions=1 -DUNIT_TESTING
 test: rvm-test
 	$(AT)./rvm-test
 
