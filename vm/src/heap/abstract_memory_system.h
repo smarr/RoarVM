@@ -40,7 +40,6 @@ public:
   int   imageNameSize();
   char* imageName();
 
-# warning STEFAN: I think, Snapshot_Window_Size belongs not in here. TODO: refactor
   class Snapshot_Window_Size {
     int32 _fullScreenFlag;
     int32 _savedWindowSize;
