@@ -286,15 +286,19 @@ void POSIX_Processes::map_shared_regions() {
 
 # include <signal.h>
 
-static void sig_child(int signo) {
+static void sig_child(int signo, siginfo_t* info, void* context) {
   /** We assume the VM to be bug free *giggle* and expect this to be a
       very rare case. */
-  lprintf("A subprocess seems to have terminated. Will shutdown now.\n");
+  lprintf("A subprocess seems to have terminated.\n");
+  
+  lprintf("si_signo: %d, si_errno: %d, si_code: %d, si_pid: %p, si_status: %p\n",
+          info->si_signo, info->si_errno, info->si_code, info->si_pid, info->si_status);
+  
+  lprintf("Will shutdown now.\n");
   selfQuitMessage_class("Child Terminated").send_to_other_cores();
   
   // hmmmm
   // The_Squeak_Interpreter()->shared_memory_fields = NULL;
-  
   ioExit();
 }
 
@@ -304,11 +308,11 @@ void POSIX_Processes::initialize_termination_handler() {
 #ifndef UNIT_TESTING
   struct sigaction action;
   
-  action.sa_handler = sig_child;
+  action.sa_sigaction = &sig_child;
   
   sigemptyset(&action.sa_mask);
   
-  action.sa_flags = SA_NOCLDSTOP;
+  action.sa_flags = SA_NOCLDSTOP | SA_SIGINFO;
   
   if (sigaction(SIGCHLD, &action, NULL) < 0) {
     perror("sigaction failed: ");
