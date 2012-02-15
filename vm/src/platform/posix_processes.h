@@ -165,6 +165,8 @@ public:
   }
   
   static bool is_owner_process() {
+    if (Using_Threads)
+      return true;
     if (globals == NULL)
       return false; // don't know
     return globals->owning_process == locals().pid;
