@@ -816,17 +816,17 @@ void Memory_System::print_heaps() {
 
 # define DEF_SEC(T) \
 void Memory_System::store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_evacuated_or_null) { \
-if (sizeof(T) == bytes_per_oop) { DEBUG_STORE_CHECK((oop_int_t*)(p), (oop_int_t)(x)); } \
-assert(contains(p)); \
-if (is_address_read_write(p)) { *p = x; return; } \
-assert(!Safepoint_Ability::is_interpreter_able()); \
-if (*p == x) return; \
-pre_cohere(p, sizeof(x));  \
-*p = x;  \
-post_cohere(p, sizeof(x)); \
-if (dst_obj_to_be_evacuated_or_null != NULL) \
-The_Squeak_Interpreter()->remember_to_move_mutated_read_mostly_object(dst_obj_to_be_evacuated_or_null->as_oop()); \
-}
+    if (sizeof(T) == bytes_per_oop) { DEBUG_STORE_CHECK((oop_int_t*)(p), (oop_int_t)(x)); } \
+    assert(contains(p)); \
+    if (is_address_read_write(p)) { *p = x; return; } \
+    assert(!Safepoint_Ability::is_interpreter_able()); \
+    if (*p == x) return; \
+    pre_cohere(p, sizeof(x));  \
+    *p = x;  \
+    post_cohere(p, sizeof(x)); \
+    if (dst_obj_to_be_evacuated_or_null) \
+      The_Squeak_Interpreter()->remember_to_move_mutated_read_mostly_object(dst_obj_to_be_evacuated_or_null->as_oop()); \
+  }
 
 
 FOR_ALL_STORE_ENFORCING_COHERENCE_FUNCTIONS(DEF_SEC)

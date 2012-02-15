@@ -368,7 +368,7 @@ inline oop_int_t Object::temporaryCountOfHeader(oop_int_t header) { return (head
 inline void Object::flushExternalPrimitive() {
 	// this is a CompiledMethod containing an external primitive. Flush the function address and session ID of the CM"
   Object_p lit = get_external_primitive_literal_of_method();
-  if (lit == NULL)  return; //  "Something's broken"
+  if (!lit)  return; //  "Something's broken"
   lit->cleanup_session_ID_and_ext_prim_index_of_external_primitive_literal();
 }
 

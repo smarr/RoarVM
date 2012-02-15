@@ -449,7 +449,7 @@ public:
      -1 for 0-based addressing of fetchByte
      -1 because it gets incremented BEFORE fetching currentByte"
      */
-    if (cntx_obj == NULL)
+    if (!cntx_obj)
       return;
     cntx_obj->storeIntegerUnchecked_into_context(Object_Indices::InstructionPointerIndex,
                                     instructionPointer() - method_obj()->as_u_char_p() - Object::BaseHeaderSize + 2 );
