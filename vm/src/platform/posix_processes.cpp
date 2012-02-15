@@ -320,3 +320,14 @@ void POSIX_Processes::initialize_termination_handler() {
 # endif
 }
 
+void POSIX_Processes::unregister_child_termination_handler() {
+#ifndef UNIT_TESTING
+  struct sigaction action;
+  sigemptyset(&action.sa_mask);  
+  action.sa_handler = SIG_IGN;
+  
+  sigaction(SIGCHLD, &action, NULL);
+#endif
+}
+
+

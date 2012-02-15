@@ -1722,8 +1722,10 @@ void Squeak_Interpreter::primitiveQuit() {
   OS_Interface::profiler_disable();
   The_Measurements.print();
   
-  if (Using_Processes && !On_Tilera)
+  if (Using_Processes && !On_Tilera) {
+    POSIX_Processes::unregister_child_termination_handler();
     selfQuitMessage_class("primitiveQuit").send_to_other_cores();
+  }
   
   shared_memory_fields = NULL;
   

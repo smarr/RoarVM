@@ -170,4 +170,5 @@ public:
     return globals->owning_process == locals().pid;
   }
 
+  static void unregister_child_termination_handler();
 };
