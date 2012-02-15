@@ -25,5 +25,9 @@ Memory_System           _memory_system;
 Squeak_Interpreter      _interpreter;
 Timeout_Timer_List_Head _timeout_head;
 
+bool Process_Memory_Semantics::is_initialized() {
+  return _interpreter.is_initialized();
+}
+
 # endif
 

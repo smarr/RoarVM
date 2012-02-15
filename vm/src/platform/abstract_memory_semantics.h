@@ -47,4 +47,5 @@ public:
   
   static inline bool is_using_threads() { fatal(); return 0; }
   
+  static inline bool is_initialized() { fatal(); return false; }
 };

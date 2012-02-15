@@ -152,6 +152,8 @@ public:
     static void* mem = malloc(sz);
     return mem;
   }
+  
+  static bool is_initialized();
 };
 
 #pragma mark -

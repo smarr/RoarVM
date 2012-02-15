@@ -71,6 +71,8 @@ public:
   }
   
   static inline bool is_using_threads() { return false; }
+  
+  static bool is_initialized();
 };
 
 extern Memory_System _memory_system;

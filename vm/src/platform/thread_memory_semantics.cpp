@@ -179,5 +179,16 @@ u_int64 Thread_Memory_Semantics::my_rank_mask() {
   return my_core()->rank_mask();
 }
 
+bool Thread_Memory_Semantics::is_initialized() {
+  return (Force_Direct_Squeak_Interpreter_Access ||
+            # if On_Intel_Linux
+            Memory_Semantics::interpreter != NULL)
+            # else
+            Memory_Semantics::interpreter_key != 0)
+            # endif
+    && The_Squeak_Interpreter() && The_Squeak_Interpreter()->is_initialized();
+}
+
+
 # endif // Using_Threads
 

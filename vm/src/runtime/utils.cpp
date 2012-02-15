@@ -65,11 +65,20 @@ extern "C" void lprintf(const char* msg, ...) {
 
 void vlprintf(const char* msg, va_list ap) {
   FILE* f = stderr;
-  Squeak_Interpreter* const interp = The_Squeak_Interpreter();
-  fprintf(f, "%d on %d (%d): ",
-          (interp) ? interp->increment_print_sequence_number() : -1,
-          Logical_Core::my_rank(),
-          getpid());
+  int seq_no;
+  int rank;
+  
+  if (Memory_Semantics::is_initialized()) {
+    Squeak_Interpreter* const interp = The_Squeak_Interpreter();
+    seq_no = (interp) ? interp->increment_print_sequence_number() : -1;
+    rank   = Logical_Core::my_rank();
+  }
+  else {
+    seq_no = -1;
+    rank   = -1;
+  }
+  
+  fprintf(f, "%d on %d (%d): ", seq_no, rank, getpid());
   vfprintf(f, msg, ap);
 }
 
