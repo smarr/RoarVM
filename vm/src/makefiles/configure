@@ -121,7 +121,8 @@ else
         -g3 \\
         -DDebugging=1 \\
         -Dcheck_many_assertions=1 \\
-        -DTrace_Execution=0"
+        -DTrace_Execution=0 -DTrack_OnStackPointer=0 \\
+       "
 	if [ $ENFORCE_OPT -eq 0 ]
     then
 	    OPTIMIZE_LEVEL=-O0
