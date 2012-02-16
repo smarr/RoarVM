@@ -30,7 +30,7 @@ bool Object::verify() {
 }
 
 bool Object::verify_address() {
-  assert_always(my_heap_contains_me() );
+  assert_always(my_heap_contains_me());
   return true;
 }
 

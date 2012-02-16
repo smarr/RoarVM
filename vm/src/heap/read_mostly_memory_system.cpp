@@ -56,7 +56,7 @@ void Read_Mostly_Memory_System::receive_heap(int i) {
 }
 
 void Read_Mostly_Memory_System::initialize_main(init_buf* ib) {
-  ((Memory_System*)this)->initialize_main_from_buffer((void*)ib, sizeof(*ib));
+  THIS->initialize_main_from_buffer((void*)ib, sizeof(*ib));
 }
 
 int Read_Mostly_Memory_System::calculate_bytes_per_read_mostly_heap() {

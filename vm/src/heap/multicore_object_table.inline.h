@@ -65,10 +65,11 @@ inline bool Multicore_Object_Table::Entry::is_used() {
 }
 
 inline bool Multicore_Object_Table::probably_contains(void* p) const {
-  if (The_Memory_System()->contains(p)) return false;
+  if (The_Memory_System()->contains(p))
+    return false;
   FOR_ALL_RANKS(r)
-  if (lowest_address[r] <= p  &&  p  < lowest_address_after_me[r])
-    return true;
+    if (lowest_address[r] <= p  &&  p  < lowest_address_after_me[r])
+      return true;
   return false;
 }
 
