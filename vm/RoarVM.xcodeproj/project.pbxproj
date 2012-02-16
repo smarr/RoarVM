@@ -1569,7 +1569,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = NO;
-				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
@@ -1602,7 +1601,6 @@
 				LD_NO_PIE = YES;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lX11",
 					"-lXext",
@@ -1620,8 +1618,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_DEBUGGING_SYMBOLS = full;
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
@@ -1649,7 +1645,6 @@
 				LD_NO_PIE = YES;
 				LIBRARY_SEARCH_PATHS = /usr/X11/lib;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lX11",
 					"-lXext",
@@ -1669,7 +1664,6 @@
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREFIX_HEADER = src/runtime/rvm_config.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1704,7 +1698,6 @@
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				GCC_MODEL_TUNING = G5;
 				GCC_PREFIX_HEADER = src/runtime/rvm_config.h;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"check_many_assertions=1",
@@ -1727,7 +1720,6 @@
 				);
 				PRODUCT_NAME = UnitTests;
 				VALID_ARCHS = i386;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -1737,7 +1729,7 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = make;
+				PRODUCT_NAME = rvm;
 			};
 			name = Debug;
 		};
@@ -1746,8 +1738,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				PRODUCT_NAME = make;
-				ZERO_LINK = NO;
+				PRODUCT_NAME = rvm;
 			};
 			name = Release;
 		};
