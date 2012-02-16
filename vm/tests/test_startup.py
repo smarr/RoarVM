@@ -9,7 +9,7 @@ def determine_launch_executable():
     """
         Here we try to figure out whether it is a standard binary, or
         whether it might be the Tilera binary.
-        If it complaines that it cannot be executed, we make the guess
+        If it complains that it cannot be executed, we make the guess
         that it is a Tilera binary.
     """
     devnull = open(os.devnull, 'w')
@@ -54,7 +54,9 @@ class StartupTest(unittest.TestCase):
         self.assertTrue(self.cpu_count > 1)
         devnull = open(os.devnull, 'w')
         
-        for heap in [128, 1024]:
+        max_heap_size = 512 if self.on_tilera else 1024
+        
+        for heap in [128, max_heap_size]:
             for c in [n for n in [1,2,3,7,11,15,55,57,59] if self.cpu_count >= n]:
                 cmd = self.rvm + ["-num_cores", str(c),
                                   "-min_heap_MB", str(heap),
