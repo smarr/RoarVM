@@ -83,7 +83,7 @@ private:
   int how_many_huge_pages();
   void request_huge_pages(int);
 
-  void map_heap_memory_in_one_request(int pid, size_t total, void* start_adress = NULL);
+  void map_heap_memory_in_one_request(int pid, size_t total, void* start_adress);
   
 protected:
   void map_memory_on_helper(init_buf* ib);

@@ -54,7 +54,7 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
     fatal("ftruncate");
   }
   
-  
+  assert_always(Logical_Core::running_on_main() || where != NULL);
   
   // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
   void* mmap_result = map_memory(bytes_to_map, mmap_fd, flags, where, (where == NULL) ? "1st heap part" : "2nd heap part");

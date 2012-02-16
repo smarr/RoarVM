@@ -87,7 +87,7 @@ void Read_Mostly_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, i
   read_mostly_memory_base = NULL;
   read_write_memory_base = NULL;
   
-  map_read_write_and_read_mostly_memory(getpid(), total_read_write_memory_size, total_read_mostly_memory_size);
+  map_read_write_and_read_mostly_memory(getpid(), total_read_write_memory_size, total_read_mostly_memory_size, NULL, NULL);
   
   memory_per_read_write_heap  = total_read_write_memory_size   / Logical_Core::group_size;
   memory_per_read_mostly_heap = calculate_bytes_per_read_mostly_heap();
@@ -126,9 +126,10 @@ __attribute__((noinline))  // Important attribute for LLVM-GCC and Clang
 void Read_Mostly_Memory_System::map_heap_memory_in_one_request(int pid,
                                                    size_t grand_total,
                                                    size_t inco_size,
-                                                   size_t co_size) {
+                                                   size_t co_size,
+                                                   char* requested_rm_base) {
   read_mostly_memory_base = OS_Interface::map_heap_memory(grand_total, grand_total,
-                                                          NULL, 0, pid, MAP_SHARED);
+                                                          requested_rm_base, 0, pid, MAP_SHARED);
   read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
   
   read_write_memory_base      = read_mostly_memory_past_end;
@@ -140,14 +141,16 @@ void Read_Mostly_Memory_System::map_heap_memory_in_one_request(int pid,
 void Read_Mostly_Memory_System::map_heap_memory_separately(int pid,
                                                size_t grand_total,
                                                size_t inco_size,
-                                               size_t co_size) {
+                                               size_t co_size,
+                                               char* requested_rw_base,
+                                               char* requested_rm_base) {
   if (OS_mmaps_up) {
     read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
-                                                                read_mostly_memory_base,
+                                                                requested_rm_base,
                                                                 0, pid,
                                                                 MAP_SHARED | MAP_CACHE_INCOHERENT);
     read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
-    
+
     read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
                                                                 read_mostly_memory_past_end,
                                                                 inco_size, pid,
@@ -156,7 +159,7 @@ void Read_Mostly_Memory_System::map_heap_memory_separately(int pid,
   }
   else {
     read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
-                                                                read_write_memory_base,
+                                                                requested_rw_base,
                                                                 0, pid,
                                                                 MAP_SHARED);
     read_write_memory_past_end  = read_write_memory_base + co_size;
@@ -169,15 +172,23 @@ void Read_Mostly_Memory_System::map_heap_memory_separately(int pid,
   }
 }
 
-void Read_Mostly_Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size, size_t total_read_mostly_memory_size) {
+void Read_Mostly_Memory_System::map_read_write_and_read_mostly_memory(
+                                int pid, size_t total_read_write_memory_size,
+                                size_t total_read_mostly_memory_size,
+                                char* requested_rw_base,
+                                char* requested_rm_base) {
+
+  assert(   (requested_rm_base < requested_rw_base)
+         || (requested_rm_base == NULL && requested_rw_base == NULL));
+  
   size_t     co_size = total_read_write_memory_size;
   size_t   inco_size = total_read_mostly_memory_size;
   size_t grand_total = co_size + inco_size;
   
   if (On_Tilera)
-    map_heap_memory_separately(pid, grand_total, inco_size, co_size);
+    map_heap_memory_separately(pid, grand_total, inco_size, co_size, requested_rw_base, requested_rm_base);
   else
-    map_heap_memory_in_one_request(pid, grand_total, inco_size, co_size);
+    map_heap_memory_in_one_request(pid, grand_total, inco_size, co_size, requested_rm_base);
   
   assert(read_write_memory_base < read_write_memory_past_end);
   
@@ -201,7 +212,10 @@ void Read_Mostly_Memory_System::send_local_heap() {
 void Read_Mostly_Memory_System::map_memory_on_helper(init_buf* ib) {
   map_read_write_and_read_mostly_memory(ib->base_buf.main_pid,
                                         ib->base_buf.total_read_write_memory_size, 
-                                        ib->total_read_mostly_memory_size);
+                                        ib->total_read_mostly_memory_size,
+                                        
+                                        ib->base_buf.read_write_memory_base,
+                                        ib->read_mostly_memory_base);
 }
 
 

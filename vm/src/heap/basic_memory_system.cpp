@@ -42,7 +42,7 @@ void Basic_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 s
 
   read_write_memory_base = NULL;
 
-  map_heap_memory_in_one_request(getpid(), total_read_write_memory_size);
+  map_heap_memory_in_one_request(getpid(), total_read_write_memory_size, read_write_memory_base);
 
   memory_per_read_write_heap  = total_read_write_memory_size   / Logical_Core::group_size;
   

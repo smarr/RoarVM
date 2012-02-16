@@ -73,9 +73,13 @@ private:
   char * read_mostly_memory_base,  * read_mostly_memory_past_end;
   
   void map_heap_memory_separately(int pid, size_t grand_total,
-                                  size_t inco_size, size_t co_size);
+                                  size_t inco_size, size_t co_size,
+                                  char* requested_rw_base,
+                                  char* requested_rm_base);
   void map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size,
-                                             size_t total_read_mostly_memory_size);
+                                             size_t total_read_mostly_memory_size,
+                                             char* requested_rw_base,
+                                             char* requested_rm_base);
   
   static u_int32 memory_per_read_mostly_heap; // threadsafe readonly, will always be power of two
   static u_int32 log_memory_per_read_mostly_heap; // threadsafe readonly
@@ -99,7 +103,7 @@ protected:
   void set_page_size_used_in_heap();
   
   void map_heap_memory_in_one_request(int pid, size_t grand_total,
-                                      size_t inco_size, size_t co_size);
+                                      size_t inco_size, size_t co_size, char* requested_rm_base);
 protected:
   void receive_heap(int i);
   void send_local_heap();
