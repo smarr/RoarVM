@@ -4,6 +4,7 @@ import multiprocessing
 import subprocess
 import os
 import exceptions
+import tempfile
 
 def determine_launch_executable():
     """
@@ -38,16 +39,18 @@ class StartupTest(unittest.TestCase):
     
     
     def test_hello_world(self):
+        (tmp, tmp_name) = tempfile.mkstemp()
         cmd = self.rvm + ["-headless", self.image, "HelloWorld"]
-        p = subprocess.Popen(cmd,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(cmd, stdout=tmp)
         self.assertEquals(0, p.wait(), "Execution failed" + " ".join(cmd)) # ends without error
+        os.close(tmp)
         
         # output containts a line like this: 11 on 0: primitivePrint: Hello World!
         gotHelloWorld = False
-        for l in p.stdout.readlines():
+        for l in file(tmp_name):
             gotHelloWorld = gotHelloWorld or l.endswith("Hello World!\n")
-        
+        os.remove(tmp_name)
+	
         self.assertTrue(gotHelloWorld, "Failed to read Hello World! in output")
     
     def test_mmap_bug(self):
@@ -61,21 +64,29 @@ class StartupTest(unittest.TestCase):
                 cmd = self.rvm + ["-num_cores", str(c),
                                   "-min_heap_MB", str(heap),
                                   "-headless", self.image, "HelloWorld"]
-		print cmd
-                p = subprocess.Popen(cmd, stdout=devnull, stderr=subprocess.PIPE)
+                print cmd
+                print "\n\n\n\n----------\n\n"
+                (tmp, tmp_name) = tempfile.mkstemp()
+                p = subprocess.Popen(cmd, stderr=tmp)
                 exitcode = p.wait()
-		print "Exitcode: %d"%exitcode
-
+                print "Exitcode: %d"%exitcode
+                os.close(tmp)
+                
                 errmsgFound = False
                 if exitcode is not 0:
-                    for l in p.stderr.readlines():
+                    for l in file(tmp_name):
                         found = l.find("mmap failed on core") is not -1
                         if found:
                            errmsgFound = True
                            print l
                            break
-		self.assertTrue(exitcode is 0 or (errmsgFound and heap is not 128),
+
+                os.remove(tmp_name)
+                self.assertTrue(exitcode is 0 or (errmsgFound and heap is not 128),
                     "Failed starting rvm with -num_cores %d -min_heap_MB %d and no usefull error: %s" %(c, heap, " ".join(cmd)))
+                
+                subprocess.call("killall -s 9 rvm", shell=True)
+                subprocess.call("killall -s 9 rvm.bin", shell=True)
                     
     def test_reliability(self):
         self.assertTrue(self.cpu_count > 1)
