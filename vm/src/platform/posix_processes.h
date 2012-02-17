@@ -173,4 +173,5 @@ public:
   }
 
   static void unregister_child_termination_handler();
+  static void print_globals();
 };

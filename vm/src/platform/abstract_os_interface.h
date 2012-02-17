@@ -100,12 +100,7 @@ public:
   static char* map_heap_memory(size_t total_size, size_t bytes_to_map,
                                void* where, off_t offset,
                                int main_pid, int flags);  
-  static void unlink_heap_file() {
-    if (mmap_filename[0]) {
-      unlink(mmap_filename);
-      mmap_filename[0] = 0;
-    }
-  }
+  static void unlink_heap_file();
   
   static void* map_memory(size_t bytes_to_map, int    mmap_fd,
                           int    flags, void*  start_address,

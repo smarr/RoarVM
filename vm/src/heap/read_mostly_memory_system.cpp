@@ -112,7 +112,7 @@ void Read_Mostly_Memory_System::initialize_from_snapshot(int32 snapshot_bytes, i
     read_mostly_memory_base,
     total_read_mostly_memory_size, memory_per_read_mostly_heap, log_memory_per_read_mostly_heap,
   };
-  
+  assert_always(ib.base_buf.main_pid == getpid());
   initialize_main(&ib);
 }
 
@@ -210,6 +210,7 @@ void Read_Mostly_Memory_System::send_local_heap() {
 }
 
 void Read_Mostly_Memory_System::map_memory_on_helper(init_buf* ib) {
+  assert_always(ib->base_buf.main_pid != 0);
   map_read_write_and_read_mostly_memory(ib->base_buf.main_pid,
                                         ib->base_buf.total_read_write_memory_size, 
                                         ib->total_read_mostly_memory_size,

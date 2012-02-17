@@ -38,14 +38,16 @@ int POSIX_Processes::initialize() {
         if (shared_fd < 0) {
           // TODO: do it properly
           perror("Could not create GLOBAL_SHARED_MEM_NAME shared"
-                 " memory object");
+                 " memory object\n");
+          fatal("");
           return -1;
         }
         
         if (-1 == ftruncate(shared_fd, sizeof(Globals))) {
           // TODO: do it properly
           perror("The shared memory object (Global_Shared_Mem_Name) could"
-                 " not be set to the required size");
+                 " not be set to the required size\n");
+          fatal("");
           return -1;
         }
         break;
@@ -53,7 +55,8 @@ int POSIX_Processes::initialize() {
       default:
         // TODO: do it properly
         perror("POSIX_Processes::initilize failed on accessing the globally"
-               " shared memory object.");
+               " shared memory object.\n");
+        fatal("");
         return -1;
     }
   }
@@ -66,16 +69,16 @@ int POSIX_Processes::initialize() {
   if (MAP_FAILED == globals) {
     // TODO: do it properly
     perror("Could not establish memory mapping for the globally shared"
-           " memory object.");
+           " memory object.\n");
+    fatal("mmap posix process globals failed");
     return -1;
   }
   
   if (initialize_globally) {
     initialize_processes_globals();
   }
-  
-  if (   globals->owning_process != locals().parent
-      && globals->owning_process != locals().pid) {
+  else if (   globals->owning_process != locals().parent
+           && globals->owning_process != locals().pid) {
     warnx("There is some confusion with global data, which is shared system"
           " wide. Currently there is no support for more then one instance "
           " of a program using this library!");
@@ -109,6 +112,16 @@ void POSIX_Processes::initialize_processes_globals() {
   
   // the cross-process mutex
   OS_Interface::mutex_init_for_cross_process_use(&globals->mtx_rank_running);
+}
+
+void POSIX_Processes::print_globals() {
+  lprintf("POSIX_Processes globals:\n"
+          "\towning_process:    %d\n"
+          "\tgroup_size:        %d\n"
+          "\trunning_processes: %d\n"
+          "\tlast_rank:         %d\n",
+          globals->owning_process, globals->group_size,
+          globals->running_processes, globals->last_rank);
 }
 
 void POSIX_Processes::register_process_and_determine_rank() {
@@ -191,6 +204,7 @@ int POSIX_Processes::start_group(size_t num_processes, char** argv) {
       // error
       // TODO: do it properly
       perror("Failure on forking child processes.");
+      fatal("");
       return -1;
     }
   }
@@ -221,6 +235,7 @@ void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
   if (shared_fd < 0) {
     // TODO: do it properly
     perror("Could not create shared memory object for a mmapped memory region.");
+    fatal("");
     return NULL;
   }
   
@@ -228,6 +243,7 @@ void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
     // TODO: do it properly
     perror("The shared memory object (mmapped region) could"
            " not be set to the requested size");
+    fatal("");
     return NULL;
   }
 
@@ -244,6 +260,7 @@ void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
     // TODO: do it properly
     perror("Could not establish memory mapping for the globally shared"
            " memory object.");
+    fatal("");
     return NULL;
   }
 
@@ -251,7 +268,8 @@ void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
 
   if (Debugging)
     lprintf("Allocated new shared memory region id: %d base: %p\n", id, globals->shared_mmap_regions[id].base_address);
-  
+ 
+  close(shared_fd); 
   return result;
 }
 
@@ -267,7 +285,8 @@ void POSIX_Processes::map_shared_regions() {
     
     if (shared_fd < 0) {
       // TODO: do it properly
-      perror("Could not create shared memory object for a mmapped memory region.");
+      perror("Could not create shared memory object for a mmapped memory region.\n");
+      fatal("");
       return;
     }
     assert(shared_fd >= 0);

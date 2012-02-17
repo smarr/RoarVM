@@ -21,6 +21,15 @@ void rvm_exit() {
 
 char Abstract_OS_Interface::mmap_filename[BUFSIZ] = { 0 };
 
+void Abstract_OS_Interface::unlink_heap_file() {
+  assert_always(Logical_Core::running_on_main());
+  if (mmap_filename[0]) {
+    lprintf("Unlinked mmap_filename: %s\n", mmap_filename);
+    unlink(mmap_filename);
+    mmap_filename[0] = 0;
+  }
+}
+
 char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
                                            size_t bytes_to_map,
                                            void*  where,
@@ -36,7 +45,7 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
   const bool print = false;
   
   snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/rvm-%d", main_pid);
-  int open_flags = (where == NULL  ?  O_CREAT  :  0) | O_RDWR;
+  int open_flags = (Logical_Core::running_on_main()  ?  O_CREAT  :  0) | O_RDWR;
   
   int mmap_fd = open(mmap_filename, open_flags, 0600);
   if (mmap_fd == -1)  {
@@ -44,6 +53,7 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
     snprintf(buf, sizeof(buf), "could not open mmap file, on %d, name %s, flags 0x%x",
              Logical_Core::my_rank(), mmap_filename, open_flags);
     perror(buf);
+    fatal("open mmap_filename failed.");
   }
   
   if (!Memory_System::use_huge_pages && ftruncate(mmap_fd, total_size)) {
