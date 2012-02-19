@@ -42,22 +42,7 @@ public:
       OS_Interface::mutex_init(&lock);
   }
 
-  /**
-   * TODO: This is inherently unsafe!
-   * I will not care about it at the moment, but this behavior is undefined.
-   * Especially since I cannot reliably destroy a locked mutex.
-   */
-  ~BufferedChannelDebug() {
-    OS_Interface::mutex_lock(&lock);
-    
-    while (!channel.is_empty()) {
-      free(channel.dequeue());
-    }
-    
-    OS_Interface::mutex_unlock(&lock);
-    
-    OS_Interface::mutex_destruct(&lock);
-  }
+  ~BufferedChannelDebug();
 
   void send(const void* data, size_t size);
   
