@@ -128,6 +128,9 @@ public:
   static inline void* shared_calloc(u_int32 num_members, u_int32 mem_size)  {
     return calloc(num_members, mem_size);
   }
+  static inline void  shared_free(void* ptr) {
+    free(ptr);
+  }
       
   static inline bool is_using_threads() { return true; }
 };
