@@ -389,7 +389,7 @@ void Memory_System::imageNamePut_on_this_core(const char* n, int len) {
 
 void Memory_System::imageNameGet(Object_p dst, int len) {
   char* n = dst->as_char_p() + Object::BaseHeaderSize;
-  assert(The_Memory_System()->contains(n));
+  assert(contains(n));
 
   enforce_coherence_before_store_into_object_by_interpreter(n, len, dst);
   strncpy(n, image_name, len);
@@ -660,7 +660,7 @@ void Memory_System::set_page_size_used_in_heap() {
   if (use_huge_pages) {
     int   co_pages = calculate_total_read_write_pages(huge_page_size);
     int inco_pages = calculate_total_read_mostly_pages(huge_page_size);
-    if (!ask_Linux_for_huge_pages(co_pages + inco_pages))
+    if (!OS_Interface::ask_for_huge_pages(co_pages + inco_pages))
       use_huge_pages = false;
   }
   lprintf("Using %s pages.\n", use_huge_pages ? "huge" : "normal");
@@ -741,48 +741,6 @@ void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_
     unlink(mmap_filename);
     fatal("contains will fail");
   }
-}
-
-
-bool Memory_System::ask_Linux_for_huge_pages(int desired_huge_pages) {
-  if ((On_Apple | On_Intel_Linux) || desired_huge_pages == 0)
-    return true;
-
-  int initially_available_huge_pages = how_many_huge_pages();
-  if (initially_available_huge_pages >= desired_huge_pages) {
-    lprintf("Linux has enough huges pages: %d >= %d\n", initially_available_huge_pages, desired_huge_pages);
-    return true;
-  }
-  request_huge_pages(desired_huge_pages);
-  int available_huge_pages = how_many_huge_pages();
-  if ( available_huge_pages >= desired_huge_pages ) {
-    lprintf("Started with %d huge pages, needed %d, acquired %d. Will use huge pages.\n",
-            initially_available_huge_pages, desired_huge_pages, available_huge_pages);
-    return true;
-  }
-  lprintf("Unable to procure huge_pages, started with %d, wanted %d, got %d; consider --huge_pages %d when starting tile-monitor. Reverting to normal pages. This will slow things down.\n",
-          initially_available_huge_pages, desired_huge_pages, available_huge_pages, desired_huge_pages);
-  return false;
-}
-
-
-static const char* hugepages_control_file = "/proc/sys/vm/nr_hugepages";
-
-int Memory_System::how_many_huge_pages() {
-  FILE* hpf = fopen(hugepages_control_file, "r");
-  if (hpf == NULL) { perror("could not open nr_hugepages"); OS_Interface::die("nr_hugepages"); }
-  int available_huge_pages = -1;
-  fscanf(hpf, "%d%%", &available_huge_pages);
-  fclose(hpf);
-  return available_huge_pages;
-}
-
-
-void Memory_System::request_huge_pages(int desired_huge_pages) {
-  FILE* hpf = fopen(hugepages_control_file, "w");
-  if (hpf == NULL) { perror("could not open nr_hugepages"); OS_Interface::die("nr_hugepages"); }
-  fprintf(hpf, "%d\n", desired_huge_pages);
-  fclose(hpf);
 }
 
 

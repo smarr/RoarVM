@@ -89,4 +89,20 @@ public:
   
   static inline void yield_or_spin_a_bit() { fatal(); }
   
+  static bool AmIBeingDebugged() { fatal(); return false; }
+  
+protected:
+  static char  mmap_filename[BUFSIZ];
+
+public:  
+  static bool ask_for_huge_pages(int /* desired_huge_pages */) { fatal(); }
+  static char* map_heap_memory(size_t total_size, size_t bytes_to_map,
+                               void* where, off_t offset,
+                               int main_pid, int flags);  
+  static void unlink_heap_file();
+  
+  static void* map_memory(size_t bytes_to_map, int    mmap_fd,
+                          int    flags, void*  start_address,
+                          const char* const usage);
+
 };
