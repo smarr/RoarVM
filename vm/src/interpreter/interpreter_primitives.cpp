@@ -240,13 +240,13 @@ void Squeak_Interpreter::primitiveBytesLeft() {
    */
   switch (methodArgumentCount()) {
     case 0:
-      popThenPushInteger(1, The_Memory_System()->bytesLeft(false));
+      popThenPushInteger(1, The_Memory_System()->bytesLeft(/* false */));
       return;
 
     case 1: {
       bool swapSpace = booleanValueOf(stackTop());
       if (!successFlag) return;
-      popThenPushInteger(2, The_Memory_System()->bytesLeft(swapSpace));
+      popThenPushInteger(2, The_Memory_System()->bytesLeft(/* swapSpace */));
       return;
     }
     default:
@@ -974,7 +974,7 @@ void Squeak_Interpreter::primitiveFullGC() {
   pop(1);
   The_Memory_System()->incrementalGC();
   The_Memory_System()->fullGC("primitiveFullGC");
-  pushInteger(The_Memory_System()->bytesLeft(true));
+  pushInteger(The_Memory_System()->bytesLeft(/* true */));
 }
 
 void Squeak_Interpreter::primitiveGetAttribute() {
@@ -1081,7 +1081,7 @@ void Squeak_Interpreter::primitiveImageName() {
 void Squeak_Interpreter::primitiveIncrementalGC() {
   pop(1);
   The_Memory_System()->finalize_weak_arrays_since_we_dont_do_incrementalGC();
-  pushInteger(The_Memory_System()->bytesLeft(false));
+  pushInteger(The_Memory_System()->bytesLeft(/* false */));
 }
 
 void Squeak_Interpreter::primitiveInputSemaphore() {

@@ -254,7 +254,7 @@ public:
 
   void scan_compact_or_make_free_objects_everywhere(bool compacting, Abstract_Mark_Sweep_Collector*);
   void scan_compact_or_make_free_objects_here(bool compacting, Abstract_Mark_Sweep_Collector*);
-  u_int32 bytesLeft(bool);
+  u_int32 bytesLeft();
   u_int32 maxContiguousBytesLeft();
 
   void set_lowSpaceThreshold(int32);
