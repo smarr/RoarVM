@@ -222,20 +222,6 @@ void Squeak_Image_Reader::byteSwapByteObjects() {
 }
 
 
-class Convert_Closure: public Oop_Closure {
-  Squeak_Image_Reader* reader;
-public:
-  Convert_Closure(Squeak_Image_Reader* r)  : Oop_Closure() { reader = r; }
-  void value(Oop* p, Object_p) {
-    if (p->is_mem()) {
-      *p = reader->oop_for_oop(*p);
-    }
-  }
-  virtual const char* class_name(char*) { return "Convert_Closure"; }
-};
-
-
-
 void Squeak_Image_Reader::distribute_objects() {
   if (Verbose_Debug_Prints) fprintf(stdout, "distributing objects\n");
   
@@ -245,7 +231,6 @@ void Squeak_Image_Reader::distribute_objects() {
 
   object_oops = (Oop*)malloc(total_bytes);
   bzero(object_oops, total_bytes);
-  Convert_Closure cc(this);
 
   memory_system->initialize_from_snapshot(dataSize, savedWindowSize, fullScreenFlag, lastHash);
   
@@ -261,7 +246,8 @@ void Squeak_Image_Reader::distribute_objects() {
       memory_system->ask_cpu_core_to_add_object_from_snapshot_allocating_chunk(oop_for_addr(obj), obj);
     }
   }
-  cc.value(&specialObjectsOop, (Object_p)NULL);
+  // Remap specialObjectsOop
+  specialObjectsOop = oop_for_oop(specialObjectsOop);
 
   memory_system->finished_adding_objects_from_snapshot();
   free(object_oops);
