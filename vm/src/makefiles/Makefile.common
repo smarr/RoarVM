@@ -292,15 +292,9 @@ $(RVM_HEADERS):
 #Hack to satisfy make, to force override buildin rules, even if its not able to find all prerequisites.
 $(SQ_HEADERS):
 
-ifneq "$(OS)" "Darwin"
-  DO_ESCAPING=-e
-endif
-TTY=$(shell test -t 0 && echo "true")
-ifeq "$(TTY)" "true"
-  START_BOLD=\x1B[1m
-  STOP_BOLD=\x1B[22m
-endif
-PRINT_COMPILATION_INFO=@echo $(DO_ESCAPING) "$(START_BOLD)Compiling $(notdir $<)$(STOP_BOLD)"
+START_BOLD=$(shell tput bold)
+STOP_BOLD=$(shell tput sgr0)
+PRINT_COMPILATION_INFO=@echo "$(START_BOLD)Compiling $(notdir $<)$(STOP_BOLD)"
 
 #the space after %.i is necessary, otherwise the buildin will not be canceled properly
 %.i : %.c $(SQ_HEADERS)
