@@ -91,24 +91,24 @@ void Squeak_Interpreter::initialize(Oop soo, bool from_checkpoint) {
     safepoint_tracker = new Safepoint_Tracker();
     safepoint_master_control = new Safepoint_Master_Control();
 
-     global_sequence_number = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
+     global_sequence_number = (int*)OS_Interface::malloc_uncacheable_shared(sizeof(int), sizeof(int));
     *global_sequence_number = 0;
 
-     print_sequence_number = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
+     print_sequence_number = (int*)OS_Interface::malloc_uncacheable_shared(sizeof(int), sizeof(int));
     *print_sequence_number = 0;
 
     // STEFAN: looks like it is not used at all
-/*     debug_flag = (bool*)OS_Interface::malloc_in_mem(sizeof(bool), sizeof(bool));
+/*     debug_flag = (bool*)OS_Interface::malloc_uncacheable_shared(sizeof(bool), sizeof(bool));
     *debug_flag = false;
 
-    debug_int = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
+    debug_int = (int*)OS_Interface::malloc_uncacheable_shared(sizeof(int), sizeof(int));
     *debug_int = -1; */
 
-    running_process_by_core            = (Oop*)OS_Interface::malloc_in_mem(sizeof(Oop), Logical_Core::group_size * sizeof(Oop));
+    running_process_by_core            = (Oop*)OS_Interface::malloc_uncacheable_shared(sizeof(Oop), Logical_Core::group_size * sizeof(Oop));
     FOR_ALL_RANKS(i)
       running_process_by_core[i] = roots.nilObj;
 
-    shared_memory_fields = (Shared_memory_fields*)OS_Interface::malloc_in_mem(sizeof(long long int), sizeof(Shared_memory_fields));
+    shared_memory_fields = (Shared_memory_fields*)OS_Interface::malloc_uncacheable_shared(sizeof(long long int), sizeof(Shared_memory_fields));
     bzero(shared_memory_fields, sizeof(*shared_memory_fields));
     FOR_ALL_HELD_IN_SHARED_MEMORY(INIT_SHARED_MEMORY_VARS)
   }

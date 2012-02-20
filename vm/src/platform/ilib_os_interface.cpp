@@ -19,19 +19,19 @@
 static ILib_OS_Interface::OS_Heap us_heap;
 static bool created = false;
 
-void* ILib_OS_Interface::malloc_in_mem(int alignment, int size) {
+void* ILib_OS_Interface::malloc_uncacheable_shared(int alignment, int size) {
   if (alignment == 0)
     alignment = ilib_mem_get_cacheline_size();
   
   if (!created) {
     int err = ilib_mem_create_heap(ILIB_MEM_UNCACHEABLE | ILIB_MEM_SHARED,
                                    &us_heap);
-    abort_if_error("malloc_in_mem", err);
+    abort_if_error("malloc_uncacheable_shared", err);
     created = true;
   }
   void* r = ilib_mem_memalign_heap(us_heap, alignment, size);
   if (r == NULL)
-    fatal("malloc_in_mem");
+    fatal("malloc_uncacheable_shared");
   return r;
 }
 

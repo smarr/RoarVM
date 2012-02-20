@@ -137,8 +137,8 @@ public:
   typedef ilibHeap OS_Heap;
   
   static inline void* rvm_memalign(int al, int sz) { return memalign(al, sz); }
-  static inline void* rvm_memalign(OS_Heap heap, int al, int sz) { return ilib_mem_memalign_heap(heap, al, sz); }
-  static        void* malloc_in_mem(int alignment, int size);
+  static inline void* rvm_memalign_shared(OS_Heap heap, int al, int sz) { return ilib_mem_memalign_heap(heap, al, sz); }
+  static        void* malloc_uncacheable_shared(int alignment, int size);
   static inline void  invalidate_mem(void* ptr, size_t size) { ilib_mem_invalidate(ptr, size); }
   static inline void  mem_flush(void* ptr, size_t size) { ilib_mem_flush(ptr, size); }
   static inline void  mem_fence() { ilib_mem_fence(); }

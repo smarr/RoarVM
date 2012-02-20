@@ -135,8 +135,8 @@ public:
   typedef tmc_mspace OS_Heap;
   
   static inline void* rvm_memalign(int al, int sz)               { return tmc_cmem_memalign(al, sz); }
-  static inline void* rvm_memalign(OS_Heap heap, int al, int sz) { return tmc_mspace_memalign(heap, al, sz); }
-  static        void* malloc_in_mem(int alignment, int size)     { return rvm_memalign(alignment, size); }
+  static inline void* rvm_memalign_shared(OS_Heap heap, int al, int sz) { return tmc_mspace_memalign(heap, al, sz); }
+  static        void* malloc_uncacheable_shared(int alignment, int size){ return rvm_memalign(alignment, size); }
   static inline void  invalidate_mem(void* ptr, size_t size)     { tmc_mem_inv(ptr, size); }
   static inline void  mem_flush(void* ptr, size_t size)          { tmc_mem_flush(ptr, size); }
   static inline void  mem_fence()                                { tmc_mem_fence(); }
