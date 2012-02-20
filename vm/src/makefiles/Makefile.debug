@@ -8,5 +8,4 @@ include ../src/makefiles/Makefile.common
 #CONLY_CONFIG_FLAGS = -O3
 #CXX_CONFIG_FLAGS = -O3
 
-LOW_OPTIMIZE_LEVEL  = -O0
-HIGH_OPTIMIZE_LEVEL = -O0
+OPTIMIZE_LEVEL  = -O0
