@@ -292,8 +292,11 @@ $(RVM_HEADERS):
 #Hack to satisfy make, to force override buildin rules, even if its not able to find all prerequisites.
 $(SQ_HEADERS):
 
-START_BOLD=$(shell tput bold)
-STOP_BOLD=$(shell tput sgr0)
+TTY=$(shell test -t 0 && echo "true")
+ifeq "$(TTY)" "true"
+	START_BOLD=$(shell tput bold)
+	STOP_BOLD=$(shell tput sgr0)
+endif
 PRINT_COMPILATION_INFO=@echo "$(START_BOLD)Compiling $(notdir $<)$(STOP_BOLD)"
 
 #the space after %.i is necessary, otherwise the buildin will not be canceled properly
