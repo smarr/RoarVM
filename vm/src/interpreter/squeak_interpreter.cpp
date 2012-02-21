@@ -2561,7 +2561,7 @@ void Squeak_Interpreter::move_mutated_read_mostly_objects() {
       mutated_read_mostly_objects[i].as_object()->print(debug_printer);  debug_printer->printf(", ");
     }
     // xxxxxx my_rank() below may not be best--what if heap fills up? -- dmu 4/09
-    mutated_read_mostly_objects[i].as_object()->move_to_heap(my_rank(), Memory_System::standard_partition(), true);
+    mutated_read_mostly_objects[i].as_object()->move_to_heap(my_rank(), Memory_System::read_write, true);
     if (mutated_read_mostly_object_tracer() != NULL)
       mutated_read_mostly_object_tracer()->add(mutated_read_mostly_objects[i]);
   }
@@ -2924,7 +2924,8 @@ Logical_Core* Squeak_Interpreter::coreWithSufficientSpaceToInstantiate(Oop klass
   if (indexableSize != 0  &&  Object::Format::has_only_fixed_fields(fmt)) // non-indexable
     return NULL;
   int atomSize = !Object::Format::has_bytes(fmt)  ?  sizeof(oop_int_t)  :  1;
-  return The_Memory_System()->coreWithSufficientSpaceToAllocate(2500 +  indexableSize * atomSize);
+  return The_Memory_System()->coreWithSufficientSpaceToAllocate(2500 +  indexableSize * atomSize,
+                                                                Memory_System::read_write);
 }
 
 

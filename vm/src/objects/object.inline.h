@@ -302,7 +302,7 @@ inline Object_p Object::instantiateSmallClass(oop_int_t sizeInBytes) {
    */
 
   if (sizeInBytes & (bytesPerWord - 1))  { fatal("size must be integral number of words"); }
-  Multicore_Object_Heap* h = The_Memory_System()->get_heap(Logical_Core::my_rank());
+  Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write];
   oop_int_t hash = h->newObjectHash();
 	oop_int_t header1 = ((hash << HashBitsOffset) & HashBits)  |  formatOfClass();
 	Oop header2 = as_oop();
@@ -388,7 +388,7 @@ inline Object_p Object::fill_in_after_allocate(oop_int_t byteSize, oop_int_t hdr
   Object_p    newObj = (Object_p)(Object*)&headerp[hdrSize - 1];
   assert(The_Memory_System()->is_address_read_write(this)); // not going to bother with coherence
 
-  Multicore_Object_Heap* h = The_Memory_System()->get_heap(my_rank);
+  Multicore_Object_Heap* h = The_Memory_System()->heaps[my_rank][Memory_System::read_write];
   assert(h == my_heap()  ||  Safepoint_for_moving_objects::is_held());
 
   if (hdrSize == 3) {
@@ -458,7 +458,7 @@ inline Object_p Object::instantiateContext(oop_int_t  sizeInBytes ) {
    two header words. Note that the size is specified in bytes
    and should include four bytes for the base header word."
    */
-  Multicore_Object_Heap* h = The_Memory_System()->get_heap(Logical_Core::my_rank());
+  Multicore_Object_Heap* h = The_Memory_System()->heaps[Logical_Core::my_rank()][Memory_System::read_write];
 	int hash = h->newObjectHash();
   oop_int_t	header1 = ((hash << HashShift) & HashMask) | formatOfClass();
 	Oop header2 = as_oop();
@@ -654,6 +654,23 @@ inline bool Object::is_suitable_for_replication() {
   return (The_Memory_System()->replicate_methods &&  isCompiledMethod())
     ||   (The_Memory_System()->replicate_all     && !hasContextHeader());
 }
+
+
+inline int Object::mutability_for_snapshot_object() {
+
+  // compiler bug:
+  static const int c = Memory_System::read_write;
+  static const int i = Memory_System::read_mostly;
+
+  // Used to be is_suitable_for_replication() before multithreading, but now
+  // need to exclude certainly classes that we don't know till AFTER reading the snapshot -- dmu 3/30/09
+  // So, put everything in read_write, and let image move objects to read_mostly later. -- dmu 5/25/10
+  // bool repl =  is_suitable_for_replication();
+  const bool repl = false;
+
+  return repl ? i :  c;
+}
+
 
 
 inline int Object::priority_of_process() {

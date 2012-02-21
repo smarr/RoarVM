@@ -158,8 +158,6 @@
 # include "shared_memory_message_queue_per_sender.h"
 # include "ilib_message_queue.h"
 
-class Memory_System;
-
 # include "memory_semantics.h"
 # include "abstract_memory_semantics.h"
 # include "thread_memory_semantics.h"
@@ -205,13 +203,10 @@ class Memory_System;
 
 
 
-# include  "abstract_object_table.h"
+# include "abstract_object_table.h"
 # include "multicore_object_table.h"
 
-# include    "abstract_memory_system.h"
-# include       "basic_memory_system.h"
-# include "read_mostly_memory_system.h"
-# include             "memory_system.h"
+# include "memory_system.h"
 
 # include "runtime_tester.h"
 

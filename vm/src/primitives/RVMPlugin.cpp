@@ -207,30 +207,29 @@ void* primitiveRunMask() {
 
 void* primitiveSetCoordinatesFor() {
   const bool print = false;
-  Squeak_Interpreter* const interp = The_Squeak_Interpreter();
-  
   if (print)  lprintf("starting\n");
   // Args are: object, rank (int), [mutability (int)]
   Oop oop;
   int rank;
   int mutability;
+  const int c = Memory_System::read_write;  const int i = Memory_System::read_mostly; // compiler bug
 
-  switch (interp->get_argumentCount()) {
+  switch (The_Squeak_Interpreter()->get_argumentCount()) {
     case 2:
-      oop = interp->stackObjectValue(1);
-      if (!interp->successFlag) { return 0; }
-      rank = interp->stackIntegerValue(0);
+      oop = The_Squeak_Interpreter()->stackObjectValue(1);
+      if (!The_Squeak_Interpreter()->successFlag) { return 0; }
+      rank = The_Squeak_Interpreter()->stackIntegerValue(0);
       mutability = oop.mutability();
       break;
 
     case 3:
-      oop = interp->stackObjectValue(2);
-      rank = interp->stackIntegerValue(1);
-      mutability = Memory_System::mutability_from_bool(interp->booleanValueOf(interp->stackValue(0)));
-      if (!interp->successFlag) { return 0; }
+      oop = The_Squeak_Interpreter()->stackObjectValue(2);
+      rank = The_Squeak_Interpreter()->stackIntegerValue(1);
+      mutability = The_Squeak_Interpreter()->booleanValueOf(The_Squeak_Interpreter()->stackValue(0)) ? c : i;
+      if (!The_Squeak_Interpreter()->successFlag) { return 0; }
       break;
 
-    default: interp->primitiveFail();  return 0;
+    default: The_Squeak_Interpreter()->primitiveFail();  return 0;
   }
   if (print)  lprintf("params %d %d\n", rank, mutability);
   Object_p obj = oop.as_object();
@@ -238,7 +237,7 @@ void* primitiveSetCoordinatesFor() {
 
   if ( rank < 0
   ||  rank >= Logical_Core::group_size
-  ||  (mutability != Memory_System::standard_partition()  &&  !obj->is_suitable_for_replication())
+  ||  (mutability == Memory_System::read_mostly  &&  !obj->is_suitable_for_replication())
   ||  !The_Memory_System()->heaps[rank][mutability]->sufficientSpaceToAllocate(2500 + total_bytes)) {
     The_Squeak_Interpreter()->primitiveFail();
   }
@@ -372,8 +371,12 @@ void* primitiveTraceCores() {
 }
 
 void* primitivePrintReadWriteReadMostlyBytesUsed() {
-  The_Memory_System()->print_bytes_used();
-  return NULL;
+  FOR_ALL_RANKS(r)
+    lprintf("%d: %d @ %d\n",
+            r,
+            The_Memory_System()->heaps[r][Memory_System::read_write ]->bytesUsed(),
+            The_Memory_System()->heaps[r][Memory_System::read_mostly]->bytesUsed());
+  return 0;
 }
 
 
@@ -391,7 +394,9 @@ void* primitiveAllObjectsInHeap() {
         ;
       else
         break;
-      int mutability = Memory_System::mutability_from_bool(isRead_Write);
+      static const int rw = Memory_System::read_write;
+      static const int rm = Memory_System::read_mostly;
+      int mutability = isRead_Write ? rw : rm;
       Multicore_Object_Heap* h = The_Memory_System()->heaps[rank][mutability];
       int n = 0;
       FOR_EACH_OBJECT_IN_HEAP(h, p)

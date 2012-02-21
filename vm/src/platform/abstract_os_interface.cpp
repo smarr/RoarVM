@@ -60,7 +60,7 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
     char buf[BUFSIZ];
     snprintf(buf, sizeof(buf), "The mmap-file could not be extended to the required heap-size. Requested size was %.2f MB. ftruncate", (float) total_size / 1024.0 / 1024.0);
     perror(buf);
-    unlink(mmap_filename);
+    unlink_heap_file();
     fatal("ftruncate");
   }
   
@@ -77,7 +77,7 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
              (float)bytes_to_map / 1024.0 / 1024.0, 
              (where == NULL) ? "1st heap part" : "2nd heap part");
     perror(buf);
-    unlink(mmap_filename);
+    unlink_heap_file();
     fatal("mmap");
   }
 

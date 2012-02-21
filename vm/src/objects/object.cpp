@@ -280,7 +280,7 @@ Object_p Object::instantiateClass(oop_int_t size, Logical_Core* where) {
   // It might be faster to ask the core that owns the heap to do the allocation, rather than may the
   // memory penalty. -- dmu 4/09
 
-  Multicore_Object_Heap* h =  The_Memory_System()->get_heap(where == NULL  ?  Logical_Core::my_rank()  :  where->rank());
+  Multicore_Object_Heap* h =  The_Memory_System()->heaps[where == NULL  ?  Logical_Core::my_rank()  :  where->rank()][Memory_System::read_write];
 
   int hash = h->newObjectHash();
   oop_int_t classFormat = formatOfClass();
@@ -482,12 +482,12 @@ Oop Object::clone() {
   // alloc space, remap in case of GC
   The_Squeak_Interpreter()->pushRemappableOop(as_oop());
   // is it safe?
-  Logical_Core* c = The_Memory_System()->coreWithSufficientSpaceToAllocate(2500 + bytes);
+  Logical_Core* c = The_Memory_System()->coreWithSufficientSpaceToAllocate( 2500 + bytes, Memory_System::read_write);
   if ( c == NULL) {
     The_Squeak_Interpreter()->popRemappableOop();
     return Oop::from_int(0);
   }
-  Multicore_Object_Heap* h = The_Memory_System()->get_heap(c->rank());
+  Multicore_Object_Heap* h = The_Memory_System()->heaps[c->rank()][Memory_System::read_write];
   
   // Follow the pattern in Multicore_Object_Heap::allocate -- dmu & sm:
   
@@ -933,7 +933,7 @@ void Object::move_to_heap(int r, int rw_or_rm, bool do_sync) {
   int bnc = bytes_to_next_chunk();
   Multicore_Object_Heap* h = The_Memory_System()->heaps[r][rw_or_rm];
 
-  assert_always(rw_or_rm == Memory_System::standard_partition()  ||  is_suitable_for_replication());
+  assert_always(rw_or_rm == Memory_System::read_write  ||  is_suitable_for_replication());
 
   Safepoint_for_moving_objects sf("move_to_heap");
   Safepoint_Ability sa(false);

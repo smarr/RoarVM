@@ -75,6 +75,7 @@ public:
   static bool is_initialized();
 };
 
+class  Memory_System;
 extern Memory_System _memory_system;
 
 //#define The_Memory_System() (&_memory_system)

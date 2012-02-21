@@ -630,6 +630,7 @@ public:
   void move_to_heap(int, int, bool do_sync);
 
   inline bool is_suitable_for_replication();
+  inline int  mutability_for_snapshot_object();
 
   void check_IP_in_context();
   void check_all_IPs_in_chain();

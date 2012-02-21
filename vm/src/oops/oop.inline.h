@@ -107,8 +107,6 @@ inline void* Oop::arrayValue() {
 }
 
 inline int  Oop::rank_of_object()       {  return is_int()  ?  Logical_Core::my_rank()          :  The_Memory_System()->     rank_for_address(as_object()); }
-inline int  Oop::mutability()           {
-  return Memory_System::mutability_for_oop(this);
-}
+inline int  Oop::mutability()           {  return is_int()  ?  Memory_System::read_mostly  :  The_Memory_System()->mutability_for_address(as_object()); }
 
 
