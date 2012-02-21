@@ -329,9 +329,9 @@ void POSIX_Processes::shutdown() {
   OS_Interface::mutex_lock(&globals->mtx_rank_running);
 
   for (size_t i = 0; i < globals->group_size; i++) {
-    if (   globals->processes[i]
-        && globals->processes[i] != locals().pid) {
-      kill(globals->processes[i], SIGCHLD);
+    if (globals->processes[i]) {
+      if (globals->processes[i] != locals().pid)
+        kill(globals->processes[i], SIGCHLD);
       globals->processes[i] = 0;
     }
   }
