@@ -32,12 +32,12 @@ class Interprocess_Allocator;
 class POSIX_OS_Interface : public Abstract_OS_Interface {
 public:
   
-  static inline void abort() __attribute__((noreturn)) { ::abort(); }
+  static inline void abort() __attribute__((noreturn));
   static inline void die(const char* err_msg) __attribute__((noreturn)) {
     warnx("%s", err_msg);
     abort();
   }
-  static inline void exit() __attribute__((noreturn))  { ::exit(0); }
+  static inline void exit() __attribute__((noreturn));
   static inline void breakpoint() {
     if (Include_Debugging_Code) {
       /* asm ("int 3"); */

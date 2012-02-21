@@ -174,4 +174,10 @@ public:
 
   static void unregister_child_termination_handler();
   static void print_globals();
+  
+  static void shutdown();
+  
+private:
+  static bool shutdown_done;
+  
 };
