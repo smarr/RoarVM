@@ -378,11 +378,6 @@ void selfDestructMessage_class::handle_me() {
   fatal("self-destruct");
 }
 
-void selfQuitMessage_class::handle_me() {
-  lprintf("Exit child process, reqested from %d: %s\n", sender, why);
-  ioExit();
-}
-
 
 void ackMessage_class::handle_me() {}
 

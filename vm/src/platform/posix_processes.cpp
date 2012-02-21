@@ -87,10 +87,10 @@ int POSIX_Processes::initialize() {
   }
   
   register_process_and_determine_rank();
+
+  initialize_termination_handler();
   
-  if (is_owner_process())
-    initialize_termination_handler();
-  else
+  if (!is_owner_process())
     map_shared_regions();
   
 # warning TODO: add pinning for processes to cores here!!! STEFAN
@@ -140,8 +140,6 @@ void POSIX_Processes::register_process_and_determine_rank() {
   globals->processes[locals().rank] = locals().pid;
   
   OS_Interface::mutex_unlock(&globals->mtx_rank_running);
-  
-  atexit(unregister_and_clean_up);
 }
 
 bool POSIX_Processes::unregister_in_global_memory() {
@@ -157,6 +155,8 @@ bool POSIX_Processes::unregister_in_global_memory() {
 
   return last_process;
 }
+
+bool POSIX_Processes::shutdown_done = false;
 
 void POSIX_Processes::unregister_and_clean_up() {
   Globals globals_copy = *globals;
@@ -314,11 +314,31 @@ static void sig_child(int signo, siginfo_t* info, void* context) {
           info->si_signo, info->si_errno, info->si_code, info->si_pid, info->si_status);
   
   lprintf("Will shutdown now.\n");
-  selfQuitMessage_class("Child Terminated").send_to_other_cores();
   
   // hmmmm
   // The_Squeak_Interpreter()->shared_memory_fields = NULL;
   ioExit();
+}
+
+void POSIX_Processes::shutdown() {
+  if (shutdown_done)
+    return;
+  
+  shutdown_done = true;
+  
+  OS_Interface::mutex_lock(&globals->mtx_rank_running);
+
+  for (size_t i = 0; i < globals->group_size; i++) {
+    if (   globals->processes[i]
+        && globals->processes[i] != locals().pid) {
+      kill(globals->processes[i], SIGCHLD);
+      globals->processes[i] = 0;
+    }
+  }
+  
+  OS_Interface::mutex_unlock(&globals->mtx_rank_running);
+  
+  unregister_and_clean_up();
 }
 
 void POSIX_Processes::initialize_termination_handler() {
@@ -326,13 +346,10 @@ void POSIX_Processes::initialize_termination_handler() {
   // compiling for unit testing.
 #ifndef UNIT_TESTING
   struct sigaction action;
-  
-  action.sa_sigaction = &sig_child;
-  
   sigemptyset(&action.sa_mask);
-  
-  action.sa_flags = SA_NOCLDSTOP | SA_SIGINFO;
-  
+  action.sa_sigaction = &sig_child;
+  action.sa_flags     = SA_NOCLDSTOP | SA_SIGINFO;
+    
   if (sigaction(SIGCHLD, &action, NULL) < 0) {
     perror("sigaction failed: ");
   }

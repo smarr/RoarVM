@@ -41,7 +41,6 @@ template(getNextEventMessage,abstractMessage, (), (), , , no_ack, dont_delay_whe
 template(getNextEventResponse,abstractMessage, (), () , {  for (int i = 0;  i < evtBuf_size;  ++i) evtBuf[i] = 0; }, int evtBuf[evtBuf_size]; bool got_one; , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
 template(selfDestructMessage,abstractMessage, (const char* w), (), {why = w;}, const char* why; , no_ack, dont_delay_when_have_acquired_safepoint) \
-template(selfQuitMessage,abstractMessage, (const char* w), (), {why = w;}, const char* why; , no_ack, dont_delay_when_have_acquired_safepoint) \
 \
 template(enforceCoherenceAfterEachCoreHasStoredIntoItsOwnHeapMessage,abstractMessage, (), (), , , post_ack_for_correctness, dont_delay_when_have_acquired_safepoint) \
 template(enforceCoherenceBeforeEachCoreStoresIntoItsOwnHeapMessage,abstractMessage, (), (), , , post_ack_for_correctness, dont_delay_when_have_acquired_safepoint) \
