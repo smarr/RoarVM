@@ -18,6 +18,7 @@ class Roots {
   Roots();
   void initialize(Oop);
   bool is_initialized() { return nilObj != uninitialized_value(); }
+  void uninitialize() { nilObj = uninitialized_value(); }
 
   Oop specialObjectsOop;
   Oop nilObj, falseObj, trueObj;

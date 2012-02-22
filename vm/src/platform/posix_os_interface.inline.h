@@ -36,15 +36,21 @@ inline int POSIX_OS_Interface::get_process_rank() {
   return POSIX_Processes::process_rank();
 }
 
+extern "C" void aioFini(void);
+
 inline void POSIX_OS_Interface::abort() {
-  if (Using_Processes)
+  if (Using_Processes) {
+    aioFini();
     POSIX_Processes::shutdown();
+  }
   ::abort();
 }
 
 inline void POSIX_OS_Interface::exit() {
-  if (Using_Processes)
+  if (Using_Processes) {
+    aioFini();
     POSIX_Processes::shutdown();
+  }
   ::exit(0);
 }
 

@@ -77,6 +77,7 @@ void Squeak_Interpreter::init_rank() {
 }
 
 bool Squeak_Interpreter::is_initialized() { return roots.is_initialized(); }
+void Squeak_Interpreter::uninitialize() { roots.uninitialize(); }
 
 void Squeak_Interpreter::initialize(Oop soo, bool from_checkpoint) {
   if (!from_checkpoint) roots.initialize(soo);
