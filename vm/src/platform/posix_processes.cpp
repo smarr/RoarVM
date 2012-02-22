@@ -315,12 +315,13 @@ static void sig_child(int signo, siginfo_t* info, void* context) {
   
   lprintf("Will shutdown now.\n");
   
-  // hmmmm
-  // The_Squeak_Interpreter()->shared_memory_fields = NULL;
   ioExit();
 }
 
 void POSIX_Processes::shutdown() {
+  // Hmm...
+  The_Squeak_Interpreter()->uninitialize();
+
   if (shutdown_done)
     return;
   

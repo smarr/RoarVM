@@ -380,6 +380,7 @@ public:
 
   void initialize(Oop, bool from_checkpoint);
   bool is_initialized();
+  void uninitialize();
 
   void receive_initial_interpreter_from_main(Squeak_Interpreter*);
 
@@ -958,7 +959,7 @@ public:
   void forceInterruptCheck() {
     interruptCheckCounter = interruptCheckCounter_force_value;
 
-    if (shared_memory_fields)
+    if (is_initialized())
       set_nextPollTick(0);
   }
 
