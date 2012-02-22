@@ -160,10 +160,11 @@ private:
   void set_page_size_used_in_heap();
   static int calculate_bytes_per_read_mostly_heap(int);
 
-  void map_read_write_and_read_mostly_memory(int pid, size_t, size_t, char* const memory_base);
+  void map_read_write_and_read_mostly_memory(int pid, size_t, size_t, char* const rm_memory_base, char* const rw_memory_base);
   void map_heap_memory_separately(int pid, size_t grand_total,
                                   size_t inco_size, size_t co_size,
-                                  char* const memory_base);
+                                  char* const rm_memory_base,
+                                  char* const rw_memory_base);
   void map_heap_memory_in_one_request(int pid, size_t grand_total,
                                       size_t inco_size, size_t co_size,
                                       char* const memory_base);

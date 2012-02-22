@@ -629,7 +629,7 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
   map_read_write_and_read_mostly_memory(getpid(),
                                         total_read_write_memory_size,
                                         total_read_mostly_memory_size,
-                                        NULL);
+                                        NULL, NULL);
 
   memory_per_read_write_heap  = total_read_write_memory_size   / Logical_Core::group_size;
   memory_per_read_mostly_heap = calculate_bytes_per_read_mostly_heap(page_size_used_in_heap);
@@ -678,13 +678,19 @@ void Memory_System::map_heap_memory_separately(int pid,
                                                size_t grand_total,
                                                size_t inco_size,
                                                size_t co_size,                                                       
-                                               char* const memory_base) {
+                                               char* const rm_memory_base,
+                                               char* const rw_memory_base) {
+  assert(    (Logical_Core::running_on_main() && rm_memory_base == NULL && rw_memory_base == NULL)
+         || (!Logical_Core::running_on_main() && rm_memory_base != NULL && rw_memory_base != NULL));
+  
   if (OS_mmaps_up) {
     read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
-                                                                memory_base,
+                                                                rm_memory_base,
                                                                 0, pid,
                                                                 MAP_SHARED | MAP_CACHE_INCOHERENT);
     read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
+    
+    assert(read_mostly_memory_past_end == rw_memory_base);
     
     read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
                                                                 read_mostly_memory_past_end,
@@ -694,12 +700,13 @@ void Memory_System::map_heap_memory_separately(int pid,
   }
   else {
     read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
-                                                                memory_base,
+                                                                rw_memory_base,
                                                                 0, pid,
                                                                 MAP_SHARED);
     read_write_memory_past_end  = read_write_memory_base + co_size;
     
     read_mostly_memory_past_end = read_write_memory_base;
+    assert(rm_memory_base == read_mostly_memory_past_end - inco_size);
     read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
                                                                 read_mostly_memory_past_end - inco_size,
                                                                 co_size, pid,
@@ -730,15 +737,15 @@ void Memory_System::map_heap_memory_in_one_request(int pid,
 }
 
 
-void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size, size_t total_read_mostly_memory_size, char* const memory_base) {
+void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size, size_t total_read_mostly_memory_size, char* const rm_memory_base, char* const rw_memory_base) {
   size_t     co_size = total_read_write_memory_size;
   size_t   inco_size = total_read_mostly_memory_size;
   size_t grand_total = co_size + inco_size;
 
   if (On_Tilera)
-    map_heap_memory_separately(pid, grand_total, inco_size, co_size, memory_base);
+    map_heap_memory_separately(pid, grand_total, inco_size, co_size, rm_memory_base, rw_memory_base);
   else
-    map_heap_memory_in_one_request(pid, grand_total, inco_size, co_size, memory_base);
+    map_heap_memory_in_one_request(pid, grand_total, inco_size, co_size, rm_memory_base);
     
   assert(read_mostly_memory_base < read_mostly_memory_past_end);
   assert(read_mostly_memory_past_end <= read_write_memory_base);
@@ -808,7 +815,8 @@ void Memory_System::initialize_helper() {
     map_read_write_and_read_mostly_memory(ib->main_pid,
                                           ib->total_read_write_memory_size,
                                           ib->total_read_mostly_memory_size,
-                                          (OS_mmaps_up) ? ib->read_mostly_memory_base : ib->read_write_memory_base);
+                                          ib->read_mostly_memory_base,
+                                          ib->read_write_memory_base);
   
   create_my_heaps(ib);
   
