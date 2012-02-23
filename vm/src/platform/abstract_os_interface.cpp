@@ -140,7 +140,7 @@ int64_t Abstract_OS_Interface::get_available_main_mem_in_kb() {
     char key[BUFSIZ];
     int  val;
     char unit[BUFSIZ];
-    r = fscanf(f, "%s %d %s", key, &val);
+    r = fscanf(f, "%s %d %s", key, &val, unit);
     // lprintf("r %d, key %s, val %d, unit %s\n", r, key, val, unit);
     
     if (r != 3)
