@@ -115,6 +115,7 @@ public:
   }
 # endif
 
+  static int64_t get_available_main_mem_in_kb();
   
 };
 
