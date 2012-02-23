@@ -75,7 +75,8 @@ class StartupTest(unittest.TestCase):
                 errmsgFound = False
                 if exitcode is not 0:
                     for l in file(tmp_name):
-                        found = l.find("mmap failed on core") is not -1
+                        found = ((l.find("mmap failed on core") is not -1)
+                                 or (l.find("WARNING! Your requested heap might be to large") is not -1))
                         if found:
                            errmsgFound = True
                            print l
