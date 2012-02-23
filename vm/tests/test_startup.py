@@ -74,13 +74,17 @@ class StartupTest(unittest.TestCase):
                 
                 errmsgFound = False
                 if exitcode is not 0:
-                    for l in file(tmp_name):
+                    f = file(tmp_name)
+                    i = iter(f)
+                    for l in i:
                         found = ((l.find("mmap failed on core") is not -1)
                                  or (l.find("WARNING! Your requested heap might be to large") is not -1))
                         if found:
                            errmsgFound = True
                            print l
+                           print i.next()
                            break
+                    f.close()
 
                 os.remove(tmp_name)
                 self.assertTrue(exitcode is 0 or (errmsgFound and heap is not 128),
