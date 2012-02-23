@@ -126,3 +126,51 @@ void* Abstract_OS_Interface::map_memory(size_t bytes_to_map,
   return mmap_result;
 }
 
+static const char meminfo_file_name[] = "/proc/meminfo";
+static const char MemTotal[] = "MemTotal";
+
+int64_t Abstract_OS_Interface::get_available_main_mem_in_kb() {
+  int64_t result = -1;
+  
+  // printf("get_available_main_mem\n");
+  FILE* f = fopen(meminfo_file_name, "r");
+  if (f == NULL) { return -1; }
+  
+  for (;;) {
+    int  r;
+    char key[BUFSIZ];
+    int  val;
+    char unit[BUFSIZ];
+    r = fscanf(f, "%s %d %s", key, &val);
+    // lprintf("r %d, key %s, val %d, unit %s\n", r, key, val, unit);
+    
+    if (r != 3)
+      break;
+
+    if (strncmp(key, MemTotal, sizeof(MemTotal) - 1) == 0) {
+      result = val;
+      break;
+    }    
+  }
+  fclose(f);
+
+  return result;
+}
+
+void Abstract_OS_Interface::check_requested_heap_size(size_t heap_size) {
+  size_t const max_heap_on_32bit = 3 * 1024 * Mega; // rough guess, depends a bit on the system 
+  size_t const estimate_for_other_required_memory = 300 * Mega;
+  
+  size_t const expected_mem_required = heap_size + estimate_for_other_required_memory;
+
+  bool might_fail = expected_mem_required > max_heap_on_32bit;
+  
+  if (!might_fail) {
+    might_fail = expected_mem_required > (OS_Interface::get_available_main_mem_in_kb() * 1024u);
+  }
+  
+  if (might_fail)
+    lprintf("WARNING! Your requested heap might be to large, and the VM might fail during startup.\n"
+            "WARNING! The required memory is about %d MB\n", expected_mem_required / Mega);
+}
+
