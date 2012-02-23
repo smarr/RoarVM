@@ -158,7 +158,7 @@ int64_t Abstract_OS_Interface::get_available_main_mem_in_kb() {
 
 void Abstract_OS_Interface::check_requested_heap_size(size_t heap_size) {
   size_t const max_heap_on_32bit = 3 * 1024 * Mega; // rough guess, depends a bit on the system 
-  size_t const estimate_for_other_required_memory = 300 * Mega;
+  size_t const estimate_for_other_required_memory = 580 * Mega;
   
   size_t const expected_mem_required = heap_size + estimate_for_other_required_memory;
 
