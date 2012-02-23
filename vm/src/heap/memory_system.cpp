@@ -708,7 +708,7 @@ void Memory_System::map_heap_memory_separately(int pid,
     read_write_memory_past_end  = read_write_memory_base + co_size;
     
     read_mostly_memory_past_end = read_write_memory_base;
-    assert(rm_memory_base == read_mostly_memory_past_end - inco_size);
+    assert(rm_memory_base == NULL || rm_memory_base == read_mostly_memory_past_end - inco_size);
     read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
                                                                 read_mostly_memory_past_end - inco_size,
                                                                 co_size, pid,
