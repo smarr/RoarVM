@@ -63,7 +63,7 @@ int POSIX_Processes::initialize() {
   
   assert(shared_fd >= 0);
   
-  globals = (Globals*)OS_Interface::map_memory(sizeof(*globals), shared_fd, MAP_SHARED, NULL, "POSIX_Process Globals");
+  globals = (Globals*)OS_Interface::map_memory(sizeof(*globals), shared_fd, MAP_SHARED, NULL, 0, "POSIX_Process Globals");
   close(shared_fd);  // will not need it after having mapped the file
   
   if (MAP_FAILED == globals) {
@@ -253,7 +253,7 @@ void* POSIX_Processes::request_globally_mmapped_region(size_t id, size_t len) {
   int mmap_flags = MAP_SHARED; // STEFAN: do we need a special flag to enable semaphores in this memory? MAP_HASSEMAPHORE?
   int mmap_offset= 0;
   
-  void* result = OS_Interface::map_memory(len, shared_fd, mmap_flags, NULL, "POSIX_Processes: Request a globally mapped region");
+  void* result = OS_Interface::map_memory(len, shared_fd, mmap_flags, NULL, 0, "POSIX_Processes: Request a globally mapped region");
   close(shared_fd);  // will not need it after having mapped the file
   
   if (MAP_FAILED == result) {
@@ -292,7 +292,7 @@ void POSIX_Processes::map_shared_regions() {
     assert(shared_fd >= 0);
     
     
-    void* result = OS_Interface::map_memory(region.len, shared_fd, region.flags, region.base_address, "POSIX_Processes: reestablish mapping of a globally shared region.");
+    void* result = OS_Interface::map_memory(region.len, shared_fd, region.flags, region.base_address, 0, "POSIX_Processes: reestablish mapping of a globally shared region.");
     close(shared_fd);  // will not need it after having mapped the file
     
     if (MAP_FAILED == result) {
