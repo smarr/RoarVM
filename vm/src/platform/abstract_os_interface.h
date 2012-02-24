@@ -107,6 +107,7 @@ public:
   
   static void* map_memory(size_t bytes_to_map, int    mmap_fd,
                           int    flags, void*  start_address,
+                          off_t  offset_in_backing_file,
                           const char* const usage);
 
 };
