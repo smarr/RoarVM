@@ -90,8 +90,8 @@ class StartupTest(unittest.TestCase):
                 self.assertTrue(exitcode is 0 or (errmsgFound and heap is not 128),
                     "Failed starting rvm with -num_cores %d -min_heap_MB %d and no useful error: %s" %(c, heap, " ".join(cmd)))
                 
-                subprocess.call("killall -s 9 rvm", shell=True)
-                subprocess.call("killall -s 9 rvm.bin", shell=True)
+                subprocess.call(["killall", "-9", "rvm"    ])
+                subprocess.call(["killall", "-9", "rvm.bin"])
                     
     def test_reliability(self):
         self.assertTrue(self.cpu_count > 1)
