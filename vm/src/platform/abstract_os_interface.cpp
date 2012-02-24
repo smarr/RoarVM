@@ -67,7 +67,7 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
   assert_always(Logical_Core::running_on_main() || where != NULL);
   
   // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
-  void* mmap_result = map_memory(bytes_to_map, mmap_fd, flags, where,
+  void* mmap_result = map_memory(bytes_to_map, mmap_fd, flags, where, offset,
                                  (where == NULL) ? "object heap part (initial request)" : "object heap part");
   
   if (mmap_result == MAP_FAILED) {
@@ -97,6 +97,7 @@ void* Abstract_OS_Interface::map_memory(size_t bytes_to_map,
                                         int    mmap_fd,
                                         int    flags,
                                         void*  start_address,
+                                        off_t  offset_in_backing_file,
                                         const char* const usage) {
   if (Debugging)
     lprintf("mmap: About to mmap memory for %s\n", usage);
@@ -106,7 +107,7 @@ void* Abstract_OS_Interface::map_memory(size_t bytes_to_map,
   
   void* mmap_result = mmap(start_address, bytes_to_map, 
                            PROT_READ | PROT_WRITE,
-                           flags, mmap_fd, 0);
+                           flags, mmap_fd, offset_in_backing_file);
   
   if (mmap_result == MAP_FAILED)
     return MAP_FAILED;
