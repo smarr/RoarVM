@@ -624,6 +624,8 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
   u_int32 total_read_write_memory_size     =  rw_pages *  page_size_used_in_heap;
   u_int32 total_read_mostly_memory_size    =  rm_pages *  page_size_used_in_heap;
 
+  OS_Interface::check_requested_heap_size(total_read_mostly_memory_size + total_read_write_memory_size);
+
   read_mostly_memory_base = read_write_memory_base = NULL;
 
   map_read_write_and_read_mostly_memory(getpid(), total_read_write_memory_size, total_read_mostly_memory_size);

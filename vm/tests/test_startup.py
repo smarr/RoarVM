@@ -74,16 +74,21 @@ class StartupTest(unittest.TestCase):
                 
                 errmsgFound = False
                 if exitcode is not 0:
-                    for l in file(tmp_name):
-                        found = l.find("mmap failed on core") is not -1
+                    f = file(tmp_name)
+                    i = iter(f)
+                    for l in i:
+                        found = ((l.find("mmap failed on core") is not -1)
+                                 or (l.find("WARNING! Your requested heap might be to large") is not -1))
                         if found:
                            errmsgFound = True
                            print l
+                           print i.next()
                            break
+                    f.close()
 
                 os.remove(tmp_name)
                 self.assertTrue(exitcode is 0 or (errmsgFound and heap is not 128),
-                    "Failed starting rvm with -num_cores %d -min_heap_MB %d and no usefull error: %s" %(c, heap, " ".join(cmd)))
+                    "Failed starting rvm with -num_cores %d -min_heap_MB %d and no useful error: %s" %(c, heap, " ".join(cmd)))
                 
                 subprocess.call("killall -s 9 rvm", shell=True)
                 subprocess.call("killall -s 9 rvm.bin", shell=True)
