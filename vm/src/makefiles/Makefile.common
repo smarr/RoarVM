@@ -558,7 +558,8 @@ libgtest.a:
 
 # REM: this will build the object files inside the test folder
 #      this allows us to use the same names for tests and implementation files
-TEST_SRC  := $(wildcard $(SRC_DIR)/tests/*.cpp)
+TESTMAIN_WITHOUT_ROARVM := $(SRC_DIR)/tests/main_without_roarvm.cpp
+TEST_SRC  := $(filter-out $(TESTMAIN_WITHOUT_ROARVM),$(wildcard $(SRC_DIR)/tests/*.cpp))
 TEST_H    := $(wildcard $(SRC_DIR)/tests/*.h)
 TEST_OBJS := $(TEST_SRC:.cpp=.o) $(OBJS)
 
@@ -573,8 +574,29 @@ rvm-test: libgtest.a $(TEST_OBJS) $(TEST_H)
 test: rvm-test
 	$(AT)./rvm-test
 
+test-cov : LDFLAGS+=-lgcov -coverage
+test-cov : CONFIG_FLAGS+=-fprofile-arcs -ftest-coverage 
+test-cov: test
+	gcov $(TEST_SRC) $(RVM_HEADERS) $(OBJS:.o=.cpp)
+	lcov --directory . --capture --output-file rvm-gcov.info
+	genhtml --output-directory rvm-cov rvm-gcov.info
+
+partial-cov : LDFLAGS+=-lgcov -coverage
+partial-cov : CONFIG_FLAGS:=-fprofile-arcs -ftest-coverage -DWITHOUT_ROAR_VM -DUNIT_TESTING $(filter-out -DROAR_VM,$(CONFIG_FLAGS))
+partial-cov : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
+partial-cov : INCLUDES+=$(GTEST_INCLUDES)
+partial-cov: $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/circular_buffer.o $(SRC_DIR)/tests/main_without_roarvm.o libgtest.a
+	$(AT)echo Coverage generation is currently only supported by GNU GCC not LLVM GCC
+	$(CXX) $(LDFLAGS) $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/circular_buffer.o $(SRC_DIR)/tests/main_without_roarvm.o gtest-all.o -lm -lpthread  $(TILERA_LIBS) -L. $(LIBS_LINKING) -o ./$@
+	$(AT)./$@
+	gcov -o $(SRC_DIR)/tests/ interprocess_allocator.cpp interprocess_allocator.h circular_buffer.cpp circular_buffer.h
+	lcov --directory $(SRC_DIR)/tests/ --capture --output-file rvm-gcov.info
+	genhtml --output-directory rvm-cov rvm-gcov.info
+
 clean:
 	rm -f *.o $(EXECUTABLE) rvm-test libgtest.a $(TEST_OBJS)
+	rm -f *.gcno *.gcda *.gcov rvm-gcov.info $(SRC_DIR)/tests/*.gcno $(SRC_DIR)/tests/*.gcda $(SRC_DIR)/tests/*.gcov
+	rm -Rf partial-cov rvm-cov
 
 install: $(EXECUTABLE)
 	install $(EXECUTABLE) /usr/local/bin
