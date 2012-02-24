@@ -13,7 +13,9 @@
 
 
 inline Oop Multicore_Object_Table::allocate_oop(int rank COMMA_DCL_ESB)  {
-  if (check_many_assertions  &&  The_Squeak_Interpreter()->is_initialized()) verify_free_list(rank);
+  if (check_many_assertions  &&  The_Squeak_Interpreter()->is_initialized())
+    verify_free_list(rank);
+  
   Entry*& first_free = first_free_entry[rank];
   Entry* e = first_free;
   if (e == NULL) {
@@ -63,7 +65,8 @@ inline bool Multicore_Object_Table::Entry::is_used() {
 }
 
 inline bool Multicore_Object_Table::probably_contains(void* p) const {
-  if (The_Memory_System()->contains(p)) return false;
+  if (The_Memory_System()->contains(p))
+    return false;
   FOR_ALL_RANKS(r)
   if (lowest_address[r] <= p  &&  p  < lowest_address_after_me[r])
     return true;

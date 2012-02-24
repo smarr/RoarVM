@@ -1214,7 +1214,7 @@ void Memory_System::store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_
   pre_cohere(p, sizeof(x));  \
   *p = x;  \
   post_cohere(p, sizeof(x)); \
-  if (dst_obj_to_be_evacuated_or_null != NULL) \
+    if (dst_obj_to_be_evacuated_or_null) \
     The_Squeak_Interpreter()->remember_to_move_mutated_read_mostly_object(dst_obj_to_be_evacuated_or_null->as_oop()); \
 }
 
