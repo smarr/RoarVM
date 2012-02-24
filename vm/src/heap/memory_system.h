@@ -394,11 +394,5 @@ public:
   inline bool is_address_read_write(void* p) const { return !is_address_read_mostly(p); }
 
   void do_all_oops_including_roots_here(Oop_Closure* oc, bool sync_with_roots);
-  
-private:
-  static char  mmap_filename[BUFSIZ];
-  static char* map_heap_memory(size_t total_size, size_t bytes_to_map,
-                               void* where, off_t offset,
-                               int main_pid, int flags);  
 };
 

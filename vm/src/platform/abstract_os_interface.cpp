@@ -60,14 +60,15 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
     char buf[BUFSIZ];
     snprintf(buf, sizeof(buf), "The mmap-file could not be extended to the required heap-size. Requested size was %.2f MB. ftruncate", (float) total_size / 1024.0 / 1024.0);
     perror(buf);
-    unlink(mmap_filename);
+    unlink_heap_file();
     fatal("ftruncate");
   }
   
   assert_always(Logical_Core::running_on_main() || where != NULL);
   
   // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
-  void* mmap_result = map_memory(bytes_to_map, mmap_fd, flags, where, (where == NULL) ? "1st heap part" : "2nd heap part");
+  void* mmap_result = map_memory(bytes_to_map, mmap_fd, flags, where,
+                                 (where == NULL) ? "object heap part (initial request)" : "object heap part");
   
   if (mmap_result == MAP_FAILED) {
     char buf[BUFSIZ];
@@ -75,9 +76,9 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
              "mmap failed on core %d. Requested %.2f MB for %s. mmap", 
              Logical_Core::my_rank(),
              (float)bytes_to_map / 1024.0 / 1024.0, 
-             (where == NULL) ? "1st heap part" : "2nd heap part");
+             (where == NULL) ? "object heap part (initial request)" : "object heap part");
     perror(buf);
-    unlink(mmap_filename);
+    unlink_heap_file();
     fatal("mmap");
   }
 
