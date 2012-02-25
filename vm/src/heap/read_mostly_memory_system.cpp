@@ -144,12 +144,17 @@ void Read_Mostly_Memory_System::map_heap_memory_separately(int pid,
                                                size_t co_size,
                                                char* requested_rw_base,
                                                char* requested_rm_base) {
+  assert(    (Logical_Core::running_on_main() && requested_rw_base == NULL && requested_rm_base == NULL)
+         || (!Logical_Core::running_on_main() && requested_rw_base != NULL && requested_rm_base != NULL));
+  
   if (OS_mmaps_up) {
     read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
                                                                 requested_rm_base,
                                                                 0, pid,
                                                                 MAP_SHARED | MAP_CACHE_INCOHERENT);
     read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
+    
+    assert(requested_rw_base == NULL || requested_rw_base == read_mostly_memory_past_end);
 
     read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
                                                                 read_mostly_memory_past_end,
@@ -165,6 +170,7 @@ void Read_Mostly_Memory_System::map_heap_memory_separately(int pid,
     read_write_memory_past_end  = read_write_memory_base + co_size;
     
     read_mostly_memory_past_end = read_write_memory_base;
+    assert(requested_rm_base == NULL || requested_rm_base == read_mostly_memory_past_end - inco_size);
     read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
                                                                 read_mostly_memory_past_end - inco_size,
                                                                 co_size, pid,
@@ -187,7 +193,7 @@ void Read_Mostly_Memory_System::map_read_write_and_read_mostly_memory(
   
   if (On_Tilera)
     map_heap_memory_separately(pid, grand_total, inco_size, co_size, requested_rw_base, requested_rm_base);
-  else
+  else 
     map_heap_memory_in_one_request(pid, grand_total, inco_size, co_size, requested_rm_base);
   
   assert(read_write_memory_base < read_write_memory_past_end);
