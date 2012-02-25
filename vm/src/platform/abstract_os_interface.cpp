@@ -60,14 +60,15 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
     char buf[BUFSIZ];
     snprintf(buf, sizeof(buf), "The mmap-file could not be extended to the required heap-size. Requested size was %.2f MB. ftruncate", (float) total_size / 1024.0 / 1024.0);
     perror(buf);
-    unlink(mmap_filename);
+    unlink_heap_file();
     fatal("ftruncate");
   }
   
   assert_always(Logical_Core::running_on_main() || where != NULL);
   
   // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
-  void* mmap_result = map_memory(bytes_to_map, mmap_fd, flags, where, (where == NULL) ? "1st heap part" : "2nd heap part");
+  void* mmap_result = map_memory(bytes_to_map, mmap_fd, flags, where, offset,
+                                 (where == NULL) ? "object heap part (initial request)" : "object heap part");
   
   if (mmap_result == MAP_FAILED) {
     char buf[BUFSIZ];
@@ -75,9 +76,9 @@ char* Abstract_OS_Interface::map_heap_memory(size_t total_size,
              "mmap failed on core %d. Requested %.2f MB for %s. mmap", 
              Logical_Core::my_rank(),
              (float)bytes_to_map / 1024.0 / 1024.0, 
-             (where == NULL) ? "1st heap part" : "2nd heap part");
+             (where == NULL) ? "object heap part (initial request)" : "object heap part");
     perror(buf);
-    unlink(mmap_filename);
+    unlink_heap_file();
     fatal("mmap");
   }
 
@@ -96,6 +97,7 @@ void* Abstract_OS_Interface::map_memory(size_t bytes_to_map,
                                         int    mmap_fd,
                                         int    flags,
                                         void*  start_address,
+                                        off_t  offset_in_backing_file,
                                         const char* const usage) {
   if (Debugging)
     lprintf("mmap: About to mmap memory for %s\n", usage);
@@ -105,7 +107,7 @@ void* Abstract_OS_Interface::map_memory(size_t bytes_to_map,
   
   void* mmap_result = mmap(start_address, bytes_to_map, 
                            PROT_READ | PROT_WRITE,
-                           flags, mmap_fd, 0);
+                           flags, mmap_fd, offset_in_backing_file);
   
   if (mmap_result == MAP_FAILED)
     return MAP_FAILED;
@@ -123,5 +125,53 @@ void* Abstract_OS_Interface::map_memory(size_t bytes_to_map,
   }
 
   return mmap_result;
+}
+
+static const char meminfo_file_name[] = "/proc/meminfo";
+static const char MemTotal[] = "MemTotal";
+
+int64_t Abstract_OS_Interface::get_available_main_mem_in_kb() {
+  int64_t result = -1;
+  
+  // printf("get_available_main_mem\n");
+  FILE* f = fopen(meminfo_file_name, "r");
+  if (f == NULL) { return -1; }
+  
+  for (;;) {
+    int  r;
+    char key[BUFSIZ];
+    int  val;
+    char unit[BUFSIZ];
+    r = fscanf(f, "%s %d %s", key, &val, unit);
+    // lprintf("r %d, key %s, val %d, unit %s\n", r, key, val, unit);
+    
+    if (r != 3)
+      break;
+
+    if (strncmp(key, MemTotal, sizeof(MemTotal) - 1) == 0) {
+      result = val;
+      break;
+    }    
+  }
+  fclose(f);
+
+  return result;
+}
+
+void Abstract_OS_Interface::check_requested_heap_size(size_t heap_size) {
+  size_t const max_heap_on_32bit = 3 * 1024 * Mega; // rough guess, depends a bit on the system 
+  size_t const estimate_for_other_required_memory = 580 * Mega;
+  
+  size_t const expected_mem_required = heap_size + estimate_for_other_required_memory;
+
+  bool might_fail = expected_mem_required > max_heap_on_32bit;
+  
+  if (!might_fail) {
+    might_fail = expected_mem_required > (OS_Interface::get_available_main_mem_in_kb() * 1024u);
+  }
+  
+  if (might_fail)
+    lprintf("WARNING! Your requested heap might be to large, and the VM might fail during startup.\n"
+            "WARNING! The required memory is about %d MB\n", expected_mem_required / Mega);
 }
 

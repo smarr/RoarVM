@@ -95,6 +95,9 @@ protected:
   static char  mmap_filename[BUFSIZ];
 
 public:  
+  static void check_requested_heap_size(size_t heap_size);
+  static int64_t get_available_main_mem_in_kb();
+  
   static bool ask_for_huge_pages(int /* desired_huge_pages */) { fatal(); }
   static char* map_heap_memory(size_t total_size, size_t bytes_to_map,
                                void* where, off_t offset,
@@ -103,6 +106,7 @@ public:
   
   static void* map_memory(size_t bytes_to_map, int    mmap_fd,
                           int    flags, void*  start_address,
+                          off_t  offset_in_backing_file,
                           const char* const usage);
 
 };

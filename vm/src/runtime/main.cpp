@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-# include <headers.h>
+# include "headers.h"
 # include <limits.h>
 # include <math.h>
 
@@ -190,6 +190,9 @@ static void process_arguments(int& argc, char**& argv) {
   for (int old_argc = -1;  old_argc != argc;  ) {
     old_argc = argc;
 
+    if (argc < 2)  /* this means we only have the binary name */
+      break;
+
     # define parse_arg_with_param(argName,setExpr,symbolicVal) \
       if (strcmp(argv[1], argName) == 0) { \
         __attribute__((unused)) char* STRING = argv[2]; \
@@ -198,6 +201,7 @@ static void process_arguments(int& argc, char**& argv) {
         setExpr; \
         if (do_print)  fprintf(stdout, "%s = %s\n", argName, argv[2]); \
         consume_argument(argc, argv, 2); \
+        continue; \
        }
 
     # define parse_boolean_arg(argName,setExpr,explanation) \
@@ -216,6 +220,9 @@ static void process_arguments(int& argc, char**& argv) {
   if (!have_set_core_count)
     Logical_Core::num_cores = 1;
 
+  if (argc < 2)  // looks like the image parameter is missing
+    usage(argv);
+  
   if (argv[1][0] == '-') {
     fprintf(stderr, "bad argument: %s\n", argv[1]);
     usage(argv);

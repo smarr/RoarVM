@@ -86,9 +86,23 @@ Abstract_OS_Interface::Power_Source OSX_OS_Interface::get_power_source() { retur
 # endif
 
 
-void OSX_OS_Interface::pin_thread_to_core(int32_t rank) {
+void OSX_OS_Interface::pin_thread_to_core(int32_t /* rank */) {
   // Mac OS X does not support setting explicit affinity to a PU
   // It only supports expressing cache affinity
   // and this is only for one process i.e. threads in a process
   // http://developer.apple.com/ReleaseNotes/Performance/RN-AffinityAPI/index.html
+}
+
+int64_t OSX_OS_Interface::get_available_main_mem_in_kb() {
+  int mib[2];
+  int64_t physical_memory;
+  size_t length;
+  
+  // Get the Physical memory size
+  mib[0] = CTL_HW;
+  mib[1] = HW_MEMSIZE;
+  length = sizeof(int64);
+  sysctl(mib, 2, &physical_memory, &length, NULL, 0);
+
+  return physical_memory / 1024;
 }

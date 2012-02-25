@@ -193,7 +193,12 @@ bool Message_Statics::receive_and_handle_one_message(bool wait) {
   }
   
   switch (msg_type) {
-    default: fatal("bad message"); return false;
+    default: { 
+      fatal("bad message");
+      return false;
+    }
+
+    /* all other messages */
       FOR_ALL_MESSAGES_DO(MAKE_CASE)
   }
 # undef MAKE_CASE
