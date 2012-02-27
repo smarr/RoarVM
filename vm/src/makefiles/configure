@@ -14,6 +14,10 @@ echo_usage () {
     echo "    --show-cmds         Show the command invocations"
     echo "    --enable-perfcnt    Enable internal performance counters"
     echo
+    echo "Advanced configuration:"
+    echo "    --use-threads       Use threads instead of OS processes"
+    echo "    --use-readmostly    Enable read-mostly heap on non-tilera architectures"
+    echo
     echo "Libraries:"
     echo "    --x11-lib <path>    Path to the X11 lib folder"
     echo "    --xext-lib <path>   Path to the X11 extension lib folder"
@@ -41,6 +45,10 @@ OPTIMIZE_LEVEL=-O3
 CONFIGURE_ARGS="$@"
 CONFIG_FLAGS="-m32 -Wextra -Wno-write-strings"
 PWD=`pwd`
+
+# Advanced config options
+USE_THREADS=0
+USE_READMOSTLY=0
 
 # Not sure whether we need absolute file names, but will preserve it for now.
 # However, spaces do break things, so, try to use relative pathes
@@ -76,6 +84,14 @@ do
     ;;
     --debug)
       DEBUG=1
+      shift 1
+    ;;
+    --use-threads)
+      USE_THREADS=1
+      shift 1
+    ;;
+    --use-readmostly)
+      USE_READMOSTLY=1
       shift 1
     ;;
     --enforce-opt)
@@ -222,6 +238,17 @@ then
     CONFIG_FLAGS="$CONFIG_FLAGS \\
         -DCollect_Performance_Counters=1 -DCount_Cycles=1"
 fi
+
+if [ $USE_THREADS -eq 1 ]
+then
+    CONFIG_FLAGS="$CONFIG_FLAGS -DEnforce_Threads=1"
+fi
+
+if [ $USE_READMOSTLY -eq 1 ]
+then
+    CONFIG_FLAGS="$CONFIG_FLAGS -DUse_ReadMostly_Heap=1"
+fi
+
 
 if [ $USE_TILERA -eq 1 ]
 then
