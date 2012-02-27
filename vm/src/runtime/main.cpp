@@ -259,6 +259,8 @@ void helper_core_main() {
 
 
 void initialize_basic_subsystems() {
+  Printer::init_globals();
+  
   OS_Interface::profiler_disable();
   OS_Interface::profiler_clear();
   
@@ -266,8 +268,6 @@ void initialize_basic_subsystems() {
   
   Memory_Semantics::initialize_timeout_timer();
   Memory_Semantics::initialize_memory_system();
-  
-  Printer::init_globals();
 }
 
 void read_image(char* image_path) {
