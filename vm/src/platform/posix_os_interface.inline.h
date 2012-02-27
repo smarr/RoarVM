@@ -30,6 +30,11 @@ inline void POSIX_OS_Interface::initialize() {
     POSIX_Processes::initialize();
     initialized = true;
   }
+  
+  if (Using_Threads) {
+    pthread_key_create(&rank_key, NULL);
+    pthread_setspecific(rank_key, (const void*)0);
+  }
 }
 
 inline int POSIX_OS_Interface::get_process_rank() { 
