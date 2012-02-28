@@ -49,7 +49,7 @@ public:
    * Returns the rank in the process group or -1 when not yet initialized.
    */
   static int process_rank() {
-    return locals().rank;
+    return locals()->rank;
   }
   
   /**
@@ -133,8 +133,10 @@ private:
     int rank;
   };
   
-  static Locals& locals() {
-    static Locals _locals = Locals();
+  static Locals* _locals;
+  
+  static Locals* locals() {
+    assert(_locals);
     return _locals;
   }
   
@@ -169,7 +171,7 @@ public:
       return true;
     if (globals == NULL)
       return false; // don't know
-    return globals->owning_process == locals().pid;
+    return globals->owning_process == locals()->pid;
   }
 
   static void unregister_child_termination_handler();

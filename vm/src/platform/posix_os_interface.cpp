@@ -125,6 +125,8 @@ void POSIX_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[
     
     int err = POSIX_Processes::start_group(Logical_Core::num_cores, argv);
     abort_if_error("exec", err);
+    Memory_Semantics::_my_rank = POSIX_Processes::process_rank();
+    Memory_Semantics::_my_rank_mask = 1LL << u_int64(Memory_Semantics::_my_rank);
     Logical_Core::group_size = Logical_Core::num_cores;
   }
   

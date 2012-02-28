@@ -12,6 +12,9 @@
 
 # include "headers.h"
 
+
+POSIX_Processes::Locals* POSIX_Processes::_locals;
+
 const char* POSIX_Processes::Global_Shared_Mem_Name = "/POSIX_Processes_cpp-001";
 const char* Shared_Region_Name = "/POSIX_Processes-SR-%lu";
 
@@ -73,12 +76,12 @@ int POSIX_Processes::initialize() {
     fatal("mmap posix process globals failed");
     return -1;
   }
-  
+  _locals = new Locals();
   if (initialize_globally) {
     initialize_processes_globals();
   }
-  else if (   globals->owning_process != locals().parent
-           && globals->owning_process != locals().pid) {
+  else if (   globals->owning_process != locals()->parent
+           && globals->owning_process != locals()->pid) {
     warnx("There is some confusion with global data, which is shared system"
           " wide. Currently there is no support for more then one instance "
           " of a program using this library!");
@@ -90,8 +93,8 @@ int POSIX_Processes::initialize() {
 
   initialize_termination_handler();
   
-  if (!is_owner_process())
-    map_shared_regions();
+  /* if (!is_owner_process())
+    map_shared_regions(); */  //should already be mapped for forked w/o exec process
   
 # warning TODO: add pinning for processes to cores here!!! STEFAN
   
@@ -127,17 +130,17 @@ void POSIX_Processes::print_globals() {
 void POSIX_Processes::register_process_and_determine_rank() {
   OS_Interface::mutex_lock(&globals->mtx_rank_running);
   
-  if (locals().pid == globals->owning_process) {
-    locals().rank = 0;
+  if (locals()->pid == globals->owning_process) {
+    locals()->rank = 0;
   }
   else {
     globals->last_rank++;
-    locals().rank = globals->last_rank;
+    locals()->rank = globals->last_rank;
     
     globals->running_processes++;
   }
   
-  globals->processes[locals().rank] = locals().pid;
+  globals->processes[locals()->rank] = locals()->pid;
   
   OS_Interface::mutex_unlock(&globals->mtx_rank_running);
 }
@@ -194,7 +197,18 @@ int POSIX_Processes::start_group(size_t num_processes, char** argv) {
     
     if (0 == pid) {
       // child
-      execv(argv[0], argv);
+      // execv(argv[0], argv);
+      
+      // Wait for the debugger for child processes, to make sure we can debug this.
+      
+      //if (Using_Processes && Include_Debugging_Code)
+      //  while (!OS_Interface::AmIBeingDebugged())
+      //volatile bool wait = true;
+      //while (wait);
+      _locals = new Locals();
+      register_process_and_determine_rank();
+      initialize_termination_handler();
+      return 0;
     }
     else if (pid > 0) {
       // master: just continue with the loop
@@ -331,7 +345,7 @@ void POSIX_Processes::shutdown() {
 
   for (size_t i = 0; i < globals->group_size; i++) {
     if (globals->processes[i]) {
-      if (globals->processes[i] != locals().pid)
+      if (globals->processes[i] != locals()->pid)
         kill(globals->processes[i], SIGCHLD);
       globals->processes[i] = 0;
     }
