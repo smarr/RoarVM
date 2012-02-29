@@ -549,10 +549,12 @@ $(EXECUTABLE): $(OBJS) main.o
 	$(CXX) $(LDFLAGS) $(OBJS) main.o -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
 ifeq "$(OS)" "Linux"
 ifneq "$(PLATFORM)" "Tilera"
+ifneq "0" "$(shell cat /proc/sys/kernel/randomize_va_space)"
 	mv $@ $@.bin
 	echo "#!/bin/sh" > $@
 	echo "setarch i686 -R `pwd`/$@.bin \"\$$@\"" >> $@
 	chmod +x $@
+endif
 endif
 endif
 
