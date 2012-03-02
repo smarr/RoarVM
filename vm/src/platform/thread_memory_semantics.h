@@ -28,7 +28,7 @@ class Thread_Memory_Semantics : public Abstract_Memory_Semantics {
 private:
   static void _dtor_memory_system_key(void* local_obj);
 public:
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     static __thread Memory_System* memory_system;
   # else
     static pthread_key_t memory_system_key;
@@ -47,7 +47,7 @@ public:
   // to allocate the interpreter, but that is usually not done.
   // Furthermore, if Force_Direct_Squeak_Interpreter_Access would be set,
   // the RVM could only use a single core.
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
   public:
     static __thread Squeak_Interpreter* interpreter;
   # else
@@ -71,7 +71,7 @@ public:
   static void initialize_local_timeout_timer() {}
   
 # else
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     static __thread Timeout_Timer_List_Head* timeout_head;
   # else
   private:
@@ -87,7 +87,7 @@ public:
 #pragma mark Miscellaneous
   
 private:
-# if On_Intel_Linux
+# if Use_ThreadLocals
   static __thread Logical_Core* _my_core;
 # else
   static pthread_key_t my_core_key;

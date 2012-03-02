@@ -111,6 +111,7 @@
   template(Force_Direct_Timeout_Timer_List_Head_Access) \
   template(Omit_PThread_Locks) \
   template(Use_Spin_Locks) \
+  template(Use_ThreadLocals) \
   template(Count_Cycles) \
   \
   template(Extra_Preheader_Word_Experiment) \
@@ -350,6 +351,10 @@
 
 # ifndef Use_Spin_Locks
 # define Use_Spin_Locks 0
+# endif
+
+# ifndef Use_ThreadLocals
+# define Use_ThreadLocals 0
 # endif
 
 # ifndef Dump_Bytecode_Cycles

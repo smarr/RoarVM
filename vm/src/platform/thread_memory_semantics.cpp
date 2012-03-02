@@ -22,7 +22,7 @@
   void Thread_Memory_Semantics::initialize_memory_system() {}
   void Thread_Memory_Semantics::initialize_local_memory_system() {}
 # else
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     __thread Memory_System* Thread_Memory_Semantics::memory_system = NULL;
 
     void Thread_Memory_Semantics::initialize_memory_system() {}
@@ -55,7 +55,7 @@
   Squeak_Interpreter _interpreter;
   void Thread_Memory_Semantics::initialize_interpreter() { }
 # else
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     __thread Squeak_Interpreter* Thread_Memory_Semantics::interpreter = NULL;
 
     void Thread_Memory_Semantics::initialize_interpreter() {}
@@ -91,7 +91,7 @@
 #pragma mark Timeout Timers
 
 # if !Force_Direct_Timeout_Timer_List_Head_Access
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     __thread Timeout_Timer_List_Head* Thread_Memory_Semantics::timeout_head = NULL;
 
     void Thread_Memory_Semantics::initialize_timeout_timer() {}
@@ -122,7 +122,7 @@
 
 #pragma mark Miscellaneous
 
-# if On_Intel_Linux
+# if Use_ThreadLocals
   __thread Logical_Core* Thread_Memory_Semantics::_my_core = NULL;
 
   void Thread_Memory_Semantics::initialize_logical_cores() {
