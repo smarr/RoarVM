@@ -32,7 +32,7 @@ public:
     static __thread Memory_System* memory_system;
   # else
     static pthread_key_t memory_system_key;
-  # endif // !On_Intel_Linux
+  # endif // !Use_ThreadLocals
 # endif
   
 public:
@@ -55,7 +55,7 @@ public:
     static void _dtor_interpreter(void* interpreter);
   public:
     static pthread_key_t interpreter_key;
-  # endif // !On_Intel_Linux
+  # endif // !Use_ThreadLocals
 # endif
   
   static void initialize_interpreter();
@@ -78,7 +78,7 @@ public:
     static void _dtor_timeout(void* local_head);
   public:
     static pthread_key_t timeout_key;
-  # endif // !On_Intel_Linux
+  # endif // !Use_ThreadLocals
   static void initialize_timeout_timer();
   static void initialize_local_timeout_timer();
 # endif
@@ -95,10 +95,10 @@ private:
   static void _dtor_my_core_key(void*) {
     pthread_setspecific(my_core_key, NULL);
   }
-# endif // if !On_Intel_Linux
+# endif // if !Use_ThreadLocals
 
 public:
-# if On_Intel_Linux
+# if Use_ThreadLocals
   static inline bool cores_are_initialized() { return _my_core != NULL; }
 # else
   static inline bool cores_are_initialized() { return my_core_key != 0; }
@@ -146,7 +146,7 @@ class Memory_System;
     return &_memory_system;
   }
 # else
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     inline FORCE_INLINE Memory_System* The_Memory_System() {
       assert(Memory_Semantics::memory_system != NULL /* ensure it is initialized */);
       return Memory_Semantics::memory_system;
@@ -156,7 +156,7 @@ class Memory_System;
       assert(Memory_Semantics::memory_system_key != 0 /* ensure it is initialized */);
       return (Memory_System*)pthread_getspecific(Memory_Semantics::memory_system_key);
     }
-  # endif // !On_Intel_Linux
+  # endif // !Use_ThreadLocals
 # endif
 
 
@@ -168,7 +168,7 @@ class Memory_System;
   // At least the Tilera compiler does not like the inlines, costs about 2-5% performance
   inline FORCE_INLINE Squeak_Interpreter* The_Squeak_Interpreter() { return &_interpreter;  }
 # else
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     inline FORCE_INLINE Squeak_Interpreter* The_Squeak_Interpreter() {
       assert(Memory_Semantics::interpreter != NULL /* ensure it is initialized */);
       return Memory_Semantics::interpreter;
@@ -189,7 +189,7 @@ class Timeout_Timer_List_Head;
     return &_head;
   }
 # else
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     inline FORCE_INLINE Timeout_Timer_List_Head* The_Timeout_Timer_List_Head() {
       return Memory_Semantics::timeout_head;
     }
@@ -197,7 +197,7 @@ class Timeout_Timer_List_Head;
     inline FORCE_INLINE Timeout_Timer_List_Head* The_Timeout_Timer_List_Head() {
       return (Timeout_Timer_List_Head*)pthread_getspecific(Memory_Semantics::timeout_key);
     }
-  # endif // ! On_Intel_Linux
+  # endif // !Use_ThreadLocals
 # endif
 
 # endif // !On_Tilera
