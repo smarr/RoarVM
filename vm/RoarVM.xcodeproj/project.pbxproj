@@ -10,7 +10,6 @@
 		0A278518128DBF7400336BDE /* externals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2783F6128DBF7300336BDE /* externals.cpp */; };
 		0A278519128DBF7400336BDE /* FilePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278400128DBF7300336BDE /* FilePlugin.c */; };
 		0A27851A128DBF7400336BDE /* sqFilePluginBasicPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278402128DBF7300336BDE /* sqFilePluginBasicPrims.c */; };
-		0A27851B128DBF7400336BDE /* sqUnixFile.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278403128DBF7300336BDE /* sqUnixFile.c */; };
 		0A27851E128DBF7400336BDE /* B2DPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27840F128DBF7300336BDE /* B2DPlugin.c */; };
 		0A27851F128DBF7400336BDE /* BitBltPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278411128DBF7300336BDE /* BitBltPlugin.c */; };
 		0A278520128DBF7400336BDE /* FloatArrayPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278413128DBF7300336BDE /* FloatArrayPlugin.c */; };
@@ -159,7 +158,6 @@
 		0AE6D1121531C8C4001A1018 /* FilePlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278400128DBF7300336BDE /* FilePlugin.c */; };
 		0AE6D1131531C90F001A1018 /* tmc_os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A72A76314432D7C0008E8AC /* tmc_os_interface.cpp */; };
 		0AE6D1141531C927001A1018 /* sqFilePluginBasicPrims.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278402128DBF7300336BDE /* sqFilePluginBasicPrims.c */; };
-		0AE6D1151531C92B001A1018 /* sqUnixFile.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278403128DBF7300336BDE /* sqUnixFile.c */; };
 		0AE6D1161531C931001A1018 /* B2DPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A27840F128DBF7300336BDE /* B2DPlugin.c */; };
 		0AE6D1171531C935001A1018 /* BitBltPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278411128DBF7300336BDE /* BitBltPlugin.c */; };
 		0AE6D1181531C938001A1018 /* FloatArrayPlugin.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A278413128DBF7300336BDE /* FloatArrayPlugin.c */; };
@@ -172,6 +170,8 @@
 		0AE6D11F1531C980001A1018 /* osx_os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784C9128DBF7400336BDE /* osx_os_interface.cpp */; };
 		0AE6D1201531C98F001A1018 /* posix_os_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2784CB128DBF7400336BDE /* posix_os_interface.cpp */; };
 		0AEC1186128DF0A000EFF6D1 /* debug_helper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */; };
+		0AEDCC6315E3CB2B0022DD44 /* sqUnixFile.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AEDCC6215E3CB2B0022DD44 /* sqUnixFile.c */; };
+		0AEDCC6415E3CB2B0022DD44 /* sqUnixFile.c in Sources */ = {isa = PBXBuildFile; fileRef = 0AEDCC6215E3CB2B0022DD44 /* sqUnixFile.c */; };
 		34221D6D13D4D3C50057DCBD /* externals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A2783F6128DBF7300336BDE /* externals.cpp */; };
 		34221D6E13D4D3D10057DCBD /* abstract_mark_sweep_collector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278444128DBF7300336BDE /* abstract_mark_sweep_collector.cpp */; };
 		34221D6F13D4D3F50057DCBD /* abstract_object_heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A278446128DBF7300336BDE /* abstract_object_heap.cpp */; };
@@ -215,7 +215,6 @@
 		0A278400128DBF7300336BDE /* FilePlugin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FilePlugin.c; sourceTree = "<group>"; };
 		0A278401128DBF7300336BDE /* FilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilePlugin.h; sourceTree = "<group>"; };
 		0A278402128DBF7300336BDE /* sqFilePluginBasicPrims.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqFilePluginBasicPrims.c; sourceTree = "<group>"; };
-		0A278403128DBF7300336BDE /* sqUnixFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixFile.c; sourceTree = "<group>"; };
 		0A278405128DBF7300336BDE /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		0A278408128DBF7300336BDE /* SocketPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketPlugin.h; sourceTree = "<group>"; };
 		0A27840C128DBF7300336BDE /* sqVirtualMachine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqVirtualMachine.h; sourceTree = "<group>"; };
@@ -478,6 +477,7 @@
 		0AE6D0E51531C596001A1018 /* synced_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = synced_queue.h; sourceTree = "<group>"; };
 		0AEC1184128DF02F00EFF6D1 /* debug_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug_helper.h; sourceTree = "<group>"; };
 		0AEC1185128DF0A000EFF6D1 /* debug_helper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debug_helper.cpp; sourceTree = "<group>"; };
+		0AEDCC6215E3CB2B0022DD44 /* sqUnixFile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqUnixFile.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -605,7 +605,6 @@
 				0A278400128DBF7300336BDE /* FilePlugin.c */,
 				0A278401128DBF7300336BDE /* FilePlugin.h */,
 				0A278402128DBF7300336BDE /* sqFilePluginBasicPrims.c */,
-				0A278403128DBF7300336BDE /* sqUnixFile.c */,
 			);
 			path = FilePlugin;
 			sourceTree = "<group>";
@@ -1150,6 +1149,7 @@
 		0A5D7C96135CC81F00D13E53 /* plugins */ = {
 			isa = PBXGroup;
 			children = (
+				0AEDCC6015E3CB2B0022DD44 /* FilePlugin */,
 				0A5D7C9D135CC8C800D13E53 /* B3DAcceleratorPlugin */,
 				0A5D7C9A135CC86800D13E53 /* SocketPlugin */,
 				0A5D7C97135CC83500D13E53 /* SoundPlugin */,
@@ -1188,6 +1188,15 @@
 				0A5D7CA0135CC9D400D13E53 /* SoundPlugin.h */,
 			);
 			path = SoundPlugin;
+			sourceTree = "<group>";
+		};
+		0AEDCC6015E3CB2B0022DD44 /* FilePlugin */ = {
+			isa = PBXGroup;
+			children = (
+				0AEDCC6215E3CB2B0022DD44 /* sqUnixFile.c */,
+			);
+			name = FilePlugin;
+			path = plugins/FilePlugin;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1280,7 +1289,6 @@
 				0A278518128DBF7400336BDE /* externals.cpp in Sources */,
 				0A278519128DBF7400336BDE /* FilePlugin.c in Sources */,
 				0A27851A128DBF7400336BDE /* sqFilePluginBasicPrims.c in Sources */,
-				0A27851B128DBF7400336BDE /* sqUnixFile.c in Sources */,
 				0A27851E128DBF7400336BDE /* B2DPlugin.c in Sources */,
 				0A27851F128DBF7400336BDE /* BitBltPlugin.c in Sources */,
 				0A278520128DBF7400336BDE /* FloatArrayPlugin.c in Sources */,
@@ -1368,6 +1376,7 @@
 				0A72A76514432D7C0008E8AC /* tmc_os_interface.cpp in Sources */,
 				0AE6D0E61531C596001A1018 /* buffered_channel.cpp in Sources */,
 				0AE6D0E71531C596001A1018 /* synced_queue.cpp in Sources */,
+				0AEDCC6315E3CB2B0022DD44 /* sqUnixFile.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1463,7 +1472,6 @@
 				0AE6D1121531C8C4001A1018 /* FilePlugin.c in Sources */,
 				0AE6D1131531C90F001A1018 /* tmc_os_interface.cpp in Sources */,
 				0AE6D1141531C927001A1018 /* sqFilePluginBasicPrims.c in Sources */,
-				0AE6D1151531C92B001A1018 /* sqUnixFile.c in Sources */,
 				0AE6D1161531C931001A1018 /* B2DPlugin.c in Sources */,
 				0AE6D1171531C935001A1018 /* BitBltPlugin.c in Sources */,
 				0AE6D1181531C938001A1018 /* FloatArrayPlugin.c in Sources */,
@@ -1475,6 +1483,7 @@
 				0AE6D11E1531C962001A1018 /* sqUnixSoundMacOSX.c in Sources */,
 				0AE6D11F1531C980001A1018 /* osx_os_interface.cpp in Sources */,
 				0AE6D1201531C98F001A1018 /* posix_os_interface.cpp in Sources */,
+				0AEDCC6415E3CB2B0022DD44 /* sqUnixFile.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -335,6 +335,7 @@ vpath %.c $(SRC_DIR)/from_squeak/intplugins/SoundPlugin
 vpath %.c $(SRC_DIR)/from_squeak/intplugins/UnixOSProcessPlugin
 vpath %.c $(SRC_DIR)/from_squeak/intplugins/SocketPlugin
 vpath %.c $(SRC_DIR)/from_squeak/unix
+vpath %.c $(SRC_DIR)/from_squeak/unix/plugins/FilePlugin
 vpath %.c $(SRC_DIR)/from_squeak/unix/plugins/SocketPlugin
 vpath %.c $(SRC_DIR)/from_squeak/unix/plugins/SoundPlugin
 vpath %.c $(SRC_DIR)/from_squeak/unix/vm
