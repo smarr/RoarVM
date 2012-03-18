@@ -404,7 +404,8 @@ bool Object::hasOkayClass() {
   assert_always_msg(klass_oop.is_mem(), "a SmallInteger is not a valid class or behavior");
   Object_p klass = klass_oop.as_object();
   klass->okayOop();
-  assert_always_msg(klass->isPointers()  &&  klass->lengthOf() >= 3,
+  assert_always(klass->isPointers());
+  assert_always_msg(klass->lengthOf() >= 3,
                     "a class (behavior) must be a pointers object of size >= 3");
   oop_int_t formatMask = isBytes() ? 0xc00 /* ignore extra bytes size bits */ : 0xf00;
   oop_int_t behaviorFormatBits = klass->formatOfClass() & formatMask;
