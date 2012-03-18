@@ -314,9 +314,9 @@ public:
 
 
   void pushRemappableOop(Oop x) { remapBuffer[remapBufferCount++] = x; }
-  Oop  popRemappableOop()       {return remapBuffer[--remapBufferCount]; }
+  Oop  popRemappableOop()       { return remapBuffer[--remapBufferCount]; }
   void popRemappableOops(int n) { remapBufferCount -= n; assert(remapBufferCount >= 0); }
-  Oop  topRemappableOop()       {return remapBuffer[remapBufferCount]; }
+  Oop  topRemappableOop()       { assert(remapBufferCount > 0); return remapBuffer[remapBufferCount - 1]; }
 
   void do_all_roots(Oop_Closure* oc);
 
