@@ -198,6 +198,7 @@ RVM_HEADERS = \
   multicore_object_table.h \
   memory_system.h \
   basic_memory_system.h \
+  read_mostly_memory_system.h \
   core_tracer.h \
   abstract_tracer.h \
   oop_tracer.h \

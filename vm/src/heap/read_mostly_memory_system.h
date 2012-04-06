@@ -59,8 +59,8 @@
 class Read_Mostly_Memory_System : public Abstract_Memory_System {
 protected:
   static const int max_num_mutabilities = 2;
-  static const int read_mostly = 0;
-  static const int read_write  = 1;
+  static const int read_mostly; // = 0; in implementation since it needs linker visibility
+  static const int read_write; // = 1; in implementation since it needs linker visibility
 
   int second_chance_cores_for_allocation[max_num_mutabilities];  // made threadsafe to increase the reliability of the value
 

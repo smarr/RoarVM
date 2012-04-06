@@ -18,6 +18,8 @@
 
 u_int32  Read_Mostly_Memory_System::memory_per_read_mostly_heap = 0;
 u_int32  Read_Mostly_Memory_System::log_memory_per_read_mostly_heap = 0;
+const int Read_Mostly_Memory_System::read_mostly = 0;
+const int Read_Mostly_Memory_System::read_write  = 1;
 
 
 void Read_Mostly_Memory_System::enforce_coherence_after_each_core_has_stored_into_its_own_heap() {
