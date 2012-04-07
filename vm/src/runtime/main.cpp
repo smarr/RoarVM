@@ -354,8 +354,9 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
   }
-      
-  OS_Interface::ensure_Time_Machine_backs_up_run_directory();
+  
+  if (Include_Debugging_Code)
+    OS_Interface::ensure_Time_Machine_backs_up_run_directory();
 
   initialize_interpreter_instances_selftest_and_interpreter_proxy(orig_argv);
   
