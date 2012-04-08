@@ -12,12 +12,12 @@
  ******************************************************************************/
 
 
-# if   On_Tilera
+# if   Using_Processes
 
 class   Process_Memory_Semantics;
 typedef Process_Memory_Semantics Memory_Semantics;
 
-# else
+# else // if Using_Threads
 
 class   Thread_Memory_Semantics;
 typedef Thread_Memory_Semantics  Memory_Semantics;

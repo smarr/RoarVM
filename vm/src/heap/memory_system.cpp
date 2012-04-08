@@ -683,12 +683,12 @@ void Memory_System::map_heap_memory_separately(int pid,
                                                   0, pid,
                                                   MAP_SHARED | MAP_CACHE_INCOHERENT);
     read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
-    
+
     read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
                                                   read_mostly_memory_past_end,
                                                   inco_size, pid,
                                                   MAP_SHARED);
-    read_write_memory_past_end  = read_write_memory_base + co_size;
+    read_write_memory_past_end  = read_write_memory_base  + co_size;
   }
   else {
     read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
@@ -696,7 +696,7 @@ void Memory_System::map_heap_memory_separately(int pid,
                                                   0, pid,
                                                   MAP_SHARED);
     read_write_memory_past_end  = read_write_memory_base + co_size;
-    
+
     read_mostly_memory_past_end = read_write_memory_base;
     read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
                                                   read_mostly_memory_past_end - inco_size,
@@ -720,10 +720,10 @@ void Memory_System::map_heap_memory_in_one_request(int pid,
   read_mostly_memory_base = OS_Interface::map_heap_memory(grand_total, grand_total,
                                             NULL, 0, pid, MAP_SHARED);
   read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
-  
+
   read_write_memory_base      = read_mostly_memory_past_end;
   read_write_memory_past_end  = read_write_memory_base + co_size;
-}
+  }
 
 
 void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size, size_t total_read_mostly_memory_size) {
@@ -735,14 +735,14 @@ void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_
     map_heap_memory_separately(pid, grand_total, inco_size, co_size);
   else
     map_heap_memory_in_one_request(pid, grand_total, inco_size, co_size);
-    
+
   assert(read_mostly_memory_base < read_mostly_memory_past_end);
   assert(read_mostly_memory_past_end <= read_write_memory_base);
   assert(read_write_memory_base < read_write_memory_past_end);
   if (read_mostly_memory_base >= read_write_memory_past_end) {
     OS_Interface::unlink_heap_file();
     fatal("contains will fail");
-  }
+}
 }
 
 
@@ -776,7 +776,7 @@ void Memory_System::initialize_main(init_buf* ib) {
   if (check_many_assertions)
     lprintf("finished creating all heaps\n");
 
-  if (Replicate_PThread_Memory_System || On_Tilera) {
+  if (Replicate_PThread_Memory_System || Using_Processes) {
     // Now, send the addresses of these.
     FOR_ALL_OTHER_RANKS(i)
       logical_cores[i].message_queue.buffered_send_buffer(&heaps[0][0],  sizeof(heaps));
@@ -797,10 +797,10 @@ void Memory_System::initialize_helper() {
   Logical_Core* sender;
   init_buf* ib = (init_buf*)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
   
-  if (Replicate_PThread_Memory_System  ||  On_Tilera)
+  if (Replicate_PThread_Memory_System  ||  Using_Processes)
     init_values_from_buffer(ib); // not needed with common structure
 
-  if (On_Tilera)
+  if (Using_Processes)
     map_read_write_and_read_mostly_memory(ib->main_pid, ib->total_read_write_memory_size, ib->total_read_mostly_memory_size);
   
   create_my_heaps(ib);
@@ -811,7 +811,7 @@ void Memory_System::initialize_helper() {
   Logical_Core::main_core()->message_queue.buffered_send_buffer(&heaps[Logical_Core::my_rank()][read_write ], sizeof(Multicore_Object_Heap*));
   if (check_many_assertions) lprintf("finished sending my heaps\n");
 
-  if (!Replicate_PThread_Memory_System && !On_Tilera)
+  if (!Replicate_PThread_Memory_System && Using_Threads)
     return;
   
   void* heaps_buf = Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());

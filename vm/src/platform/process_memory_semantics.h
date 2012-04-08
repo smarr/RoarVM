@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-# if On_Tilera
+# if Using_Processes
 
 class Process_Memory_Semantics : public Abstract_Memory_Semantics {
 public:

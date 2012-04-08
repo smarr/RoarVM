@@ -63,6 +63,9 @@
 # define DO_ALL_CONFIG_FLAGS(template) \
   template(On_Intel_Linux) \
   template(On_Tilera) \
+  template(Enforce_Threads) \
+  template(Using_Threads) \
+  template(Using_Processes) \
   template(Replicate_PThread_Memory_System) /* true makes system on pthreads like Tilera, but slower */ \
   template(Max_Number_Of_Cores) \
   template(Number_Of_Channel_Buffers) \
@@ -148,6 +151,14 @@
 # endif
 
 # define On_Tilera_With_GCC (On_Tilera && !defined(__TILECC__))
+
+
+# ifndef Enforce_Threads
+  # define Enforce_Threads !On_Tilera
+# endif
+
+# define Using_Threads    Enforce_Threads
+# define Using_Processes !Enforce_Threads
 
 # ifndef Replicate_PThread_Memory_System
   # define Replicate_PThread_Memory_System 0

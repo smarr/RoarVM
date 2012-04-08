@@ -231,7 +231,7 @@ static void process_arguments(int& argc, char**& argv) {
 
 
 void helper_core_main() {
-  if ( !On_Tilera )
+  if ( Using_Threads )
     Memory_Semantics::initialize_local_logical_core();
 
   The_Memory_System()->initialize_helper();
@@ -252,7 +252,7 @@ void helper_core_main() {
   char buf[BUFSIZ];
   Logical_Core::my_print_string(buf, sizeof(buf));
   lprintf( "helper finsihed: %s\n", buf);
-  if ( On_Tilera ) {
+  if ( Using_Processes ) {
     rvm_exit();
   }
 }

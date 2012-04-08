@@ -144,9 +144,8 @@ void Squeak_Image_Reader::imageNamePut_on_all_cores(char* bytes, unsigned int le
   
   bcopy(bytes, shared_buffer, len);
   imageNamePutMessage_class m(shared_buffer, len);
-  
-  if (On_Tilera) m.send_to_all_cores();
-  else           m.handle_me();
+  if (Using_Processes) m.send_to_all_cores();
+  else                 m.handle_me();
   
   Memory_Semantics::shared_free(shared_buffer);
 }

@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-# if !On_Tilera
+# if Using_Threads
 
 class Timeout_Timer_List_Head;
 
@@ -200,5 +200,5 @@ class Timeout_Timer_List_Head;
   # endif // !Use_ThreadLocals
 # endif
 
-# endif // !On_Tilera
+# endif // Using_Threads
 
