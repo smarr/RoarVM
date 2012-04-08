@@ -1754,8 +1754,21 @@ void Squeak_Interpreter::primitiveRelinquishProcessor() {
 
 void Squeak_Interpreter::primitiveResume() {
   Oop proc = stackTop();
-  success(get_argumentCount() == 0  &&  proc.fetchClass() == splObj(Special_Indices::ClassProcess) );
-  if (successFlag)  resume(proc, "primitiveResume");
+  success(get_argumentCount() == 0);
+  
+  if (!successFlag)
+    return;
+  
+  Oop procClass = splObj(Special_Indices::ClassProcess);
+  Oop clsOop = proc.fetchClass();
+  if ( clsOop != clsOop ) {
+    if ( !procClass.as_object()->is_superclass_of(clsOop) ) {
+      primitiveFail();
+      return;
+    }
+  }
+  
+  resume(proc, "primitiveResume");
   addedScheduledProcessMessage_class().send_to_other_cores();
 }
 
@@ -2107,9 +2120,13 @@ void Squeak_Interpreter::primitiveSuspend() {
   }
 
   Oop procToSuspend = stackTop();
-  if ( procToSuspend.fetchClass() != splObj(Special_Indices::ClassProcess) ) {
-    primitiveFail();
-    return;
+  Oop procClass = splObj(Special_Indices::ClassProcess);
+  Oop clsOop = procToSuspend.fetchClass();
+  if ( clsOop != clsOop ) {
+    if ( !procClass.as_object()->is_superclass_of(clsOop) ) {
+      primitiveFail();
+      return;
+    }
   }
   Oop old_list;
   {
