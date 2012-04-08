@@ -354,7 +354,7 @@
 # endif
 
 # ifndef Use_ThreadLocals
-# define Use_ThreadLocals 0
+# define Use_ThreadLocals !On_Apple
 # endif
 
 # ifndef Dump_Bytecode_Cycles
