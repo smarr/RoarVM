@@ -24,6 +24,16 @@ bool Object::verify() {
   verify_preheader();
   FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oop_ptr)
     oop_ptr->verify_oop();
+  
+  /* Class verification */
+  Oop klass = this->fetchClass();
+  bool is_meta;
+  Oop class_name = klass.as_object()->name_of_class_or_metaclass(&is_meta);
+  Object_p class_name_obj = class_name.as_object();
+  if (!class_name_obj->isWordsOrBytes())
+    return false;
+  
+  
   if ( contains_class_and_type_word() )
     get_class_oop().verify_oop();
   return okayOop();
