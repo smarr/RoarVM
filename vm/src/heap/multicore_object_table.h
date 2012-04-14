@@ -15,11 +15,6 @@
 # if Use_Object_Table
 
 class Multicore_Object_Table: public Segmented_Object_Table {
- private:
-
-  int turn; // out of place here but need shared memory
-
-
 public:
   void* operator new(size_t size) {
     return Memory_Semantics::shared_malloc(size);

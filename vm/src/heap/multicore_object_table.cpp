@@ -31,7 +31,7 @@ Oop Multicore_Object_Table::get_stats(int rank) {
   return The_Squeak_Interpreter()->makeArray(s);
 }
 
-Multicore_Object_Table::Multicore_Object_Table() : Segmented_Object_Table(), turn(0) {}
+Multicore_Object_Table::Multicore_Object_Table() : Segmented_Object_Table() {}
 
 
 static const char check_mark[4] = "mot";
