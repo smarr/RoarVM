@@ -1155,17 +1155,3 @@ int Object::index_of_string_in_array(const char* aString) {
   return -1;
 }
 
-
-bool Object::is_superclass_of(Oop subclass) {
-  // STEFAN: are we sure that works as termination condition? thought the classes are cyclic or something????
-  Oop nilObj = The_Squeak_Interpreter()->roots.nilObj;
-  Oop super_class = as_oop();
-  
-  for (Oop klass = subclass;  klass != nilObj;  klass = klass.as_object()->superclass())
-    if (klass == super_class)
-      return true;
-  return false;
-}
-
-
-

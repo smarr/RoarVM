@@ -85,7 +85,8 @@ private:
 
   inline Oop fetchClass();
   bool isMemberOf(char*);
-  bool isKindOf(char*);
+  bool isKindOf(char* className);
+  bool isKindOf(Oop aClass);
 
   // subclass forwarders:
 

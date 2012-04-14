@@ -33,9 +33,22 @@ bool Oop::isMemberOf(char* className) {
 }
 
 bool Oop::isKindOf(char* className) {
-  for (Oop klass = fetchClass();  klass != The_Squeak_Interpreter()->roots.nilObj;  klass = klass.as_object()->superclass())
+  Oop const nilObj = The_Squeak_Interpreter()->roots.nilObj;
+  
+  for (Oop klass = fetchClass();  klass != nilObj;  klass = klass.as_object()->superclass())
     if (klass.as_object()->className().as_object()->equals_string(className))
       return true;
+  
+  return false;
+}
+
+bool Oop::isKindOf(Oop aClass) {
+  Oop const nilObj = The_Squeak_Interpreter()->roots.nilObj;
+  
+  for (Oop klass = fetchClass();  klass != nilObj;  klass = klass.as_object()->superclass())
+    if (klass == aClass)
+      return true;
+  
   return false;
 }
 

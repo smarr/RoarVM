@@ -293,7 +293,9 @@ sqInt isFloatObject(sqInt oop) { return Oop::from_bits(oop).is_mem() && Oop::fro
 sqInt isInMemory(sqInt /* address */) { unimpExt(); return 1;}
 
 sqInt isKindOf(sqInt oop, char *aString) { return Oop::from_bits(oop).isKindOf(aString); }
-sqInt isKindOfClass(sqInt /* oop */, sqInt /* aClass */)  { unimpExt(); return 0; }  // STEFAN TODO: necessary for the FFI I think
+sqInt isKindOfClass(sqInt oop, sqInt aClass_oop)  {
+  return Oop::from_bits(oop).isKindOf(Oop::from_bits(aClass_oop));
+}
 
 
 sqInt includesBehaviorThatOf(sqInt /* aClass */, sqInt /* aSuperClass */) { unimpExt(); return 0; }

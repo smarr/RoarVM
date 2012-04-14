@@ -527,8 +527,6 @@ public:
   Object_p get_external_primitive_literal_of_method();
 
   inline Oop superclass();
-  
-  bool is_superclass_of(Oop);
    
   Oop methodClass() {
     return literal(literalCount() - 1).as_object()->fetchPointer(Object_Indices::ValueIndex);
