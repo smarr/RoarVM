@@ -2597,6 +2597,7 @@
 					../../../runtime,
 					../../../from_squeak/iOS/vm/src/vm,
 					../../../from_squeak/iOS/vm/iPhone,
+					../../../from_squeak/Cross/vm/,
 				);
 				INFOPLIST_FILE = "Info-iPhone.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
@@ -2659,6 +2660,7 @@
 					../../../runtime,
 					../../../from_squeak/iOS/vm/src/vm,
 					../../../from_squeak/iOS/vm/iPhone,
+					../../../from_squeak/Cross/vm/,
 				);
 				INFOPLIST_FILE = "Info-iPhone.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;

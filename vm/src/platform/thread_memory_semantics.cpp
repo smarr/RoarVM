@@ -22,7 +22,7 @@
   void Thread_Memory_Semantics::initialize_memory_system() {}
   void Thread_Memory_Semantics::initialize_local_memory_system() {}
 # else
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     __thread Memory_System* Thread_Memory_Semantics::memory_system = NULL;
 
     void Thread_Memory_Semantics::initialize_memory_system() {}
@@ -46,7 +46,7 @@
       Memory_System* mem_sys = new Memory_System();
       pthread_setspecific(memory_system_key, mem_sys);
     }
-  # endif  // !On_Intel_Linux
+  # endif  // !Use_ThreadLocals
 # endif // Replicate_PThread_Memory_System
 
 #pragma mark Interpreter
@@ -55,7 +55,7 @@
   Squeak_Interpreter _interpreter;
   void Thread_Memory_Semantics::initialize_interpreter() { }
 # else
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     __thread Squeak_Interpreter* Thread_Memory_Semantics::interpreter = NULL;
 
     void Thread_Memory_Semantics::initialize_interpreter() {}
@@ -84,14 +84,14 @@
       
       pthread_setspecific(interpreter_key, interp);
     }
-  # endif // !On_Intel_Linux
+  # endif // !Use_ThreadLocals
 # endif // Force_Direct_Squeak_Interpreter_Access
 
 
 #pragma mark Timeout Timers
 
 # if !Force_Direct_Timeout_Timer_List_Head_Access
-  # if On_Intel_Linux
+  # if Use_ThreadLocals
     __thread Timeout_Timer_List_Head* Thread_Memory_Semantics::timeout_head = NULL;
 
     void Thread_Memory_Semantics::initialize_timeout_timer() {}
@@ -116,13 +116,13 @@
       Timeout_Timer_List_Head* head = new Timeout_Timer_List_Head();
       pthread_setspecific(timeout_key, head);
     }
-  # endif // !On_Intel_Linux
+  # endif // !Use_ThreadLocals
 # endif // !Force_Direct_Timeout_Timer_List_Head_Access
 
 
 #pragma mark Miscellaneous
 
-# if On_Intel_Linux
+# if Use_ThreadLocals
   __thread Logical_Core* Thread_Memory_Semantics::_my_core = NULL;
 
   void Thread_Memory_Semantics::initialize_logical_cores() {
@@ -147,7 +147,7 @@
     assert(my_core_key != 0);
     return (Logical_Core*)pthread_getspecific(my_core_key);
   }
-# endif // !On_Intel_Linux
+# endif // !Use_ThreadLocals
 
 
 void Thread_Memory_Semantics::initialize_local_logical_core() {
@@ -156,11 +156,11 @@ void Thread_Memory_Semantics::initialize_local_logical_core() {
 
 
 void Thread_Memory_Semantics::initialize_local_logical_core(int rank) {
-# if On_Intel_Linux
+# if Use_ThreadLocals
   _my_core = &logical_cores[rank];
 # else
   pthread_setspecific(my_core_key, &logical_cores[rank]);
-# endif // !On_Intel_Linux
+# endif // !Use_ThreadLocals
   initialize_local_timeout_timer();
   if (!Logical_Core::running_on_main())
     initialize_local_interpreter(); // must precede argument processing

@@ -42,20 +42,20 @@ inline bool Abstract_Object_Heap::sufficientSpaceToAllocate(oop_int_t bytes) {
 
   if (Trace_GC_For_Debugging && The_Squeak_Interpreter()->debugging_tracer() != NULL  &&  The_Squeak_Interpreter()->debugging_tracer()->force_gc())
     ;
-  else if (bytesLeft(false) >= minFree)
+  else if (bytesLeft() >= minFree)
     return true;
 
   if (The_Squeak_Interpreter()->safepoint_ability->is_able()) // might be allocating a context
     The_Memory_System()->fullGC("sufficientSpaceToAllocate");
 
-  if (bytesLeft(false) >= minFree)
+  if (bytesLeft() >= minFree)
     return true;
 
   /*  implement this
    The_Memory_System()->balanceHeaps();
 
 
-   if (bytesLeft(false) >= minFree)
+   if (bytesLeft() >= minFree)
    return true;
    */
 

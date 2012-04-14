@@ -14,7 +14,7 @@
 
 # include "headers.h"
 
-# if On_Tilera
+# if Using_Processes
 
 Logical_Core* Process_Memory_Semantics::_my_core = NULL;
 int Process_Memory_Semantics::_my_rank = -1;

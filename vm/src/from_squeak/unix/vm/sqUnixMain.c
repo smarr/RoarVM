@@ -566,18 +566,21 @@ sqInt ioFormPrint(sqInt bitsAddr, sqInt width, sqInt height, sqInt depth, double
   return dpy->ioFormPrint(bitsAddr, width, height, depth, hScale, vScale, landscapeFlag);
 }
 
-#if STACKVM
+
+#if ROAR_VM
 sqInt ioRelinquishProcessorForMicroseconds(sqInt us)
 {
-  # ifdef ROAR_VM
-    dpy->ioRelinquishProcessorForMicroseconds(0);
-    setInterruptCheckCounter(0);
-  # else
-    dpy->ioRelinquishProcessorForMicroseconds(us);
-  # endif
+  dpy->ioRelinquishProcessorForMicroseconds(0);
+  setInterruptCheckCounter(0);
   return 0;
 }
-#else /* STACKVM */
+#elif STACKVM
+sqInt ioRelinquishProcessorForMicroseconds(sqInt us)
+{
+  dpy->ioRelinquishProcessorForMicroseconds(us);
+  return 0;
+}
+#else /* !ROARVM && !STACKVM */
 static int lastInterruptCheck= 0;
 
 sqInt ioRelinquishProcessorForMicroseconds(sqInt us)

@@ -7,7 +7,6 @@ echo_usage () {
     echo
     echo "Basic configuration values:"
     echo "    --use-tilera        Enable usage of Tilera libraries"
-    echo "    --opt-workaround    Reduce optimization level for problematic files"
     echo
     echo "    --debug"
     echo "    --enforce-opt       Should be used together with --debug to enforce full optimization"
@@ -37,12 +36,11 @@ echo_usage () {
 OPERATING_SYSTEM=`uname`
 USE_TILERA=0
 FOR_DISTRIBUTION=1
-OPT_WORKAROUND=0
 DEBUG=0
 ENFORCE_OPT=0
 SUPPRESS_CMD_OUTPUT=1
 PERF_COUNTERS=0
-
+OPTIMIZE_LEVEL=-O3
 
 PREHEADER=1
 OBJECT_TABLE=1
@@ -84,7 +82,7 @@ do
       shift 1
     ;;
     --opt-workaround)
-      OPT_WORKAROUND=1
+      # not necessary anymore, just ignored
       shift 1
     ;;
     --debug)
@@ -138,17 +136,6 @@ do
   esac
 done
 
-if [ $OPT_WORKAROUND -eq 0 ]
-then
-	LOW_OPTIMIZE_LEVEL=-O3
-	HIGH_OPTIMIZE_LEVEL=-O3
-else
-	LOW_OPTIMIZE_LEVEL=-O1
-	HIGH_OPTIMIZE_LEVEL=-O3
-	CONFIG_FLAGS="$CONFIG_FLAGS \\
-	    -DCHECK_FOR_PROBLEMATIC_COMPILER=0"
-fi
-
 if [ $OBJECT_TABLE -eq 1 ]
 then
   CONFIG_FLAGS="$CONFIG_FLAGS -DUse_Mark_Sweep_GC_With_Object_Table=1"
@@ -171,11 +158,11 @@ else
         -g3 \\
         -DDebugging=1 \\
         -Dcheck_many_assertions=1 \\
-        -DTrace_Execution=0"
+        -DTrace_Execution=0 -DTrack_OnStackPointer=0 \\
+       "
 	if [ $ENFORCE_OPT -eq 0 ]
     then
-	    LOW_OPTIMIZE_LEVEL=-O0
-	    HIGH_OPTIMIZE_LEVEL=-O0
+	    OPTIMIZE_LEVEL=-O0
     fi
 fi
 
@@ -244,10 +231,10 @@ if [ -z "$X11_PATH" ]
 then
     if [ $USE_TILERA -eq 1 ]
     then
-        if [ -f /users/smarr/test/xc/lib/X11/libX11.a ]
+        if [ -f /users/smarr/Projects/X11-Tilera-libs/current/libX11.a ]
         then
-            X11_PATH="/users/smarr/test/xc/lib/X11"
-            Xext_PATH="/users/smarr/test/xc/lib/Xext"
+            X11_PATH="/users/smarr/Projects/X11-Tilera-libs/current/"
+            Xext_PATH="/users/smarr/Projects/X11-Tilera-libs/current/"
         else
             if [ -f /home/ungar/renaissance/xfree86/xc/lib/X11/libX11.a ]
             then
@@ -296,8 +283,7 @@ echo "LDFLAGS=$LDFLAGS"        >> Makefile
 echo "X11_PATH=$X11_PATH"      >> Makefile
 echo "Xext_PATH=$Xext_PATH"    >> Makefile
 echo "SRC_DIR=$SRC_DIR"        >> Makefile
-echo "LOW_OPTIMIZE_LEVEL = $LOW_OPTIMIZE_LEVEL"  >> Makefile
-echo "HIGH_OPTIMIZE_LEVEL= $HIGH_OPTIMIZE_LEVEL" >> Makefile
+echo "OPTIMIZE_LEVEL = $OPTIMIZE_LEVEL"  >> Makefile
 echo "SUPPRESS_CMD_OUTPUT= $SUPPRESS_CMD_OUTPUT" >> Makefile
 echo "PREHEADER= $PREHEADER"   >> Makefile
 

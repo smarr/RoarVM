@@ -245,15 +245,17 @@ inline Oop  Object::fetchPointer(oop_int_t fieldIndex) {
   return r;
 }
 
-
-inline void Object::catch_stores_of_method_in_home_ctxs(Oop* /* addr */, int n,  Oop x) {
 # if Extra_OTE_Words_for_Debugging_Block_Context_Method_Change_Bug
+inline void Object::catch_stores_of_method_in_home_ctxs(Oop* /* addr */, int n,  Oop x) {
   if (n != Object_Indices::MethodIndex)  return;
   if (get_count_of_blocks_homed_to_this_method_ctx() <= 0)   return;
   lprintf("caught storePointer of method in Oop 0x%x, changing method 0x%x to 0x%x\n",
           as_oop().bits(), fetchPointer(Object_Indices::MethodIndex).bits(), x.bits());
-# endif
 }
+# else
+inline void Object::catch_stores_of_method_in_home_ctxs(Oop* /* addr */, int,  Oop) {}
+# endif
+
 
 
 inline void Object::storePointer( oop_int_t fieldIndex, Oop oop) {
@@ -373,7 +375,7 @@ inline oop_int_t Object::temporaryCountOfHeader(oop_int_t header) { return (head
 inline void Object::flushExternalPrimitive() {
 	// this is a CompiledMethod containing an external primitive. Flush the function address and session ID of the CM"
   Object_p lit = get_external_primitive_literal_of_method();
-  if (lit == NULL)  return; //  "Something's broken"
+  if (!lit)  return; //  "Something's broken"
   lit->cleanup_session_ID_and_ext_prim_index_of_external_primitive_literal();
 }
 
@@ -445,10 +447,10 @@ inline bool Object::isUnwindMarked() {
 
 inline double Object::fetchFloatAtinto() {
   // assumes arg is BaseHeaderSize, built into long32_at
-  double r;
-  ((int32*)&r)[0] = long32_at(1);
-  ((int32*)&r)[1] = long32_at(0);
-  return r;
+  int32 r[2];
+  r[0] = long32_at(1);
+  r[1] = long32_at(0);
+  return *((double*)&r);
 }
 
 inline double Object::fetchFloatofObject(oop_int_t fieldIndex) {
@@ -669,12 +671,13 @@ inline Oop Object::get_original_block_IP() {
 # endif
 }
 
-
-inline void Object::set_count_of_blocks_homed_to_this_method(oop_int_t x) {
 # if Extra_OTE_Words_for_Debugging_Block_Context_Method_Change_Bug
+inline void Object::set_count_of_blocks_homed_to_this_method(oop_int_t x) {
   The_Memory_System()->object_table->set_dbg_t(as_oop(), x);
-# endif
 }
+# else
+inline void Object::set_count_of_blocks_homed_to_this_method(oop_int_t) {}
+# endif
 
 inline oop_int_t Object::get_count_of_blocks_homed_to_this_method_ctx() {
 # if Extra_OTE_Words_for_Debugging_Block_Context_Method_Change_Bug

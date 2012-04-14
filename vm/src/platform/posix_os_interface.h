@@ -125,7 +125,7 @@ public:
   }
   
 # endif // Omit_PThread_Locks elif Use_Spin_Locks
-
+  
   static inline int atomic_fetch_and_add(int* mem, int increment) {
     return __sync_fetch_and_add(mem, increment);
   }
@@ -168,11 +168,17 @@ public:
   }
 # endif
   
+  
+  static inline void* rvm_malloc_shared(size_t sz) { return malloc(sz); }
+  static inline void* rvm_calloc_shared(size_t num_members, size_t mem_size) { return calloc(num_members, mem_size); }
+  static inline void  rvm_free_shared(void* mem)   { free(mem); }
+  
   static inline void  mem_fence() { __sync_synchronize(); /*This is a GCC build-in might need to be replaced */ }
   
-  static inline void  rvm_free_shared(void * mem) { free(mem); }
-  
 private:
+  static inline void* memalign(int align, int sz) {
+    return (void*) ( (int(malloc(sz + align)) + align - 1) & ~(align-1) );
+  }
 
 public:
   static inline void* rvm_memalign(int al, int sz) {
@@ -183,16 +189,29 @@ public:
     else
       return NULL;
   }
-  static inline void  rvm_free_aligned_shared(void * mem) { free(mem); }
   
-  static inline void* rvm_memalign(OS_Heap, int al, int sz) { return rvm_memalign(al, sz); }
-  static inline void* malloc_in_mem(int /* alignment */, int size) { return malloc(size); }
-  static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool /* replicate */) { heap = NULL; /* unused on POSIX */ return 0; }
+  static inline void* rvm_memalign_shared(OS_Heap, int align, int sz) {
+    return (void*) ( (int(rvm_malloc_shared(sz + align)) + align - 1) & ~(align-1) );
+  }
+  static inline void  rvm_free_aligned_shared(void * mem) {
+    # warning not yet implemented
+  }
+
   
-  static void start_threads  (void (*)(/* helper_core_main */), char* /* argv */[]);
-  static void start_processes(void (*)(/* helper_core_main */), char* /* argv */[]) { fatal(); }
+  static inline void* malloc_uncacheable_shared(int alignment, int size) {
+    OS_Heap heap;
+    return rvm_memalign_shared(heap, alignment, size);
+  }
   
-  static inline int get_thread_rank() { return (int)pthread_getspecific(rank_key); }
+  static inline int   mem_create_heap_if_on_Tilera(OS_Heap* heap, bool /* replicate */) {
+    heap = NULL; /* unused on POSIX */
+    return 0;
+  }
+  
+  static void start_threads  (void (* /* helper_core_main */)(), char* /* argv */[]);
+  static void start_processes(void (* /* helper_core_main */)(), char* /* argv */[]) { fatal(); }
+  
+  static inline int get_thread_rank()  { return (int)pthread_getspecific(rank_key); }
   
   static int abort_if_error(const char*, int); 
   
@@ -204,9 +223,18 @@ private:
   static void* pthread_thread_main(void* param);
   static int32_t       last_rank;  // needs to be accessed atomically (__sync_fetch_and_add)
   static pthread_key_t rank_key;
-  static pthread_t     threads[Max_Number_Of_Cores];
+  static pthread_t     threads  [Max_Number_Of_Cores];
   static void create_threads(const size_t num_of_threads, void (*helper_core_main)());
+
   
+public:
+  
+  static bool ask_for_huge_pages(int desired_huge_pages) {
+    if ((On_Apple | On_Intel_Linux) || desired_huge_pages == 0)
+      return true;
+    return false;
+  }
+
 };
 
 # endif // !On_Tilera

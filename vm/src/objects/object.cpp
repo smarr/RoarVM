@@ -527,7 +527,7 @@ Oop Object::clone() {
   // fix base header: compute new hash and clear Mark and Root bits
   oop_int_t hash = h->newObjectHash(); // even though newChunk may be in global heap
   The_Memory_System()->store_enforcing_coherence(&newObj->baseHeader,
-                                              newObj->baseHeader & (Header_Type::Mask | SizeMask | CompactClassMask | FormatMask)
+                                              (newObj->baseHeader & (Header_Type::Mask | SizeMask | CompactClassMask | FormatMask))
                                               |   ((hash << HashShift) & HashMask),
                                               newObj);
 
@@ -1175,4 +1175,18 @@ int Object::index_of_string_in_array(const char* aString) {
       return i;
   return -1;
 }
+
+
+bool Object::is_superclass_of(Oop subclass) {
+  // STEFAN: are we sure that works as termination condition? thought the classes are cyclic or something????
+  Oop nilObj = The_Squeak_Interpreter()->roots.nilObj;
+  Oop super_class = as_oop();
+  
+  for (Oop klass = subclass;  klass != nilObj;  klass = klass.as_object()->superclass())
+    if (klass == super_class)
+      return true;
+  return false;
+}
+
+
 

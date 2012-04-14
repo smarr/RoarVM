@@ -12,8 +12,7 @@ ifeq "$(OS)" "MACOS"
   OS = Darwin
 endif
 
-LOW_OPTIMIZE_LEVEL  ?= -O3
-HIGH_OPTIMIZE_LEVEL ?= -O3
+OPTIMIZE_LEVEL ?= -O3
 
 # add some tracking information to identify binaries later
 CONFIG_FLAGS += -DGIT_REVISION_ID=$(shell git rev-parse HEAD)
@@ -85,7 +84,7 @@ INCLUDES = \
 	
 ifeq "$(PLATFORM)" "Intel"
 INCLUDES += \
-	-I$(SRC_DIR)/ilib-intel \
+	-I$(SRC_DIR)/message_buffers \
 	-I$(SRC_DIR)/ibm
 endif
 
@@ -284,7 +283,7 @@ RVM_HEADERS += \
 endif
 
 # default target
-all: compiler_check $(EXECUTABLE)
+all: $(EXECUTABLE)
 
 info:
 	@echo Platform: $(PLATFORM)
@@ -300,15 +299,12 @@ $(RVM_HEADERS):
 #Hack to satisfy make, to force override buildin rules, even if its not able to find all prerequisites.
 $(SQ_HEADERS):
 
-ifneq "$(OS)" "Darwin"
-  DO_ESCAPING=-e
-endif
 TTY=$(shell test -t 0 && echo "true")
 ifeq "$(TTY)" "true"
-  START_BOLD=\x1B[1m
-  STOP_BOLD=\x1B[22m
+	START_BOLD=$(shell tput bold)
+	STOP_BOLD=$(shell tput sgr0)
 endif
-PRINT_COMPILATION_INFO=@echo $(DO_ESCAPING) "$(START_BOLD)Compiling $(notdir $<)$(STOP_BOLD)"
+PRINT_COMPILATION_INFO=@echo "$(START_BOLD)Compiling $(notdir $<)$(STOP_BOLD)"
 
 #the space after %.i is necessary, otherwise the buildin will not be canceled properly
 %.i : %.c $(SQ_HEADERS)
@@ -317,28 +313,16 @@ PRINT_COMPILATION_INFO=@echo $(DO_ESCAPING) "$(START_BOLD)Compiling $(notdir $<)
 
 %.o : %.c $(SQ_HEADERS) Makefile
 	$(PRINT_COMPILATION_INFO)
-	$(AT)$(CC) $(CFLAGS) $(CONLYFLAGS) $(LOW_OPTIMIZE_LEVEL)  -c $< -o $@
-
-%.opt : %.c $(SQ_HEADERS) Makefile
-	$(PRINT_COMPILATION_INFO)
-	$(AT)$(CC) $(CFLAGS) $(CONLYFLAGS) $(HIGH_OPTIMIZE_LEVEL) -c $< -o $@
+	$(AT)$(CC) $(CFLAGS) $(CONLYFLAGS) $(OPTIMIZE_LEVEL) -c $< -o $@
 
 %.i : %.cpp  $(RVM_HEADERS)
 	$(PRINT_COMPILATION_INFO)
 	$(AT)$(CXX) $(CFLAGS) $(CXXFLAGS) -E $< -o $@
 
-%.o : %.cpp $(RVM_HEADERS) Makefile compiler_check
+%.o : %.cpp $(RVM_HEADERS) Makefile 
 	$(PRINT_COMPILATION_INFO)
-	$(AT)$(CXX) $(CFLAGS) $(CXXFLAGS) $(LOW_OPTIMIZE_LEVEL)  -c $< -o $@
+	$(AT)$(CXX) $(CFLAGS) $(CXXFLAGS) $(OPTIMIZE_LEVEL) -c $< -o $@
 
-%.opt : %.cpp $(RVM_HEADERS) Makefile compiler_check
-	$(PRINT_COMPILATION_INFO)
-	$(AT)$(CXX) $(CFLAGS) $(CXXFLAGS) $(HIGH_OPTIMIZE_LEVEL) -c $< -o $@
-
-
-compiler_check:
-	@echo Checking Compiler for know problems
-	$(AT)$(CXX) $(CONFIG_FLAGS) -c $(SRC_DIR)/compiler_check.cpp -o compiler_check
 
 vpath %.c $(SRC_DIR)/from_squeak
 vpath %.c $(SRC_DIR)/from_squeak/Cross
@@ -427,134 +411,132 @@ vpath %.h $(SRC_DIR)/messages
 vpath %.h $(SRC_DIR)/multichip
 
 ifeq "$(PLATFORM)" "Intel"
-vpath %.cpp $(SRC_DIR)/ilib-intel
-vpath %.cpp $(SRC_DIR)/ibm
+vpath %.cpp $(SRC_DIR)/message_buffers
 
-vpath %.h $(SRC_DIR)/ilib-intel
-vpath %.h $(SRC_DIR)/ibm
+vpath %.h $(SRC_DIR)/message_buffers
 endif
 
 #        UnixOSProcessPlugin.o 
 
 OBJS = \
-  abstract_mark_sweep_collector.opt \
-  abstract_object_heap.opt \
-  aio.opt \
-  at_cache.opt \
-  B2DPlugin.opt \
-  BitBltPlugin.opt \
-  bytemap.opt \
-  core_tracer.opt \
-  abstract_tracer.opt \
-  oop_tracer.opt \
-  error_handling.opt \
-  externals.opt \
-  FilePlugin.opt \
-  FloatArrayPlugin.opt \
-  interpreter_bytecodes.opt \
+  abstract_mark_sweep_collector.o \
+  abstract_object_heap.o \
+  aio.o \
+  at_cache.o \
+  B2DPlugin.o \
+  BitBltPlugin.o \
+  bytemap.o \
+  core_tracer.o \
+  abstract_tracer.o \
+  oop_tracer.o \
+  error_handling.o \
+  externals.o \
+  FilePlugin.o \
+  FloatArrayPlugin.o \
+  interpreter_bytecodes.o \
   interpreter_primitives.o \
-  LargeIntegers.opt \
-  Matrix2x3Plugin.opt \
-  measurements.opt \
+  LargeIntegers.o \
+  Matrix2x3Plugin.o \
+  measurements.o \
   memory_system.o \
-  method_cache.opt \
-  MiscPrimitivePlugin.opt \
-  multicore_object_heap.opt \
-  multicore_object_table.opt \
-  dummy_object_table.opt \
-  segmented_object_table.opt \
-  object.opt \
-  header_type.opt \
-  obsolete_indexed_primitive_table.opt \
-  obsolete_named_primitive_table.opt \
-  oop.opt \
-  primitive_table.opt \
-  printer.opt \
-  roots.opt \
-  rvm_bitmap.opt \
-  rvm_config.opt \
-  RVMPlugin.opt \
-  SoundPlugin.opt \
-  SocketPlugin.opt \
-  sqFilePluginBasicPrims.opt \
-  sqNamedPrims.opt \
-  sqUnixCharConv.opt \
-  sqUnixExternalPrims.opt \
-  sqUnixMain.opt \
-  sqUnixX11.opt \
-  sqVirtualMachine.opt \
-  squeak_adapters.opt \
-  squeak_image_reader.opt \
-  squeak_interpreter.opt \
-  sqUnixFile.opt \
-  sqUnixSound.opt \
-  sqUnixSoundNull.opt \
-  sqUnixSocket.opt \
-  utils.opt \
-  execution_tracer.opt \
-  profiling_tracer.opt \
-  gc_debugging_tracer.opt \
-  performance_counters.opt \
-  safepoint.opt \
-  abstract_mutex.opt \
-  scheduler_mutex.opt \
-  semaphore_mutex.opt \
+  method_cache.o \
+  MiscPrimitivePlugin.o \
+  multicore_object_heap.o \
+  multicore_object_table.o \
+  dummy_object_table.o \
+  segmented_object_table.o \
+  object.o \
+  header_type.o \
+  obsolete_indexed_primitive_table.o \
+  obsolete_named_primitive_table.o \
+  oop.o \
+  primitive_table.o \
+  printer.o \
+  roots.o \
+  rvm_bitmap.o \
+  rvm_config.o \
+  RVMPlugin.o \
+  SoundPlugin.o \
+  SocketPlugin.o \
+  sqFilePluginBasicPrims.o \
+  sqNamedPrims.o \
+  sqUnixCharConv.o \
+  sqUnixExternalPrims.o \
+  sqUnixMain.o \
+  sqUnixX11.o \
+  sqVirtualMachine.o \
+  squeak_adapters.o \
+  squeak_image_reader.o \
+  squeak_interpreter.o \
+  sqUnixFile.o \
+  sqUnixSound.o \
+  sqUnixSoundNull.o \
+  sqUnixSocket.o \
+  utils.o \
+  execution_tracer.o \
+  profiling_tracer.o \
+  gc_debugging_tracer.o \
+  performance_counters.o \
+  safepoint.o \
+  abstract_mutex.o \
+  scheduler_mutex.o \
+  semaphore_mutex.o \
   \
-  message_stats.opt \
-  message_classes.opt \
-  interpreter_subset_for_control_transfer.opt \
-  interactions.opt \
-  timeout_timer.opt \
-  timeout_deferral.opt \
+  message_stats.o \
+  message_classes.o \
+  interpreter_subset_for_control_transfer.o \
+  interactions.o \
+  timeout_timer.o \
+  timeout_deferral.o \
   \
-  rank_set.opt \
-  safepoint_request_queue.opt \
+  rank_set.o \
+  safepoint_request_queue.o \
   \
-  my_rank.opt \
-  safepoint_ability.opt \
-  process_field_locator.opt \
-  abstract_message.opt \
-  deferred_request.opt \
-  message_or_ack_request.opt \
+  my_rank.o \
+  safepoint_ability.o \
+  process_field_locator.o \
+  abstract_message.o \
+  deferred_request.o \
+  message_or_ack_request.o \
   \
-  message_statics.opt \
-  receive_marker.opt \
+  message_statics.o \
+  receive_marker.o \
   \
-  abstract_os_interface.opt \
-  logical_core.opt \
-  debug_helper.opt \
+  abstract_os_interface.o \
+  logical_core.o \
+  debug_helper.o \
 
 
 ifeq "$(PLATFORM)" "Intel"
 OBJS += \
-  synced_queue.opt \
-  buffered_channel.opt \
-  posix_os_interface.opt \
-  shared_memory_message_queue.opt \
-  shared_memory_message_queue_per_sender.opt \
-  thread_memory_semantics.opt \
-  dummy_cpu_coordinate.opt \
+  synced_queue.o \
+  buffered_channel.o \
+  posix_os_interface.o \
+  shared_memory_message_queue.o \
+  shared_memory_message_queue_per_sender.o \
+  thread_memory_semantics.o \
+  dummy_cpu_coordinate.o \
 
 else
 OBJS += \
-  ilib_os_interface.opt \
-  ilib_message_queue.opt \
-  tilera_chip_to_chip_message_queue.opt \
-  host_pci_info.opt \
-  abstract_zero_copy_command_queue_endpoint.opt \
-  chip_to_chip_direct_to_hypervisor_zero_copy_endpoint.opt \
-  chip_to_chip_direct_to_hypervisor_zero_copy_sender.opt \
-  chip_to_chip_direct_to_hypervisor_zero_copy_receiver.opt \
-  chip_to_chip_zero_copy_command_queue_endpoint.opt \
-  chip_to_chip_zero_copy_command_sender.opt \
-  chip_to_chip_zero_copy_command_receiver.opt \
-  process_memory_semantics.opt \
-  tile_cpu_coordinate.opt \
+  ilib_os_interface.o \
+  ilib_message_queue.o \
+  tilera_chip_to_chip_message_queue.o \
+  host_pci_info.o \
+  abstract_zero_copy_command_queue_endpoint.o \
+  chip_to_chip_direct_to_hypervisor_zero_copy_endpoint.o \
+  chip_to_chip_direct_to_hypervisor_zero_copy_sender.o \
+  chip_to_chip_direct_to_hypervisor_zero_copy_receiver.o \
+  chip_to_chip_zero_copy_command_queue_endpoint.o \
+  chip_to_chip_zero_copy_command_sender.o \
+  chip_to_chip_zero_copy_command_receiver.o \
+  process_memory_semantics.o \
+  tile_cpu_coordinate.o \
 
 endif
 
 ifeq "$(OS)" "Darwin"
-OBJS += osx_os_interface.opt \
+OBJS += osx_os_interface.o \
 
 endif
 
@@ -572,8 +554,8 @@ else
 endif
 
 
-$(EXECUTABLE): $(OBJS) main.opt
-	$(CXX) $(LDFLAGS) $(OBJS) main.opt -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
+$(EXECUTABLE): $(OBJS) main.o
+	$(CXX) $(LDFLAGS) $(OBJS) main.o -lm $(TILERA_LIBS) $(LIBS_LINKING) -o $@
 
 # Test Related targets, we use the googletest framework for unit tests
 
@@ -586,12 +568,14 @@ libgtest.a:
 
 # REM: this will build the object files inside the test folder
 #      this allows us to use the same names for tests and implementation files
-TEST_SRC  := $(wildcard $(SRC_DIR)/tests/*.cpp)
+TESTMAIN_WITHOUT_ROARVM := $(SRC_DIR)/tests/main_without_roarvm.cpp
+TEST_SRC  := $(filter-out $(TESTMAIN_WITHOUT_ROARVM),$(wildcard $(SRC_DIR)/tests/*.cpp))
 TEST_H    := $(wildcard $(SRC_DIR)/tests/*.h)
 TEST_OBJS := $(TEST_SRC:.cpp=.o) $(OBJS)
 
 $(TEST_OBJS) : $(TEST_H)
 
+rvm-test : CONFIG_FLAGS+=-g3 -DDebugging=1 -Dcheck_assertions=1 -Dcheck_many_assertions=1 -DUNIT_TESTING
 rvm-test : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
 rvm-test : INCLUDES+=$(GTEST_INCLUDES)
 rvm-test: libgtest.a $(TEST_OBJS) $(TEST_H)
@@ -600,8 +584,29 @@ rvm-test: libgtest.a $(TEST_OBJS) $(TEST_H)
 test: rvm-test
 	$(AT)./rvm-test
 
+test-cov : LDFLAGS+=-lgcov -coverage
+test-cov : CONFIG_FLAGS+=-fprofile-arcs -ftest-coverage 
+test-cov: test
+	gcov $(TEST_SRC) $(RVM_HEADERS) $(OBJS:.o=.cpp)
+	lcov --directory . --capture --output-file rvm-gcov.info
+	genhtml --output-directory rvm-cov rvm-gcov.info
+
+partial-cov : LDFLAGS+=-lgcov -coverage
+partial-cov : CONFIG_FLAGS:=-fprofile-arcs -ftest-coverage -DWITHOUT_ROAR_VM -DUNIT_TESTING $(filter-out -DROAR_VM,$(CONFIG_FLAGS))
+partial-cov : CXXFLAGS:=$(CXX_CONFIG_FLAGS)
+partial-cov : INCLUDES+=$(GTEST_INCLUDES)
+partial-cov: $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/circular_buffer.o $(SRC_DIR)/tests/main_without_roarvm.o libgtest.a
+	$(AT)echo Coverage generation is currently only supported by GNU GCC not LLVM GCC
+	$(CXX) $(LDFLAGS) $(SRC_DIR)/tests/interprocess_allocator.o $(SRC_DIR)/tests/circular_buffer.o $(SRC_DIR)/tests/main_without_roarvm.o gtest-all.o -lm -lpthread  $(TILERA_LIBS) -L. $(LIBS_LINKING) -o ./$@
+	$(AT)./$@
+	gcov -o $(SRC_DIR)/tests/ interprocess_allocator.cpp interprocess_allocator.h circular_buffer.cpp circular_buffer.h
+	lcov --directory $(SRC_DIR)/tests/ --capture --output-file rvm-gcov.info
+	genhtml --output-directory rvm-cov rvm-gcov.info
+
 clean:
-	rm -f *.o *.opt $(EXECUTABLE) compiler_check rvm-test libgtest.a $(TEST_OBJS)
+	rm -f *.o $(EXECUTABLE) rvm-test libgtest.a $(TEST_OBJS)
+	rm -f *.gcno *.gcda *.gcov rvm-gcov.info $(SRC_DIR)/tests/*.gcno $(SRC_DIR)/tests/*.gcda $(SRC_DIR)/tests/*.gcov
+	rm -Rf partial-cov rvm-cov
 
 install: $(EXECUTABLE)
 	install $(EXECUTABLE) /usr/local/bin

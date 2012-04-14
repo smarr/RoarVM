@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-# if On_Tilera
+# if Using_Processes
 
 class Process_Memory_Semantics : public Abstract_Memory_Semantics {
 public:
@@ -52,7 +52,11 @@ public:
   static inline void* shared_calloc(u_int32 num_members, u_int32 mem_size)  {
     return OS_Interface::rvm_calloc_shared(num_members, mem_size);
   }
-  
+
+  static inline void shared_free(void* ptr) {
+    OS_Interface::rvm_free_shared(ptr);
+  }  
+
   static inline bool is_using_threads() { return false; }
 };
 

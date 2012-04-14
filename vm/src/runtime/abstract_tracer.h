@@ -22,8 +22,8 @@ class Abstract_Tracer {
   int elem_gotten_elem_size;
   OS_Interface::Mutex mutex;
  public:
-  void* operator new(size_t s) { return Memory_Semantics::shared_malloc(s); }
-  void  operator delete(void* p)  { free(p); }
+  void* operator new(size_t s)   { return Memory_Semantics::shared_malloc(s); }
+  void  operator delete(void* p) { Memory_Semantics::shared_free(p); }
 
   Abstract_Tracer(int n, int ebs, int eges)  {
     elem_byte_size = ebs;
@@ -34,7 +34,7 @@ class Abstract_Tracer {
     wrapped = false;
     OS_Interface::mutex_init(&mutex);
   }
-  ~Abstract_Tracer() { free(buffer); }
+  ~Abstract_Tracer() { Memory_Semantics::shared_free(buffer); }
 
   virtual Oop get();
 

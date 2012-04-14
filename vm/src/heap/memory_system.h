@@ -161,7 +161,15 @@ private:
   bool ask_Linux_for_huge_pages(int);
   int how_many_huge_pages();
   void request_huge_pages(int);
-  void  map_read_write_and_read_mostly_memory(int pid, size_t, size_t);
+
+  void map_read_write_and_read_mostly_memory(int pid, size_t, size_t);
+  void map_heap_memory_separately(int pid, size_t grand_total,
+                                  size_t inco_size, size_t co_size);
+  void map_heap_memory_in_one_request(int pid, size_t grand_total,
+                                      size_t inco_size, size_t co_size);
+
+
+  
   void set_second_chance_cores_for_allocation(int);
 
 public:
@@ -254,7 +262,7 @@ public:
 
   void scan_compact_or_make_free_objects_everywhere(bool compacting, Abstract_Mark_Sweep_Collector*);
   void scan_compact_or_make_free_objects_here(bool compacting, Abstract_Mark_Sweep_Collector*);
-  u_int32 bytesLeft(bool);
+  u_int32 bytesLeft();
   u_int32 maxContiguousBytesLeft();
 
   void set_lowSpaceThreshold(int32);
@@ -394,11 +402,5 @@ public:
   inline bool is_address_read_write(void* p) const { return !is_address_read_mostly(p); }
 
   void do_all_oops_including_roots_here(Oop_Closure* oc, bool sync_with_roots);
-  
-private:
-  static char  mmap_filename[BUFSIZ];
-  static char* map_heap_memory(size_t total_size, size_t bytes_to_map,
-                               void* where, off_t offset,
-                               int main_pid, int flags);  
 };
 

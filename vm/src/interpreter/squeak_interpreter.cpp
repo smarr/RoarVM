@@ -21,7 +21,7 @@
 
 
 Squeak_Interpreter::Squeak_Interpreter() 
-#if !On_Tilera
+#if Using_Threads
 : _my_rank(Logical_Core::my_rank()), _my_core(Logical_Core::my_core()) 
 #endif
 {
@@ -70,7 +70,7 @@ Squeak_Interpreter::Squeak_Interpreter()
 
 
 void Squeak_Interpreter::init_rank() {
-#if !On_Tilera && false
+#if Using_Threads && false
   _my_rank = Logical_Core::my_rank();
   _my_core = Logical_Core::my_core();
 #endif  
@@ -91,24 +91,24 @@ void Squeak_Interpreter::initialize(Oop soo, bool from_checkpoint) {
     safepoint_tracker = new Safepoint_Tracker();
     safepoint_master_control = new Safepoint_Master_Control();
 
-     global_sequence_number = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
+     global_sequence_number = (int*)OS_Interface::malloc_uncacheable_shared(sizeof(int), sizeof(int));
     *global_sequence_number = 0;
 
-     print_sequence_number = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
+     print_sequence_number = (int*)OS_Interface::malloc_uncacheable_shared(sizeof(int), sizeof(int));
     *print_sequence_number = 0;
 
     // STEFAN: looks like it is not used at all
-/*     debug_flag = (bool*)OS_Interface::malloc_in_mem(sizeof(bool), sizeof(bool));
+/*     debug_flag = (bool*)OS_Interface::malloc_uncacheable_shared(sizeof(bool), sizeof(bool));
     *debug_flag = false;
 
-    debug_int = (int*)OS_Interface::malloc_in_mem(sizeof(int), sizeof(int));
+    debug_int = (int*)OS_Interface::malloc_uncacheable_shared(sizeof(int), sizeof(int));
     *debug_int = -1; */
 
-    running_process_by_core            = (Oop*)OS_Interface::malloc_in_mem(sizeof(Oop), Logical_Core::group_size * sizeof(Oop));
+    running_process_by_core            = (Oop*)OS_Interface::malloc_uncacheable_shared(sizeof(Oop), Logical_Core::group_size * sizeof(Oop));
     FOR_ALL_RANKS(i)
       running_process_by_core[i] = roots.nilObj;
 
-    shared_memory_fields = (Shared_memory_fields*)OS_Interface::malloc_in_mem(sizeof(long long int), sizeof(Shared_memory_fields));
+    shared_memory_fields = (Shared_memory_fields*)OS_Interface::malloc_uncacheable_shared(sizeof(long long int), sizeof(Shared_memory_fields));
     bzero(shared_memory_fields, sizeof(*shared_memory_fields));
     FOR_ALL_HELD_IN_SHARED_MEMORY(INIT_SHARED_MEMORY_VARS)
   }
@@ -284,7 +284,7 @@ void Squeak_Interpreter::interpret() {
       }
       assert( internalStackTop().bits() );
     }
-    if (check_assertions || CountByteCodesAndStopAt)
+    if (check_assertions | CountByteCodesAndStopAt)
       lastBCCount = bcCount;
     if (CountByteCodesAndStopAt ) {
        if (bcCount == CountByteCodesAndStopAt)
@@ -342,7 +342,7 @@ void Squeak_Interpreter::interpret() {
     PERF_CNT(this, add_interpret_cycles(OS_Interface::get_cycle_count() - start));
     
     // for debugging check that the stack is not growing to big
-    if (Include_Debugging_Code && (count_stack_depth() > 1000)) {
+    if (false && (count_stack_depth() > 1000)) {
       OS_Interface::breakpoint();
     }
     
@@ -849,7 +849,7 @@ Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
       dittoing_stdout_printer->nl(); // xxx_dmu
       set_dnu_kvetch_count(dnu_kvetch_count() + 1);
       if (dnu_kvetch_count() >= enough_already) lprintf("Enough already! No more kvetching!");
-      breakpoint();
+      // breakpoint();
     }
     roots.dnuSelector = roots.messageSelector;
     if (check_assertions && !roots.messageSelector.isBytes()) {
@@ -2032,7 +2032,7 @@ void Squeak_Interpreter::snapshot(bool /* embedded */) {
     The_Memory_System()->writeImageFile(The_Memory_System()->imageName());
     assert_active_process_not_nil();
     lprintf("snapshot: postGCAction_everywhere\n");
-    The_Squeak_Interpreter()->postGCAction_everywhere(false); // With object table, may have moved things
+    postGCAction_everywhere(false); // With object table, may have moved things
 
     {
       Scheduler_Mutex sm("snapshot recovery");
@@ -2448,7 +2448,7 @@ void Squeak_Interpreter::multicore_interrupt() {
     if (emergency_semaphore_signal_requested) {
       Safepoint_Ability sa(false);
 
-      if (roots.emergency_semaphore.fetchClass() == The_Squeak_Interpreter()->splObj(Special_Indices::ClassSemaphore))
+      if (roots.emergency_semaphore.fetchClass() == splObj(Special_Indices::ClassSemaphore))
         roots.emergency_semaphore.as_object()->synchronousSignal("emergency signal request");
       emergency_semaphore_signal_requested = false;
     }
@@ -2752,7 +2752,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   internalFetchContextRegisters(thisCntx, thisCntx_obj);
   fetchNextBytecode();
   internalPush(localVal);
-  if (Always_Check_Method_Is_Correct || check_assertions)  check_method_is_correct(false, "end of commonReturn");
+  if (Always_Check_Method_Is_Correct | check_assertions)  check_method_is_correct(false, "end of commonReturn");
 }
 
 void Squeak_Interpreter::internalCannotReturn(Oop resultObj, bool b1, bool b2, bool b3) {
@@ -3126,7 +3126,7 @@ void Squeak_Interpreter::receive_initial_interpreter_from_main(Squeak_Interprete
   
 /* The following hack is needed to get away with the const members in the
    interpreter. The potential optimization should be worth it. */
-#if On_Tilera
+#if Using_Processes
   *this = *sq;
 #else
   const int           my_rank = this->_my_rank;
@@ -3223,8 +3223,8 @@ void Squeak_Interpreter::signalFinalization(Oop) {
 
 
 void Squeak_Interpreter::set_run_mask_and_request_yield(u_int64 x) {
-  The_Squeak_Interpreter()->set_run_mask(x);
-  The_Squeak_Interpreter()->set_yield_requested(true);
+  set_run_mask(x);
+  set_yield_requested(true);
 }
 
 
@@ -3257,16 +3257,16 @@ void Squeak_Interpreter::distribute_initial_interpreter() {
   assert_always(Memory_Semantics::cores_are_initialized());
   assert_always(Logical_Core::running_on_main());
   // lprintf("main about to distribute interpreter\n");
-  if (check_assertions)  The_Squeak_Interpreter()->roots.specialObjectsOop.verify_object();
+  if (check_assertions)  roots.specialObjectsOop.verify_object();
   
   // Use a shared buffer to reduce the size of the message to optimize the footprint of message buffer allocation -- dmu & sm
   Squeak_Interpreter* interp_shared_copy = (Squeak_Interpreter*)Memory_Semantics::shared_malloc(sizeof(Squeak_Interpreter));  
-  memcpy(interp_shared_copy, The_Squeak_Interpreter(), sizeof(Squeak_Interpreter));
+  memcpy(interp_shared_copy, this, sizeof(Squeak_Interpreter));
   
   distributeInitialInterpreterMessage_class m(interp_shared_copy);
   m.send_to_other_cores();
   
-  free(interp_shared_copy);
+  Memory_Semantics::shared_free(interp_shared_copy);
 }
 
 

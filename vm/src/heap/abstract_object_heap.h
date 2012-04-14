@@ -32,9 +32,9 @@ class Abstract_Object_Heap {
   bool is_initialized() { return _start != NULL; }
 
 
-  virtual int heap_byte_size() = 0;
-  virtual void* allocate_my_space(int) = 0;
-  virtual void saveProcessSignallingLowSpace() {}
+  int   heap_byte_size()       { fatal("abstract"); }
+  void* allocate_my_space(int) { fatal("abstract"); }
+  void saveProcessSignallingLowSpace() {}
 
   // make these static as an optimization for how
 
@@ -53,13 +53,13 @@ class Abstract_Object_Heap {
 
 
  public:
-  virtual void initialize();
-  virtual void initialize(void* mem, int size);
+  void initialize();
+  void initialize(void* mem, int size);
 
 
   bool sufficientSpaceToAllocate(oop_int_t bytes);
   Chunk* allocateChunk(oop_int_t total_bytes);
-  virtual Object_p object_address_unchecked(Oop) = 0;
+  Object_p object_address_unchecked(Oop)  { fatal("abstract"); }
 
   Object* accessibleObjectAfter(Object*);
   Object* firstAccessibleObject();
@@ -74,7 +74,7 @@ class Abstract_Object_Heap {
   Object* next_object_without_preheader(Object*);
   Object*  end_objects_without_preheader() { return (Object*)_next; } // addr past objects
 
-  u_int32 bytesLeft(bool includeSwapSpace = false) { return (char*)_end - (char*)_next; }
+  u_int32 bytesLeft() { return (char*)_end - (char*)_next; }
   int bytesUsed() { return (char*)_next - (char*)_start; }
 
   void     set_end_objects(Oop* x) {
@@ -107,7 +107,7 @@ class Abstract_Object_Heap {
   void scan_compact_or_make_free_objects(bool compacting, Abstract_Mark_Sweep_Collector* gc_or_null);
 
 
-  virtual Oop get_stats() = 0;
+  Oop get_stats() { fatal("abstract"); }
 
   inline bool is_read_mostly();
   inline bool is_read_write();

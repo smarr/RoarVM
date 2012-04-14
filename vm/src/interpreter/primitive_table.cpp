@@ -283,7 +283,7 @@ Primitive_Table::Primitive_Table() : Abstract_Primitive_Table(576, false) {
 
 # define FWD(n) void* n(...) {The_Squeak_Interpreter()->n(); return 0; }
 
-FOR_ALL_PRIMITIVES_DO(FWD);
+FOR_ALL_PRIMITIVES_DO(FWD)
 # undef FOR_ALL_PRIMITIVES_DO
 # undef DEF
 

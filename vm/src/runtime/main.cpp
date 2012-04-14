@@ -12,7 +12,7 @@
  ******************************************************************************/
 
 
-# include <headers.h>
+# include "headers.h"
 # include <limits.h>
 # include <math.h>
 
@@ -146,7 +146,11 @@ static void print_version_info() {
     
   printf("Used compiler:\t\t");
 #if defined(__tile__)
+  #if defined(__TILECC__)
   printf("tile-cc version %d.%d.%d\n", __TILECC__, __TILECC_MINOR__, __TILECC_PATCHLEVEL__);
+  #else
+  printf("tile-c++ (GCC-based) version %s\n", __VERSION__);
+  #endif
 #else
   printf("%s\n", __VERSION__);
 #endif
@@ -186,6 +190,9 @@ static void process_arguments(int& argc, char**& argv) {
   for (int old_argc = -1;  old_argc != argc;  ) {
     old_argc = argc;
 
+    if (argc < 2)  /* this means we only have the binary name */
+      break;
+
     # define parse_arg_with_param(argName,setExpr,symbolicVal) \
       if (strcmp(argv[1], argName) == 0) { \
         __attribute__((unused)) char* STRING = argv[2]; \
@@ -194,6 +201,7 @@ static void process_arguments(int& argc, char**& argv) {
         setExpr; \
         if (do_print)  fprintf(stdout, "%s = %s\n", argName, argv[2]); \
         consume_argument(argc, argv, 2); \
+        continue; \
        }
 
     # define parse_boolean_arg(argName,setExpr,explanation) \
@@ -212,6 +220,9 @@ static void process_arguments(int& argc, char**& argv) {
   if (!have_set_core_count)
     Logical_Core::num_cores = 1;
 
+  if (argc < 2)  // looks like the image parameter is missing
+    usage(argv);
+  
   if (argv[1][0] == '-') {
     fprintf(stderr, "bad argument: %s\n", argv[1]);
     usage(argv);
@@ -220,7 +231,7 @@ static void process_arguments(int& argc, char**& argv) {
 
 
 void helper_core_main() {
-  if ( !On_Tilera )
+  if ( Using_Threads )
     Memory_Semantics::initialize_local_logical_core();
 
   The_Memory_System()->initialize_helper();
@@ -241,7 +252,7 @@ void helper_core_main() {
   char buf[BUFSIZ];
   Logical_Core::my_print_string(buf, sizeof(buf));
   lprintf( "helper finsihed: %s\n", buf);
-  if ( On_Tilera ) {
+  if ( Using_Processes ) {
     rvm_exit();
   }
 }

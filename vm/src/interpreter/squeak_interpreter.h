@@ -16,7 +16,7 @@ class Squeak_Interpreter {
 public:
   Squeak_Interpreter();
   
-#if On_Tilera
+#if Using_Processes
 public:
   inline int           my_rank() const { return Logical_Core::my_rank(); }
   inline Logical_Core* my_core() const { return Logical_Core::my_core(); }
@@ -449,7 +449,7 @@ public:
      -1 for 0-based addressing of fetchByte
      -1 because it gets incremented BEFORE fetching currentByte"
      */
-    if (cntx_obj == NULL)
+    if (!cntx_obj)
       return;
     cntx_obj->storeIntegerUnchecked_into_context(Object_Indices::InstructionPointerIndex,
                                     instructionPointer() - method_obj()->as_u_char_p() - Object::BaseHeaderSize + 2 );
@@ -1427,11 +1427,11 @@ public:
   void trace_for_debugging();
 
   void assert_method_is_correct(bool will_be_fetched, const char* where) {
-    if (Always_Check_Method_Is_Correct ||  check_assertions) check_method_is_correct(will_be_fetched, where);
+    if (Always_Check_Method_Is_Correct | check_assertions) check_method_is_correct(will_be_fetched, where);
   }
   
   void assert_method_is_correct_internalizing(bool will_be_fetched, const char* where) {
-    if ((Always_Check_Method_Is_Correct  || check_assertions) && process_is_scheduled_and_executing())
+    if ((Always_Check_Method_Is_Correct | check_assertions) && process_is_scheduled_and_executing())
       assert_always_method_is_correct_internalizing(will_be_fetched, where);
   }
   

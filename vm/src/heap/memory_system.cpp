@@ -58,7 +58,7 @@ void Memory_System::finished_adding_objects_from_snapshot() {
   
   // now all objects are in the heap, so we are also sure that this file is
   // in memory and the filesystem link is not to be used by mmap anymore
-  unlink(mmap_filename);
+  OS_Interface::unlink_heap_file();
 }
 
 void Memory_System::enforce_coherence_after_each_core_has_stored_into_its_own_heap() {
@@ -374,7 +374,7 @@ bool Memory_System::sufficientSpaceAfterGC(oop_int_t minFree, int mutability) {
     return true;
 
   fatal("growObjectMemory");
-  // oop_int_t growSize = minFree - bytesLeft(false) + The_Memory_System()->get_growHeadroom();
+  // oop_int_t growSize = minFree - bytesLeft() + The_Memory_System()->get_growHeadroom();
   //growObjectMemory(growSize);
   return heaps[second_chance_cores_for_allocation[mutability]][mutability]->sufficientSpaceToAllocate(minFree + extra);
 }
@@ -400,7 +400,7 @@ void Memory_System::imageNamePut_on_this_core(const char* n, int len) {
 
 void Memory_System::imageNameGet(Object_p dst, int len) {
   char* n = dst->as_char_p() + Object::BaseHeaderSize;
-  assert(The_Memory_System()->contains(n));
+  assert(contains(n));
 
   enforce_coherence_before_store_into_object_by_interpreter(n, len, dst);
   strncpy(n, image_name, len);
@@ -459,10 +459,10 @@ void Memory_System::snapshotCleanUp() {
 }
 
 
-u_int32 Memory_System::bytesLeft(bool includeSwap) {
+u_int32 Memory_System::bytesLeft() {
   u_int32 sum = 0;
   FOR_ALL_RANKS(i)
-    sum += heaps[i][read_write]->bytesLeft(includeSwap);
+    sum += heaps[i][read_write]->bytesLeft();
   return sum;
 }
 
@@ -635,6 +635,8 @@ void Memory_System::initialize_from_snapshot(int32 snapshot_bytes, int32 sws, in
   u_int32 total_read_write_memory_size     =  rw_pages *  page_size_used_in_heap;
   u_int32 total_read_mostly_memory_size    =  rm_pages *  page_size_used_in_heap;
 
+  OS_Interface::check_requested_heap_size(total_read_mostly_memory_size + total_read_write_memory_size);
+
   read_mostly_memory_base = read_write_memory_base = NULL;
 
   map_read_write_and_read_mostly_memory(getpid(), total_read_write_memory_size, total_read_mostly_memory_size);
@@ -671,7 +673,7 @@ void Memory_System::set_page_size_used_in_heap() {
   if (use_huge_pages) {
     int   co_pages = calculate_total_read_write_pages(huge_page_size);
     int inco_pages = calculate_total_read_mostly_pages(huge_page_size);
-    if (!ask_Linux_for_huge_pages(co_pages + inco_pages))
+    if (!OS_Interface::ask_for_huge_pages(co_pages + inco_pages))
       use_huge_pages = false;
   }
   lprintf("Using %s pages.\n", use_huge_pages ? "huge" : "normal");
@@ -680,73 +682,78 @@ void Memory_System::set_page_size_used_in_heap() {
 }
 
 
+/** Allocate heaps in two steps, to be able to set the flag for incoherent
+    memory */
+void Memory_System::map_heap_memory_separately(int pid,
+                                               size_t grand_total,
+                                               size_t inco_size,
+                                               size_t co_size) {
+  if (OS_mmaps_up) {
+    read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
+                                                  read_mostly_memory_base,
+                                                  0, pid,
+                                                  MAP_SHARED | MAP_CACHE_INCOHERENT);
+    read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
+
+    read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
+                                                  read_mostly_memory_past_end,
+                                                  inco_size, pid,
+                                                  MAP_SHARED);
+    read_write_memory_past_end  = read_write_memory_base  + co_size;
+  }
+  else {
+    read_write_memory_base      = OS_Interface::map_heap_memory(grand_total, co_size,
+                                                  read_write_memory_base,
+                                                  0, pid,
+                                                  MAP_SHARED);
+    read_write_memory_past_end  = read_write_memory_base + co_size;
+
+    read_mostly_memory_past_end = read_write_memory_base;
+    read_mostly_memory_base     = OS_Interface::map_heap_memory(grand_total, inco_size,
+                                                  read_mostly_memory_past_end - inco_size,
+                                                  co_size, pid,
+                                                  MAP_SHARED | MAP_CACHE_INCOHERENT);
+  }
+}
+
+
+/** The noinline attribute is necessary here to guarantee that LLVM-GCC,
+    and Clang do not optimize the consistency checks at the point where this
+    method is used.
+    LLVM-GCC and Clang make the assumption that allocations are never as large
+    as 2 GB and thus, convert the assertions to constant checks, which will
+    fail for a 2 GB heap */
+__attribute__((noinline))  // Important attribute for LLVM-GCC and Clang
+void Memory_System::map_heap_memory_in_one_request(int pid,
+                                                   size_t grand_total,
+                                                   size_t inco_size,
+                                                   size_t co_size) {
+  read_mostly_memory_base = OS_Interface::map_heap_memory(grand_total, grand_total,
+                                            NULL, 0, pid, MAP_SHARED);
+  read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
+
+  read_write_memory_base      = read_mostly_memory_past_end;
+  read_write_memory_past_end  = read_write_memory_base + co_size;
+  }
+
 
 void Memory_System::map_read_write_and_read_mostly_memory(int pid, size_t total_read_write_memory_size, size_t total_read_mostly_memory_size) {
   size_t     co_size = total_read_write_memory_size;
   size_t   inco_size = total_read_mostly_memory_size;
   size_t grand_total = co_size + inco_size;
 
-  if (OS_mmaps_up) {
-    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size, read_mostly_memory_base,                      0, pid,  MAP_SHARED | MAP_CACHE_INCOHERENT);
-    read_mostly_memory_past_end = read_mostly_memory_base + inco_size;
-
-    read_write_memory_base      = map_heap_memory(grand_total,   co_size, read_mostly_memory_past_end,  inco_size, pid,  MAP_SHARED);
-    read_write_memory_past_end  = read_write_memory_base  + co_size;
-  }
-  else {
-    read_write_memory_base      = map_heap_memory(grand_total,   co_size, read_write_memory_base, 0, pid, MAP_SHARED);
-    read_write_memory_past_end  = read_write_memory_base + co_size;
-
-    read_mostly_memory_past_end = read_write_memory_base;
-    read_mostly_memory_base     = map_heap_memory(grand_total, inco_size, read_mostly_memory_past_end - inco_size, co_size, pid, MAP_SHARED | MAP_CACHE_INCOHERENT);
-  }
+  if (On_Tilera)
+    map_heap_memory_separately(pid, grand_total, inco_size, co_size);
+  else
+    map_heap_memory_in_one_request(pid, grand_total, inco_size, co_size);
 
   assert(read_mostly_memory_base < read_mostly_memory_past_end);
   assert(read_mostly_memory_past_end <= read_write_memory_base);
   assert(read_write_memory_base < read_write_memory_past_end);
-  if (read_mostly_memory_base >= read_write_memory_past_end) fatal("contains will fail");
+  if (read_mostly_memory_base >= read_write_memory_past_end) {
+    OS_Interface::unlink_heap_file();
+    fatal("contains will fail");
 }
-
-
-bool Memory_System::ask_Linux_for_huge_pages(int desired_huge_pages) {
-  if (On_Apple || On_Intel_Linux || desired_huge_pages == 0)
-    return true;
-
-  int initially_available_huge_pages = how_many_huge_pages();
-  if (initially_available_huge_pages >= desired_huge_pages) {
-    lprintf("Linux has enough huges pages: %d >= %d\n", initially_available_huge_pages, desired_huge_pages);
-    return true;
-  }
-  request_huge_pages(desired_huge_pages);
-  int available_huge_pages = how_many_huge_pages();
-  if ( available_huge_pages >= desired_huge_pages ) {
-    lprintf("Started with %d huge pages, needed %d, acquired %d. Will use huge pages.\n",
-            initially_available_huge_pages, desired_huge_pages, available_huge_pages);
-    return true;
-  }
-  lprintf("Unable to procure huge_pages, started with %d, wanted %d, got %d; consider --huge_pages %d when starting tile-monitor. Reverting to normal pages. This will slow things down.\n",
-          initially_available_huge_pages, desired_huge_pages, available_huge_pages, desired_huge_pages);
-  return false;
-}
-
-
-static const char* hugepages_control_file = "/proc/sys/vm/nr_hugepages";
-
-int Memory_System::how_many_huge_pages() {
-  FILE* hpf = fopen(hugepages_control_file, "r");
-  if (hpf == NULL) { perror("could not open nr_hugepages"); OS_Interface::die("nr_hugepages"); }
-  int available_huge_pages = -1;
-  fscanf(hpf, "%d%%", &available_huge_pages);
-  fclose(hpf);
-  return available_huge_pages;
-}
-
-
-void Memory_System::request_huge_pages(int desired_huge_pages) {
-  FILE* hpf = fopen(hugepages_control_file, "w");
-  if (hpf == NULL) { perror("could not open nr_hugepages"); OS_Interface::die("nr_hugepages"); }
-  fprintf(hpf, "%d\n", desired_huge_pages);
-  fclose(hpf);
 }
 
 
@@ -780,7 +787,7 @@ void Memory_System::initialize_main(init_buf* ib) {
   if (check_many_assertions)
     lprintf("finished creating all heaps\n");
 
-  if (Replicate_PThread_Memory_System || On_Tilera) {
+  if (Replicate_PThread_Memory_System || Using_Processes) {
     // Now, send the addresses of these.
     FOR_ALL_OTHER_RANKS(i)
       logical_cores[i].message_queue.buffered_send_buffer(&heaps[0][0],  sizeof(heaps));
@@ -801,10 +808,10 @@ void Memory_System::initialize_helper() {
   Logical_Core* sender;
   init_buf* ib = (init_buf*)Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
   
-  if (Replicate_PThread_Memory_System  ||  On_Tilera)
+  if (Replicate_PThread_Memory_System  ||  Using_Processes)
     init_values_from_buffer(ib); // not needed with common structure
 
-  if (On_Tilera)
+  if (Using_Processes)
     map_read_write_and_read_mostly_memory(ib->main_pid, ib->total_read_write_memory_size, ib->total_read_mostly_memory_size);
   
   create_my_heaps(ib);
@@ -815,7 +822,7 @@ void Memory_System::initialize_helper() {
   Logical_Core::main_core()->message_queue.buffered_send_buffer(&heaps[Logical_Core::my_rank()][read_write ], sizeof(Multicore_Object_Heap*));
   if (check_many_assertions) lprintf("finished sending my heaps\n");
 
-  if (!Replicate_PThread_Memory_System && !On_Tilera)
+  if (!Replicate_PThread_Memory_System && Using_Threads)
     return;
   
   void* heaps_buf = Message_Queue::buffered_receive_from_anywhere(true, &sender, Logical_Core::my_core());
@@ -991,7 +998,7 @@ bool Memory_System::shuffle_or_spread_last_part_of_a_heap(Object* first_obj,
     move_read_mostly_to_read_write       ? read_write  :
     obj->mutability();
     int dst_rank = spread ?  smallest_heap(dst_mutability)  :   j++ % num_cores  +  first;
-    if (u_int32(obj->sizeBits() + 2500)  >  heaps[dst_rank][dst_mutability]->bytesLeft(false)) {
+    if (u_int32(obj->sizeBits() + 2500)  >  heaps[dst_rank][dst_mutability]->bytesLeft()) {
       return false;
     }
     else {
@@ -1038,7 +1045,7 @@ bool Memory_System::moveAllToRead_MostlyHeaps() {
           return false;
         }
 
-        if (u_int32(obj->sizeBits() + 32 + heaps[dst_rank][read_mostly]->lowSpaceThreshold)  >  heaps[dst_rank][read_mostly]->bytesLeft(false))
+        if (u_int32(obj->sizeBits() + 32 + heaps[dst_rank][read_mostly]->lowSpaceThreshold)  >  heaps[dst_rank][read_mostly]->bytesLeft())
           continue;
 
         obj->move_to_heap(dst_rank, read_mostly, false);
@@ -1223,7 +1230,7 @@ void Memory_System::store_enforcing_coherence(T* p, T x, Object_p dst_obj_to_be_
   pre_cohere(p, sizeof(x));  \
   *p = x;  \
   post_cohere(p, sizeof(x)); \
-  if (dst_obj_to_be_evacuated_or_null != NULL) \
+    if (dst_obj_to_be_evacuated_or_null) \
     The_Squeak_Interpreter()->remember_to_move_mutated_read_mostly_object(dst_obj_to_be_evacuated_or_null->as_oop()); \
 }
 
@@ -1269,89 +1276,3 @@ void Memory_System::store_2_enforcing_coherence(int32* p1, int32 i1, int32 i2,  
 int Memory_System::assign_rank_for_snapshot_object() {
   return round_robin_rank();
 }
-
-
-char  Memory_System::mmap_filename[BUFSIZ] = { 0 };
-
-
-# if On_iOS
-
-char* Memory_System::map_heap_memory(size_t total_size,
-                                     size_t bytes_to_map,
-                                     void*  where,
-                                     off_t  offset,
-                                     int    main_pid,
-                                     int    flags) {
-  return (char*)malloc(total_size);
-}
-
-
-
-# else
-
-char* Memory_System::map_heap_memory(size_t total_size,
-                                     size_t bytes_to_map,
-                                     void*  where,
-                                     off_t  offset,
-                                     int    main_pid,
-                                     int    flags) {
-  assert_always(Max_Number_Of_Cores >= Logical_Core::group_size);
-  
-  assert( Memory_Semantics::cores_are_initialized());
-  assert( On_Tilera || Logical_Core::running_on_main());
-  
-   
-  const bool print = false;
-  
-  snprintf(mmap_filename, sizeof(mmap_filename), Memory_System::use_huge_pages ? "/dev/hugetlb/rvm-%d" : "/tmp/rvm-%d", main_pid);
-  int open_flags = (where == NULL  ?  O_CREAT  :  0) | O_RDWR;
-  
-  int mmap_fd = open(mmap_filename, open_flags, 0600);
-  if (mmap_fd == -1)  {
-    char buf[BUFSIZ];
-    snprintf(buf, sizeof(buf), "could not open mmap file, on %d, name %s, flags 0x%x",
-            Logical_Core::my_rank(), mmap_filename, open_flags);
-    perror(buf);
-  }
-  
-  if (!Memory_System::use_huge_pages && ftruncate(mmap_fd, total_size)) {
-    char buf[BUFSIZ];
-    snprintf(buf, sizeof(buf), "The mmap-file could not be extended to the required heap-size. Requested size was %.2f MB. ftruncate", (float) total_size / 1024.0 / 1024.0);
-    perror(buf);
-    unlink(mmap_filename);
-    fatal("ftruncate");
-  }
-  
-  
-  
-  // Cannot use MAP_ANONYMOUS below because all cores need to map the same file
-  void* mmap_result = mmap(where, bytes_to_map, PROT_READ | PROT_WRITE,  flags, mmap_fd, offset);
-  if (check_many_assertions)
-    lprintf("mmapp: address requested 0x%x, result 0x%x, bytes 0x%x, flags 0x%x, offset in file 0x%x\n",
-            where, mmap_result, bytes_to_map, flags, offset);
-  if (print)
-    lprintf("mmap(<requested address> 0x%x, <byte count to map> 0x%x, PROT_READ | PROT_WRITE, <flags> 0x%x, open(%s, 0x%x, 0600), <offset> 0x%x) returned 0x%x\n",
-            where, bytes_to_map, flags, mmap_filename, open_flags, offset, mmap_result);
-  if (mmap_result == MAP_FAILED) {
-    char buf[BUFSIZ];
-    snprintf(buf, sizeof(buf),
-             "mmap failed on core %d. Requested %.2f MB for %s. mmap", 
-             Logical_Core::my_rank(),
-             (float)bytes_to_map / 1024.0 / 1024.0, 
-             (where == NULL) ? "1st heap part" : "2nd heap part");
-    perror(buf);
-    unlink(mmap_filename);
-    fatal("mmap");
-  }
-  if (where != NULL  &&  where != (void*)mmap_result) {
-    lprintf("mmap asked for memory at 0x%x, but got it at 0x%x\n",
-            where, mmap_result);
-    fatal("mmap was uncooperative");
-  }
-  char* mem = (char*)mmap_result;
-  close(mmap_fd);
-  
-  assert_always( mem != NULL );
-  return mem;
-}
-# endif // On_iOS

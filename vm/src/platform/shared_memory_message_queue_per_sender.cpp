@@ -39,7 +39,7 @@ void* Shared_Memory_Message_Queue_Per_Sender::buffered_receive_from_anywhere(boo
 
 
 void Shared_Memory_Message_Queue_Per_Sender::release_oldest_buffer(void* buffer_to_be_released_for_debugging) {
-  free(buffer_to_be_released_for_debugging);
+  Memory_Semantics::shared_free(buffer_to_be_released_for_debugging);
 }
 
 

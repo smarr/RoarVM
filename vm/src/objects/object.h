@@ -94,7 +94,7 @@ class Object
 # endif
 
  {
-  # if Work_Around_Extra_Words_In_Classes
+   # if Work_Around_Extra_Words_In_Classes
     # include "word_containing_object_type.h"
   # endif
 
@@ -147,23 +147,23 @@ public:
   }
   inline void set_preheader(Oop x) { 
     init_extra_preheader_word();
-    set_backpointer(x);
+      set_backpointer(x);
   }
-
+ 
   static Oop oop_from_backpointer(oop_int_t bp) {
     return Oop::from_mem_bits(u_oop_int_t(bp) >> Header_Type::Width);
   }
   oop_int_t backpointer_from_oop(Oop x) {
     return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
   }
-
+   
   inline Preheader* preheader() {
     if (Has_Preheader)
       return  (Preheader*)&as_oop_int_p()[-extra_header_oops()];
     else
       return NULL;
   }
-  
+
   oop_int_t get_backpointer_word() { return *backpointer_word(); }
   
   inline void set_backpointer_word(oop_int_t w);
@@ -172,11 +172,11 @@ public:
     return preheader()->backpointer_word();
   }
 
-  
+
   inline oop_int_t* extra_preheader_word() {
     return preheader()->extra_preheader_word_address();
   }
-
+   
   oop_int_t get_extra_preheader_word() { 
     if (Has_Preheader)
       return *extra_preheader_word();
@@ -184,7 +184,7 @@ public:
       return -1; // STEFAN: magic value... find something better
   }
   
-  inline void set_extra_preheader_word(oop_int_t w);
+   inline void set_extra_preheader_word(oop_int_t w);
 
 
   inline void init_extra_preheader_word() { preheader()->init_extra_preheader_word(); }
@@ -202,7 +202,7 @@ public:
   inline oop_int_t sizeBits();
   inline oop_int_t sizeBitsSafe();
   oop_int_t shortSizeBits() { return baseHeader & SizeMask; }
-  oop_int_t longSizeBits() { return sizeHeader() & LongSizeMask; }
+  oop_int_t longSizeBits()  { return sizeHeader() & LongSizeMask; }
   oop_int_t total_byte_size();
   oop_int_t total_byte_size_without_preheader();
 
@@ -535,6 +535,9 @@ public:
   Object_p get_external_primitive_literal_of_method();
 
   inline Oop superclass();
+  
+  bool is_superclass_of(Oop);
+   
   Oop methodClass() {
     return literal(literalCount() - 1).as_object()->fetchPointer(Object_Indices::ValueIndex);
   }

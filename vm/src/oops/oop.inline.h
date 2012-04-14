@@ -95,7 +95,7 @@ inline Object_p Oop::as_object_if_mem() {
 
 
 inline Oop Oop::from_mem_bits(u_oop_int_t mem_bits) { return Oop((mem_bits << Header_Type::Width) | Mem_Tag); }
-inline oop_int_t Oop::mem_bits() { return u_oop_int_t(bits()) >> Header_Type::Width; }
+inline oop_int_t Oop::mem_bits() const { return u_oop_int_t(bits()) >> Header_Type::Width; }
 
 inline oop_int_t Oop::checkedIntegerValue() {
   return is_int() ? integerValue() : (The_Squeak_Interpreter()->primitiveFail(), 0);

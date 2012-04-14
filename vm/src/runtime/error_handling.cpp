@@ -21,7 +21,7 @@ ON_TILERA_OR_ELSE(int, void) assert_failure(const char* func, const char* file, 
     error_printer->printf("%s: file %s, line %d, function %s, predicate %s, rank %d, main_rank %d, pid %d\n",
         msg, file, line, safe_func, pred, Logical_Core::my_rank(), Logical_Core::main_rank, getpid());
   else
-    error_printer->printf("%s: file %s, line %d, function %s, predicate %s, pid %d\n",
+    fprintf(stderr, "%s: file %s, line %d, function %s, predicate %s, pid %d\n",
                           msg, file, line, safe_func, pred, getpid());
 
   OS_Interface::abort();

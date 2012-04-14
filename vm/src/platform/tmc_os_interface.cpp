@@ -12,15 +12,17 @@
  ******************************************************************************/
 
 
-# if On_Tilera
+# if On_Tilera_With_GCC
 
 #include "headers.h"
 
-static ILib_OS_Interface::OS_Heap us_heap;
+/*
+ STEFAN: Discuss with david why he needed uncacheable here 
+ 
+ static TMC_OS_Interface::OS_Heap os_heap;
 static bool created = false;
-const char* ILib_OS_Interface::hugepages_control_file = "/proc/sys/vm/nr_hugepages";
 
-void* ILib_OS_Interface::malloc_uncacheable_shared(int alignment, int size) {
+void* TMC_OS_Interface::malloc_uncacheable_shared(int alignment, int size) {
   if (alignment == 0)
     alignment = ilib_mem_get_cacheline_size();
   
@@ -34,11 +36,11 @@ void* ILib_OS_Interface::malloc_uncacheable_shared(int alignment, int size) {
   if (r == NULL)
     fatal("malloc_uncacheable_shared");
   return r;
-}
+}*/
 
 
 
-void ILib_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]) {
+void TMC_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]) {
   // go parallel; one core returns; others run helper_core_main fn
   
   # warning STEFAN: refactor, add a setter method for initializing those values.
@@ -66,7 +68,7 @@ void ILib_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]
     
     int err = ilib_proc_exec(1, &params);
     abort_if_error("exec", err);
-    ilib_die("impossible");
+    die("impossible");
   }
   
   Logical_Core::initialize_all_cores();
@@ -110,10 +112,10 @@ void ILib_OS_Interface::start_processes(void (*helper_core_main)(), char* argv[]
 }
 
 
-int ILib_OS_Interface::abort_if_error(const char* msg, int err) {
+int TMC_OS_Interface::abort_if_error(const char* msg, int err) {
   if (err >= 0)  return err;
   lprintf( "%s failed: %s\n", msg, ilib_debug_strerror(err));
-  ilib_abort();
+  abort();
   return 0;
 }
 

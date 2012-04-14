@@ -152,11 +152,15 @@ sqInt ioUtcWithOffset(sqLong *microSeconds, int *offset)
 sqInt ioRelinquishProcessorForMicroseconds(sqInt microSeconds) {
 	//API Documented
 	/* This operation is platform dependent. 	 */
-	#pragma unused(microSeconds)
+  #pragma unused(microSeconds)
+  extern sqInt setInterruptCheckCounter(sqInt value);  //This is a VM Callback
 
+# if ROAR_VM
+  aioSleep(0);
+  setInterruptCheckCounter(0);
+# else
 	sqInt	   realTimeToWait,now,next;
 	extern sqInt getNextWakeupTick(void);				//This is a VM Callback
-	extern sqInt setInterruptCheckCounter(sqInt value);  //This is a VM Callback
 
 	setInterruptCheckCounter(0);
 	now = ioMSecs();
@@ -173,7 +177,9 @@ sqInt ioRelinquishProcessorForMicroseconds(sqInt microSeconds) {
 		else
 			realTimeToWait = next - now; 
 
-	aioSleep((int) realTimeToWait*1000);
+  aioSleep((int) realTimeToWait*1000);
+# endif // !ROAR_VM
+  
 	return 0;
 }
 #endif /* STACKVM */

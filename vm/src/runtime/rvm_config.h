@@ -63,6 +63,9 @@
 # define DO_ALL_CONFIG_FLAGS(template) \
   template(On_Intel_Linux) \
   template(On_Tilera) \
+  template(Enforce_Threads) \
+  template(Using_Threads) \
+  template(Using_Processes) \
   template(Replicate_PThread_Memory_System) /* true makes system on pthreads like Tilera, but slower */ \
   template(Max_Number_Of_Cores) \
   template(Number_Of_Channel_Buffers) \
@@ -113,6 +116,7 @@
   template(Force_Direct_Timeout_Timer_List_Head_Access) \
   template(Omit_PThread_Locks) \
   template(Use_Spin_Locks) \
+  template(Use_ThreadLocals) \
   template(Count_Cycles) \
   \
   template(Extra_Preheader_Word_Experiment) \
@@ -122,7 +126,9 @@
   template(Hammer_Safepoints) /* for debugging */ \
   \
   template(Dump_Bytecode_Cycles) \
-  template(Dont_Dump_Primitive_Cycles)
+  template(Dont_Dump_Primitive_Cycles) \
+  \
+  template(Print_Keys)
 
 
 
@@ -145,6 +151,16 @@
 # ifndef On_Tilera
   # define On_Tilera (!On_Apple && !On_Intel_Linux)
 # endif
+
+# define On_Tilera_With_GCC (On_Tilera && !defined(__TILECC__))
+
+
+# ifndef Enforce_Threads
+  # define Enforce_Threads !On_Tilera
+# endif
+
+# define Using_Threads    Enforce_Threads
+# define Using_Processes !Enforce_Threads
 
 # ifndef Replicate_PThread_Memory_System
   # define Replicate_PThread_Memory_System 0
@@ -213,6 +229,10 @@
 
 # ifndef PrintFetchedContextRegisters
 #  define PrintFetchedContextRegisters 0
+# endif
+
+# ifndef Print_Keys
+#  define Print_Keys 0
 # endif
 
 // Keeping a tally of the received messages seems to have an impact on performance.
@@ -358,6 +378,10 @@
 
 # ifndef Use_Spin_Locks
 # define Use_Spin_Locks 0
+# endif
+
+# ifndef Use_ThreadLocals
+# define Use_ThreadLocals !On_Apple
 # endif
 
 # ifndef Dump_Bytecode_Cycles
