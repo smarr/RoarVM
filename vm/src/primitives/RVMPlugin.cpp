@@ -714,8 +714,8 @@ static int primitiveMicrosecondClock() {
   return 0;
 }
 
-# if On_OSX
-# include "/Developer/Headers/FlatCarbon/MacTypes.h" // Ugh! Why won't xCode supply UnsignedWide??? -- dmu
+# if On_Apple
+# include <mach/mach_time.h>
 # endif
 
 
@@ -726,18 +726,23 @@ static int primitiveCycleCounter() {
   }
   uint64_t cycles;
 
-# if On_iOS
-  The_Squeak_Interpreter()->primitiveFail();
-  return 0;
-  
   // burrow down below OS_Interface level to avoid effect of Count_Cycles flag
+  
+# if On_Apple
+  // Source: https://developer.apple.com/library/mac/#qa/qa1398/_index.html
+  uint64_t absolute_time = mach_absolute_time();
+  
+  mach_timebase_info_data_t info;
+  mach_timebase_info(&info);
+  
+  /* Convert to nanoseconds */
+  absolute_time *= info.numer;
+  absolute_time /= info.denom;
+  
+  cycles = absolute_time;
+
 # elif On_Tilera
   cycles = ::get_cycle_count();
-  
-# elif On_Apple
-  struct UnsignedWide microTickCount;
-  Microseconds(&microTickCount);
-  cycles = (u_int64(microTickCount.hi) << 32LL) |  u_int64(microTickCount.lo);
   
 # else
   // this value is specifc to a core, it does not reflect a 'global' time.
