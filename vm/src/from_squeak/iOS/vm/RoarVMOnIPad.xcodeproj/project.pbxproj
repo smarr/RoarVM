@@ -17,8 +17,6 @@
 		0A5D7D6C135E37CB00D13E53 /* memory_system.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7CB8135E37CB00D13E53 /* memory_system.cpp */; };
 		0A5D7D6D135E37CB00D13E53 /* multicore_object_heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7CBB135E37CB00D13E53 /* multicore_object_heap.cpp */; };
 		0A5D7D6E135E37CB00D13E53 /* multicore_object_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7CBE135E37CB00D13E53 /* multicore_object_table.cpp */; };
-		0A5D7D6F135E37CB00D13E53 /* buffered_channel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7CC3135E37CB00D13E53 /* buffered_channel.cpp */; };
-		0A5D7D71135E37CB00D13E53 /* synced_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7CC8135E37CB00D13E53 /* synced_queue.cpp */; };
 		0A5D7D72135E37CB00D13E53 /* squeak_image_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7CCB135E37CB00D13E53 /* squeak_image_reader.cpp */; };
 		0A5D7D73135E37CB00D13E53 /* at_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7CCF135E37CB00D13E53 /* at_cache.cpp */; };
 		0A5D7D74135E37CB00D13E53 /* interpreter_bytecodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D7CD2135E37CB00D13E53 /* interpreter_bytecodes.cpp */; };
@@ -282,13 +280,6 @@
 		0A5D7CBF135E37CB00D13E53 /* multicore_object_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multicore_object_table.h; sourceTree = "<group>"; };
 		0A5D7CC0135E37CB00D13E53 /* multicore_object_table.inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multicore_object_table.inline.h; sourceTree = "<group>"; };
 		0A5D7CC1135E37CB00D13E53 /* oop_closure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oop_closure.h; sourceTree = "<group>"; };
-		0A5D7CC3135E37CB00D13E53 /* buffered_channel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = buffered_channel.cpp; sourceTree = "<group>"; };
-		0A5D7CC4135E37CB00D13E53 /* buffered_channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = buffered_channel.h; sourceTree = "<group>"; };
-		0A5D7CC5135E37CB00D13E53 /* buffered_channel_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = buffered_channel_debug.h; sourceTree = "<group>"; };
-		0A5D7CC6135E37CB00D13E53 /* multiple_writer_ptr_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = multiple_writer_ptr_queue.cpp; sourceTree = "<group>"; };
-		0A5D7CC7135E37CB00D13E53 /* multiple_writer_ptr_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multiple_writer_ptr_queue.h; sourceTree = "<group>"; };
-		0A5D7CC8135E37CB00D13E53 /* synced_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = synced_queue.cpp; sourceTree = "<group>"; };
-		0A5D7CC9135E37CB00D13E53 /* synced_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = synced_queue.h; sourceTree = "<group>"; };
 		0A5D7CCB135E37CB00D13E53 /* squeak_image_reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = squeak_image_reader.cpp; sourceTree = "<group>"; };
 		0A5D7CCC135E37CB00D13E53 /* squeak_image_reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = squeak_image_reader.h; sourceTree = "<group>"; };
 		0A5D7CCE135E37CB00D13E53 /* abstract_primitive_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abstract_primitive_table.h; sourceTree = "<group>"; };
@@ -438,6 +429,13 @@
 		0A5D7D66135E37CB00D13E53 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
 		0A5D7D67135E37CB00D13E53 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		0A5D7D69135E37CB00D13E53 /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		0A68E005153CB66B00C850D2 /* buffered_channel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = buffered_channel.cpp; sourceTree = "<group>"; };
+		0A68E006153CB66B00C850D2 /* buffered_channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = buffered_channel.h; sourceTree = "<group>"; };
+		0A68E007153CB66B00C850D2 /* buffered_channel_debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = buffered_channel_debug.h; sourceTree = "<group>"; };
+		0A68E008153CB66B00C850D2 /* synced_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = synced_queue.cpp; sourceTree = "<group>"; };
+		0A68E009153CB66B00C850D2 /* synced_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = synced_queue.h; sourceTree = "<group>"; };
+		0A68E00C153CB6B700C850D2 /* tmc_os_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tmc_os_interface.cpp; sourceTree = "<group>"; };
+		0A68E00D153CB6B700C850D2 /* tmc_os_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tmc_os_interface.h; sourceTree = "<group>"; };
 		0A890E9913FDA46400067C04 /* Squeak72x72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Squeak72x72.png; sourceTree = "<group>"; };
 		0AA32B2D135EC5EE00B97FB8 /* AsynchFilePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsynchFilePlugin.h; sourceTree = "<group>"; };
 		0AA32B2F135EC5EE00B97FB8 /* FileCopyPlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileCopyPlugin.h; sourceTree = "<group>"; };
@@ -890,21 +888,6 @@
 			path = ../../../../../heap;
 			sourceTree = "<group>";
 		};
-		0A5D7CC2135E37CB00D13E53 /* ilib-intel */ = {
-			isa = PBXGroup;
-			children = (
-				0A5D7CC3135E37CB00D13E53 /* buffered_channel.cpp */,
-				0A5D7CC4135E37CB00D13E53 /* buffered_channel.h */,
-				0A5D7CC5135E37CB00D13E53 /* buffered_channel_debug.h */,
-				0A5D7CC6135E37CB00D13E53 /* multiple_writer_ptr_queue.cpp */,
-				0A5D7CC7135E37CB00D13E53 /* multiple_writer_ptr_queue.h */,
-				0A5D7CC8135E37CB00D13E53 /* synced_queue.cpp */,
-				0A5D7CC9135E37CB00D13E53 /* synced_queue.h */,
-			);
-			name = "ilib-intel";
-			path = "../../../../../ilib-intel";
-			sourceTree = "<group>";
-		};
 		0A5D7CCA135E37CB00D13E53 /* image_readers */ = {
 			isa = PBXGroup;
 			children = (
@@ -1040,6 +1023,8 @@
 				0A5D7D29135E37CB00D13E53 /* thread_memory_semantics.h */,
 				0A5D7D2A135E37CB00D13E53 /* tile_cpu_coordinate.cpp */,
 				0A5D7D2B135E37CB00D13E53 /* tile_cpu_coordinate.h */,
+				0A68E00C153CB6B700C850D2 /* tmc_os_interface.cpp */,
+				0A68E00D153CB6B700C850D2 /* tmc_os_interface.h */,
 			);
 			name = platform;
 			path = ../../../../../platform;
@@ -1128,6 +1113,19 @@
 			);
 			name = types;
 			path = ../../../../../types;
+			sourceTree = "<group>";
+		};
+		0A68E004153CB66B00C850D2 /* message_buffers */ = {
+			isa = PBXGroup;
+			children = (
+				0A68E005153CB66B00C850D2 /* buffered_channel.cpp */,
+				0A68E006153CB66B00C850D2 /* buffered_channel.h */,
+				0A68E007153CB66B00C850D2 /* buffered_channel_debug.h */,
+				0A68E008153CB66B00C850D2 /* synced_queue.cpp */,
+				0A68E009153CB66B00C850D2 /* synced_queue.h */,
+			);
+			name = message_buffers;
+			path = ../../../../../message_buffers;
 			sourceTree = "<group>";
 		};
 		0AA32B28135EC55400B97FB8 /* from_squeak */ = {
@@ -2203,8 +2201,8 @@
 		94E658DF0DDD03FE00358328 /* vm */ = {
 			isa = PBXGroup;
 			children = (
+				0A68E004153CB66B00C850D2 /* message_buffers */,
 				0A5D7CAE135E37CB00D13E53 /* heap */,
-				0A5D7CC2135E37CB00D13E53 /* ilib-intel */,
 				0A5D7CCA135E37CB00D13E53 /* image_readers */,
 				0A5D7CCD135E37CB00D13E53 /* interpreter */,
 				0A5D7CE0135E37CB00D13E53 /* messages */,
@@ -2355,8 +2353,6 @@
 				0A5D7D6C135E37CB00D13E53 /* memory_system.cpp in Sources */,
 				0A5D7D6D135E37CB00D13E53 /* multicore_object_heap.cpp in Sources */,
 				0A5D7D6E135E37CB00D13E53 /* multicore_object_table.cpp in Sources */,
-				0A5D7D6F135E37CB00D13E53 /* buffered_channel.cpp in Sources */,
-				0A5D7D71135E37CB00D13E53 /* synced_queue.cpp in Sources */,
 				0A5D7D72135E37CB00D13E53 /* squeak_image_reader.cpp in Sources */,
 				0A5D7D73135E37CB00D13E53 /* at_cache.cpp in Sources */,
 				0A5D7D74135E37CB00D13E53 /* interpreter_bytecodes.cpp in Sources */,
