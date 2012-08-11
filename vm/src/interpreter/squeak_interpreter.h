@@ -64,6 +64,16 @@ public:
   static const int interruptCheckCounter_force_value = -0x8000000; // must be neg
   bool multicore_interrupt_check;
   bool doing_primitiveClosureValueNoContextSwitch;
+  
+  bool suppress_context_switch_for_debugging;
+  
+  inline bool suppress_context_switching() const {
+    if (Include_Debugging_Code)
+      return suppress_context_switch_for_debugging;
+    else
+      return false;
+  }
+  
   static const u_int64 all_cores_mask = ~0LL;
   static u_int64 run_mask_value_for_core(int x) { return 1LL << x; }
   void set_run_mask_and_request_yield(u_int64);
@@ -931,6 +941,9 @@ public:
   void printUnbalancedStack(int, fn_t);
 
   void internalQuickCheckForInterrupts() {
+    if (suppress_context_switching())
+      return;
+    
     if (--interruptCheckCounter <= 0) {
       externalizeIPandSP();
       checkForInterrupts();
@@ -941,6 +954,9 @@ public:
 
 
   void quickCheckForInterrupts() {
+    if (suppress_context_switching())
+      return;
+    
     /*
      "Quick check for possible user or timer interrupts. Decrement a counter
       and only do a real check when counter reaches zero or when a low space
@@ -1387,6 +1403,10 @@ public:
  private:
   void check_for_multicore_interrupt() {
     assert(multicore_interrupt_check  ||  process_is_scheduled_and_executing());
+    
+    if (suppress_context_switching())
+      return;
+    
     // xxxxxx If set multicore_interrupt_check whenever yield_requested() 
     //        will be true, could speed up this test.
     // -- dmu 4/09

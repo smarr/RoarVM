@@ -42,3 +42,11 @@ void pat() {
   The_Squeak_Interpreter()->print_all_stack_traces(dittoing_stdout_printer);
 }
 int printAllStacks() { pat(); return 0; }
+void disable_context_switches() {
+  The_Squeak_Interpreter()->suppress_context_switch_for_debugging = true;
+}
+void reenable_context_switches() {
+  The_Squeak_Interpreter()->suppress_context_switch_for_debugging = false;
+}
+
+
