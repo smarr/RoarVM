@@ -53,6 +53,18 @@ bool Object::verify_extra_preheader_word() {
 
 void Object::dp() { print(stderr_printer); stderr_printer->nl(); }
 
+void Object::print_with_fields() {
+  dp();
+  
+  int i = 1;
+  
+  FOR_EACH_OOP_IN_OBJECT_EXCEPT_CLASS(this, oopp) {
+    stderr_printer->printf("\t[%3d]\t", i);
+    oopp->dp();
+    i++;
+  }
+}
+
 void Object::print(Printer* p) {
   if (!my_heap_contains_me()) {
     p->printf("Wild pointer; object not in any heap");
@@ -85,6 +97,12 @@ void Object::print(Printer* p) {
   }
   else if (class_name_obj->equals_string("Float") && !is_meta) {
     p->printf("%f(float)", fetchFloatAtinto());
+  }
+  else if (class_name_obj->equals_string("LargePositiveInteger")) {
+    p->printf("%lld(LargePositiveInteger)", The_Squeak_Interpreter()->signed64BitValueOf(this->as_oop()));
+  }
+  else if (class_name_obj->equals_string("LargeNegativeInteger")) {
+    p->printf("%lld(LargeNegativeInteger)", The_Squeak_Interpreter()->signed64BitValueOf(this->as_oop()));
   }
   else {
     p->printf("%s ", is_meta ? "class" :  is_vowel(class_name_obj->fetchByte(0)) ? "an" : "a" );
@@ -258,7 +276,7 @@ Oop Object::signed64BitIntegerFor(int64 integerValue) {
     classes is 0. */
 oop_int_t Object::instanceSizeOfClass() {
   // STEFAN: this is extracted from below, needs testing!!
-#warning Untested and to many magic numbers here. Please fix!
+#warning Untested and too many magic numbers here. Please fix!
 
   oop_int_t classFormat = formatOfClass();
   oop_int_t sizeHiBits = (classFormat & 0x60000) >> 9;

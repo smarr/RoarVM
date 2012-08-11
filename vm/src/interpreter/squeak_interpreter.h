@@ -207,33 +207,39 @@ public:
 
 # if check_assertions
   bool are_registers_stored;
-  bool is_external_valid;
-  bool is_internal_valid;
+  bool _is_external_valid;
+  bool _is_internal_valid;
+  
+  bool is_external_valid()   const { return _is_external_valid; }
+  bool is_internal_valid()   const { return _is_internal_valid; }
   void registers_unstored() { assert(get_running_process() != roots.nilObj); are_registers_stored = false; }
   void registers_stored() { are_registers_stored = true; }
-  void externalized() { is_external_valid = true; }
-  void internalized() { is_internal_valid = true; }
-  void unexternalized() { is_external_valid = false; }
-  void uninternalized() { is_internal_valid = false; }
+  void externalized() { _is_external_valid = true; }
+  void internalized() { _is_internal_valid = true; }
+  void unexternalized() { _is_external_valid = false; }
+  void uninternalized() { _is_internal_valid = false; }
 
-  void assert_internal() { assert(is_internal_valid); }
-  void assert_external() { assert(is_external_valid); }
-  void assert_registers_stored() { assert(are_registers_stored); }
-  void assert_registers_unstored() { assert(!are_registers_stored); }
-  void assert_stored_if_no_proc() { if (check_many_assertions) assert(get_running_process() != roots.nilObj || are_registers_stored); }
+  void assert_internal()           const { assert(_is_internal_valid); }
+  void assert_external()           const { assert(_is_external_valid); }
+  void assert_registers_stored()   const { assert(are_registers_stored); }
+  void assert_registers_unstored() const { assert(!are_registers_stored); }
+  void assert_stored_if_no_proc()  { if (check_many_assertions) assert(get_running_process() != roots.nilObj || are_registers_stored); }
 # else
-  void registers_unstored() {}
-  void registers_stored() {}
-  void externalized() { }
-  void internalized() { }
-  void unexternalized() {}
-  void uninternalized() { }
-
-  void assert_internal() {  }
-  void assert_external() { }
-  void assert_registers_stored() { }
-  void assert_registers_unstored() {  }
-  void assert_stored_if_no_proc() { }
+  bool is_external_valid()   const { fatal("should not be used without assertions on"); return true; }
+  bool is_internal_valid()   const { fatal("should not be used without assertions on"); return true; }
+  
+  void registers_unstored()        const {}
+  void registers_stored()          const {}
+  void externalized()              const {}
+  void internalized()              const {}
+  void unexternalized()            const {}
+  void uninternalized()            const {}
+  
+  void assert_internal()           const {}
+  void assert_external()           const {}
+  void assert_registers_stored()   const {}
+  void assert_registers_unstored() const {}
+  void assert_stored_if_no_proc()  const {}
 # endif
 
 
@@ -381,6 +387,7 @@ public:
   Object_p lkupClass_obj();
 
   void print_method_info(const char* msg);
+  void print_stack_frame();
   void preGCAction_here(bool fullGC);
   void postGCAction_here(bool fullGC);
   void preGCAction_everywhere(bool fullGC);
@@ -931,6 +938,11 @@ public:
   int stackPointerIndex() {
     return stackPointer() - activeContext_obj()->as_oop_p() - Object::BaseHeaderSize/sizeof(Oop);
   }
+  
+  int localStackPointerIndex() {
+    return localSP() - activeContext_obj()->as_oop_p() - Object::BaseHeaderSize/sizeof(Oop);
+  }
+  
   void run_primitive_on_main_from_elsewhere(fn_t);
   void dispatchFunctionPointer(fn_t f, bool on_main);
   void dispatchFunctionPointer(int i, Primitive_Table *pt) {

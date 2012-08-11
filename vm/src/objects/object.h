@@ -579,6 +579,7 @@ public:
   inline char* first_byte_address_after_header();
   public:
   void print(Printer* p = dittoing_stdout_printer);
+  void print_with_fields();
   void print_class(Printer*);
   void print_bytes(Printer*);
   void print_bytes_in_array(Printer*);

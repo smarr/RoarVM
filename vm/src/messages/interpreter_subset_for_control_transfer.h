@@ -17,8 +17,8 @@ class Interpreter_Subset_For_Control_Transfer {
 # if check_assertions
   # define FOR_ALL_ASSERTION_VARS_IN_SUBSET(template) \
     template(bool, are_registers_stored, are_registers_stored) \
-    template(bool, is_internal_valid, is_internal_valid) \
-    template(bool, is_external_valid, is_external_valid)
+    template(bool, _is_internal_valid, _is_internal_valid) \
+    template(bool, _is_external_valid, _is_external_valid)
 # else
   # define FOR_ALL_ASSERTION_VARS_IN_SUBSET(template)
 # endif
