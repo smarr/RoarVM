@@ -57,7 +57,7 @@ public:
   Object_p _theHomeContext_obj;
  public:
   u_char* _instructionPointer; u_char* instructionPointer() { assert_external(); return _instructionPointer; }  void set_instructionPointer(u_char* x) { registers_unstored(); uninternalized(); _instructionPointer = x; }
-  Oop*    _stackPointer;  Oop* stackPointer() { assert_external(); return _stackPointer; } void set_stackPointer(Oop* x) { registers_unstored(); uninternalized(); _stackPointer = x; }
+  Oop*    _stackPointer;  Oop* stackPointer() const { assert_external(); return _stackPointer; } void set_stackPointer(Oop* x) { registers_unstored(); uninternalized(); _stackPointer = x; }
   u_char currentBytecode; // interp version is out of order
   bool   have_executed_currentBytecode;
   oop_int_t interruptCheckCounter;
@@ -199,8 +199,8 @@ public:
   Safepoint_Tracker* safepoint_tracker;
   Safepoint_Master_Control* safepoint_master_control;
 
-  u_char* _localIP;  u_char* localIP() { assert_internal(); return _localIP; }  void set_localIP(u_char* x) { _localIP = x; registers_unstored(); unexternalized(); }
-  Oop*    _localSP;  Oop*    localSP() { assert_internal(); return _localSP; }  void set_localSP(Oop* x)    { _localSP = x; registers_unstored(); unexternalized(); }
+  u_char* _localIP;  u_char* localIP() const { assert_internal(); return _localIP; }  void set_localIP(u_char* x) { _localIP = x; registers_unstored(); unexternalized(); }
+  Oop*    _localSP;  Oop*    localSP() const { assert_internal(); return _localSP; }  void set_localSP(Oop* x)    { _localSP = x; registers_unstored(); unexternalized(); }
   Object_p _localHomeContext;  Object_p localHomeContext() { assert_internal(); return _localHomeContext; } void set_localHomeContext(Object_p x) { _localHomeContext = x; registers_unstored(); unexternalized(); }
   
   int32 image_version;
@@ -357,8 +357,8 @@ public:
 
  public:
 
-  Oop activeContext() { return roots._activeContext; }
-  Object_p activeContext_obj() { return _activeContext_obj; }
+  Oop      activeContext()     const { return roots._activeContext; }
+  Object_p activeContext_obj() const { return _activeContext_obj; }
 
   void set_activeContext(Oop x, Object_p o) {
     assert_eq(o->as_oop().bits(), x.bits(), "activeContext messed up");
@@ -622,7 +622,7 @@ public:
   Oop stackTop() {return *stackPointer(); }
   Oop popStack() { Oop r = *stackPointer(); set_stackPointer(stackPointer() - 1); return r; }
 
-  Oop stackValue(oop_int_t offset) { return stackPointer()[-offset]; }
+  Oop stackValue(oop_int_t offset) const { return stackPointer()[-offset]; }
 
 
   double stackFloatValue(oop_int_t offset) {
@@ -666,7 +666,7 @@ public:
   Oop literal(oop_int_t offset) {
     return method_obj()->literal(offset);
   }
-  Oop internalStackValue( int offset )  { return localSP()[-offset]; }
+  Oop internalStackValue( int offset ) const { return localSP()[-offset]; }
   void internalPop(int n) { set_localSP(localSP() - n); }
   void pop(int n) { set_stackPointer(stackPointer() - n); }
   void unPop(int n) { set_stackPointer(stackPointer() + n); }
