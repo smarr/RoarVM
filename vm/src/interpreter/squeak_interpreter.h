@@ -56,8 +56,8 @@ public:
   Object_p _method_obj;
   Object_p _theHomeContext_obj;
  public:
-  u_char* _instructionPointer; u_char* instructionPointer() { assert_external(); return _instructionPointer; }  void set_instructionPointer(u_char* x) { registers_unstored(); uninternalized(); _instructionPointer = x; }
-  Oop*    _stackPointer;  Oop* stackPointer() const { assert_external(); return _stackPointer; } void set_stackPointer(Oop* x) { registers_unstored(); uninternalized(); _stackPointer = x; }
+  u_char* _instructionPointer; u_char* instructionPointer() const { return _instructionPointer; }  void set_instructionPointer(u_char* x) {  _instructionPointer = x; }
+  Oop*    _stackPointer;  Oop* stackPointer() const { return _stackPointer; } void set_stackPointer(Oop* x) { _stackPointer = x; }
   u_char currentBytecode; // interp version is out of order
   bool   have_executed_currentBytecode;
   oop_int_t interruptCheckCounter;
@@ -198,52 +198,10 @@ public:
   
   Safepoint_Tracker* safepoint_tracker;
   Safepoint_Master_Control* safepoint_master_control;
-
-  u_char* _localIP;  u_char* localIP() const { assert_internal(); return _localIP; }  void set_localIP(u_char* x) { _localIP = x; registers_unstored(); unexternalized(); }
-  Oop*    _localSP;  Oop*    localSP() const { assert_internal(); return _localSP; }  void set_localSP(Oop* x)    { _localSP = x; registers_unstored(); unexternalized(); }
-  Object_p _localHomeContext;  Object_p localHomeContext() { assert_internal(); return _localHomeContext; } void set_localHomeContext(Object_p x) { _localHomeContext = x; registers_unstored(); unexternalized(); }
   
   int32 image_version;
 
-# if check_assertions
-  bool are_registers_stored;
-  bool _is_external_valid;
-  bool _is_internal_valid;
   
-  bool is_external_valid()   const { return _is_external_valid; }
-  bool is_internal_valid()   const { return _is_internal_valid; }
-  void registers_unstored() { assert(get_running_process() != roots.nilObj); are_registers_stored = false; }
-  void registers_stored() { are_registers_stored = true; }
-  void externalized() { _is_external_valid = true; }
-  void internalized() { _is_internal_valid = true; }
-  void unexternalized() { _is_external_valid = false; }
-  void uninternalized() { _is_internal_valid = false; }
-
-  void assert_internal()           const { assert(_is_internal_valid); }
-  void assert_external()           const { assert(_is_external_valid); }
-  void assert_registers_stored()   const { assert(are_registers_stored); }
-  void assert_registers_unstored() const { assert(!are_registers_stored); }
-  void assert_stored_if_no_proc()  { if (check_many_assertions) assert(get_running_process() != roots.nilObj || are_registers_stored); }
-# else
-  bool is_external_valid()   const { fatal("should not be used without assertions on"); return true; }
-  bool is_internal_valid()   const { fatal("should not be used without assertions on"); return true; }
-  
-  void registers_unstored()        const {}
-  void registers_stored()          const {}
-  void externalized()              const {}
-  void internalized()              const {}
-  void unexternalized()            const {}
-  void uninternalized()            const {}
-  
-  void assert_internal()           const {}
-  void assert_external()           const {}
-  void assert_registers_stored()   const {}
-  void assert_registers_unstored() const {}
-  void assert_stored_if_no_proc()  const {}
-# endif
-
-
-
   oop_int_t primitiveIndex;
 
 
@@ -363,9 +321,7 @@ public:
   void set_activeContext(Oop x, Object_p o) {
     assert_eq(o->as_oop().bits(), x.bits(), "activeContext messed up");
     roots._activeContext = x;
-    _activeContext_obj = o;
-    uninternalized();
-    unexternalized();
+    _activeContext_obj   = o;
   }
   void set_activeContext(Oop x) { set_activeContext(x, x.as_object()); }
   void set_activeContext(Object_p x) { set_activeContext( x->as_oop(), x); }
@@ -376,13 +332,13 @@ public:
   void set_method(Oop m) { roots._method = m;  _method_obj = m.as_object(); }
   void set_method_obj(Object_p m) { roots._method = m->as_oop();  _method_obj = m; }
 
-  Oop theHomeContext() { assert_external(); return roots._theHomeContext; }
-  Object_p theHomeContext_obj() { assert_external(); return _theHomeContext_obj; }
-  void set_theHomeContext(Oop m, bool really_changing) { if (really_changing) {registers_unstored(); uninternalized(); }  roots._theHomeContext = m;  _theHomeContext_obj = m.as_object(); }
-  void set_theHomeContext_obj(Object_p m, bool really_changing) { if (really_changing) {registers_unstored(); uninternalized(); }   roots._theHomeContext = m->as_oop();  _theHomeContext_obj = m; }
+  Oop      theHomeContext()     const { return roots._theHomeContext; }
+  Object_p theHomeContext_obj() const { return _theHomeContext_obj; }
+  void set_theHomeContext(Oop m) {  roots._theHomeContext = m;  _theHomeContext_obj = m.as_object(); }
+  void set_theHomeContext_obj(Object_p m) {  roots._theHomeContext = m->as_oop();  _theHomeContext_obj = m; }
 
 
-  Object_p receiver_obj() { return roots.receiver.as_object(); }
+  Object_p receiver_obj()  { return roots.receiver.as_object(); }
   Object_p newMethod_obj() { return roots.newMethod.as_object(); }
   Object_p lkupClass_obj();
 
@@ -413,18 +369,16 @@ public:
   void loadInitialContext();
   void initialCleanup();
 
-  void fetchContextRegisters(Oop cntx, Object_p cntx_obj) {
-    assert(cntx_obj->as_oop() == cntx);
+  void fetchContextRegisters(Oop activeCntx, Object_p activeCntx_obj) {
+    assert(activeCntx_obj->as_oop() == activeCntx);
+    
     // "if the MethodIndex field is an integer, activeCntx is a block context"
     // "otherwise, it is a method context and is its own home context "
     set_theHomeContext(
-                       cntx_obj->is_this_context_a_block_context()
-                       ? cntx_obj->fetchPointer(Object_Indices::HomeIndex).beRootIfOld()
-                       : cntx,
-                       true);
-    externalized();
-    uninternalized();
-
+                       activeCntx_obj->is_this_context_a_block_context()
+                       ? activeCntx_obj->fetchPointer(Object_Indices::HomeIndex).beRootIfOld()
+                       : activeCntx);
+    
     roots.receiver = theHomeContext_obj()->fetchPointer(Object_Indices::ReceiverIndex);
     set_method(theHomeContext_obj()->fetchPointer(Object_Indices::MethodIndex));
 
@@ -434,19 +388,19 @@ public:
      -1 for 0-based addressing of fetchByte
      -1 because it gets incremented BEFORE fetching currentByte "
      */
-    oop_int_t ip_int = cntx_obj->quickFetchInteger(Object_Indices::InstructionPointerIndex);
+    oop_int_t ip_int = activeCntx_obj->quickFetchInteger(Object_Indices::InstructionPointerIndex);
     _instructionPointer = method_obj()->as_u_char_p() + ip_int + Object::BaseHeaderSize - 2;
 
     // "the stack pointer is a pointer variable also..."
-    oop_int_t sp_int = cntx_obj->quickFetchInteger(Object_Indices::StackPointerIndex);
-    _stackPointer = (Oop*) (cntx_obj->as_char_p() + Object::BaseHeaderSize + (Object_Indices::TempFrameStart + sp_int - 1) * bytesPerWord);
+    oop_int_t sp_int = activeCntx_obj->quickFetchInteger(Object_Indices::StackPointerIndex);
+    _stackPointer = (Oop*) (activeCntx_obj->as_char_p() + Object::BaseHeaderSize + (Object_Indices::TempFrameStart + sp_int - 1) * bytesPerWord);
 
 
     if (PrintFetchedContextRegisters) {
       dittoing_stdout_printer->printf("fetchContextRegisters: theHomeContext(): ");
       theHomeContext().print(dittoing_stdout_printer);
       dittoing_stdout_printer->printf(", activeContext: ");
-      cntx.print(dittoing_stdout_printer);
+      activeCntx.print(dittoing_stdout_printer);
       dittoing_stdout_printer->printf(", receiver: ");
       roots.receiver.print(dittoing_stdout_printer);
       dittoing_stdout_printer->printf(", method: ");
@@ -459,8 +413,6 @@ public:
 
   void storeContextRegisters(Object_p cntx_obj) {
     /*
-     like internalStoreContextRegisters
-
      "InstructionPointer is a pointer variable equal to
      method oop + ip + BaseHeaderSize
      -1 for 0-based addressing of fetchByte
@@ -472,32 +424,12 @@ public:
                                     instructionPointer() - method_obj()->as_u_char_p() - Object::BaseHeaderSize + 2 );
     cntx_obj->storeIntegerUnchecked_into_context(Object_Indices::StackPointerIndex,
                                     stackPointerIndex() - Object_Indices::TempFrameStart + 1);
-
-    registers_stored();
   }
+  
 
   void flushExternalPrimitives();
 
   void interpret();
-
-  void internalizeIPandSP() {
-    // Copy local instruction ptr and SP to locals for speed
-    assert_external();
-    assert(safepoint_ability->is_unable());
-    _localIP = instructionPointer();
-    _localSP =       stackPointer();
-    _localHomeContext = theHomeContext_obj();
-    internalized();
-  }
-
-  void externalizeIPandSP() {
-    // copy out for primitives, etc
-    assert_internal();
-    _instructionPointer = localIP();
-    _stackPointer = localSP();
-    set_theHomeContext_obj(localHomeContext(), false);
-    externalized();
-  }
 
   inline void traceFetchNextBytecode(u_char currentBytecode) {
     extern FILE* BytecodeTraceFile;
@@ -575,14 +507,14 @@ public:
 
   u_char fetchByte() {
     if (check_many_assertions) {
-      int localIP_offset = localIP() - method_obj()->as_u_char_p() + 1;
-      assert( localIP_offset
+      int IP_offset = instructionPointer() - method_obj()->as_u_char_p() + 1;
+      assert( IP_offset
              >= (Object_Indices::LiteralStart + Object::literalCountOfHeader(method_obj()->methodHeader())) * bytesPerWord  +  1);
-      assert(localIP_offset  <   method_obj()->byteLength() + Object::BaseHeaderSize);
+      assert(IP_offset  <   method_obj()->byteLength() + Object::BaseHeaderSize);
     }
 
-    set_localIP(localIP() + 1);
-    return *localIP();
+    set_instructionPointer(instructionPointer() + 1);
+    return *instructionPointer();
   }
 
   void dispatch(u_char currentByte);
@@ -592,34 +524,22 @@ public:
 
 
   void pushReceiverVariable(int i) {
-    internalPush(receiver_obj()->fetchPointer(i));
+    push(receiver_obj()->fetchPointer(i));
   }
   void pushTemporaryVariable(int temporaryIndex) {
-	  internalPush(temporary(temporaryIndex));
+	  push(temporary(temporaryIndex));
   }
-  void pushLiteralConstant(int i) { internalPush(literal(i)); }
+  void pushLiteralConstant(int i) { push(literal(i)); }
   void pushLiteralVariable(int i) {
-    internalPush(literal(i).as_object()->fetchPointer(Object_Indices::ValueIndex));
+    push(literal(i).as_object()->fetchPointer(Object_Indices::ValueIndex));
   }
 
   Oop temporary(int offset) {
-    assert(localHomeContext() != roots.nilObj.as_object());
-    return localHomeContext()->fetchPointer(offset + Object_Indices::TempFrameStart);
+    assert(theHomeContext_obj() != roots.nilObj.as_object());
+    return theHomeContext_obj()->fetchPointer(offset + Object_Indices::TempFrameStart);
   }
 
-  void internalPush(Oop x) {
-    if (check_many_assertions) {
-      Oop* p = (Oop*)activeContext_obj()->nextChunk();
-      assert(p == NULL  ||  localSP() + 1  <  p);
-      x.verify_oop();
-      assert(!The_Memory_System()->heap_containing(localSP())->is_read_mostly());
-    }
-    set_localSP(localSP() + 1);
-    DEBUG_STORE_CHECK(localSP(), x);
-    *localSP() = x;
-  }
-  Oop internalStackTop() { return *localSP(); }
-  Oop stackTop() {return *stackPointer(); }
+  Oop stackTop() const {return *stackPointer(); }
   Oop popStack() { Oop r = *stackPointer(); set_stackPointer(stackPointer() - 1); return r; }
 
   Oop stackValue(oop_int_t offset) const { return stackPointer()[-offset]; }
@@ -666,9 +586,8 @@ public:
   Oop literal(oop_int_t offset) {
     return method_obj()->literal(offset);
   }
-  Oop internalStackValue( int offset ) const { return localSP()[-offset]; }
-  void internalPop(int n) { set_localSP(localSP() - n); }
-  void pop(int n) { set_stackPointer(stackPointer() - n); }
+
+  void pop(int n)   { set_stackPointer(stackPointer() - n); }
   void unPop(int n) { set_stackPointer(stackPointer() + n); }
 
   void push(Oop x) { set_stackPointer(stackPointer() + 1); DEBUG_STORE_CHECK(stackPointer(), x);  *stackPointer() = x; }
@@ -688,7 +607,7 @@ public:
      the receiver and arguments have been pushed onto the stack,"
      "Note: This method is inlined into the interpreter dispatch loop."
      */
-    Oop rcvr = internalStackValue(get_argumentCount());
+    Oop rcvr = stackValue(get_argumentCount());
 
 #if Extra_Preheader_Word_Experiment 
     if (rcvr.is_mem() 
@@ -721,7 +640,7 @@ public:
      */
     roots.lkupClass = method_obj()->methodClass().as_object()->superclass();
     assert(roots.lkupClass.verify_oop());
-    roots.receiverClass = internalStackValue(get_argumentCount()).fetchClass();
+    roots.receiverClass = stackValue(get_argumentCount()).fetchClass();
     commonSend();
   }
 
@@ -733,13 +652,13 @@ public:
     if (PrintSends) {
       Printer* p = stdout_printer;
       p->printf("commonSend Rcvr: ");
-      internalStackValue(get_argumentCount()).print(p);
+      stackValue(get_argumentCount()).print(p);
       p->printf(" Class: ");
       roots.receiverClass.print(p);
       p->printf(" Sel: ");
       roots.messageSelector.print(p);
       for (int i = get_argumentCount() - 1;  i >= 0;  --i)
-        p->printf("  "), internalStackValue(i).print(p);
+        p->printf("  "), stackValue(i).print(p);
       p->nl();
 
     }
@@ -747,7 +666,7 @@ public:
         &&  (NthSendForStopping <= 0 || nMatches++ == NthSendForStopping))
       breakpoint();
     if (check_assertions && roots.messageSelector.as_object()->equals_string("error:")) { // xxx_dmu
-      stdout_printer->printf(" error: "); internalStackTop().print(stdout_printer); stdout_printer->nl();
+      stdout_printer->printf(" error: "); stackTop().print(stdout_printer); stdout_printer->nl();
       roots.messageSelector.print(dittoing_stdout_printer), stdout_printer->nl();
     }
     if (check_assertions && roots.messageSelector.as_object()->equals_string("openNotifierContents:label:")) // xxx_dmu
@@ -777,14 +696,14 @@ public:
 
     debugCommonSend();
 
-    internalFindNewMethod();
+    findNewMethod();
     internalExecuteNewMethod();
     if (process_is_scheduled_and_executing()) // xxxxxxx predicate only needed to satisfy assertions?
       fetchNextBytecode();
   }
 
 
-  void internalFindNewMethod() {
+  void findNewMethod() {
     /*
      "Find the compiled method to be run when the current messageSelector is
       sent to the class 'roots.lkupClass', setting the values of
@@ -792,22 +711,16 @@ public:
      */
     if (!lookupInMethodCacheSel(roots.messageSelector, roots.lkupClass)) {
       // "entry was not found in the cache; look it up the hard way"
-      externalizeIPandSP();
       {
         Safepoint_Ability sa(true);
         lookupMethodInClass(roots.lkupClass); // may have to allocate message obj
       }
-      internalizeIPandSP();
       addNewMethodToCache();
     }
   }
 
-
   void internalExecuteNewMethod();
-
-  void internalActivateNewMethod();
   
-  void internal_copy_args_into_context(Oop* const content_part_of_ctx, int argCnt) const;
   void copy_args_into_context(Oop* const content_part_of_ctx, int argCnt) const;
 
 
@@ -815,72 +728,6 @@ public:
 # if Include_Closure_Support
   void activateNewClosureMethod(Object_p, Object_p);
 # endif
-
-
-  void internalNewActiveContext(Oop aContext, Object_p aContext_obj) {
-    assert(aContext_obj->as_oop() == aContext);
-    internalStoreContextRegisters(activeContext(), activeContext_obj());
-    aContext_obj->beRootIfOld();
-    assert(aContext != roots.nilObj);
-    set_activeContext(aContext, aContext_obj);
-    internalFetchContextRegisters(aContext, aContext_obj);
-  }
-
-
-  void internalFetchContextRegisters(Oop activeCntx, Object_p activeCntx_obj) {
-    assert(activeCntx_obj->as_oop() == activeCntx);
-
-    Object_p tmp = _localHomeContext = activeCntx_obj->home_of_block_or_method_context();
-
-    roots.receiver =  tmp->fetchPointer(Object_Indices::ReceiverIndex);
-    set_method( tmp->fetchPointer(Object_Indices::MethodIndex) );
-
-    /*
-     "the instruction pointer is a pointer variable equal to
-     method oop + ip + BaseHeaderSize
-     -1 for 0-based addressing of fetchByte
-     -1 because it gets incremented BEFORE fetching currentByte "
-     */
-    oop_int_t ip_int = activeCntx_obj->quickFetchInteger(Object_Indices::InstructionPointerIndex);
-    _localIP = method_obj()->as_u_char_p() + ip_int + Object::BaseHeaderSize - 2;
-
-    // "the stack pointer is a pointer variable also..."
-    oop_int_t sp_int = activeCntx_obj->quickFetchInteger(Object_Indices::StackPointerIndex);
-    _localSP = (Oop*) (activeCntx_obj->as_char_p() + Object::BaseHeaderSize + (Object_Indices::TempFrameStart + sp_int - 1) * bytesPerWord);
-
-    internalized();
-
-    if (PrintFetchedContextRegisters) {
-      dittoing_stdout_printer->printf("internalFetchContextRegisters: activeContext: ");
-      activeCntx.print(dittoing_stdout_printer);
-      dittoing_stdout_printer->printf(", receiver: ");
-      roots.receiver.print(dittoing_stdout_printer);
-      dittoing_stdout_printer->printf(", method: ");
-      method().print(dittoing_stdout_printer);
-      dittoing_stdout_printer->printf(", IP %d, SP %d\n", ip_int, sp_int);
-    }
-
-
-  }
-
-
-  void internalStoreContextRegisters(Oop activeCntx, Object_p activeCntx_obj) {
-    /*
-     "The only difference between this method and fetchContextRegisters: is that this method stores from the local IP and SP."
-
-     "InstructionPointer is a pointer variable equal to
-     method oop + ip + BaseHeaderSize
-     -1 for 0-based addressing of fetchByte
-     -1 because it gets incremented BEFORE fetching currentByte"
-     */
-    assert(activeCntx_obj->as_oop() == activeCntx);
-    activeCntx_obj->storeIntegerUnchecked_into_context(Object_Indices::InstructionPointerIndex,
-                                          localIP() + 2 - (method_obj()->as_u_char_p() + Object::BaseHeaderSize) );
-    activeCntx_obj->storeIntegerUnchecked_into_context(Object_Indices::StackPointerIndex,
-                                          (localSP() - activeCntx_obj->as_oop_p()) - Object::BaseHeaderSize/sizeof(Oop)
-                                          - Object_Indices::TempFrameStart + 1);
-    registers_stored();
-  }
 
 
 
@@ -908,11 +755,6 @@ public:
                              primitiveIndex, roots.newNativeMethod, primitiveFunctionPointer, do_primitive_on_main);
   }
 
-  void internalPopThenPush(int n, Oop x) {
-    set_localSP(localSP() - (n - 1));
-    DEBUG_STORE_CHECK(&localSP()[0], x);
-    localSP()[0] = x;
-  }
 
   void popThenPush(int n, Oop x) { set_stackPointer(stackPointer() - (n - 1));  DEBUG_STORE_CHECK(stackPointer(), x);  *stackPointer() = x; }
   void popThenPushInteger(int n, oop_int_t i) {
@@ -941,11 +783,7 @@ public:
   int stackPointerIndex() {
     return stackPointer() - activeContext_obj()->as_oop_p() - Object::BaseHeaderSize/sizeof(Oop);
   }
-  
-  int localStackPointerIndex() {
-    return localSP() - activeContext_obj()->as_oop_p() - Object::BaseHeaderSize/sizeof(Oop);
-  }
-  
+    
   void run_primitive_on_main_from_elsewhere(fn_t);
   void dispatchFunctionPointer(fn_t f, bool on_main);
   void dispatchFunctionPointer(int i, Primitive_Table *pt) {
@@ -954,18 +792,6 @@ public:
 
   bool balancedStackAfterPrimitive(int, int, int, Oop);
   void printUnbalancedStack(int, fn_t);
-
-  void internalQuickCheckForInterrupts() {
-    if (suppress_context_switching())
-      return;
-    
-    if (--interruptCheckCounter <= 0) {
-      externalizeIPandSP();
-      checkForInterrupts();
-      internalizeIPandSP();
-    }
-  }
-
 
 
   void quickCheckForInterrupts() {
@@ -1079,22 +905,23 @@ public:
   }
 
   void jump(int offset) {
-    set_localIP(localIP() + offset + 1);
+    set_instructionPointer(instructionPointer() + offset + 1);
     if (check_many_assertions)
-      assert(localIP() - method_obj()->as_u_char_p()
+      assert(instructionPointer() - method_obj()->as_u_char_p()
            >= (Object_Indices::LiteralStart + Object::literalCountOfHeader(method_obj()->methodHeader())) * bytesPerWord  +  1);
     
 # if Trace_Last_BC_For_Debugging
     prev_bc_for_debugging = currentBytecode;
     prev_bc_addr_for_debugging = bc_addr_for_debugging;
-    bc_addr_for_debugging = localIP();
+    bc_addr_for_debugging = instructionPointer();
 # endif
     
-    currentBytecode = byteAtPointer(localIP());
+    currentBytecode = byteAtPointer(instructionPointer());
     if (Check_Prefetch)  have_executed_currentBytecode = false;
   }
+  
   void jumpIfFalseBy(int offset) {
-    Oop b = internalStackTop();
+    Oop b = stackTop();
     if (b == roots.falseObj)
       jump(offset);
     else if (b == roots.trueObj)
@@ -1105,10 +932,10 @@ public:
       normalSend();
       return;
     }
-    internalPop(1);
+    pop(1);
   }
   void jumpIfTrueBy(int offset) {
-    Oop b = internalStackTop();
+    Oop b = stackTop();
     if (b == roots.trueObj)
       jump(offset);
     else if (b == roots.falseObj)
@@ -1119,7 +946,7 @@ public:
       normalSend();
       return;
     }
-    internalPop(1);
+    pop(1);
   }
   u_char byteAtPointer(u_char* p) { return *p; }
   void checkForInterrupts(bool is_safe_to_process_events = true);
@@ -1169,7 +996,7 @@ public:
 
 # if Include_Closure_Support
   Oop sender() {
-    Object_p context_obj = localHomeContext();
+    Object_p context_obj = theHomeContext_obj();
     Oop n = roots.nilObj;
     for (;;) {
       Oop closureOrNil = context_obj->fetchPointer(Object_Indices::ClosureIndex);
@@ -1184,9 +1011,9 @@ public:
 
   Oop caller() { return activeContext_obj()->fetchPointer(Object_Indices::CallerIndex); }
 
-  void internalCannotReturn(Oop resultObj, bool, bool, bool);
+  void cannotReturn(Oop resultObj, bool, bool, bool);
 
-  void internalAboutToReturn(Oop resultObj, Oop aContext);
+  void aboutToReturn(Oop resultObj, Oop aContext);
 
 
   void recycleContextIfPossible_on_its_core(Oop ctx);
@@ -1410,7 +1237,7 @@ public:
   PUSH_BOOL_FOR_MAKE_ARRAY((expr)))
 
  private:
-  bool verify_active_context_through_internal_stack_top();
+  bool verify_active_context_through_stack_top();
   void let_one_through();
  public:
 
@@ -1468,29 +1295,14 @@ public:
     if (Always_Check_Method_Is_Correct | check_assertions) check_method_is_correct(will_be_fetched, where);
   }
   
-  void assert_method_is_correct_internalizing(bool will_be_fetched, const char* where) {
-    if ((Always_Check_Method_Is_Correct | check_assertions) && process_is_scheduled_and_executing())
-      assert_always_method_is_correct_internalizing(will_be_fetched, where);
-  }
   
-  void assert_always_method_is_correct_internalizing(bool will_be_fetched, const char* where) {
-    if (process_is_scheduled_and_executing()) {
-      Safepoint_Ability sa(false);
-      internalizeIPandSP();
-      check_method_is_correct(will_be_fetched, where);
-    }
-  }
+  
+
   void check_method_is_correct(bool, const char*); // for debugging
 
   void undo_prefetch() {
     if (Check_Prefetch) assert_always(!have_executed_currentBytecode);
     set_instructionPointer(instructionPointer() - 1); // send bytecode incremented this in fetchNextBytecode, but we want original value so yield can store it
-    if (Check_Prefetch) have_executed_currentBytecode = true;
-  }
-
-  void internal_undo_prefetch() {
-    if (Check_Prefetch) assert_always(!have_executed_currentBytecode);
-    set_localIP(localIP() - 1);  // "undo the pre-increment of IP before returning"
     if (Check_Prefetch) have_executed_currentBytecode = true;
   }
 

@@ -14,15 +14,6 @@
 
 class Interpreter_Subset_For_Control_Transfer {
 
-# if check_assertions
-  # define FOR_ALL_ASSERTION_VARS_IN_SUBSET(template) \
-    template(bool, are_registers_stored, are_registers_stored) \
-    template(bool, _is_internal_valid, _is_internal_valid) \
-    template(bool, _is_external_valid, _is_external_valid)
-# else
-  # define FOR_ALL_ASSERTION_VARS_IN_SUBSET(template)
-# endif
-
 # define FOR_ALL_OOPS_IN_SUBSET(template) \
 template(Oop, receiver, roots.receiver) \
 template(Oop, messageSelector, roots.messageSelector) \
@@ -40,17 +31,13 @@ template(Object_p, method_obj, _method_obj) \
 template(Object_p, theHomeContext_obj, _theHomeContext_obj) \
 template(u_char*, instructionPointer, _instructionPointer) \
 template(Oop*, stackPointer, _stackPointer) \
-template(u_char*, _localIP, _localIP) \
-template(Oop*, _localSP, _localSP) \
 template(u_char, currentBytecode, currentBytecode) \
 template(bool, have_executed_currentBytecode, have_executed_currentBytecode) \
 template(int, interruptCheckCounter, interruptCheckCounter) \
 template(int, reclaimableContextCount, reclaimableContextCount) \
 template(bool, successFlag, successFlag) /* for prims */ \
 \
-FOR_ALL_OOPS_IN_SUBSET(template) \
-\
-FOR_ALL_ASSERTION_VARS_IN_SUBSET(template)
+FOR_ALL_OOPS_IN_SUBSET(template)
 
 # define DCL_VAR(type, my_var, in_var) type my_var;
 

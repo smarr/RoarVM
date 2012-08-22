@@ -106,32 +106,32 @@ public:
   }
   static int MaxPrimitiveIndex() { return primitiveIndex_of_header(~0); }
 
-  inline oop_int_t primitiveIndex();
+  inline oop_int_t primitiveIndex() const;
 
 
   int32 baseHeader;
   static const int BaseHeaderSize = sizeof(int32);
 
 
-  char*      as_char_p()     { return (char*)this; }
-  u_char*    as_u_char_p()   { return (u_char*)this; }
-  oop_int_t* as_oop_int_p()  { return (oop_int_t*)this; }
-  int32*     as_int32_p()    { return (int32*)this; }
-  Oop*       as_oop_p()      { return (Oop*)this; }
+  char*      as_char_p()     const { return (char*)this; }
+  u_char*    as_u_char_p()   const { return (u_char*)this; }
+  oop_int_t* as_oop_int_p()  const { return (oop_int_t*)this; }
+  int32*     as_int32_p()    const { return (int32*)this; }
+  Oop*       as_oop_p()      const { return (Oop*)this; }
 
-  bool contains_sizeHeader() {
+  bool contains_sizeHeader() const {
     return Header_Type::contains_sizeHeader(baseHeader);
   }
-  oop_int_t& sizeHeader() {
+  oop_int_t& sizeHeader() const {
     assert(contains_sizeHeader());
     return as_oop_int_p()[-2];  // -2: See comment at the top, it is the extra header for which we need to adjust
   }
-  bool contains_class_and_type_word() {
+  bool contains_class_and_type_word() const {
     return Header_Type::contains_class_and_type_word(baseHeader);
   }
-  oop_int_t& class_and_type_word() { return as_oop_int_p()[-1]; } // -1: See comment at the top, it is the extra header for which we need to adjust
+  oop_int_t& class_and_type_word() const { return as_oop_int_p()[-1]; } // -1: See comment at the top, it is the extra header for which we need to adjust
    
-  Oop  get_class_oop() {
+  Oop  get_class_oop() const {
     Oop r = Oop::from_bits(Header_Type::without_type(class_and_type_word()));
     if (check_many_assertions)
       assert(r == Oop::from_mem_bits(u_oop_int_t(class_and_type_word()) >> Header_Type::Width));
@@ -139,7 +139,7 @@ public:
   }
   void set_class_oop(Oop x);
   void set_class_oop_no_barrier(Oop);
-  Oop backpointer() { return oop_from_backpointer(get_backpointer_word()); }
+  Oop backpointer() const { return oop_from_backpointer(get_backpointer_word()); }
 
   void set_backpointer(Oop x) {
       set_backpointer_word(backpointer_from_oop(x));
@@ -156,18 +156,18 @@ public:
     return (x.mem_bits() << Header_Type::Width) | (headerType() << Header_Type::Shift);
   }
    
-  Preheader* preheader() { return  (Preheader*)&as_oop_int_p()[-extra_header_oops()]; }
+  Preheader* preheader() const { return  (Preheader*)&as_oop_int_p()[-extra_header_oops()]; }
 
-  oop_int_t get_backpointer_word() { return *backpointer_word(); }
+  oop_int_t get_backpointer_word() const { return *backpointer_word(); }
   
   inline void set_backpointer_word(oop_int_t w);
   
-  oop_int_t* backpointer_word() {
+  oop_int_t* backpointer_word() const {
     return &preheader()->backpointer;
   }
 
 
-  oop_int_t* extra_preheader_word() {
+  oop_int_t* extra_preheader_word() const {
     return preheader()->extra_preheader_word_address();
   }
    
@@ -186,14 +186,14 @@ public:
 
   static const int LongSizeMask = ~Header_Type::Mask;
 
-  inline oop_int_t sizeBits();
-  inline oop_int_t sizeBitsSafe();
-  oop_int_t shortSizeBits() { return baseHeader & SizeMask; }
-  oop_int_t longSizeBits()  { return sizeHeader() & LongSizeMask; }
-  oop_int_t total_byte_size();
-  oop_int_t total_byte_size_without_preheader();
+  inline oop_int_t sizeBits() const;
+  inline oop_int_t sizeBitsSafe() const;
+  oop_int_t shortSizeBits() const { return baseHeader & SizeMask; }
+  oop_int_t longSizeBits()  const { return sizeHeader() & LongSizeMask; }
+  oop_int_t total_byte_size() const;
+  oop_int_t total_byte_size_without_preheader() const;
 
-  oop_int_t stSize();
+  oop_int_t stSize() const;
 
   static const int FormatShift = SizeShift + SizeWidth;
   static const int FormatWidth = 4;
@@ -204,7 +204,7 @@ public:
   static const int CompactClassWidth = 5;
   static const int CompactClassMask = ((1 << CompactClassWidth) - 1) << CompactClassShift; // should be 0x1f000
 
-  oop_int_t compact_class_index() { return (baseHeader & CompactClassMask) >> CompactClassShift; }
+  oop_int_t compact_class_index() const { return (baseHeader & CompactClassMask) >> CompactClassShift; }
 
 
   static const int HashShift = CompactClassShift + CompactClassWidth; // should be 17
@@ -251,30 +251,30 @@ public:
 
  public:
 
-  Oop as_oop() { return Oop::from_object(this); }
+  Oop as_oop() const { return Oop::from_object(this); }
 
   inline static int rightType(oop_int_t headerWord);
 
 
-   static oop_int_t make_free_object_header(oop_int_t bytes_including_header) {
-     return round_up_by_power_of_two(bytes_including_header, sizeof(Oop)) | Header_Type::Free;
-   }
+  static oop_int_t make_free_object_header(oop_int_t bytes_including_header) {
+    return round_up_by_power_of_two(bytes_including_header, sizeof(Oop)) | Header_Type::Free;
+  }
 
-  oop_int_t sizeOfFree() { return Header_Type::without_type(baseHeader); }
+  oop_int_t sizeOfFree() const { return Header_Type::without_type(baseHeader); }
 
-  bool isFreeObject() { return is_free(); } // Squeakish name
+  bool isFreeObject() const { return is_free(); } // Squeakish name
 
-  Chunk* my_chunk()  { return my_chunk(extra_header_bytes()); }
-  Chunk* my_chunk(int extra_header_bytes) { return (Chunk*)&as_char_p()[-extra_header_bytes]; }
-  Chunk* nextChunk() {
+  Chunk* my_chunk() const  { return my_chunk(extra_header_bytes()); }
+  Chunk* my_chunk(int extra_header_bytes) const { return (Chunk*)&as_char_p()[-extra_header_bytes]; }
+  Chunk* nextChunk() const {
     return (Chunk*)&as_char_p()[bytes_to_next_chunk()];
   }
 
-  Chunk* my_chunk_without_preheader()  { return (Chunk*)&as_char_p()[-extra_header_bytes_without_preheader()]; }
+  Chunk* my_chunk_without_preheader() const { return (Chunk*)&as_char_p()[-extra_header_bytes_without_preheader()]; }
 
-  oop_int_t bytes_to_next_chunk() { return isFreeObject() ? sizeOfFree() : sizeBits(); }
+  oop_int_t bytes_to_next_chunk() const { return isFreeObject() ? sizeOfFree() : sizeBits(); }
 
-  void* firstFixedField() { return as_char_p() + BaseHeaderSize; }
+  void* firstFixedField() const { return as_char_p() + BaseHeaderSize; }
 
 
   class Format {
@@ -359,29 +359,29 @@ public:
 
 
 
-  bool is_this_context_a_block_context() { return fetchPointer(Object_Indices::MethodIndex).is_int(); }
+  bool is_this_context_a_block_context() const { return fetchPointer(Object_Indices::MethodIndex).is_int(); }
 
-  bool isMethodContext() { return CompactClass::isMethodContextHeader(baseHeader); }
-  bool hasContextHeader() { return CompactClass::isContextHeader(baseHeader); }
-  bool hasSender(Oop);
-  Object_p home_of_block_or_method_context() {
+  bool isMethodContext() const { return CompactClass::isMethodContextHeader(baseHeader); }
+  bool hasContextHeader() const { return CompactClass::isContextHeader(baseHeader); }
+  bool hasSender(Oop) const;
+  Object_p home_of_block_or_method_context() const {
     return is_this_context_a_block_context() ? fetchPointer(Object_Indices::HomeIndex).as_object() : (Object_p)this;
   }
   Oop key_at_identity_value(Oop);
 
   void byteSwapIfByteObject();
-  inline char* first_byte_address();
-  inline int32 methodHeader(); // use instead of header()
+  inline char* first_byte_address() const;
+  inline int32 methodHeader() const; // use instead of header()
   inline void beRootIfOld();
-  bool is_new() { /*unimplemented();*/ return false; }
+  bool is_new() const { /*unimplemented();*/ return false; }
 
 
   // ObjectMemory object enumeration
-  Oop* last_pointer_addr();
-  Oop* last_strong_pointer_addr();
+  Oop* last_pointer_addr() const;
+  Oop* last_strong_pointer_addr() const;
   Oop* last_strong_pointer_addr_remembering_weak_roots(Abstract_Mark_Sweep_Collector*);
-  oop_int_t lastPointer();
-  oop_int_t nonWeakFieldsOf();
+  oop_int_t lastPointer() const;
+  oop_int_t nonWeakFieldsOf() const;
 
   // ObjectMemory initialization
   void do_all_oops_of_object(Oop_Closure*, bool do_checks = check_assertions);
@@ -400,20 +400,20 @@ public:
 
   // ObjectMemory header access
   int32 classHeader() { return class_and_type_word(); }
-  oop_int_t format() {
+  oop_int_t format() const {
     assert(FormatMask > 0);
     return (baseHeader & FormatMask) >> FormatShift;
   }
-  int32 hashBits() { return (baseHeader & HashMask) >> HashShift; }
+  int32 hashBits() const { return (baseHeader & HashMask) >> HashShift; }
 
-  inline bool isArray();
-  inline bool isBytes();
-  inline bool isPointers();
-  bool isFloatObject();
-  inline bool isWordsOrBytes();
-  bool isIndexable() { return Format::isIndexable(format()); }
-  bool isWeak() { return Format::isWeak(format()); }
-  bool isWords() { return Format::isWords(format()); }
+  inline bool isArray() const;
+  inline bool isBytes() const;
+  inline bool isPointers() const;
+  bool isFloatObject() const;
+  inline bool isWordsOrBytes() const;
+  bool isIndexable() const { return Format::isIndexable(format()); }
+  bool isWeak() const { return Format::isWeak(format()); }
+  bool isWords() const { return Format::isWords(format()); }
 
 
 
@@ -423,12 +423,12 @@ public:
 
 
   private:
-  inline Oop& pointer_at(oop_int_t fieldIndex);
-  u_char& byte_at(oop_int_t byteIndex);
-  int32& long32_at(oop_int_t fieldIndex);
+  inline Oop& pointer_at(oop_int_t fieldIndex) const;
+  u_char& byte_at(oop_int_t byteIndex) const;
+  int32& long32_at(oop_int_t fieldIndex) const;
 
   public:
-  inline Oop  fetchPointer(oop_int_t fieldIndex);
+  inline Oop  fetchPointer(oop_int_t fieldIndex) const;
   inline void storePointer(oop_int_t fieldIndex, Oop oop);
   inline void storePointerUnchecked( oop_int_t fieldIndex, Oop oop);
   inline void storePointerIntoContext(oop_int_t i, Oop x);
@@ -437,13 +437,13 @@ public:
     storePointerUnchecked(i, x);
   }
 
-  inline u_char fetchByte(oop_int_t byteIndex);
+  inline u_char fetchByte(oop_int_t byteIndex) const;
   inline void storeByte( oop_int_t byteIndex, u_char valueByte);
 
-  inline oop_int_t fetchLong32(oop_int_t fieldIndex);
+  inline oop_int_t fetchLong32(oop_int_t fieldIndex) const;
   inline void storeLong32(oop_int_t fieldIndex, int32 x);
 
-  oop_int_t fetchInteger(oop_int_t fieldIndex);
+  oop_int_t fetchInteger(oop_int_t fieldIndex) const;
   void storeInteger(oop_int_t fieldIndex, oop_int_t x);
   void storeIntegerUnchecked(oop_int_t fieldIndex, oop_int_t x) {
     storePointerUnchecked(fieldIndex, Oop::from_int(x));
@@ -453,17 +453,17 @@ public:
   }
 
 
-  inline double fetchFloatAtinto();
-  double fetchFloatofObject(oop_int_t fieldIndex);
+  inline double fetchFloatAtinto() const;
+  double fetchFloatofObject(oop_int_t fieldIndex) const;
 
 
-  oop_int_t fetchLong32Length();
-  oop_int_t fetchWordLength() {
+  oop_int_t fetchLong32Length() const;
+  oop_int_t fetchWordLength() const {
     // size appropriate for fetchPointer, but not in general for fetchLong32, etc
     return (sizeBits() - BaseHeaderSize) >> ShiftForWord;
   }
 
-  void* fetchArray(oop_int_t fieldIndex) {
+  void* fetchArray(oop_int_t fieldIndex) const {
     return fetchPointer(fieldIndex).arrayValue();
   }
 
@@ -474,21 +474,21 @@ public:
   static Oop   signed64BitIntegerFor(int64 integerValue);
 
 
-  inline oop_int_t quickFetchInteger(oop_int_t fieldIndex);
+  inline oop_int_t quickFetchInteger(oop_int_t fieldIndex) const;
 
 
 
-  inline Oop fetchClass();
-  Oop className();
-  Oop name_of_class_or_metaclass(bool* is_meta);
+  inline Oop fetchClass() const;
+  Oop className() const;
+  Oop name_of_class_or_metaclass(bool* is_meta) const;
 
-  inline u_oop_int_t lengthOf();
-  oop_int_t byteSize() { return isBytes() ? slotSize() : oop_int_t(slotSize() * sizeof(Oop)); }
-  inline oop_int_t byteLength();
-  oop_int_t slotSize() { return lengthOf(); }
-  inline u_oop_int_t fixedFieldsOfArray();
-  inline void* arrayValue();
-  inline oop_int_t formatOfClass();
+  inline u_oop_int_t lengthOf() const;
+  oop_int_t byteSize() const { return isBytes() ? slotSize() : oop_int_t(slotSize() * sizeof(Oop)); }
+  inline oop_int_t byteLength() const;
+  oop_int_t slotSize() const { return lengthOf(); }
+  inline u_oop_int_t fixedFieldsOfArray() const;
+  inline void* arrayValue() const;
+  inline oop_int_t formatOfClass() const;
 
   class ClassFormat {
    public:
@@ -497,7 +497,7 @@ public:
   };
 
 
-  inline oop_int_t fetchStackPointer(); // rcvr is a ContextObject
+  inline oop_int_t fetchStackPointer() const; // rcvr is a ContextObject
 
 
   Object_p instantiateSmallClass(oop_int_t sizeInBytes);
@@ -507,20 +507,20 @@ public:
   inline void set_object_address_and_backpointer(Oop x  COMMA_DCL_ESB);
 
 
-  inline bool isCompiledMethod();
+  inline bool isCompiledMethod() const;
 
   void flushExternalPrimitive();
 
 
-  inline oop_int_t literalCount();
-  inline Oop literal(oop_int_t offset);
+  inline oop_int_t literalCount() const;
+  inline Oop literal(oop_int_t offset) const;
   inline static oop_int_t literalCountOfHeader(oop_int_t header);
-  oop_int_t argumentCount() { // of method
+  oop_int_t argumentCount() const { // of method
     return argumentCountOfHeader(methodHeader());
   }
   inline static oop_int_t argumentCountOfHeader(oop_int_t header);
   inline static oop_int_t temporaryCountOfHeader(oop_int_t header);
-  oop_int_t temporaryCount() { return temporaryCountOfHeader(methodHeader()); }
+  oop_int_t temporaryCount() const { return temporaryCountOfHeader(methodHeader()); }
 
 
   void cleanup_session_ID_and_ext_prim_index_of_external_primitive_literal();
@@ -576,7 +576,7 @@ public:
 
 
   private:
-  inline char* first_byte_address_after_header();
+  inline char* first_byte_address_after_header() const;
   public:
   void print(Printer* p = dittoing_stdout_printer);
   void print_with_fields();

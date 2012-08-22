@@ -53,8 +53,6 @@ Squeak_Interpreter::Squeak_Interpreter()
   safepoint_ability = NULL;
 
 
-  registers_stored();
-  uninternalized(); unexternalized();
 
   added_process_count = 12; // a few for free initiallly
 
@@ -118,7 +116,7 @@ void Squeak_Interpreter::initialize(Oop soo, bool from_checkpoint) {
 
   if (!from_checkpoint) {
     set_activeContext(roots.nilObj);
-    set_theHomeContext(roots.nilObj, false);
+    set_theHomeContext(roots.nilObj);
 
     set_method(roots.nilObj);
     roots.receiver = roots.nilObj;
@@ -255,10 +253,8 @@ void Squeak_Interpreter::interpret() {
          "lots of code, including Oop packing into class headers, and the mem_bits fns on Oops depends on this");
 
   Safepoint_Ability sa(false); // about to internalize things
-	internalizeIPandSP();
 	fetchNextBytecode();
-  externalizeIPandSP(); // for assertions in let_one_through
-
+  
   for (let_one_through();  ; ) {
     check_for_multicore_interrupt();
     if (Collect_Performance_Counters)
@@ -267,9 +263,9 @@ void Squeak_Interpreter::interpret() {
     assert(activeContext_obj()->is_read_write());
 
     if (check_many_assertions) {
-      verify_active_context_through_internal_stack_top();
-      internalStackTop().verify_oop();
-      assert(internalStackTop().is_int() || internalStackTop().as_object()->baseHeader);
+      verify_active_context_through_stack_top();
+      stackTop().verify_oop();
+      assert(stackTop().is_int() || stackTop().as_object()->baseHeader);
       assert((activeContext_obj()->baseHeader & ~0xff));
       Oop s = activeContext_obj()->fetchPointer(Object_Indices::SenderIndex);
       assert(s.is_mem());
@@ -284,7 +280,7 @@ void Squeak_Interpreter::interpret() {
         Oop x = roots.freeContexts.as_object()->fetchPointer(Object_Indices::Free_Chain_Index);
         assert (x.is_mem()  ||  x == Object::NilContext());
       }
-      assert( internalStackTop().bits() );
+      assert( stackTop().bits() );
     }
     if (check_assertions | CountByteCodesAndStopAt)
       lastBCCount = bcCount;
@@ -295,18 +291,15 @@ void Squeak_Interpreter::interpret() {
         printBC(currentBytecode, dittoing_stdout_printer);  dittoing_stdout_printer->nl();
       }
     }
-    assert_internal();
     if (Trace_Execution  &&  execution_tracer() != NULL)
       execution_tracer()->trace(this);
     assert(get_running_process() != roots.nilObj);
 
-    assert_stored_if_no_proc();
     assert(get_running_process().as_object()->is_process_running());
 
     assert_method_is_correct(false, "right before dispatch");
 
     if (Hammer_Safepoints && Logical_Core::running_on_main()) { 
-      externalizeIPandSP();
       Safepoint_Ability sa(true);
       while (true) {
         static int n = 0;
@@ -314,7 +307,6 @@ void Squeak_Interpreter::interpret() {
         Safepoint_for_moving_objects sp("test safepoint"); // sends mesgs to other cores to allocate arrays, might cause GC
         printf(">");
       }
-     internalizeIPandSP();
     }
     
     if (doing_primitiveClosureValueNoContextSwitch)
@@ -339,8 +331,6 @@ void Squeak_Interpreter::interpret() {
 
     assert(!process_is_scheduled_and_executing() || get_running_process().as_object()->is_process_running());
 
-    assert_stored_if_no_proc();
-
     PERF_CNT(this, add_interpret_cycles(OS_Interface::get_cycle_count() - start));
     
     // for debugging check that the stack is not growing to big
@@ -349,8 +339,7 @@ void Squeak_Interpreter::interpret() {
     }
     
   }
-  internal_undo_prefetch();
-	externalizeIPandSP();
+  undo_prefetch();
 }
 
 
@@ -365,9 +354,6 @@ void Squeak_Interpreter::let_one_through() {
       running_process_by_core[my_rank] = roots.running_process_or_nil;
 
     set_activeContext(roots.nilObj);
-    registers_stored();
-    internalized(); // for first externalize in multicore_interrupt
-    unexternalized();
     update_times_when_yielding();
    }
   update_times_when_resuming();
@@ -868,20 +854,18 @@ Oop Squeak_Interpreter::lookupMethodInClass(Oop lkupClass) {
 
 #if Extra_Preheader_Word_Experiment
 Oop Squeak_Interpreter::modify_send_for_preheader_word(Oop rcvr) {
-  externalizeIPandSP();
   {
     Safepoint_Ability sa(true);
     pushRemappableOop(rcvr);
     createActualMessageTo(rcvr);
     rcvr = popRemappableOop();      
   }
-  internalizeIPandSP();
   
   roots.messageSelector =  roots.extra_preheader_word_selector;
 
   Oop new_rcvr = Oop::from_bits(rcvr.as_object()->get_extra_preheader_word());
-  DEBUG_STORE_CHECK(&localSP()[-get_argumentCount()], new_rcvr);
-  localSP()[-get_argumentCount()] = new_rcvr;
+  DEBUG_STORE_CHECK(&stackPointer()[-get_argumentCount()], new_rcvr);
+  stackPointer()[-get_argumentCount()] = new_rcvr;
   
   return new_rcvr;
 }
@@ -924,35 +908,7 @@ void Squeak_Interpreter::printUnbalancedStack(int primIdx, fn_t fn) {
 }
 
 
-void Squeak_Interpreter::obtain_context_object(bool large, Object_p& nco, Oop& newContext) {
-  if (!large &&  roots.freeContexts != Object::NilContext()) {
-    newContext = roots.freeContexts;
-    nco = newContext.as_object();
-    Oop nfc = nco->fetchPointer(Object_Indices::Free_Chain_Index);
-    assert(nfc == Object::NilContext()  ||  (nfc.is_mem() && nfc.as_object()->headerType() == Header_Type::Short));
-    roots.freeContexts = nfc;
-  }
-  else {
-    externalizeIPandSP();
-    {
-      Safepoint_Ability sa(true);
-      nco = allocateOrRecycleContext(large);
-    }
-    newContext = nco->as_oop();
-    internalizeIPandSP();
-  }
-  
-  if ( check_many_assertions
-      &&  nco->get_count_of_blocks_homed_to_this_method_ctx() > 0
-      &&  nco->fetchPointer(Object_Indices::MethodIndex) != roots.newMethod) {
-    lprintf("int act changing method from 0x%x to 0x%x in 0x%x, home_flag %d\n",
-            nco->fetchPointer(Object_Indices::MethodIndex).bits(),
-            roots.newMethod.bits(), nco->as_oop().bits(),
-            nco->get_count_of_blocks_homed_to_this_method_ctx());
-    lprintf("large %d\n", large);
-  }
-  assert(nco->my_heap_contains_me());
-}
+
 
 
 Oop* Squeak_Interpreter::initialize_context(Object_p nco, oop_int_t methodHeader) const {
@@ -994,41 +950,11 @@ void Squeak_Interpreter::clear_temps_in_context(Oop* const content_part_of_ctx, 
 }
 
 
-void Squeak_Interpreter::internal_copy_args_into_context(Oop* const content_part_of_ctx, int argCnt) const {
-  for (int i = 0;  i <= argCnt;  ++i) {
-    DEBUG_STORE_CHECK(&content_part_of_ctx[Object_Indices::ReceiverIndex + i], internalStackValue(argCnt - i));  
-    content_part_of_ctx[Object_Indices::ReceiverIndex + i] = internalStackValue(argCnt - i);
-  }
-}
-
-
 void Squeak_Interpreter::copy_args_into_context(Oop* const content_part_of_ctx, int argCnt) const {
   for (int i = 0;  i <= argCnt;  ++i) {
     DEBUG_STORE_CHECK( &content_part_of_ctx[Object_Indices::ReceiverIndex + i], stackValue(argCnt - i));
     content_part_of_ctx[Object_Indices::ReceiverIndex + i] = stackValue(argCnt - i);
   }
-}
-
-
-void Squeak_Interpreter::internalActivateNewMethod() {
-  oop_int_t methodHeader = newMethod_obj()->methodHeader();
-  bool      needsLarge   = methodHeader & Object::LargeContextBit;
-  int       tempCount    = Object::temporaryCountOfHeader(methodHeader);
-  int       argCount     = get_argumentCount();
-
-  Object_p nco;  Oop newContext;
-  obtain_context_object(needsLarge, nco, newContext);
-  
-  // assume newContext will be recorded as a root if need be by
-  // the call to newActiveContext so use unchecked stores
-  Oop* const content_part_of_ctx = initialize_context(nco, methodHeader);
-  internal_copy_args_into_context(content_part_of_ctx, argCount);
-  clear_temps_in_context(content_part_of_ctx, argCount, tempCount);
-  
-  internalPop(argCount + 1);
-  reclaimableContextCount += 1;
-  assert(nco->my_heap_contains_me());
-  internalNewActiveContext(newContext, nco);
 }
 
 
@@ -1156,7 +1082,7 @@ void Squeak_Interpreter::checkForInterrupts(bool is_safe_to_process_events) {
   Safepoint_Ability sa(true);
   
   // Mask so same wrapping as primitiveMillisecondClock
-  assert_method_is_correct_internalizing(true, "start of checkForInterrupts");
+  check_method_is_correct(true, "start of checkForInterrupts");
   ++interruptCheckCount;
   int now = ioWhicheverMSecs() & MillisecondClockMask;
   if (!interruptCheckForced()  &&  !use_cpu_ms_changed) {
@@ -1243,7 +1169,7 @@ void Squeak_Interpreter::checkForInterrupts(bool is_safe_to_process_events) {
   }
 
   set_lastTick(now);
-  assert_method_is_correct_internalizing(true, "end of checkForInterrupts");
+  check_method_is_correct(true, "end of checkForInterrupts");
 }
 
 
@@ -1382,7 +1308,6 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
   Scheduler_Mutex sm("put_running_process_to_sleep"); // am changing a process's state
   Oop aProcess = get_running_process();
   if (aProcess == roots.nilObj) {
-    assert_registers_stored();
     return;
   }
   if (Print_Scheduler_Verbose) {
@@ -1403,13 +1328,10 @@ void Squeak_Interpreter::put_running_process_to_sleep(const char* why) {
     debug_printer->nl();
     print_process_lists(debug_printer);
   }
-  assert_registers_stored();
 }
 
 
 void Squeak_Interpreter::yield(const char* why) {
-  if (process_is_scheduled_and_executing())
-    assert_external();
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler on %d: pre yield because %s ", my_rank(), why);
     get_running_process().as_object()->print_process_or_nil(debug_printer);
@@ -1418,7 +1340,6 @@ void Squeak_Interpreter::yield(const char* why) {
   }
   assert(get_running_process() == roots.nilObj  ||  activeContext() != roots.nilObj );
   put_running_process_to_sleep(why);
-  assert_registers_stored();
   transfer_to_highest_priority(why);
   if (Check_Prefetch && process_is_scheduled_and_executing()) assert_always(have_executed_currentBytecode);
   if (Print_Scheduler_Verbose) {
@@ -1440,8 +1361,6 @@ void Squeak_Interpreter::set_running_process(Oop proc, const char* why) {
     proc.print_process_or_nil(debug_printer);
     debug_printer->printf(", %s prim: 0x%x\n", why, Message_Statics::remote_prim_fn);
   }
-  assert_stored_if_no_proc();
-  assert_stored_if_no_proc();
 
   roots.running_process_or_nil = proc;
   if (Track_Processes)
@@ -1851,24 +1770,23 @@ void Squeak_Interpreter::changeClass(Oop rcvr, Oop argClass, bool /* defer */) {
 void Squeak_Interpreter::internalExecuteNewMethod() {
   PERF_CNT(this, count_methods_executed());
   
-  assert_stored_if_no_proc();
   if (primitiveIndex  > 0) {
     if (255 < primitiveIndex  &&  primitiveIndex < 520) {
       // "Internal return instvars"
       if (264 <= primitiveIndex) {
-        internalPopThenPush(1, internalStackTop().as_object()->fetchPointer(primitiveIndex - 264));
+        popThenPush(1, stackTop().as_object()->fetchPointer(primitiveIndex - 264));
         return;
       }
       // "Internal return constants"
       switch (primitiveIndex) {
         case 256: return;
-        case 257: internalPopThenPush(1, roots.trueObj); return;
-        case 258: internalPopThenPush(1, roots.falseObj); return;
-        case 259: internalPopThenPush(1, roots.nilObj); return;
-        default:  internalPopThenPush(1, Oop::from_int(primitiveIndex - 261)); return;
+        case 257: popThenPush(1, roots.trueObj); return;
+        case 258: popThenPush(1, roots.falseObj); return;
+        case 259: popThenPush(1, roots.nilObj); return;
+        default:  popThenPush(1, Oop::from_int(primitiveIndex - 261)); return;
       }
     }
-    externalizeIPandSP();
+
     // "self primitiveResponse. <-replaced with  manually inlined code"
     {
       Safepoint_Ability sa(true);
@@ -1881,23 +1799,19 @@ void Squeak_Interpreter::internalExecuteNewMethod() {
         pre_prim_active_context = activeContext();
       }
       successFlag = true;
-      assert_stored_if_no_proc();
       dispatchFunctionPointer(primitiveFunctionPointer, do_primitive_on_main); // "branch direct to prim function from address stored in mcache"
 
       if (DoBalanceChecks  && !balancedStackAfterPrimitive(delta, pi, nArgs, pre_prim_active_context))
         printUnbalancedStack(primitiveIndex, primitiveFunctionPointer);
     }
-
-    if (process_is_scheduled_and_executing())
-      internalizeIPandSP();
     
     if (successFlag)
       return;
   }
   // "if not primitive, or primitive failed, activate the method"
-  internalActivateNewMethod();
+  activateNewMethod();
   // "check for possible interrupts at each real send"
-  internalQuickCheckForInterrupts();
+  quickCheckForInterrupts();
 }
 
 
@@ -2318,8 +2232,8 @@ Oop Squeak_Interpreter::makeArray(int start) {
   return r->as_oop();
 }
 
-bool Squeak_Interpreter::verify_active_context_through_internal_stack_top() {
-  Oop* last = localSP();
+bool Squeak_Interpreter::verify_active_context_through_stack_top() {
+  Oop* last = stackPointer();
   for (Oop* p = &activeContext_obj()->as_oop_p()[Object::BaseHeaderSize/sizeof(Oop)];
             p <= last;
           ++p)
@@ -2419,8 +2333,7 @@ void Squeak_Interpreter::multicore_interrupt() {
   assert_method_is_correct(false, "near start of multicore_interrupt");
 
   if (process_is_scheduled_and_executing()) {
-    internal_undo_prefetch();
-    externalizeIPandSP();
+    undo_prefetch();
   }
   
   {
@@ -2432,7 +2345,7 @@ void Squeak_Interpreter::multicore_interrupt() {
     Message_Statics::process_any_incoming_messages(false);
     PERF_CNT(this, add_mi_cyc_1a1(OS_Interface::get_cycle_count() - start));
 
-    assert_method_is_correct_internalizing(true, "after processing incoming messages");
+    check_method_is_correct(true, "after processing incoming messages");
     PERF_CNT(this, add_mi_cyc_1a2(OS_Interface::get_cycle_count() - start));
     
     safepoint_tracker->spin_if_safepoint_requested();
@@ -2449,7 +2362,7 @@ void Squeak_Interpreter::multicore_interrupt() {
     if (yield_requested()) {
       _yield_requested = false;
       yield("yield_requested");
-      assert_method_is_correct_internalizing(true, "after fixup_localIP_after_being_transferred_to");
+      check_method_is_correct(true, "after fixup_localIP_after_being_transferred_to");
     }
 
     PERF_CNT(this, add_mi_cyc_1(OS_Interface::get_cycle_count() - start));
@@ -2457,7 +2370,6 @@ void Squeak_Interpreter::multicore_interrupt() {
     while (!process_is_scheduled_and_executing()) 
       try_to_find_a_process_to_run_and_start_running_it();
   } // end safepoint ability true
-  internalizeIPandSP();
   if (Check_Prefetch) assert_always(have_executed_currentBytecode);
   fetchNextBytecode(); // redo prefetch
 
@@ -2471,7 +2383,7 @@ void Squeak_Interpreter::multicore_interrupt() {
 void Squeak_Interpreter::try_to_find_a_process_to_run_and_start_running_it() {
   minimize_scheduler_mutex_load_by_spinning_till_there_might_be_a_runnable_process();
   transfer_to_highest_priority("find_a_process_to_run_and_start_running_it");
-  assert_method_is_correct_internalizing(true, "after transfer_to_highest_priority");
+  check_method_is_correct(true, "after transfer_to_highest_priority");
 }
 
 
@@ -2527,10 +2439,8 @@ void Squeak_Interpreter::give_up_CPU_instead_of_spinning(uint32_t& busyWaitCount
 
 void Squeak_Interpreter::fixup_localIP_after_being_transferred_to() {
   if (process_is_scheduled_and_executing()) {
-    internalizeIPandSP();
     if (Check_Prefetch)  assert_always(have_executed_currentBytecode);
     fetchNextBytecode(); // because normally transferTo is called as primitive, and caller does this
-    externalizeIPandSP();
   }
 }
 
@@ -2575,7 +2485,7 @@ void Squeak_Interpreter::run_primitive_on_main_from_elsewhere(fn_t f) {
 
 
 void Squeak_Interpreter::dispatchFunctionPointer(fn_t f, bool on_main) {
-  assert_method_is_correct_internalizing(true, "start of dispatchFunctionPointer");
+  check_method_is_correct(true, "start of dispatchFunctionPointer");
   assert(f);
   Safepoint_Ability sa(true); // prims expect to cope w/ GC -- dmu 5/10
   
@@ -2589,11 +2499,11 @@ void Squeak_Interpreter::dispatchFunctionPointer(fn_t f, bool on_main) {
   
   if (on_main) {
     The_Interactions.run_primitive(Logical_Core::main_rank, f);
-    assert_method_is_correct_internalizing(true, "after run_primitive_on_main");
+    check_method_is_correct(true, "after run_primitive_on_main");
   }
   else {
     (*f)();
-    assert_method_is_correct_internalizing(true, "end of dispatchFunctionPointer");
+    check_method_is_correct(true, "end of dispatchFunctionPointer");
   }
   
 # if Dont_Dump_Primitive_Cycles && Dump_Bytecode_Cycles
@@ -2611,7 +2521,7 @@ void Squeak_Interpreter::booleanCheat(bool cond) {
   //  IFF it is a jump-on-boolean. Which it is,
   //  often enough when the current bytecode is something like bytecodePrimEqual"
   u_char bytecode = fetchByte(); // assume next bc is jumpIFalse 99%
-  internalPop(2);
+  pop(2);
   if (151 < bytecode  &&  bytecode < 160) {
     // short jumpIfFalse
     if (cond)  fetchNextBytecode();
@@ -2625,9 +2535,9 @@ void Squeak_Interpreter::booleanCheat(bool cond) {
     return;
   }
   // "not followed by a jumpIfFalse; undo instruction fetch and push boolean result"
-  set_localIP(localIP() - 1);
+  set_instructionPointer(instructionPointer() - 1);
   fetchNextBytecode();
-  internalPush(cond ? roots.trueObj : roots.falseObj);
+  push(cond ? roots.trueObj : roots.falseObj);
 }
 
 void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
@@ -2650,7 +2560,6 @@ void Squeak_Interpreter::transferTo(Oop newProc, const char* why) {
 
 
 void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
-  assert_registers_stored();
   assert(Scheduler_Mutex::is_held());
   
   if (newProc == roots.nilObj) {
@@ -2675,7 +2584,7 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
   set_activeContext( nac, naco );
   fetchContextRegisters(nac, naco);
   if (Trace_Execution && execution_tracer() != NULL)  execution_tracer()->set_proc(newProc);
-  // if (check_many_assertions) assert_always_method_is_correct_internalizing(true, "end of start_running");
+  // if (check_many_assertions) check_method_is_correct(true, "end of start_running");
   if (Check_Prefetch)  have_executed_currentBytecode = true;
   reclaimableContextCount = 0;
 }
@@ -2701,7 +2610,7 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   // make sure can return to given ctx
   if (localCntx == nilOop  ||  localCntx_obj->fetchPointer(Object_Indices::InstructionPointerIndex) == nilOop) {
     // error: sender's IP or ctx is nil
-    internalCannotReturn(localVal, localCntx == nilOop, localCntx_obj->fetchPointer(Object_Indices::InstructionPointerIndex) == nilOop, false);
+    cannotReturn(localVal, localCntx == nilOop, localCntx_obj->fetchPointer(Object_Indices::InstructionPointerIndex) == nilOop, false);
     return;
   }
   // If this return is not to immed predecessor, scan stackfor first unwind marked ctx and inform it.
@@ -2710,13 +2619,13 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
        thisCntx != localCntx;
        thisCntx = thisCntx.as_object()->fetchPointer(Object_Indices::SenderIndex)) {
     if (thisCntx == nilOop) {
-      internalCannotReturn(localVal, false, false, true);
+      cannotReturn(localVal, false, false, true);
       return;
     }
     // climb up; break out of send of aboutToReturn:through: if an unwind marked ctx is found
     bool unwindMarked = thisCntx.as_object()->isUnwindMarked();
     if (unwindMarked) {
-      internalAboutToReturn(localVal, thisCntx);
+      aboutToReturn(localVal, thisCntx);
       return;
     }
   }
@@ -2742,29 +2651,29 @@ void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   assert(thisCntx != roots.nilObj);
   set_activeContext( thisCntx, thisCntx_obj);
   thisCntx.beRootIfOld();
-  internalFetchContextRegisters(thisCntx, thisCntx_obj);
+  fetchContextRegisters(thisCntx, thisCntx_obj);
   fetchNextBytecode();
-  internalPush(localVal);
+  push(localVal);
   if (Always_Check_Method_Is_Correct | check_assertions)  check_method_is_correct(false, "end of commonReturn");
 }
 
-void Squeak_Interpreter::internalCannotReturn(Oop resultObj, bool b1, bool b2, bool b3) {
+void Squeak_Interpreter::cannotReturn(Oop resultObj, bool b1, bool b2, bool b3) {
 
-  lprintf("internalCannotReturn %d %d %d\n", b1, b2, b3);
+  lprintf("cannotReturn %d %d %d\n", b1, b2, b3);
   lprintf("this ctx object is 0x%x\n", (Object*)activeContext_obj());
   // fatal("internal cannot return");
 
-  internalPush(activeContext());
-  internalPush(resultObj);
+  push(activeContext());
+  push(resultObj);
   roots.messageSelector = splObj(Special_Indices::SelectorCannotReturn);
   set_argumentCount(1);
   normalSend();
 }
 
-void Squeak_Interpreter::internalAboutToReturn(Oop resultObj, Oop aContext) {
-  internalPush(activeContext());
-  internalPush(resultObj);
-  internalPush(aContext);
+void Squeak_Interpreter::aboutToReturn(Oop resultObj, Oop aContext) {
+  push(activeContext());
+  push(resultObj);
+  push(aContext);
   roots.messageSelector = splObj(Special_Indices::SelectorAboutToReturn);
   set_argumentCount( 2 );
   normalSend();
@@ -2934,13 +2843,8 @@ Oop Squeak_Interpreter::commonVariableAt(Oop rcvr, oop_int_t index, At_Cache::En
       return rcvr_obj->fetchPointer(index + e->fixedFields - 1);
 
     if (!Object::Format::has_bytes(fmt)) { // Bitmap
-      if (isInternal)
-        externalizeIPandSP();
-
-      {
-        Safepoint_Ability sa(true);
-        return Object::positive32BitIntegerFor(rcvr_obj->fetchLong32(index - 1));
-      }
+      Safepoint_Ability sa(true);
+      return Object::positive32BitIntegerFor(rcvr_obj->fetchLong32(index - 1));
     }
 
     if (fmt >= 16) // artifical flag for strings
@@ -3028,8 +2932,6 @@ void Squeak_Interpreter::unset_running_process() {
   
   if (Track_Processes)
     running_process_by_core[my_rank()] = roots.running_process_or_nil;
-  
-  assert_registers_stored();
 }
 
 bool Squeak_Interpreter::process_is_scheduled_and_executing() {
@@ -3048,13 +2950,10 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
     return;
 
 
-
-
-  assert_internal();
   Object_p m = method_obj();
   // m->get_argumentCount()
   // m->temporaryCount()
-  u_char* bcp = localIP() + (will_be_fetched ? 1 : 0);
+  u_char* bcp = instructionPointer() + (will_be_fetched ? 1 : 0);
   // only works when regs are stored: u_char* my_ip = activeContext_obj()->next_bc_to_execute_of_context();
   //                                  assert_always(my_ip == bcp);
 
@@ -3063,8 +2962,8 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
   // if (true) return; // always fails before here
   if (Check_Prefetch) assert_always_eq(have_executed_currentBytecode, will_be_fetched);
 
-  if (!will_be_fetched  &&   currentBytecode != *localIP())
-    msg = "currentBytecode != *localIP()";
+  if (!will_be_fetched  &&   currentBytecode != *instructionPointer())
+    msg = "currentBytecode != *instructionPointer()";
   else if ((litx = literal_index_of_bytecode(bcp)) == -1)
     return;
   else if (!(0 <= litx  &&  litx < m->literalCount()))
@@ -3074,10 +2973,10 @@ void Squeak_Interpreter::check_method_is_correct(bool will_be_fetched, const cha
   else
     return;
 
-  error_printer->printf("on %d: check_method_is_correct: %s, will_be_fetched %d, localIP - method %d, "
+  error_printer->printf("on %d: check_method_is_correct: %s, will_be_fetched %d, instructionPointer - method %d, "
                         "bcp - method %d, *bcp %d, litx %d, literalCount %d, lit 0x%x, nbytes %d, at %s\nmethod: ",
                         my_rank(), msg, will_be_fetched,
-                        localIP() - m->as_u_char_p(), bcp - m->as_u_char_p(),
+                        instructionPointer() - m->as_u_char_p(), bcp - m->as_u_char_p(),
                         *bcp, litx, m->literalCount(), lit.bits(), m->lengthOf() - sizeof(Oop),
                         where);
   m->print_compiled_method(error_printer);
@@ -3143,9 +3042,9 @@ void Squeak_Interpreter::receive_initial_interpreter_from_main(Squeak_Interprete
 }
 
 void Squeak_Interpreter::print_method_info(const char* msg) {
-  error_printer->printf("%d on %d: %s, process_is_scheduled_and_executing %d, method 0x%x, method_obj 0x%x, localIP 0x%x, instructionPointer 0x%x, activeContext_obj() 0x%x, activeContext().as_object() 0x%x, freeContexts 0x%x\n",
+  error_printer->printf("%d on %d: %s, process_is_scheduled_and_executing %d, method 0x%x, method_obj 0x%x, instructionPointer 0x%x, activeContext_obj() 0x%x, activeContext().as_object() 0x%x, freeContexts 0x%x\n",
                         increment_print_sequence_number(),
-                        my_rank(), msg, process_is_scheduled_and_executing(), method().bits(), (Object*)method_obj(), _localIP, _instructionPointer,
+                        my_rank(), msg, process_is_scheduled_and_executing(), method().bits(), (Object*)method_obj(), instructionPointer(),
                         (Object*)activeContext_obj(), activeContext().as_untracked_object_ptr(),
                         roots.freeContexts.bits());
   if (process_is_scheduled_and_executing()) {
@@ -3162,16 +3061,10 @@ void Squeak_Interpreter::print_stack_frame() {
   int ip;
   int sp;
   
-  if (is_internal_valid()) {
-    rawIP = localIP() - method_obj()->as_u_char_p()
-          - Object::BaseHeaderSize + 1;
-    sp = localStackPointerIndex() - Object_Indices::TempFrameStart + 1;
-  }
-  else {
-    rawIP = instructionPointer() - method_obj()->as_u_char_p()
-          - Object::BaseHeaderSize + 1;
-    sp = stackPointerIndex()  - Object_Indices::TempFrameStart + 1;
-  }
+  rawIP = instructionPointer() - method_obj()->as_u_char_p()
+        - Object::BaseHeaderSize + 1;
+  sp = stackPointerIndex() - Object_Indices::TempFrameStart + 1;
+
   ip = rawIP - 
         (Object_Indices::LiteralStart
          + method_obj()->literalCount() * bytesPerWord) - 2;
@@ -3183,7 +3076,7 @@ void Squeak_Interpreter::print_stack_frame() {
   
   for (int i = sp; i >= 0; i--) {
     error_printer->printf("\t[%2d]\t", i);
-    internalStackValue(sp - i).dp();
+    stackValue(sp - i).dp();
   }
 }
 
@@ -3207,7 +3100,6 @@ void Squeak_Interpreter::postGCAction_here(bool fullGC) {
     // because none of the routines called below can receive a message -- dmu 7/12/10
     Safepoint_Ability sa(false); 
     fetchContextRegisters(activeContext(), activeContext_obj());
-    internalizeIPandSP(); // may be doing gc deep in msg receiving
     activeContext_obj()->beRootIfOld();
     theHomeContext_obj()->beRootIfOld();
 

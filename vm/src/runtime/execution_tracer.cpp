@@ -46,7 +46,7 @@ void Execution_Tracer::do_all_roots(Oop_Closure* oc) {
 
 
 void Execution_Tracer::trace(Squeak_Interpreter* si) {
-  int pc = si->localIP() - si->method_obj()->as_u_char_p();
+  int pc = si->instructionPointer() - si->method_obj()->as_u_char_p();
   add_bc(si->method(), si->roots.receiver, pc, si->activeContext_obj()->is_this_context_a_block_context(), si->bcCount);
 }
 

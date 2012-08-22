@@ -240,8 +240,6 @@ void tellCoreIAmSpinningMessage_class::handle_me() {
 
 
 void runPrimitiveMessage_class::handle_me() {
-  
-  The_Squeak_Interpreter()->assert_stored_if_no_proc();
   static const bool verbose = false;
 
   if (verbose) {
@@ -287,8 +285,6 @@ void runPrimitiveMessage_class::handle_me() {
   The_Squeak_Interpreter()->popRemappableOops(saved_root_count);
   saved_interp_info.fill_in_interpreter();
   The_Squeak_Interpreter()->set_argumentCount(saved_arg_count);
-
-  The_Squeak_Interpreter()->assert_stored_if_no_proc();
 
   Message_Statics::remote_prim_fn = 0;
 

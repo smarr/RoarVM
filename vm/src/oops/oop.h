@@ -50,7 +50,7 @@ private:
 
   static Oop from_bits(oop_int_t b) { return Oop(b); }
   static Oop from_int(oop_int_t i ) { return Oop((i << Tag_Size) | Int_Tag); }
-  inline static Oop from_object(Object* p);
+  inline static Oop from_object(const Object* p);
   inline static Oop from_mem_bits(u_oop_int_t mem_bits);
 
 
@@ -70,7 +70,7 @@ private:
   inline oop_int_t mem_bits() const;
 
 
-  inline oop_int_t checkedIntegerValue();
+  inline oop_int_t checkedIntegerValue() const;
 
   bool operator == (Oop x) const {  return bits() == x.bits(); }
   bool operator != (Oop x) const {  return bits() != x.bits(); }
@@ -78,15 +78,15 @@ private:
   bool is_mem() const { return (bits() & Tag_Mask) == Mem_Tag; }
   bool is_int() const { return (bits() & Tag_Mask) == Int_Tag; }
 
-  inline Object_p as_object();
-  inline Object_p as_object_unchecked();
-  inline Object_p as_object_if_mem();
-  inline Object*  as_untracked_object_ptr();  // this should only be used when it is absolutly necessary! otherwise use always as_object()
+  inline Object_p as_object() const;
+  inline Object_p as_object_unchecked() const;
+  inline Object_p as_object_if_mem() const;
+  inline Object*  as_untracked_object_ptr() const;  // this should only be used when it is absolutly necessary! otherwise use always as_object()
 
-  inline Oop fetchClass();
-  bool isMemberOf(char*);
-  bool isKindOf(char* className);
-  bool isKindOf(Oop aClass);
+  inline Oop fetchClass() const;
+  bool isMemberOf(char*) const;
+  bool isKindOf(char* className) const;
+  bool isKindOf(Oop aClass) const;
 
   // subclass forwarders:
 

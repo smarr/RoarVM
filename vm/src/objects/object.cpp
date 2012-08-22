@@ -167,13 +167,13 @@ void Object::print_compiled_method(Printer* p) {
 }
 
 
-Oop Object::className() {
+Oop Object::className() const {
   return fetchWordLength() <= Object_Indices::Class_Name_Index
     ?  The_Squeak_Interpreter()->roots.nilObj
     :  fetchPointer(Object_Indices::Class_Name_Index);
 }
 
-Oop Object::name_of_class_or_metaclass(bool* is_meta) {
+Oop Object::name_of_class_or_metaclass(bool* is_meta) const {
   Oop cn = className();
   if (!cn.is_mem()  ||  !The_Memory_System()->object_table->probably_contains((void*)cn.bits())  ||  !The_Memory_System()->contains(cn.as_object()))
     return The_Squeak_Interpreter()->roots.nilObj;
@@ -420,11 +420,11 @@ bool Object::hasOkayClass() {
 
 // ObjectMemory object enumeration
 
-Oop* Object::last_pointer_addr() {
+Oop* Object::last_pointer_addr() const {
   return (Oop*)&as_char_p()[lastPointer()];
 }
 
-Oop* Object::last_strong_pointer_addr() {
+Oop* Object::last_strong_pointer_addr() const {
   return &as_oop_p()[nonWeakFieldsOf()];
 }
 
@@ -561,7 +561,6 @@ void Object::add_process_to_scheduler_list() {
 
 Oop Object::get_suspended_context_of_process_and_mark_running() {
   assert(Scheduler_Mutex::is_held());
-  The_Squeak_Interpreter()->assert_registers_stored();
   Oop ctx = fetchPointer(Object_Indices::SuspendedContextIndex);
   assert(ctx != The_Squeak_Interpreter()->roots.nilObj);
   if (Print_Scheduler_Verbose) {
@@ -580,7 +579,6 @@ void Object::set_suspended_context_of_process(Oop ctx) {
   assert(Scheduler_Mutex::is_held());
   assert(ctx != fetchPointer(Object_Indices::SuspendedContextIndex));
   assert(is_process_running());
-  The_Squeak_Interpreter()->assert_registers_stored();
   if (Print_Scheduler_Verbose) {
     debug_printer->printf("scheduler: on %d set_suspended_context_of_process ", Logical_Core::my_rank());
     this->print_process_or_nil(debug_printer);
@@ -1096,7 +1094,7 @@ Object_p Object::get_external_primitive_literal_of_method() {
 }
 
 
-oop_int_t Object::nonWeakFieldsOf() {
+oop_int_t Object::nonWeakFieldsOf() const {
   /*
 
   "Return the number of non-weak fields in oop (i.e. the number of fixed fields).

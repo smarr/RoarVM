@@ -34,31 +34,31 @@ class Word_Containing_Object_Type {
 private:
   /* could be object header word, size header word,
     class header word, backpointer, or any other preheader word  */
-  oop_int_t some_word_in_an_object_header() { return *(oop_int_t*)this; }
+  oop_int_t some_word_in_an_object_header() const { return *(oop_int_t*)this; }
 
 public:
 
-  int headerType() {
+  int headerType() const {
     return Header_Type::extract_from(some_word_in_an_object_header());
   }
  
-  int extra_header_bytes() {
+  int extra_header_bytes() const {
     return Header_Type::extraHeaderBytes(headerType());
   }
  
-  int extra_header_bytes_without_preheader() {
+  int extra_header_bytes_without_preheader() const {
     return Header_Type::extraHeaderBytes_without_preheader(headerType());
   }
  
-  int extra_header_oops() {
+  int extra_header_oops() const {
     return Header_Type::extraHeaderOops(headerType());
   }
  
-  int extra_header_oops_without_preheader() {
+  int extra_header_oops_without_preheader() const {
     return Header_Type::extraHeaderOops_without_preheader(headerType());
   }
  
-  bool is_free() {
+  bool is_free() const {
     return Header_Type::Free == headerType();
   }
 

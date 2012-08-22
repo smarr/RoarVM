@@ -994,7 +994,6 @@ void Squeak_Interpreter::primitiveGetAttribute() {
 
 
 void Squeak_Interpreter::primitiveGetNextEvent() {
-  assert_external();
   const bool print = Print_Keys;
   int evtBuf[evtBuf_size];
   for (int i = 0;  i < evtBuf_size;  ++i)  evtBuf[i] = 0;

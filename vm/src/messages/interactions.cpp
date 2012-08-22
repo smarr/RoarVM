@@ -97,7 +97,6 @@ static void run_primitive_print(fn_t f, const char* long_msg, const char* short_
 }
 
 void Interactions::run_primitive(int dst, fn_t f) {
-  The_Squeak_Interpreter()->assert_stored_if_no_proc();
   Message_Statics::remote_prim_fn = f;
 
   ++remote_prim_count;
@@ -105,24 +104,18 @@ void Interactions::run_primitive(int dst, fn_t f) {
 
   if (dst == Logical_Core::my_rank()) {
     f();
-    The_Squeak_Interpreter()->assert_stored_if_no_proc();
     remote_prim_cycles += OS_Interface::get_cycle_count() - start;
     return;
   }
   run_primitive_print(f, "caught", "<");
   
-  The_Squeak_Interpreter()->assert_stored_if_no_proc();
-
   SEND_THEN_WAIT_FOR_MESSAGE( runPrimitiveMessage_class(The_Squeak_Interpreter()->get_argumentCount(), f), dst,
                               runPrimitiveResponse);
   
-  The_Squeak_Interpreter()->assert_stored_if_no_proc();
-
   remote_prim_cycles += OS_Interface::get_cycle_count() - start;
 
   run_primitive_print(f, "returned from", ">");
 
-  The_Squeak_Interpreter()->assert_stored_if_no_proc();
   Message_Statics::remote_prim_fn = 0;
 }
 
@@ -134,15 +127,12 @@ void Interactions::run_primitive(int dst, fn_t f) {
 
 Oop Interactions::sample_each_core(int what_to_sample) {
   int s = The_Squeak_Interpreter()->makeArrayStart();
-  The_Squeak_Interpreter()->assert_external();
   
   sampleOneCoreMessage_class m(what_to_sample);
   FOR_ALL_RANKS(i) {
     Oop cpuCoreStats;
     if (i == Logical_Core::my_rank())  {
-      The_Squeak_Interpreter()->assert_external();
       cpuCoreStats = sample_one_core(what_to_sample);
-      The_Squeak_Interpreter()->assert_external();
     }
     else {
       SEND_THEN_WAIT_AND_RETURN_MESSAGE(m, i, sampleOneCoreResponse, m2);

@@ -28,11 +28,11 @@ void Oop::print_process_or_nil(Printer* p) {
   as_object()->print_process_or_nil(p);
 }
 
-bool Oop::isMemberOf(char* className) {
+bool Oop::isMemberOf(char* className) const {
   return fetchClass().as_object()->className().as_object()->equals_string(className);
 }
 
-bool Oop::isKindOf(char* className) {
+bool Oop::isKindOf(char* className) const {
   Oop const nilObj = The_Squeak_Interpreter()->roots.nilObj;
   
   for (Oop klass = fetchClass();  klass != nilObj;  klass = klass.as_object()->superclass())
@@ -42,7 +42,7 @@ bool Oop::isKindOf(char* className) {
   return false;
 }
 
-bool Oop::isKindOf(Oop aClass) {
+bool Oop::isKindOf(Oop aClass) const {
   Oop const nilObj = The_Squeak_Interpreter()->roots.nilObj;
   
   for (Oop klass = fetchClass();  klass != nilObj;  klass = klass.as_object()->superclass())

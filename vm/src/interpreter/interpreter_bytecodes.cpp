@@ -34,48 +34,48 @@ void Squeak_Interpreter::pushLiteralVariableBytecode() {
 void Squeak_Interpreter::storeAndPopReceiverVariableBytecode() {
   fetchNextBytecode();
   // could watch for suspended context change here
-  receiver_obj()->storePointer(prevBytecode & 7, internalStackTop());
-  internalPop(1);
+  receiver_obj()->storePointer(prevBytecode & 7, stackTop());
+  pop(1);
 }
 
 void Squeak_Interpreter::storeAndPopTemporaryVariableBytecode() {
   fetchNextBytecode();
-  assert(_localHomeContext != roots.nilObj.as_object());
-	localHomeContext()->storePointerIntoContext((prevBytecode & 7) + Object_Indices::TempFrameStart, internalStackTop());
-	internalPop(1);
+  assert(theHomeContext() != roots.nilObj);
+	theHomeContext_obj()->storePointerIntoContext((prevBytecode & 7) + Object_Indices::TempFrameStart, stackTop());
+	pop(1);
 
 }
 void Squeak_Interpreter::pushReceiverBytecode() {
   fetchNextBytecode();
-  internalPush(roots.receiver);
+  push(roots.receiver);
 }
 void Squeak_Interpreter::pushConstantTrueBytecode() {
   fetchNextBytecode();
-  internalPush(roots.trueObj);
+  push(roots.trueObj);
 }
 void Squeak_Interpreter::pushConstantFalseBytecode() {
   fetchNextBytecode();
-  internalPush(roots.falseObj);
+  push(roots.falseObj);
 }
 void Squeak_Interpreter::pushConstantNilBytecode() {
   fetchNextBytecode();
-  internalPush(roots.nilObj);
+  push(roots.nilObj);
 }
 void Squeak_Interpreter::pushConstantMinusOneBytecode() {
   fetchNextBytecode();
-  internalPush(Oop::from_int(-1));
+  push(Oop::from_int(-1));
 }
 void Squeak_Interpreter::pushConstantZeroBytecode() {
   fetchNextBytecode();
-  internalPush(Oop::from_int(0));
+  push(Oop::from_int(0));
 }
 void Squeak_Interpreter::pushConstantOneBytecode() {
   fetchNextBytecode();
-  internalPush(Oop::from_int(1));
+  push(Oop::from_int(1));
 }
 void Squeak_Interpreter::pushConstantTwoBytecode() {
   fetchNextBytecode();
-  internalPush(Oop::from_int(2));
+  push(Oop::from_int(2));
 }
 
 void Squeak_Interpreter::returnReceiver() {
@@ -92,10 +92,10 @@ void Squeak_Interpreter::returnNil() {
 }
 
 void Squeak_Interpreter::returnTopFromMethod() {
-  commonReturn(sender(), internalStackTop());
+  commonReturn(sender(), stackTop());
 }
 void Squeak_Interpreter::returnTopFromBlock() {
-  commonReturn(caller(), internalStackTop());
+  commonReturn(caller(), stackTop());
 }
 
 
@@ -123,23 +123,23 @@ void Squeak_Interpreter::extendedStoreBytecode() {
   switch ((d >> 6) & 3) {
     case 0:
       // could watch for suspended context change here
-      receiver_obj()->storePointer(vi, internalStackTop());
+      receiver_obj()->storePointer(vi, stackTop());
       break;
     case 1:
-      localHomeContext()->storePointerIntoContext(
-                                                vi + Object_Indices::TempFrameStart, internalStackTop());
+      theHomeContext_obj()->storePointerIntoContext(
+                                                vi + Object_Indices::TempFrameStart, stackTop());
       break;
     case 2:
       fatal("illegal store");
     case 3:
-      literal(vi).as_object()->storePointer(Object_Indices::ValueIndex, internalStackTop());
+      literal(vi).as_object()->storePointer(Object_Indices::ValueIndex, stackTop());
       break;
   }
 }
 
 void Squeak_Interpreter::extendedStoreAndPopBytecode() {
   extendedStoreBytecode();
-  internalPop(1);
+  pop(1);
 }
 void Squeak_Interpreter::singleExtendedSendBytecode() {
   u_char d = fetchByte();
@@ -184,19 +184,19 @@ void Squeak_Interpreter::doubleExtendedDoAnythingBytecode() {
     case 5:
       fetchNextBytecode();
       // could watch for suspended context change here
-      receiver_obj()->storePointer(b3, internalStackTop());
+      receiver_obj()->storePointer(b3, stackTop());
       break;
     case 6: {
       fetchNextBytecode();
-      Oop top = internalStackTop();
-      internalPop(1);
+      Oop top = stackTop();
+      pop(1);
       // could watch for suspended context change here
       receiver_obj()->storePointer(b3, top);
       break;
     }
     case 7:
       fetchNextBytecode();
-      literal(b3).as_object()->storePointer(Object_Indices::ValueIndex, internalStackTop());
+      literal(b3).as_object()->storePointer(Object_Indices::ValueIndex, stackTop());
       break;
   }
 }
@@ -217,21 +217,21 @@ void Squeak_Interpreter::secondExtendedSendBytecode() {
   u_char descriptor = fetchByte();
   roots.messageSelector = literal(descriptor & 0x3f);
   set_argumentCount( descriptor >> 6 );
-  assert (!internalStackValue(get_argumentCount()).is_mem()
-          || The_Memory_System()->object_table->probably_contains((void*)internalStackValue(get_argumentCount()).bits()));
+  assert (!stackValue(get_argumentCount()).is_mem()
+          || The_Memory_System()->object_table->probably_contains((void*)stackValue(get_argumentCount()).bits()));
   normalSend();
 }
 
-void Squeak_Interpreter::popStackBytecode() { fetchNextBytecode(); internalPop(1); }
+void Squeak_Interpreter::popStackBytecode() { fetchNextBytecode(); pop(1); }
 
 void Squeak_Interpreter::duplicateTopBytecode() {
   fetchNextBytecode();
-  internalPush(internalStackTop());
+  push(stackTop());
 }
 void Squeak_Interpreter::pushActiveContextBytecode() {
   fetchNextBytecode();
   reclaimableContextCount = 0;
-  internalPush(activeContext());
+  push(activeContext());
 }
 void Squeak_Interpreter::experimentalBytecode() {
   untested();
@@ -243,9 +243,9 @@ void Squeak_Interpreter::shortConditionalJump()   { jumpIfFalseBy((currentByteco
 
 void Squeak_Interpreter::longUnconditionalJump() {
   int offset = long_jump_offset();
-  set_localIP(localIP() + offset);
+  set_instructionPointer(instructionPointer() + offset);
   if (offset < 0)
-    internalQuickCheckForInterrupts();
+    quickCheckForInterrupts();
   fetchNextBytecode();
 }
 void Squeak_Interpreter::longJumpIfTrue() {
@@ -256,24 +256,22 @@ void Squeak_Interpreter::longJumpIfFalse() {
 }
 
 void Squeak_Interpreter::bytecodePrimAdd() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   if (areIntegers(rcvr, arg)) {
     oop_int_t r = rcvr.integerValue() + arg.integerValue();
     if (Oop::isIntegerValue(r)) {
-      internalPopThenPush(2, Oop::from_int(r));
+      popThenPush(2, Oop::from_int(r));
       fetchNextBytecode();
       return;
     }
   }
   else {
     successFlag = true;
-    externalizeIPandSP();
     {
       Safepoint_Ability sa(true);
       primitiveFloatAdd(rcvr, arg);
     }
-    internalizeIPandSP();
     if (successFlag) {
       fetchNextBytecode();
       return;
@@ -285,24 +283,22 @@ void Squeak_Interpreter::bytecodePrimAdd() {
 }
 
 void Squeak_Interpreter::bytecodePrimSubtract() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   if (areIntegers(rcvr, arg)) {
     oop_int_t r = rcvr.integerValue() - arg.integerValue();
     if (Oop::isIntegerValue(r)) {
-      internalPopThenPush(2, Oop::from_int(r));
+      popThenPush(2, Oop::from_int(r));
       fetchNextBytecode();
       return;
     }
   }
   else {
     successFlag = true;
-    externalizeIPandSP();
     {
       Safepoint_Ability sa(true);
       primitiveFloatSubtract(rcvr, arg);
     }
-    internalizeIPandSP();
     if (successFlag) {
       fetchNextBytecode();
       return;
@@ -314,27 +310,25 @@ void Squeak_Interpreter::bytecodePrimSubtract() {
 }
 
 void Squeak_Interpreter::bytecodePrimMultiply() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   
   if (areIntegers(rcvr, arg)) {
     oop_int_t ri = rcvr.integerValue();
     oop_int_t ai = arg.integerValue();
     long long result_with_overflow = (long long)ri * ai;
     if (ai == 0  || Oop::isIntegerValue(result_with_overflow)) {
-      internalPopThenPush(2, Oop::from_int(result_with_overflow));
+      popThenPush(2, Oop::from_int(result_with_overflow));
       fetchNextBytecode();
       return;
     }
   }
   else {
     successFlag = true;
-    externalizeIPandSP();
     {
       Safepoint_Ability sa(true);
       primitiveFloatMultiply(rcvr, arg);
     }
-    internalizeIPandSP();
     if (successFlag) {
       fetchNextBytecode();
       return;
@@ -346,15 +340,15 @@ void Squeak_Interpreter::bytecodePrimMultiply() {
 }
 
 void Squeak_Interpreter::bytecodePrimDivide() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   if (areIntegers(rcvr, arg)) {
     oop_int_t ri = rcvr.integerValue();
     oop_int_t ai = arg.integerValue();
     if (ai != 0   &&   ri % ai  == 0) {
       oop_int_t r = ri / ai;
       if (Oop::isIntegerValue(r)) {
-        internalPopThenPush(2, Oop::from_int(r));
+        popThenPush(2, Oop::from_int(r));
         fetchNextBytecode();
         return;
       }
@@ -362,12 +356,10 @@ void Squeak_Interpreter::bytecodePrimDivide() {
   }
   else {
     successFlag = true;
-    externalizeIPandSP();
     {
       Safepoint_Ability sa(true);
       primitiveFloatDivide(rcvr, arg);
     }
-    internalizeIPandSP();
     if (successFlag) {
       fetchNextBytecode();
       return;
@@ -380,9 +372,9 @@ void Squeak_Interpreter::bytecodePrimDivide() {
 
 void Squeak_Interpreter::bytecodePrimMod() {
   successFlag = true;
-  int mod = doPrimitiveMod(internalStackValue(1), internalStackValue(0));
+  int mod = doPrimitiveMod(stackValue(1), stackValue(0));
   if (successFlag) {
-    internalPopThenPush(2, Oop::from_int(mod));
+    popThenPush(2, Oop::from_int(mod));
     fetchNextBytecode();
     return;
   }
@@ -392,8 +384,8 @@ void Squeak_Interpreter::bytecodePrimMod() {
 }
 
 void Squeak_Interpreter::bytecodePrimLessThan() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   if (areIntegers(rcvr, arg)) {
     booleanCheat(rcvr.integerValue() < arg.integerValue());
     return;
@@ -411,8 +403,8 @@ void Squeak_Interpreter::bytecodePrimLessThan() {
   normalSend();
 }
 void Squeak_Interpreter::bytecodePrimGreaterThan() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   if (areIntegers(rcvr, arg)) {
     booleanCheat(rcvr.integerValue() > arg.integerValue());
     return;
@@ -431,8 +423,8 @@ void Squeak_Interpreter::bytecodePrimGreaterThan() {
 }
 
 void Squeak_Interpreter::bytecodePrimLessOrEqual() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   if (areIntegers(rcvr, arg)) {
     booleanCheat(rcvr.integerValue() <= arg.integerValue());
     return;
@@ -451,8 +443,8 @@ void Squeak_Interpreter::bytecodePrimLessOrEqual() {
 }
 
 void Squeak_Interpreter::bytecodePrimGreaterOrEqual() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   if (areIntegers(rcvr, arg)) {
     booleanCheat(rcvr.integerValue() >= arg.integerValue());
     return;
@@ -471,8 +463,8 @@ void Squeak_Interpreter::bytecodePrimGreaterOrEqual() {
 }
 
 void Squeak_Interpreter::bytecodePrimEqual() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   if (areIntegers(rcvr, arg)) {
     booleanCheat(rcvr == arg);
     return;
@@ -491,8 +483,8 @@ void Squeak_Interpreter::bytecodePrimEqual() {
 }
 
 void Squeak_Interpreter::bytecodePrimNotEqual() {
-  Oop rcvr = internalStackValue(1);
-  Oop arg  = internalStackValue(0);
+  Oop rcvr = stackValue(1);
+  Oop arg  = stackValue(0);
   if (areIntegers(rcvr, arg)) {
     booleanCheat(rcvr != arg);
     return;
@@ -512,12 +504,10 @@ void Squeak_Interpreter::bytecodePrimNotEqual() {
 
 void Squeak_Interpreter::bytecodePrimMakePoint() {
   successFlag = true;
-  externalizeIPandSP();
   {
     Safepoint_Ability sa(true);
     primitiveMakePoint();
   }
-  internalizeIPandSP();
   if (successFlag) {
     fetchNextBytecode();
     return;
@@ -529,12 +519,10 @@ void Squeak_Interpreter::bytecodePrimMakePoint() {
 
 void Squeak_Interpreter::bytecodePrimBitShift() {
   successFlag = true;
-  externalizeIPandSP();
   {
     Safepoint_Ability sa(true);
     primitiveBitShift();
   }
-  internalizeIPandSP();
   if (successFlag) {
     fetchNextBytecode();
     return;
@@ -545,9 +533,9 @@ void Squeak_Interpreter::bytecodePrimBitShift() {
 }
 void Squeak_Interpreter::bytecodePrimDiv() {
   successFlag = true;
-  int32 quotient = doPrimitiveDiv(internalStackValue(1), internalStackValue(0));
+  int32 quotient = doPrimitiveDiv(stackValue(1), stackValue(0));
   if (successFlag) {
-    internalPopThenPush(2, Oop::from_int(quotient));
+    popThenPush(2, Oop::from_int(quotient));
     fetchNextBytecode();
     return;
   }
@@ -557,12 +545,10 @@ void Squeak_Interpreter::bytecodePrimDiv() {
 }
 void Squeak_Interpreter::bytecodePrimBitAnd() {
   successFlag = true;
-  externalizeIPandSP();
   {
     Safepoint_Ability sa(true);
     primitiveBitAnd();
   }
-  internalizeIPandSP();
   if (successFlag) {
     fetchNextBytecode();
     return;
@@ -573,12 +559,10 @@ void Squeak_Interpreter::bytecodePrimBitAnd() {
 }
 void Squeak_Interpreter::bytecodePrimBitOr() {
   successFlag = true;
-  externalizeIPandSP();
   {
     Safepoint_Ability sa(true);
     primitiveBitOr();
   }
-  internalizeIPandSP();
   if (successFlag) {
     fetchNextBytecode();
     return;
@@ -589,8 +573,8 @@ void Squeak_Interpreter::bytecodePrimBitOr() {
 }
 
 void Squeak_Interpreter::bytecodePrimAt() {
-  Oop index = internalStackTop();
-  Oop rcvr = internalStackValue(1);
+  Oop index = stackTop();
+  Oop rcvr = stackValue(1);
   successFlag = rcvr.is_mem() && index.is_int();
   if (successFlag) {
     At_Cache::Entry* e = atCache.get_entry(rcvr, false);
@@ -598,7 +582,7 @@ void Squeak_Interpreter::bytecodePrimAt() {
       Oop result = commonVariableAt(rcvr, index.integerValue(), e, true);
       if (successFlag) {
         fetchNextBytecode();
-        internalPopThenPush(2, result);
+        popThenPush(2, result);
         return;
       }
     }
@@ -609,9 +593,9 @@ void Squeak_Interpreter::bytecodePrimAt() {
 }
 
 void Squeak_Interpreter::bytecodePrimAtPut() {
-  Oop value = internalStackTop();
-  Oop index = internalStackValue(1);
-  Oop rcvr = internalStackValue(2);
+  Oop value = stackTop();
+  Oop index = stackValue(1);
+  Oop rcvr = stackValue(2);
   successFlag = rcvr.is_mem() && index.is_int();
   if (successFlag) {
     At_Cache::Entry* e = atCache.get_entry(rcvr, true);
@@ -619,7 +603,7 @@ void Squeak_Interpreter::bytecodePrimAtPut() {
       commonVariableAtPut(rcvr, index.integerValue(), value, e);
       if (successFlag) {
         fetchNextBytecode();
-        internalPopThenPush(3, value);
+        popThenPush(3, value);
         return;
       }
     }
@@ -650,25 +634,23 @@ void Squeak_Interpreter::bytecodePrimAtEnd() {
   normalSend();
 }
 void Squeak_Interpreter::bytecodePrimEquivalent() {
-  booleanCheat(internalStackValue(1) == internalStackValue(0));
+  booleanCheat(stackValue(1) == stackValue(0));
 }
 
 void Squeak_Interpreter::bytecodePrimClass() {
-  internalPopThenPush(1, internalStackTop().fetchClass());
+  popThenPush(1, stackTop().fetchClass());
   fetchNextBytecode();
 }
 
 void Squeak_Interpreter::bytecodePrimBlockCopy() {
-  Oop rcvr = internalStackValue(1);
+  Oop rcvr = stackValue(1);
   successFlag = true;
   success(rcvr.as_object()->hasContextHeader());
   if (successFlag) {
-    externalizeIPandSP();
     {
       Safepoint_Ability sa(true);
       primitiveBlockCopy();
     }
-    internalizeIPandSP();
   }
   if (!successFlag) {
     roots.messageSelector = specialSelector(24);
@@ -680,7 +662,7 @@ void Squeak_Interpreter::bytecodePrimBlockCopy() {
 }
 
 void Squeak_Interpreter::commonBytecodePrimValue(int nargs, int selector_index) {
-  Oop block = localSP()[-nargs];
+  Oop block = stackPointer()[-nargs];
   successFlag = true;
   set_argumentCount(nargs);
   Oop klass = block.fetchClass();
@@ -688,16 +670,12 @@ void Squeak_Interpreter::commonBytecodePrimValue(int nargs, int selector_index) 
   
 # if Include_Closure_Support
   if (klass == splObj(Special_Indices::ClassBlockClosure)) {
-    externalizeIPandSP();
     primitiveClosureValue();
-    internalizeIPandSP();
   }
   else 
 # endif
   if (klass == splObj(Special_Indices::ClassBlockContext)) {
-    externalizeIPandSP();
     primitiveValue();
-    internalizeIPandSP();
   } 
   else
     classOK = false;
@@ -736,10 +714,10 @@ void Squeak_Interpreter::bytecodePrimNewWithArg() {
 
 void Squeak_Interpreter::bytecodePrimPointX() {
   successFlag = true;
-  Oop rcvr = internalStackTop();
+  Oop rcvr = stackTop();
   assertClass(rcvr, splObj(Special_Indices::ClassPoint));
   if (successFlag) {
-    internalPopThenPush(1, rcvr.as_object()->fetchPointer(Object_Indices::XIndex));
+    popThenPush(1, rcvr.as_object()->fetchPointer(Object_Indices::XIndex));
     fetchNextBytecode();
     return;
   }
@@ -750,10 +728,10 @@ void Squeak_Interpreter::bytecodePrimPointX() {
 
 void Squeak_Interpreter::bytecodePrimPointY() {
   successFlag = true;
-  Oop rcvr = internalStackTop();
+  Oop rcvr = stackTop();
   assertClass(rcvr, splObj(Special_Indices::ClassPoint));
   if (successFlag) {
-    internalPopThenPush(1, rcvr.as_object()->fetchPointer(Object_Indices::YIndex));
+    popThenPush(1, rcvr.as_object()->fetchPointer(Object_Indices::YIndex));
     fetchNextBytecode();
     return;
   }
@@ -791,20 +769,18 @@ void Squeak_Interpreter::pushNewArrayBytecode() {
   bool popValues = size > 127;
   size &= 127;
   fetchNextBytecode();
-  externalizeIPandSP();
   Object_p array_obj;
   {
     Safepoint_Ability sa(true);
     array_obj = splObj_obj(Special_Indices::ClassArray)->instantiateClass(size);
   }
-  internalizeIPandSP();
   if (popValues) {
     for ( int i = 0;  i < size;  ++i )
       // Assume new Array is young, so use unchecked stores
-      array_obj->storePointerUnchecked(i, internalStackValue(size - i - 1));
-    internalPop(size);
+      array_obj->storePointerUnchecked(i, stackValue(size - i - 1));
+    pop(size);
   }
-  internalPush(array_obj->as_oop());
+  push(array_obj->as_oop());
 }
 
 
@@ -824,18 +800,18 @@ void Squeak_Interpreter::storeRemoteTempLongBytecode() {
 
 void Squeak_Interpreter::storeAndPopRemoteTempLongBytecode() {
   storeRemoteTempLongBytecode();
-  internalPop(1);
+  pop(1);
 }
 
 
 void Squeak_Interpreter::pushRemoteTempInVectorAt(u_char indexIntoVector, u_char  indexOfVectorIntoContext) {
   Oop tempVector = temporary(indexOfVectorIntoContext);
-  internalPush(tempVector.as_object()->fetchPointer(indexIntoVector));
+  push(tempVector.as_object()->fetchPointer(indexIntoVector));
 }
 
 void Squeak_Interpreter::storeRemoteTempInVectorAt(u_char indexIntoVector, u_char  indexOfVectorIntoContext) {
   Oop tempVector = temporary(indexOfVectorIntoContext);
-  tempVector.as_object()->storePointer(indexIntoVector, internalStackTop());
+  tempVector.as_object()->storePointer(indexIntoVector, stackTop());
 }
 
 
@@ -856,22 +832,20 @@ void Squeak_Interpreter::pushClosureCopyCopiedValuesBytecode() {
   u_int32 blockSize = fetchByte() << 8;
   blockSize += (u_int32)fetchByte();
   
-  externalizeIPandSP();
   Oop newClosure = closureCopy(numArgs, instructionPointer() + 2 - (method_obj()->as_u_char_p() + Object::BaseHeaderSize), numCopied);
   // Recover from GC, but no Object* 's
 
-  internalizeIPandSP();
   Object_p newClosure_obj = newClosure.as_object();
   newClosure_obj->storePointerUnchecked(Object_Indices::ClosureOuterContextIndex, activeContext());
   reclaimableContextCount = 0; // The closure refers to thisContext so it cannot be reclaimed
   if (numCopied > 0) {
     for (u_int32 i = 0;  i < numCopied;  ++i )
-      newClosure_obj->storePointerUnchecked(i + Object_Indices::ClosureFirstCopiedValueIndex, internalStackValue( numCopied - i - 1));
-    internalPop(numCopied);
+      newClosure_obj->storePointerUnchecked(i + Object_Indices::ClosureFirstCopiedValueIndex, stackValue( numCopied - i - 1));
+    pop(numCopied);
   }
-  set_localIP(localIP() + blockSize);
+  set_instructionPointer(instructionPointer() + blockSize);
   fetchNextBytecode();
-  internalPush(newClosure);
+  push(newClosure);
 }
 
 

@@ -36,7 +36,6 @@ static u_int64 cycle_count_at_last_sample[Memory_Semantics::max_num_threads_on_t
 void* primitiveDebugSampleRVM() {
   static int n = 0;
   printf("<%d", ++n);
-  The_Squeak_Interpreter()->assert_external();
   Safepoint_for_moving_objects sp("primitiveDebugSampleRVM"); // sends mesgs to other cores to allocate arrays, might cause GC
   
   switch (The_Squeak_Interpreter()->get_argumentCount()) {
@@ -54,9 +53,7 @@ void* primitiveDebugSampleRVM() {
 
 
 
-void* primitiveSampleRVM() {
-  The_Squeak_Interpreter()->assert_external();
-  
+void* primitiveSampleRVM() { 
   // Commented out the next line because otherwise there is potential for a deadlock
   // if a core whom I ask for stats needs to do a GC to allocate the stats object. 
   // Seems to work, despite my earlier comment below. -- dmu 8/10
@@ -75,51 +72,42 @@ void* primitiveSampleRVM() {
 
     default:
       The_Squeak_Interpreter()->primitiveFail();
-      The_Squeak_Interpreter()->assert_external();
       return 0;
   }
-  The_Squeak_Interpreter()->assert_external();
   if (The_Squeak_Interpreter()->failed()) { return 0; }
 
   The_Squeak_Interpreter()->pop(The_Squeak_Interpreter()->get_argumentCount() + 1);
 
-  The_Squeak_Interpreter()->assert_external();
   if ((what_to_sample & (1 << SampleValues::allCoreStats)) == 0) {
     The_Squeak_Interpreter()->push(sample_one_core(what_to_sample));
     return 0;
   }
-  The_Squeak_Interpreter()->assert_external();
   
   int s = The_Squeak_Interpreter()->makeArrayStart();
   if (what_to_sample & (1 << SampleValues::runMask)) {
     Oop runMask = Object::positive64BitIntegerFor(The_Squeak_Interpreter()->run_mask());
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(runMask);
   }
-  The_Squeak_Interpreter()->assert_external();
   
   if (what_to_sample & (1 << SampleValues::messageNames)) {
     Oop messageNames = Message_Stats::get_message_names();
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(messageNames);
   }
-  The_Squeak_Interpreter()->assert_external();
   
   if (what_to_sample & (1 << SampleValues::cpuCoreStats)) {
     Oop cpuCoreStats = CPU_Coordinate::get_stats();
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(cpuCoreStats);
   }
-  The_Squeak_Interpreter()->assert_external();
   
   if (what_to_sample & (1 << SampleValues::allCoreStats)) {
     Oop allCoreStats = The_Interactions.sample_each_core(what_to_sample);
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(allCoreStats);
   }
-  The_Squeak_Interpreter()->assert_external();
 
   if (what_to_sample & (1 << SampleValues::fence)) {
     Oop fence = The_Squeak_Interpreter()->fence() ? The_Squeak_Interpreter()->roots.trueObj :  The_Squeak_Interpreter()->roots.falseObj;
     PUSH_WITH_STRING_FOR_MAKE_ARRAY(fence);
   }
-  The_Squeak_Interpreter()->assert_external();
 
   The_Squeak_Interpreter()->push(The_Squeak_Interpreter()->makeArray(s));
   

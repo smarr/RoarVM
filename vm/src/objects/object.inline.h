@@ -49,7 +49,7 @@ inline void Object::set_extra_preheader_word(oop_int_t w) {
   The_Memory_System()->store_enforcing_coherence(dst, w, (Object_p)this);
 }
 
-inline bool Object::hasSender(Oop aContext) {
+inline bool Object::hasSender(Oop aContext) const {
   // rcvr must be a context
   Object_p aco = aContext.as_object();
   if (this == (Object*)aco)  return false;
@@ -63,18 +63,18 @@ inline bool Object::hasSender(Oop aContext) {
 
 
 
-inline oop_int_t Object::fetchInteger(oop_int_t fieldIndex) {
+inline oop_int_t Object::fetchInteger(oop_int_t fieldIndex) const {
   Oop x = fetchPointer(fieldIndex);
   return x.checkedIntegerValue();
 }
 
-inline oop_int_t Object::fetchStackPointer() { // rcvr is a ContextObject
+inline oop_int_t Object::fetchStackPointer() const { // rcvr is a ContextObject
   Oop sp = fetchPointer(Object_Indices::StackPointerIndex);
   return sp.is_int() ? sp.integerValue() : 0;
 }
 
 
-inline u_oop_int_t Object::fixedFieldsOfArray() {
+inline u_oop_int_t Object::fixedFieldsOfArray() const {
   /* "NOTE: This code supports the backward-compatible extension to 8 bits of instSize.
    When we revise the image format, it should become...
    ^ (classFormat >> 2 bitAnd: 16rFF) - 1 */
@@ -90,7 +90,7 @@ inline u_oop_int_t Object::fixedFieldsOfArray() {
 }
 
 
-inline u_oop_int_t Object::lengthOf() {
+inline u_oop_int_t Object::lengthOf() const {
   // Return the number of indexable bytes or words in the given object. Assume the given oop is not an integer. For a CompiledMethod, the size of the method header (in bytes) should be subtracted from the result of this method."
   u_oop_int_t sz = sizeBits();
   if (Size4Bit) sz -= baseHeader & Size4Bit;
@@ -104,14 +104,14 @@ inline u_oop_int_t Object::lengthOf() {
 }
 
 
-inline Oop Object::fetchClass() {
+inline Oop Object::fetchClass() const {
   oop_int_t ccIndex = compact_class_index();
   return ccIndex == 0  ?  get_class_oop()
   :  The_Squeak_Interpreter()->splObj(Special_Indices::CompactClasses).as_object()->fetchPointer(ccIndex - 1);
 }
 
 
-inline oop_int_t Object::lastPointer() {
+inline oop_int_t Object::lastPointer() const {
   /*
    "Return the byte offset of the last pointer field of the given object.
    Works with CompiledMethods, as well as ordinary objects.
@@ -134,7 +134,7 @@ inline oop_int_t Object::lastPointer() {
 }
 
 
-inline char* Object::first_byte_address() {
+inline char* Object::first_byte_address() const {
   if (isFreeObject()) return NULL;
   int32 fmt = format();
   if (!Format::has_bytes(fmt)) return NULL;
@@ -144,9 +144,9 @@ inline char* Object::first_byte_address() {
      : 0);
 }
 
-inline char* Object::first_byte_address_after_header() { return as_char_p() + BaseHeaderSize; }
+inline char* Object::first_byte_address_after_header() const { return as_char_p() + BaseHeaderSize; }
 
-inline oop_int_t Object::methodHeader() { return fetchPointer(Object_Indices::HeaderIndex).bits(); }
+inline oop_int_t Object::methodHeader() const { return fetchPointer(Object_Indices::HeaderIndex).bits(); }
 
 inline void Object::byteSwapIfByteObject() {
   char* b = first_byte_address();
@@ -155,17 +155,17 @@ inline void Object::byteSwapIfByteObject() {
   // no store barrier, only for reading snapshots
 }
 
-inline oop_int_t Object::total_byte_size() {
+inline oop_int_t Object::total_byte_size() const {
   oop_int_t r = bytes_to_next_chunk() + extra_header_bytes();
   if (check_many_assertions) assert(!(r & (sizeof(oop_int_t) - 1)));
   return r;
 }
 
-inline oop_int_t Object::total_byte_size_without_preheader() {
+inline oop_int_t Object::total_byte_size_without_preheader() const {
   return bytes_to_next_chunk() + extra_header_bytes_without_preheader();
 }
 
-inline oop_int_t Object::sizeBits() {
+inline oop_int_t Object::sizeBits() const {
   // "Answer the number of bytes in the given object, including its base header, rounded up to an integral number of words."
   // "Note: byte indexable objects need to have low bits subtracted from this size."
   if (check_many_assertions) assert_always(!isFreeObject());
@@ -175,7 +175,7 @@ inline oop_int_t Object::sizeBits() {
   if (check_many_assertions) assert_always((size_t)r >= sizeof(baseHeader));
   return r;
 }
-inline oop_int_t Object::sizeBitsSafe() {
+inline oop_int_t Object::sizeBitsSafe() const {
   // "Compute the size of the given object from the cc and size fields in its header. This works even if its type bits are not correct."
   oop_int_t header = baseHeader;
   return rightType(header) ==  Header_Type::SizeAndClass
@@ -183,7 +183,7 @@ inline oop_int_t Object::sizeBitsSafe() {
   :  shortSizeBits();
 }
 
-inline oop_int_t Object::stSize() {
+inline oop_int_t Object::stSize() const {
   // return number of indexable fields in given object, e.g. ST size
   return Format::might_be_context(format()) && hasContextHeader()
   ? fetchStackPointer()
@@ -197,12 +197,12 @@ inline int Object::rightType(oop_int_t headerWord) {
   return Header_Type::Short;
 }
 
-inline void* Object::arrayValue() {
+inline void* Object::arrayValue() const {
   return isWordsOrBytes() ? as_char_p() + BaseHeaderSize : (char*)(The_Squeak_Interpreter()->primitiveFail(), 0);
 }
 
 
-inline oop_int_t Object::formatOfClass() {
+inline oop_int_t Object::formatOfClass() const {
   /* "**should be in-lined**"
    "Note that, in Smalltalk, the instSpec will be equal to the inst spec
    part of the base header of an instance (without hdr type) shifted left 1.
@@ -212,26 +212,26 @@ inline oop_int_t Object::formatOfClass() {
   return fetchPointer(Object_Indices::InstanceSpecificationIndex).bits() & ~Int_Tag;
 }
 
-inline oop_int_t Object::quickFetchInteger(oop_int_t fieldIndex) { return fetchPointer(fieldIndex).integerValue(); }
+inline oop_int_t Object::quickFetchInteger(oop_int_t fieldIndex) const { return fetchPointer(fieldIndex).integerValue(); }
 
-inline oop_int_t Object::fetchLong32Length() {
+inline oop_int_t Object::fetchLong32Length() const {
   // Gives size appropriate for fetchLong32
   return (sizeBits() - BaseHeaderSize) >> 2;
 }
 
 
-inline u_char& Object::byte_at(oop_int_t byteIndex) { return as_u_char_p()[BaseHeaderSize + byteIndex]; }
-inline u_char  Object::fetchByte(oop_int_t byteIndex) { return byte_at(byteIndex); }
+inline u_char& Object::byte_at(oop_int_t byteIndex) const { return as_u_char_p()[BaseHeaderSize + byteIndex]; }
+inline u_char  Object::fetchByte(oop_int_t byteIndex) const { return byte_at(byteIndex); }
 inline void    Object::storeByte( oop_int_t byteIndex, u_char valueByte) {
   The_Memory_System()->store_enforcing_coherence(&byte_at(byteIndex), valueByte, (Object_p)this); // used in interpreter, mostly for new objects
 }
 
 
-inline Oop& Object::pointer_at(oop_int_t fieldIndex) {
+inline Oop& Object::pointer_at(oop_int_t fieldIndex) const {
   return as_oop_p()[BaseHeaderSize / sizeof(Oop)  +  fieldIndex];
 }
 
-inline Oop  Object::fetchPointer(oop_int_t fieldIndex) {
+inline Oop  Object::fetchPointer(oop_int_t fieldIndex) const {
   assert(fieldIndex >= 0); // STEFAN that should always hold, shouldn't it?
   Oop r;
   MEASURE(fetch_pointer, r.bits(), r = pointer_at(fieldIndex));
@@ -275,8 +275,8 @@ void Object::storePointerIntoContext(oop_int_t fieldIndex, Oop x) {
 }
 
 
-inline int32& Object::long32_at(oop_int_t fieldIndex)  { return as_int32_p()[BaseHeaderSize / sizeof(int32)  +  fieldIndex]; }
-inline int32  Object::fetchLong32(oop_int_t fieldIndex) {
+inline int32& Object::long32_at(oop_int_t fieldIndex) const { return as_int32_p()[BaseHeaderSize / sizeof(int32)  +  fieldIndex]; }
+inline int32  Object::fetchLong32(oop_int_t fieldIndex) const {
   // " index by 32-bit units, and return a 32-bit value. Intended to replace fetchWord:ofObject:"
   return long32_at(fieldIndex);
 }
@@ -316,43 +316,43 @@ inline Object_p Object::instantiateSmallClass(oop_int_t sizeInBytes) {
 
 
 
-inline bool Object::isPointers() {
+inline bool Object::isPointers() const {
   //	"Answer true if the argument has only fields that can hold oops. See comment in formatOf:"
   return Format::has_only_oops(format());
 }
 
-inline bool Object::isBytes() {
+inline bool Object::isBytes() const {
   // Answer true if the argument contains indexable bytes. See comment in formatOf:"
   //  "Note: Includes CompiledMethods."
   return Format::has_bytes(format());
 }
 
-inline bool Object::isArray() {
+inline bool Object::isArray() const {
 	return Format::isArray(format());
 }
 
-inline bool Object::isWordsOrBytes() {
+inline bool Object::isWordsOrBytes() const {
   return Format::isWordsOrBytes(format());
 }
 
 
 
-inline bool Object::isCompiledMethod() { return Format::isCompiledMethod(format()); }
+inline bool Object::isCompiledMethod() const { return Format::isCompiledMethod(format()); }
 
-inline bool Object::isFloatObject() { return fetchClass() == The_Squeak_Interpreter()->splObj(Special_Indices::ClassFloat); }
+inline bool Object::isFloatObject() const { return fetchClass() == The_Squeak_Interpreter()->splObj(Special_Indices::ClassFloat); }
 
 
-inline oop_int_t Object::primitiveIndex() {
+inline oop_int_t Object::primitiveIndex() const {
 	// "Note: We now have 10 bits of primitive index, but they are in two places
 	// for temporary backward compatibility.  The time to unpack is negligible,
 	// since the reconstituted full index is stored in the method cache."
   return primitiveIndex_of_header(methodHeader());
 }
 
-inline oop_int_t Object::literalCount() {  return Object::literalCountOfHeader(methodHeader()); }
+inline oop_int_t Object::literalCount() const {  return Object::literalCountOfHeader(methodHeader()); }
 inline oop_int_t Object::literalCountOfHeader(oop_int_t header) { return (header >> Object_Indices::LiteralCountShift) & Object_Indices::LiteralCountMask; }
 
-inline Oop Object::literal(oop_int_t offset) {
+inline Oop Object::literal(oop_int_t offset) const {
   Oop r = fetchPointer(offset + Object_Indices::LiteralStart);
   if (check_many_assertions) {
     assert_always(r.is_int() || The_Memory_System()->object_table->probably_contains((void*)r.bits()));
@@ -516,7 +516,7 @@ inline bool Object::isUnwindMarked() {
   && fetchPointer(Object_Indices::MethodIndex).as_object()->primitiveIndex() == 198;
 }
 
-inline double Object::fetchFloatAtinto() {
+inline double Object::fetchFloatAtinto() const {
   // assumes arg is BaseHeaderSize, built into long32_at
   int32 r[2];
   r[0] = long32_at(1);
@@ -524,7 +524,7 @@ inline double Object::fetchFloatAtinto() {
   return *((double*)&r);
 }
 
-inline double Object::fetchFloatofObject(oop_int_t fieldIndex) {
+inline double Object::fetchFloatofObject(oop_int_t fieldIndex) const {
   return The_Squeak_Interpreter()->floatValueOf(fetchPointer(fieldIndex).as_object());
 }
 
@@ -566,7 +566,7 @@ inline bool Object::starts_with_string(const char* s) {
 
 
 
-inline oop_int_t Object::byteLength() {
+inline oop_int_t Object::byteLength() const {
   // Return the number of indexable bytes in the given object. This is basically a special copy of lengthOf: for BitBlt.
   oop_int_t sz = sizeBits();
   int fmt = format();

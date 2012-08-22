@@ -33,7 +33,7 @@ inline void oopset_no_store_check(Oop* const dst, Oop src, int n) {
   The_Memory_System()->enforce_coherence_after_store(dst, n << ShiftForWord);
 }
 
-inline Oop Oop::fetchClass() {
+inline Oop Oop::fetchClass() const {
   return is_int() ? The_Squeak_Interpreter()->splObj(Special_Indices::ClassInteger)
   : as_object()->fetchClass();
 }
@@ -50,7 +50,7 @@ inline bool Oop::isContext()      { return is_mem()  &&  as_object()->hasContext
 
 
 
-inline Oop Oop::from_object(Object* p) {
+inline Oop Oop::from_object(const Object* p) {
   if (check_many_assertions)
     assert_message(p != NULL,
                    "used to count on being able to do this, fix these uses");
@@ -60,19 +60,19 @@ inline Oop Oop::from_object(Object* p) {
 
 // TODO: perhaps it should be moved to the point right after getting it out
 //       of the object table...
-inline Object_p Oop::as_object_unchecked() {
+inline Object_p Oop::as_object_unchecked() const {
   return (Object_p)The_Memory_System()->object_for_unchecked(*this);
 }
 
-inline Object* Oop::as_untracked_object_ptr() {
+inline Object* Oop::as_untracked_object_ptr() const {
   return The_Memory_System()->object_for(*this);
 }
 
-inline Object_p Oop::as_object() {
+inline Object_p Oop::as_object() const {
   return (Object_p)The_Memory_System()->object_for(*this);
 }
 
-inline Object_p Oop::as_object_if_mem() {
+inline Object_p Oop::as_object_if_mem() const {
   return is_mem() ? as_object() : (Object_p)NULL;
 }
 
@@ -81,7 +81,7 @@ inline Object_p Oop::as_object_if_mem() {
 inline Oop Oop::from_mem_bits(u_oop_int_t mem_bits) { return Oop((mem_bits << Header_Type::Width) | Mem_Tag); }
 inline oop_int_t Oop::mem_bits() const { return u_oop_int_t(bits()) >> Header_Type::Width; }
 
-inline oop_int_t Oop::checkedIntegerValue() {
+inline oop_int_t Oop::checkedIntegerValue() const {
   return is_int() ? integerValue() : (The_Squeak_Interpreter()->primitiveFail(), 0);
 }
 

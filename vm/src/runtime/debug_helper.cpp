@@ -37,12 +37,7 @@ void dpf_top() {
 }
 void dpf_n(int offset) {
   Squeak_Interpreter* const interp = The_Squeak_Interpreter();
-  if (interp->is_internal_valid()) {
-    dpf(interp->internalStackValue(offset));
-  }
-  else if (interp->is_external_valid()) {
-    dpf(interp->stackValue(offset));
-  }
+  dpf(interp->stackValue(offset));
 }
 
 
