@@ -991,7 +991,17 @@ public:
   Oop  find_and_move_to_end_highest_priority_non_running_process();
   int count_processes_in_scheduler();
 
-  void newActiveContext(Oop aContext, Object_p aContext_obj);
+  void newActiveContext(Oop aContext, Object_p aContext_obj) {
+    assert(aContext_obj->as_oop() == aContext);
+    // internalNewActiveContext must stay consistent with this
+    if (process_is_scheduled_and_executing())
+      storeContextRegisters(activeContext_obj());
+    aContext.beRootIfOld();
+    assert(aContext != roots.nilObj); // looking for bug with nil ctx, nonnil proc
+    set_activeContext( aContext, aContext_obj );
+    fetchContextRegisters(aContext, aContext_obj);
+  }
+  
   void commonReturn(Oop localReturnContext, Oop localReturnValue);
 
 # if Include_Closure_Support

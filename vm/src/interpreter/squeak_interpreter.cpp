@@ -2590,18 +2590,6 @@ void Squeak_Interpreter::start_running(Oop newProc, const char* why) {
 }
 
 
-void Squeak_Interpreter::newActiveContext(Oop aContext, Object_p aContext_obj) {
-  assert(aContext_obj->as_oop() == aContext);
-  // internalNewActiveContext must stay consistent with this
-  if (process_is_scheduled_and_executing())
-    storeContextRegisters(activeContext_obj());
-  aContext.beRootIfOld();
-  assert(aContext != roots.nilObj); // looking for bug with nil ctx, nonnil proc
-  set_activeContext( aContext, aContext_obj );
-  fetchContextRegisters(aContext, aContext_obj);
-}
-
-
 void Squeak_Interpreter::commonReturn(Oop localCntx, Oop localVal) {
   Oop nilOop = roots.nilObj;
   assert(localCntx.is_mem());
