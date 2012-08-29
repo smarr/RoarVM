@@ -317,7 +317,7 @@ void Squeak_Interpreter::bytecodePrimMultiply() {
     oop_int_t ri = rcvr.integerValue();
     oop_int_t ai = arg.integerValue();
     long long result_with_overflow = (long long)ri * ai;
-    if (ai == 0  || Oop::isIntegerValue(result_with_overflow)) {
+    if (Oop::isIntegerValue(result_with_overflow)) {
       popThenPush(2, Oop::from_int(result_with_overflow));
       fetchNextBytecode();
       return;

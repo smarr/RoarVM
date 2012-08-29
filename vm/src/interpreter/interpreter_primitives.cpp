@@ -1405,12 +1405,14 @@ void Squeak_Interpreter::primitiveMousePoint() {
   push(Object::makePoint( pw >> 16,  (int32)(int16)(pw & 0xffff))->as_oop());
 }
 void Squeak_Interpreter::primitiveMultiply() {
-  oop_int_t ir = stackIntegerValue(1);
-  oop_int_t ia = stackIntegerValue(0);
+  oop_int_t intRcvr = stackIntegerValue(1);
+  oop_int_t intArg = stackIntegerValue(0);
   if (!successFlag) return;
-  oop_int_t r = ir * ia;
-  if (ia == 0  ||  ir / ia == r)
-    pop2AndPushIntegerIfOK(r);
+  
+  long long result_with_overflow = (long long)intRcvr * intArg;
+  
+  if (Oop::isIntegerValue(result_with_overflow))
+    pop2AndPushIntegerIfOK(result_with_overflow);
   else
     primitiveFail();
 }
