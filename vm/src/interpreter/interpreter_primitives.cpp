@@ -1658,23 +1658,17 @@ void Squeak_Interpreter::primitivePerform() {
 
 
 void Squeak_Interpreter::primitivePerformInSuperclass() {
-  untested();
   Oop lookupClass = stackTop();
-  Oop rcvr = stackValue(get_argumentCount());
-  Object_p cco;
+  Oop rcvr = stackValue(3);
 
-  for (Oop currentClass = rcvr.fetchClass();
-        currentClass != roots.nilObj;
-        currentClass  = cco->superclass()) {
-    if (currentClass == lookupClass) {
-      popStack();
-      primitivePerformAt(lookupClass);
-      if (!successFlag)  push(lookupClass);
-      return;
-    }
-    cco = currentClass.as_object();
+  if (rcvr.isKindOf(lookupClass)) {
+    popStack();
+    primitivePerformAt(lookupClass);
+    if (!successFlag)
+      push(lookupClass);
   }
-  primitiveFail();
+  else
+    primitiveFail();  
 }
 
 
