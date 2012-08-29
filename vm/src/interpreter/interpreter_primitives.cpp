@@ -378,7 +378,6 @@ void Squeak_Interpreter::primitiveConstantFill() {
 }
 
 void Squeak_Interpreter::primitiveCopyObject() {
-  untested();
   /*
    "Primitive. Copy the state of the receiver from the argument.
    Fail if receiver and argument are of a different class.
