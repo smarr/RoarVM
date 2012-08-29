@@ -2347,7 +2347,7 @@ void Squeak_Interpreter::primitiveClosureValue() {
   if (!closureMethod_obj->isCompiledMethod()) { primitiveFail(); return; }
   
   activateNewClosureMethod(blockClosure_obj, (Object_p)NULL);
-  if (doing_primitiveClosureValueNoContextSwitch)
+  if (!doing_primitiveClosureValueNoContextSwitch)
     quickCheckForInterrupts();
 }
 
