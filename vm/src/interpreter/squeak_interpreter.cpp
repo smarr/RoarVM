@@ -66,6 +66,8 @@ Squeak_Interpreter::Squeak_Interpreter()
   doing_primitiveClosureValueNoContextSwitch = false;
   
   suppress_context_switch_for_debugging = false;
+  
+  build_dispatch_table();
 }
 
 
@@ -382,127 +384,155 @@ void Squeak_Interpreter::update_times_when_asking() {
 }
 
 
-
 void Squeak_Interpreter::dispatch(u_char currentByte) {
   if (Check_Prefetch)  have_executed_currentBytecode = true;
-  switch (currentByte) {
-  case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
-  case 10: case 11: case 12: case 13: case 14: case 15:
-    pushReceiverVariableBytecode(); break;
-  case 16: case 17: case 18: case 19:
-  case 20: case 21: case 22: case 23: case 24: case 25: case 26: case 27: case 28: case 29:
-  case 30: case 31:
-    pushTemporaryVariableBytecode(); break;
-  case 32: case 33: case 34: case 35: case 36: case 37: case 38: case 39:
-  case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47: case 48: case 49:
-  case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57: case 58: case 59:
-  case 60: case 61: case 62: case 63:
-    pushLiteralConstantBytecode(); break;
-  case 64: case 65: case 66: case 67: case 68: case 69:
-  case 70: case 71: case 72: case 73: case 74: case 75: case 76: case 77: case 78: case 79:
-  case 80: case 81: case 82: case 83: case 84: case 85: case 86: case 87: case 88: case 89:
-  case 90: case 91: case 92: case 93: case 94: case 95:
-    pushLiteralVariableBytecode(); break;
-  case 96: case 97: case 98: case 99:
-  case 100: case 101: case 102: case 103:
-    storeAndPopReceiverVariableBytecode(); break;
-  case 104: case 105: case 106: case 107: case 108: case 109:
-  case 110: case 111:
-    storeAndPopTemporaryVariableBytecode(); break;
-  case 112: pushReceiverBytecode(); break;
-  case 113: pushConstantTrueBytecode(); break;
-  case 114: pushConstantFalseBytecode(); break;
-  case 115: pushConstantNilBytecode(); break;
-  case 116: pushConstantMinusOneBytecode(); break;
-  case 117: pushConstantZeroBytecode(); break;
-  case 118: pushConstantOneBytecode(); break;
-  case 119: pushConstantTwoBytecode(); break;
-  case 120: returnReceiver(); break;
-  case 121: returnTrue(); break;
-  case 122: returnFalse(); break;
-  case 123: returnNil(); break;
-  case 124: returnTopFromMethod(); break;
-  case 125: returnTopFromBlock(); break;
-  case 126: unknownBytecode(); break;
-  case 127: unknownBytecode(); break;
-  case 128: extendedPushBytecode(); break;
-  case 129: extendedStoreBytecode(); break;
-  case 130: extendedStoreAndPopBytecode(); break;
-  case 131: singleExtendedSendBytecode(); break;
-  case 132: doubleExtendedDoAnythingBytecode(); break;
-  case 133: singleExtendedSuperBytecode(); break;
-  case 134: secondExtendedSendBytecode(); break;
-  case 135: popStackBytecode(); break;
-  case 136: duplicateTopBytecode(); break;
-  case 137: pushActiveContextBytecode(); break;
+
+  DISPATCH_BYTECODE(dispatch_table[currentByte]);
+}
+
+void Squeak_Interpreter::build_dispatch_table() {
+  for (size_t i = 0; i < 256; i++) {
+    switch (i) {
+      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
+      case 10: case 11: case 12: case 13: case 14: case 15:
+        dispatch_table[i] = &Squeak_Interpreter::pushReceiverVariableBytecode;
+        break;
+        
+      case 16: case 17: case 18: case 19:
+      case 20: case 21: case 22: case 23: case 24: case 25: case 26: case 27: case 28: case 29:
+      case 30: case 31:
+        dispatch_table[i] = &Squeak_Interpreter::pushTemporaryVariableBytecode;
+        break;
+        
+      case 32: case 33: case 34: case 35: case 36: case 37: case 38: case 39:
+      case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47: case 48: case 49:
+      case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57: case 58: case 59:
+      case 60: case 61: case 62: case 63:
+        dispatch_table[i] = &Squeak_Interpreter::pushLiteralConstantBytecode;
+        break;
       
-# if Include_Closure_Support
-    case 138: pushNewArrayBytecode(); break;
-    case 139: unknownBytecode(); break;
-    case 140: pushRemoteTempLongBytecode(); break;
-    case 141: storeRemoteTempLongBytecode(); break;
-    case 142: storeAndPopRemoteTempLongBytecode(); break;
-    case 143: pushClosureCopyCopiedValuesBytecode(); break;
-# else
-  case 138: case 139: case 140: case 141: case 142: case 143:
-    experimentalBytecode(); break;
-# endif
-      
-  case 144: case 145: case 146: case 147: case 148: case 149:
-  case 150: case 151:
-    shortUnconditionalJump(); break;
-  case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159:
-    shortConditionalJump(); break;
-  case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167:
-    longUnconditionalJump(); break;
-  case 168: case 169: case 170: case 171:
-    longJumpIfTrue(); break;
-  case 172: case 173: case 174: case 175:
-    longJumpIfFalse(); break;
+      case 64: case 65: case 66: case 67: case 68: case 69:
+      case 70: case 71: case 72: case 73: case 74: case 75: case 76: case 77: case 78: case 79:
+      case 80: case 81: case 82: case 83: case 84: case 85: case 86: case 87: case 88: case 89:
+      case 90: case 91: case 92: case 93: case 94: case 95:
+        dispatch_table[i] = &Squeak_Interpreter::pushLiteralVariableBytecode;
+        break;
+        
+      case 96: case 97: case 98: case 99:
+      case 100: case 101: case 102: case 103:
+        dispatch_table[i] = &Squeak_Interpreter::storeAndPopReceiverVariableBytecode;
+        break;
+        
+      case 104: case 105: case 106: case 107: case 108: case 109:
+      case 110: case 111:
+        dispatch_table[i] = &Squeak_Interpreter::storeAndPopTemporaryVariableBytecode;
+        break;
+        
+      case 112: dispatch_table[i] = &Squeak_Interpreter::pushReceiverBytecode; break;
+      case 113: dispatch_table[i] = &Squeak_Interpreter::pushConstantTrueBytecode; break;
+      case 114: dispatch_table[i] = &Squeak_Interpreter::pushConstantFalseBytecode; break;
+      case 115: dispatch_table[i] = &Squeak_Interpreter::pushConstantNilBytecode; break;
+      case 116: dispatch_table[i] = &Squeak_Interpreter::pushConstantMinusOneBytecode; break;
+      case 117: dispatch_table[i] = &Squeak_Interpreter::pushConstantZeroBytecode; break;
+      case 118: dispatch_table[i] = &Squeak_Interpreter::pushConstantOneBytecode; break;
+      case 119: dispatch_table[i] = &Squeak_Interpreter::pushConstantTwoBytecode; break;
+      case 120: dispatch_table[i] = &Squeak_Interpreter::returnReceiver; break;
+      case 121: dispatch_table[i] = &Squeak_Interpreter::returnTrue; break;
+      case 122: dispatch_table[i] = &Squeak_Interpreter::returnFalse; break;
+      case 123: dispatch_table[i] = &Squeak_Interpreter::returnNil; break;
+      case 124: dispatch_table[i] = &Squeak_Interpreter::returnTopFromMethod; break;
+      case 125: dispatch_table[i] = &Squeak_Interpreter::returnTopFromBlock; break;
+      case 126: dispatch_table[i] = &Squeak_Interpreter::unknownBytecode; break;
+      case 127: dispatch_table[i] = &Squeak_Interpreter::unknownBytecode; break;
+      case 128: dispatch_table[i] = &Squeak_Interpreter::extendedPushBytecode; break;
+      case 129: dispatch_table[i] = &Squeak_Interpreter::extendedStoreBytecode; break;
+      case 130: dispatch_table[i] = &Squeak_Interpreter::extendedStoreAndPopBytecode; break;
+      case 131: dispatch_table[i] = &Squeak_Interpreter::singleExtendedSendBytecode; break;
+      case 132: dispatch_table[i] = &Squeak_Interpreter::doubleExtendedDoAnythingBytecode; break;
+      case 133: dispatch_table[i] = &Squeak_Interpreter::singleExtendedSuperBytecode; break;
+      case 134: dispatch_table[i] = &Squeak_Interpreter::secondExtendedSendBytecode; break;
+      case 135: dispatch_table[i] = &Squeak_Interpreter::popStackBytecode; break;
+      case 136: dispatch_table[i] = &Squeak_Interpreter::duplicateTopBytecode; break;
+      case 137: dispatch_table[i] = &Squeak_Interpreter::pushActiveContextBytecode; break;
+          
+    # if Include_Closure_Support
+        case 138: dispatch_table[i] = &Squeak_Interpreter::pushNewArrayBytecode; break;
+        case 139: dispatch_table[i] = &Squeak_Interpreter::unknownBytecode; break;
+        case 140: dispatch_table[i] = &Squeak_Interpreter::pushRemoteTempLongBytecode; break;
+        case 141: dispatch_table[i] = &Squeak_Interpreter::storeRemoteTempLongBytecode; break;
+        case 142: dispatch_table[i] = &Squeak_Interpreter::storeAndPopRemoteTempLongBytecode; break;
+        case 143: dispatch_table[i] = &Squeak_Interpreter::pushClosureCopyCopiedValuesBytecode; break;
+    # else
+      case 138: case 139: case 140: case 141: case 142: case 143:
+        dispatch_table[i] = &Squeak_Interpreter::experimentalBytecode; break;
+    # endif
+          
+      case 144: case 145: case 146: case 147: case 148: case 149:
+      case 150: case 151:
+        dispatch_table[i] = &Squeak_Interpreter::shortUnconditionalJump;
+        break;
+        
+      case 152: case 153: case 154: case 155: case 156: case 157: case 158: case 159:
+        dispatch_table[i] = &Squeak_Interpreter::shortConditionalJump;
+        break;
+        
+      case 160: case 161: case 162: case 163: case 164: case 165: case 166: case 167:
+        dispatch_table[i] = &Squeak_Interpreter::longUnconditionalJump;
+        break;
+        
+      case 168: case 169: case 170: case 171:
+        dispatch_table[i] = &Squeak_Interpreter::longJumpIfTrue;
+        break;
+        
+      case 172: case 173: case 174: case 175:
+        dispatch_table[i] = &Squeak_Interpreter::longJumpIfFalse;
+        break;
 
-  // sendArithmeticSelector
-  case 176: bytecodePrimAdd(); break;
-  case 177: bytecodePrimSubtract(); break;
-  case 178: bytecodePrimLessThan(); break;
-  case 179: bytecodePrimGreaterThan(); break;
-  case 180: bytecodePrimLessOrEqual(); break;
-  case 181: bytecodePrimGreaterOrEqual(); break;
-  case 182: bytecodePrimEqual(); break;
-  case 183: bytecodePrimNotEqual(); break;
-  case 184: bytecodePrimMultiply(); break;
-  case 185: bytecodePrimDivide(); break;
-  case 186: bytecodePrimMod(); break;
-  case 187: bytecodePrimMakePoint(); break;
-  case 188: bytecodePrimBitShift(); break;
-  case 189: bytecodePrimDiv(); break;
-  case 190: bytecodePrimBitAnd(); break;
-  case 191: bytecodePrimBitOr(); break;
+      // sendArithmeticSelector
+      case 176: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimAdd; break;
+      case 177: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimSubtract; break;
+      case 178: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimLessThan; break;
+      case 179: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimGreaterThan; break;
+      case 180: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimLessOrEqual; break;
+      case 181: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimGreaterOrEqual; break;
+      case 182: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimEqual; break;
+      case 183: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimNotEqual; break;
+      case 184: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimMultiply; break;
+      case 185: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimDivide; break;
+      case 186: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimMod; break;
+      case 187: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimMakePoint; break;
+      case 188: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimBitShift; break;
+      case 189: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimDiv; break;
+      case 190: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimBitAnd; break;
+      case 191: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimBitOr; break;
 
-  // sendCommonSelector
-  case 192: bytecodePrimAt(); break;
-  case 193: bytecodePrimAtPut(); break;
-  case 194: bytecodePrimSize(); break;
-  case 195: bytecodePrimNext(); break;
-  case 196: bytecodePrimNextPut(); break;
-  case 197: bytecodePrimAtEnd(); break;
-  case 198: bytecodePrimEquivalent(); break;
-  case 199: bytecodePrimClass(); break;
-  case 200: bytecodePrimBlockCopy(); break;
-  case 201: bytecodePrimValue(); break;
-  case 202: bytecodePrimValueWithArg(); break;
-  case 203: bytecodePrimDo(); break;
-  case 204: bytecodePrimNew(); break;
-  case 205: bytecodePrimNewWithArg(); break;
-  case 206: bytecodePrimPointX(); break;
-  case 207: bytecodePrimPointY(); break;
+      // sendCommonSelector
+      case 192: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimAt; break;
+      case 193: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimAtPut; break;
+      case 194: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimSize; break;
+      case 195: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimNext; break;
+      case 196: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimNextPut; break;
+      case 197: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimAtEnd; break;
+      case 198: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimEquivalent; break;
+      case 199: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimClass; break;
+      case 200: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimBlockCopy; break;
+      case 201: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimValue; break;
+      case 202: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimValueWithArg; break;
+      case 203: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimDo; break;
+      case 204: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimNew; break;
+      case 205: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimNewWithArg; break;
+      case 206: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimPointX; break;
+      case 207: dispatch_table[i] = &Squeak_Interpreter::bytecodePrimPointY; break;
 
-  case 208: case 209:
-  case 210: case 211: case 212: case 213: case 214: case 215: case 216: case 217: case 218: case 219:
-  case 220: case 221: case 222: case 223: case 224: case 225: case 226: case 227: case 228: case 229:
-  case 230: case 231: case 232: case 233: case 234: case 235: case 236: case 237: case 238: case 239:
-  case 240: case 241: case 242: case 243: case 244: case 245: case 246: case 247: case 248: case 249:
-  case 250: case 251: case 252: case 253: case 254: case 255:
-    sendLiteralSelectorBytecode(); break;
+      case 208: case 209:
+      case 210: case 211: case 212: case 213: case 214: case 215: case 216: case 217: case 218: case 219:
+      case 220: case 221: case 222: case 223: case 224: case 225: case 226: case 227: case 228: case 229:
+      case 230: case 231: case 232: case 233: case 234: case 235: case 236: case 237: case 238: case 239:
+      case 240: case 241: case 242: case 243: case 244: case 245: case 246: case 247: case 248: case 249:
+      case 250: case 251: case 252: case 253: case 254: case 255:
+        dispatch_table[i] = &Squeak_Interpreter::sendLiteralSelectorBytecode;
+        break;
+    }
   }
 }
 
