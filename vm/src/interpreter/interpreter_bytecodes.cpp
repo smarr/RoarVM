@@ -109,7 +109,7 @@ void Squeak_Interpreter::extendedPushBytecode() {
   fetchNextBytecode();
   int i = descriptor & 0x3f;
   switch ((descriptor >> 6) & 3) {
-    case 0: pushReceiverVariable(i); break;
+    case 0: pushReceiverVariable(i);  break;
     case 1: pushTemporaryVariable(i); break;
     case 2: pushLiteralConstant(i); break;
     case 3: pushLiteralVariable(i); break;
@@ -758,7 +758,7 @@ void Squeak_Interpreter::sendLiteralSelectorBytecode() {
     OS_Interface::abort();
   }
   assert(roots.messageSelector.is_mem());
-	set_argumentCount( ((currentBytecode >> 4) & 3) - 1 );
+  set_argumentCount( ((currentBytecode >> 4) & 3) - 1 );
   normalSend();
 }
 
