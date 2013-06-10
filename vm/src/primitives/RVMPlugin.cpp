@@ -702,7 +702,7 @@ static int primitiveMicrosecondClock() {
   return 0;
 }
 
-# if On_Apple
+# if On_iOS
 # include <mach/mach_time.h>
 # endif
 
@@ -716,7 +716,7 @@ static int primitiveCycleCounter() {
 
   // burrow down below OS_Interface level to avoid effect of Count_Cycles flag
   
-# if On_Apple
+# if On_iOS
   // Source: https://developer.apple.com/library/mac/#qa/qa1398/_index.html
   uint64_t absolute_time = mach_absolute_time();
   
