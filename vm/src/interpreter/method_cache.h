@@ -43,7 +43,7 @@ class Method_Cache {
     fn_t primFunction;
     bool do_primitive_on_main;
 
-    bool matches(Oop s, Oop k) {return s == selector  &&  k == klass  ?  this  : NULL; }
+    bool matches(Oop s, Oop k) {return s == selector  &&  k == klass;}
 
     bool is_empty() { return selector.bits() == 0; }
     void be_empty() { selector = Oop::from_bits(0); }
