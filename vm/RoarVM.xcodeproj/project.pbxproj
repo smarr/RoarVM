@@ -1257,7 +1257,7 @@
 		0A278285128DBE2700336BDE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0460;
 			};
 			buildConfigurationList = 0A278288128DBE2700336BDE /* Build configuration list for PBXProject "RoarVM" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1494,7 +1494,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				VALID_ARCHS = i386;
 			};
 			name = Debug;
 		};
@@ -1502,7 +1502,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				VALID_ARCHS = i386;
 			};
 			name = Release;
 		};
@@ -1539,6 +1539,7 @@
 					src/from_squeak/iOS/vm/src/vm,
 					src/from_squeak/iOS/vm/iPhone,
 					src/from_squeak/unix/vm,
+					/opt/X11/include,
 				);
 				INSTALL_PATH = /usr/local/bin;
 				LD_NO_PIE = YES;
@@ -1550,7 +1551,7 @@
 					"-lXext",
 				);
 				PRODUCT_NAME = RoarVM;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
 			};
@@ -1586,6 +1587,7 @@
 					src/from_squeak/iOS/vm/src/vm,
 					src/from_squeak/iOS/vm/iPhone,
 					src/from_squeak/unix/vm,
+					/opt/X11/include,
 				);
 				INSTALL_PATH = /usr/local/bin;
 				LD_NO_PIE = YES;
@@ -1597,7 +1599,7 @@
 					"-lXext",
 				);
 				PRODUCT_NAME = RoarVM;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = i386;
 			};
@@ -1672,6 +1674,7 @@
 		0AC76D9312EC5FCD00C86B11 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -1682,6 +1685,7 @@
 		0AC76D9412EC5FCD00C86B11 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				PRODUCT_NAME = make;

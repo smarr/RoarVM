@@ -136,12 +136,17 @@ then
         LDFLAGS="$LDFLAGS -lX11 -lXext -framework CoreFoundation -lGL -framework CoreServices -framework IOKit -Wl,-no_pie"
         X11_PATH="/Developer/SDKs/MacOSX10.6.sdk/usr/X11R6/lib"
         Xext_PATH="/Developer/SDKs/MacOSX10.6.sdk/usr/X11R6/lib"
-		if [ -z "$CXX" ]
-		then
-        	CC=gcc
-        	CXX=g++
-		fi
-        CONFIG_FLAGS="$CONFIG_FLAGS -I/Developer/SDKs/MacOSX10.6.sdk/usr/X11/include/"
+        if [ ! -e $X11_PATH ]
+        then
+            X11_PATH="/opt/X11/lib"
+            Xext_PATH=$X11_PATH
+        fi
+        if [ -z "$CXX" ]
+        then
+            CC=gcc
+            CXX=g++
+        fi
+        CONFIG_FLAGS="$CONFIG_FLAGS -I/Developer/SDKs/MacOSX10.6.sdk/usr/X11/include/ -I/opt/X11/include/"
 
 		# for OSX it might be necessary to use a -D__INTEL_COMPILER
 		# Usually some stuff needing CFBundle.h will not compiler otherwise
